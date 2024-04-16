@@ -1,6 +1,6 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
-    id "me.modmuss50.mod-publish-plugin" version "0.3.0"
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.modPublish)
 }
 
 archivesBaseName = getArtifactId("Forge")
@@ -31,23 +31,23 @@ configurations {
 }
 
 dependencies {
-    modCompileOnly(group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2') // for @Nonnull
+    modCompileOnly libs.findbugs.jsr305
 
-    forge "net.minecraftforge:forge:${project.forgeVersion}"
-    modApi "dev.architectury:architectury-forge:${project.architecturyVersion}"
+    forge libs.forge
+    modApi libs.architectury.forge
 
-    modImplementation("at.petra-k.hexcasting:hexcasting-forge-${project.minecraftVersion}:${project.hexcastingVersion}") {
+    modImplementation(libs.hexcasting.forge) {
         transitive = false
     }
 
     // // Hex Casting Dependencies
-    modCompileOnly "at.petra-k.paucal:paucal-forge-${minecraftVersion}:${paucalVersion}"
-    modCompileOnly "vazkii.patchouli:Patchouli:${minecraftVersion}-${patchouliVersion}"
+    modCompileOnly libs.paucal.forge
+    modCompileOnly libs.patchouli.forge
 
-    modRuntimeOnly "at.petra-k.paucal:paucal-forge-${minecraftVersion}:${paucalVersion}"
-    modRuntimeOnly "vazkii.patchouli:Patchouli:${minecraftVersion}-${patchouliVersion}"
+    modRuntimeOnly libs.paucal.forge
+    modRuntimeOnly libs.patchouli.forge
 
-    runtimeOnly "thedarkcolour:kotlinforforge:$project.forgeKotlinVersion"
+    runtimeOnly libs.kotlin.forge
 
     common(project(path: ":Common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":Common", configuration: "transformProductionForge")) { transitive = false }
@@ -116,7 +116,7 @@ publishMods {
     // Uncomment your desired platform(s)
 //    curseforge {
 //        accessToken = project.curseforgeApiToken
-//        projectId = project.curseforgeId
+//        projectId = project.curseforgeID
 //        minecraftVersions.add(minecraftVersion)
 //
 //        requires {
@@ -132,7 +132,7 @@ publishMods {
 //
 //    modrinth {
 //        accessToken = project.modrinthApiToken
-//        projectId = project.modrinthId
+//        projectId = project.modrinthID
 //        minecraftVersions.add("1.19.2")
 //
 //        requires {

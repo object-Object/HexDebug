@@ -1,38 +1,29 @@
 plugins {
-    id "architectury-plugin" version "3.4.+"
-
-    id "dev.architectury.loom" version "1.2.+" apply false
-
-    id "org.jetbrains.kotlin.jvm" version "1.8.0" apply false
-
-    // for template.env api keys
-    id "co.uzzu.dotenv.gradle" version "2.0.0"
+    alias(libs.plugins.kotlin) apply false
+    alias(libs.plugins.architectury)
+    alias(libs.plugins.architectury.loom) apply false
+    alias(libs.plugins.dotenv)
 }
 
 architectury {
-    minecraft = project.minecraftVersion
+    minecraft = libs.versions.minecraft.get()
 }
 
 subprojects {
-    apply plugin: "org.jetbrains.kotlin.jvm"
-    apply plugin: "dev.architectury.loom"
+    apply plugin: libs.plugins.kotlin.get().pluginId
+    apply plugin: libs.plugins.architectury.loom.get().pluginId
 
-    // Uncomment to silence the mojmap license warning
-    // loom {
-    //     silentMojangMappingsLicense()
-    // }
+     loom {
+         silentMojangMappingsLicense()
+     }
 
     dependencies {
-        minecraft "com.mojang:minecraft:${project.minecraftVersion}"
+        minecraft libs.minecraft
 
         mappings loom.officialMojangMappings()
         // Or feel free to use any other mappings you prefer
 
-        annotationProcessor "org.ow2.asm:asm:${project.asmVersion}"
-        annotationProcessor "org.ow2.asm:asm-analysis:${project.asmVersion}"
-        annotationProcessor "org.ow2.asm:asm-commons:${project.asmVersion}"
-        annotationProcessor "org.ow2.asm:asm-tree:${project.asmVersion}"
-        annotationProcessor "org.ow2.asm:asm-util:${project.asmVersion}"
+        annotationProcessor libs.bundles.asm
     }
 
     sourceSets.main.kotlin.srcDirs += 'src/main/java'
@@ -41,8 +32,8 @@ subprojects {
 
 allprojects {
     apply plugin: "java"
-    apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
+    apply plugin: libs.plugins.architectury.asProvider().get().pluginId
 
     // disable most javadoc warnings
     javadoc.options.addStringOption('Xdoclint:none', '-quiet')
@@ -96,13 +87,8 @@ allprojects {
         // Add any other repositories with your cross-platform dependency mods
     }
 
-    tasks.withType(JavaCompile) {
-        options.encoding = "UTF-8"
-        options.release = 17
-    }
-
     java {
-        java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+        java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
         java.withSourcesJar()
         java.withJavadocJar()
     }
@@ -113,13 +99,13 @@ allprojects {
 
     tasks.withType(JavaCompile).configureEach {
         it.options.encoding = 'UTF-8'
-        it.options.release = 17
+        it.options.release = libs.versions.java.get().toInteger()
     }
 
     // Disables Gradle's custom module metadata from being published to maven. The
     // metadata includes mapped dependencies which are not reasonably consumable by
     // other mod developers.
-    tasks.withType(GenerateModuleMetadata) {
+    tasks.withType(GenerateModuleMetadata).configureEach {
         enabled = false
     }
 
@@ -128,13 +114,13 @@ allprojects {
 
         def dependencyVersions = [
             "version": project.version,
-            "architecturyVersion": project.architecturyVersion,
-            "fabricKotlinVersion": project.fabricKotlinVersion,
-            "fabricLoaderVersion": project.fabricLoaderVersion,
-            "forgeDependencyVersion": project.forgeDependencyVersion,
-            "forgeKotlinVersion": project.forgeKotlinVersion,
-            "hexcastingVersion": project.hexcastingVersion,
-            "minecraftVersion": project.minecraftVersion,
+            "architecturyVersion": libs.versions.architectury.asProvider().get(),
+            "fabricKotlinVersion": libs.versions.kotlin.fabric.get(),
+            "fabricLoaderVersion": libs.versions.fabric.loader.get(),
+            "forgeDependencyVersion": libs.versions.forge.dependency.get(),
+            "forgeKotlinVersion": libs.versions.kotlin.forge.get(),
+            "hexcastingVersion": libs.versions.hexcasting.get(),
+            "minecraftVersion": libs.versions.minecraft.get(),
         ]
 
         // for incremental builds

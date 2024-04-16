@@ -1,6 +1,6 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
-    id "me.modmuss50.mod-publish-plugin" version "0.3.0"
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.modPublish)
 }
 
 archivesBaseName = getArtifactId("Fabric")
@@ -23,35 +23,35 @@ configurations {
 }
 
 dependencies {
-    modCompileOnly(group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2') // for @Nonnull
+    modCompileOnly libs.findbugs.jsr305
 
     // Loaders and base APIs
-    modImplementation "net.fabricmc:fabric-loader:${project.fabricLoaderVersion}"
-    modApi "net.fabricmc.fabric-api:fabric-api:${fabricApiVersion}"
-    modImplementation("net.fabricmc:fabric-language-kotlin:${project.fabricKotlinVersion}")
-    modApi("dev.architectury:architectury-fabric:${architecturyVersion}") {
+    modImplementation libs.fabric.loader
+    modApi libs.fabric.api
+    modImplementation libs.kotlin.fabric
+    modApi(libs.architectury.fabric) {
         // Fix for the "two fabric loaders" loading crash
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
 
     // Hex Casting stuff
-    modImplementation("at.petra-k.hexcasting:hexcasting-fabric-${minecraftVersion}:${hexcastingVersion}") {
+    modImplementation(libs.hexcasting.fabric) {
         // If not excluded here, calls a nonexistent method and crashes the dev client
         exclude module: "phosphor"
     }
 
-    modImplementation "at.petra-k.paucal:paucal-fabric-${minecraftVersion}:${paucalVersion}"
-    modImplementation "vazkii.patchouli:Patchouli:${minecraftVersion}-${patchouliVersion}-FABRIC"
+    modImplementation libs.paucal.fabric
+    modImplementation libs.patchouli.fabric
 
-    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-api:${cardinalComponentsVersion}"
+    modImplementation libs.cardinalComponents
 
-    modImplementation "com.jamieswhiteshirt:reach-entity-attributes:${entityReachVersion}"
-    include "com.jamieswhiteshirt:reach-entity-attributes:${entityReachVersion}"
+    modImplementation libs.entityReach
+    include libs.entityReach
 
-    modImplementation "io.github.tropheusj:serialization-hooks:${serializationHooksVersion}"
-    include "io.github.tropheusj:serialization-hooks:${serializationHooksVersion}"
+    modImplementation libs.serializationHooks
+    include libs.serializationHooks
 
-    modImplementation "dev.emi:trinkets:${trinketsVersion}"
+    modImplementation libs.trinkets
 
     common(project(path: ":Common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":Common", configuration: "transformProductionFabric")) { transitive false }
@@ -121,7 +121,7 @@ publishMods {
     // Uncomment your desired platform(s)
 //    curseforge {
 //        accessToken = project.curseforgeApiToken
-//        projectId = project.curseforgeId
+//        projectId = project.curseforgeID
 //        minecraftVersions.add(minecraftVersion)
 //
 //        requires{
@@ -140,7 +140,7 @@ publishMods {
 //
 //    modrinth {
 //        accessToken = project.modrinthApiToken
-//        projectId = project.modrinthId
+//        projectId = project.modrinthID
 //        minecraftVersions.add("1.19.2")
 //
 //        requires{
