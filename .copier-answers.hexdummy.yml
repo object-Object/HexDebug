@@ -1,0 +1,20 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+# https://copier.readthedocs.io/en/stable/configuring/#the-copier-answersyml-file
+_commit: v0.0.8
+_src_path: gh:FallingColors/hexdummy
+author: object-Object
+capitalize_platforms: true
+classname: HexDebug
+default_branch: main
+description: The HexDebug addon for Hex Casting
+display_name: HexDebug
+github_repo: HexDebug
+hexcasting_version: 0.10.3
+homepage_url: https://hexdebug.hexxy.media
+initial_mod_version: 0.1.0
+java_version: 17
+license: MIT
+mappings_name: Mojmap
+modid: hexdebug
+package: ca.objectobject.hexdebug
+sources_url: https://github.com/object-Object/HexDebug

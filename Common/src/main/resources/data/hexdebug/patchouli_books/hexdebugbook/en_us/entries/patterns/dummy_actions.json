@@ -1,0 +1,18 @@
+{
+  "name": "hexdebug.entry.dummy_actions",
+  "category": "hexcasting:patterns",
+  "icon": "minecraft:birch_sign",
+  "sortnum": 0,
+  "advancement": "hexcasting:root",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexdebug:signum",
+      "anchor": "hexdebug:signum",
+      "input": "number",
+      "output": "number",
+      "text": "hexdebug.page.dummy_actions.signum"
+    }
+  ]
+}

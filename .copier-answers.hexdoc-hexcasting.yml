@@ -1,0 +1,27 @@
+# Changes here will be overwritten by Copier. NEVER EDIT MANUALLY
+# See: https://copier.readthedocs.io/en/stable/configuring/#the-copier-answersyml-file
+_commit: v0.1.11
+_src_path: gh:hexdoc-dev/hexdoc-hexcasting-template
+author: object-Object
+book_id: hexdebug:hexdebugbook
+default_branch: main
+github_repo: HexDebug
+gradle_mod_version_key: modVersion
+hexdoc_mod_plugin_classname: HexDebugModPlugin
+hexdoc_plugin_classname: HexDebugPlugin
+java_lang:
+    ext: java
+    src: java
+java_package: ca/objectobject/hexdebug
+mod_display_name: HexDebug
+modid: hexdebug
+multiloader: true
+package_export_root: doc/src/hexdoc_hexdebug/_export
+package_name: hexdoc-hexdebug
+package_slug: hexdoc_hexdebug
+package_src: doc/src/hexdoc_hexdebug
+pages_url: https://object-object.github.io/HexDebug
+pattern_regex:
+    per_world_value: registerPerWorld
+    regex: (?P<is_per_world>register|registerPerWorld)\(HexPattern\.fromAngles\("(?P<signature>[qweasd]+)",\s*HexDir\.(?P<startdir>\w+)\),\s*"(?P<name>[^"]+)"?
+pattern_registry: registry/HexDebugPatternRegistry.java

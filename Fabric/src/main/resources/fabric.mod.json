@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "hexdebug",
+  "version": "${version}",
+  "name": "HexDebug",
+  "description": "The HexDebug addon for Hex Casting",
+  "authors": [
+    "object-Object"
+  ],
+  "contact": {
+    "homepage": "https://hexdebug.hexxy.media",
+    "sources": "https://github.com/object-Object/HexDebug"
+  },
+  "license": "MIT",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "ca.objectobject.hexdebug.fabric.HexDebugFabric"
+    ],
+    "client": [
+      "ca.objectobject.hexdebug.fabric.HexDebugClientFabric"
+    ]
+  },
+  "mixins": [
+    "hexdebug-common.mixins.json",
+    "hexdebug.mixins.json"
+  ],
+  "depends": {
+    "minecraft": ">=${minecraftVersion}",
+    "fabricloader": ">=${fabricLoaderVersion}",
+    "fabric-api": "*",
+    "fabric-language-kotlin": ">=${fabricKotlinVersion}",
+    "architectury": ">=${architecturyVersion}",
+    "hexcasting": ">=${hexcastingVersion}"
+  }
+}
