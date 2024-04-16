@@ -34,7 +34,7 @@ For local testing, create a file called `.env` in the repo root following this t
 ```sh
 GITHUB_REPOSITORY=object-Object/HexDebug
 GITHUB_SHA=main
-GITHUB_PAGES_URL=https://object-object.github.io/HexDebug
+GITHUB_PAGES_URL=https://hexdebug.hexxy.media
 ```
 
 Useful commands:

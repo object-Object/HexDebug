@@ -19,7 +19,7 @@ requires-python = ">=3.11"
 dynamic = ["version", "dependencies", "optional-dependencies"]
 
 [project.urls]
-Homepage = "https://object-object.github.io/HexDebug"
+Homepage = "https://hexdebug.hexxy.media"
 Source = "https://github.com/object-Object/HexDebug"
 
 # Gradle version/deps
@@ -32,12 +32,12 @@ key = "modVersion"
 
 [tool.hatch.metadata.hooks.gradle-properties]
 dependencies = [
-    { package="hexdoc-hexcasting", op="~=", py-version="1.0.dev20", key="hexcastingVersion" },
+    { package="hexdoc-hexcasting", op="~=", py-version="1.0", key="hexcastingVersion" },
 ]
 
 [tool.hatch.metadata.hooks.gradle-properties.optional-dependencies]
 dev = [
-    "ruff~=0.1.4",
+    "ruff~=0.3.7",
 ]
 
 # directory inclusion
@@ -60,7 +60,31 @@ sources = ["doc/src"]
 [project.entry-points.hexdoc]
 hexdebug = "hexdoc_hexdebug._hooks:HexDebugPlugin"
 
-# linting
+# linting/formatting
+
+[tool.ruff]
+extend-exclude = [
+    "venv",
+    "**/.*",
+    "**/node_modules",
+    "**/__pycache__",
+]
+
+[tool.ruff.lint]
+preview = true
+extend-select = [
+    "I", # import sorting
+    "RUF022", # __all__ sorting
+]
+extend-ignore = [
+    # covered by Pyright
+    "F821", # undefined variable
+    "F401", # imported but unused
+    "F841", # unused variable
+]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
 
 [tool.pyright]
 pythonVersion = "3.11"
@@ -68,6 +92,13 @@ pythonPlatform = "All"
 
 include = ["doc/src"]
 extraPaths = ["doc/src"]
+exclude = [
+    "noxfile.py",
+    "**/venv",
+    "**/.*",
+    "**/node_modules",
+    "**/__pycache__",
+]
 
 typeCheckingMode = "basic"
 
