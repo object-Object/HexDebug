@@ -112,15 +112,14 @@ allprojects {
     processResources {
         exclude '.cache'
 
+        // get all required versions from libs.versions.toml
+        def versionCatalog = rootProject.extensions.getByType(VersionCatalogsExtension).named("libs")
         def dependencyVersions = [
-            "version": project.version,
-            "architecturyVersion": libs.versions.architectury.asProvider().get(),
-            "fabricKotlinVersion": libs.versions.kotlin.fabric.get(),
-            "fabricLoaderVersion": libs.versions.fabric.loader.get(),
-            "forgeDependencyVersion": libs.versions.forge.dependency.get(),
-            "forgeKotlinVersion": libs.versions.kotlin.forge.get(),
-            "hexcastingVersion": libs.versions.hexcasting.get(),
-            "minecraftVersion": libs.versions.minecraft.get(),
+            "version": project.modVersion,
+            "versions": versionCatalog.getVersionAliases().collectEntries {
+                // both "." and "-" cause issues with expand :/
+                [it.replace(".", "_"), versionCatalog.findVersion(it).get().requiredVersion]
+            }
         ]
 
         // for incremental builds
@@ -137,7 +136,7 @@ allprojects {
     }
 }
 
-ext.getArtifactId = { platform -> return "$modID-$platform-$minecraftVersion" }
+ext.getArtifactId = { platform -> return "$modID-$platform-${libs.versions.minecraft.get()}" }
 
 ext.getLatestChangelog = {
     Collection<String> lines = file("$rootDir/CHANGELOG.md").readLines()

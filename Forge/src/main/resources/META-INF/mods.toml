@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[${forgeDependencyVersion},)"
+loaderVersion = "[${versions.forge_dependency},)"
 license = "MIT"
 
 [[mods]]
@@ -15,27 +15,27 @@ The HexDebug addon for Hex Casting
 [[dependencies.hexdebug]]
 modId = "forge"
 mandatory = true
-versionRange = "[${forgeDependencyVersion},)"
+versionRange = "[${versions.forge_dependency},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.hexdebug]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[${minecraftVersion},)"
+versionRange = "[${versions.minecraft},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.hexdebug]]
 modId = "architectury"
 mandatory = true
-versionRange = "[${architecturyVersion},)"
+versionRange = "[${versions.architectury},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.hexdebug]]
 modId = "hexcasting"
 mandatory = true
-versionRange = "[${hexcastingVersion},)"
+versionRange = "[${versions.hexcasting},)"
 ordering = "NONE"
 side = "BOTH"

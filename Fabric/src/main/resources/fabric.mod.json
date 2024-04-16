@@ -27,11 +27,11 @@
     "hexdebug.mixins.json"
   ],
   "depends": {
-    "minecraft": ">=${minecraftVersion}",
-    "fabricloader": ">=${fabricLoaderVersion}",
+    "minecraft": ">=${versions.minecraft}",
+    "fabricloader": ">=${versions.fabric_loader}",
     "fabric-api": "*",
-    "fabric-language-kotlin": ">=${fabricKotlinVersion}",
-    "architectury": ">=${architecturyVersion}",
-    "hexcasting": ">=${hexcastingVersion}"
+    "fabric-language-kotlin": ">=${versions.kotlin_fabric}",
+    "architectury": ">=${versions.architectury}",
+    "hexcasting": ">=${versions.hexcasting}"
   }
 }
