@@ -49,6 +49,8 @@ dependencies {
 
     runtimeOnly libs.kotlin.forge
 
+    modApi libs.clothConfig.forge
+
     common(project(path: ":Common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":Common", configuration: "transformProductionForge")) { transitive = false }
 }

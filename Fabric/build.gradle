@@ -22,6 +22,12 @@ configurations {
     developmentFabric.extendsFrom common
 }
 
+repositories {
+    flatDir {
+        dir 'libs'
+    }
+}
+
 dependencies {
     modCompileOnly libs.findbugs.jsr305
 
@@ -45,13 +51,17 @@ dependencies {
 
     modImplementation libs.cardinalComponents
 
-    modImplementation libs.entityReach
-    include libs.entityReach
-
     modImplementation libs.serializationHooks
     include libs.serializationHooks
 
+    implementation(libs.mixinExtras)
+    include(libs.mixinExtras)
+
     modImplementation libs.trinkets
+
+    modApi(libs.clothConfig.fabric) {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
     common(project(path: ":Common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":Common", configuration: "transformProductionFabric")) { transitive false }

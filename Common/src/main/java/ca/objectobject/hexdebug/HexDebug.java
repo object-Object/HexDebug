@@ -1,9 +1,5 @@
 package ca.objectobject.hexdebug;
 
-import ca.objectobject.hexdebug.registry.HexDebugIotaTypeRegistry;
-import ca.objectobject.hexdebug.registry.HexDebugItemRegistry;
-import ca.objectobject.hexdebug.registry.HexDebugPatternRegistry;
-import ca.objectobject.hexdebug.networking.HexDebugNetworking;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,10 +17,6 @@ public class HexDebug {
         LOGGER.info("HexDebug says hello!");
 
         HexDebugAbstractions.initPlatformSpecific();
-        HexDebugItemRegistry.init();
-        HexDebugIotaTypeRegistry.init();
-        HexDebugPatternRegistry.init();
-		HexDebugNetworking.init();
 
         LOGGER.info(HexDebugAbstractions.getConfigDirectory().toAbsolutePath().normalize().toString());
     }

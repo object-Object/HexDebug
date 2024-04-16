@@ -1,32 +1,36 @@
 [versions]
 java = "17" # must be an integer
 
-kotlin = "1.8.21"  # TODO: kotlin 1.9.22 requires 1.20 because of kotlin forge
-kotlin-fabric = "1.9.4+kotlin.1.8.21"
-kotlin-forge = "3.12.0"
+kotlin = "1.9.22"
+kotlin-fabric = "1.10.18+kotlin.1.9.22"
+kotlin-forge = "4.10.0"
 
-minecraft = { strictly="1.19.2" }
+minecraft = { strictly="1.20.1" }
 
 # platforms
-architectury = "6.5.85"
+architectury = "9.2.14"
 architectury-plugin = { require="[3.4, 3.5[" }
-architectury-loom = { require="[1.2, 1.3[" }
+architectury-loom = { require="[1.5, 1.6[" }
 
 fabric-loader = "0.14.21"
-fabric-api = "0.76.0+1.19.2"
+fabric-api = "0.85.0+1.20.1"
 
-forge = "1.19.2-43.2.11"
-forge-dependency = "43.2.11" # for mods.toml
+forge = "1.20.1-47.2.0"
+forge-dependency = "47.2.0" # for mods.toml
 
 # mods
-hexcasting = "0.10.3"
-paucal = "0.5.0"
-patchouli = "1.19.2-77"
-patchouli-fabric = "1.19.2-77-FABRIC" # thanks vazkii
-cardinalComponents = "5.0.2"
-serializationHooks = "0.3.24"
-entityReach = "2.3.0"
-trinkets = "3.4.1"
+hexcasting = "0.11.1-7-pre-634"
+paucal = "0.6.0-pre-118"
+
+patchouli = "1.20.1-84"
+patchouli-fabric = "1.20.1-84-FABRIC" # thanks vazkii
+patchouli-forge = "1.20.1-84-FORGE"
+
+cardinalComponents = "5.2.1"
+serializationHooks = "0.4.99999"
+mixinExtras = "0.1.1"
+trinkets = "3.7.0"
+clothConfig = "11.1.106"
 
 # other non-Minecraft dependencies
 shadow = "7.1.2"
@@ -54,22 +58,25 @@ fabric-api    = { module="net.fabricmc.fabric-api:fabric-api", version.ref="fabr
 
 forge = { module="net.minecraftforge:forge", version.ref="forge" }
 
-hexcasting-common = { module="at.petra-k.hexcasting:hexcasting-common-1.19.2", version.ref="hexcasting" }
-hexcasting-fabric = { module="at.petra-k.hexcasting:hexcasting-fabric-1.19.2", version.ref="hexcasting" }
-hexcasting-forge  = { module="at.petra-k.hexcasting:hexcasting-forge-1.19.2", version.ref="hexcasting" }
+hexcasting-common = { module="at.petra-k.hexcasting:hexcasting-common-1.20.1", version.ref="hexcasting" }
+hexcasting-fabric = { module="at.petra-k.hexcasting:hexcasting-fabric-1.20.1", version.ref="hexcasting" }
+hexcasting-forge  = { module="at.petra-k.hexcasting:hexcasting-forge-1.20.1", version.ref="hexcasting" }
 
-paucal-common = { module="at.petra-k.paucal:paucal-common-1.19.2", version.ref="paucal" }
-paucal-fabric = { module="at.petra-k.paucal:paucal-fabric-1.19.2", version.ref="paucal" }
-paucal-forge  = { module="at.petra-k.paucal:paucal-forge-1.19.2", version.ref="paucal" }
+paucal-common = { module="at.petra-k.paucal:paucal-common-1.20.1", version.ref="paucal" }
+paucal-fabric = { module="at.petra-k.paucal:paucal-fabric-1.20.1", version.ref="paucal" }
+paucal-forge  = { module="at.petra-k.paucal:paucal-forge-1.20.1", version.ref="paucal" }
 
 patchouli-xplat  = { module="vazkii.patchouli:Patchouli-xplat", version.ref="patchouli" }
 patchouli-fabric = { module="vazkii.patchouli:Patchouli", version.ref="patchouli-fabric" }
-patchouli-forge  = { module="vazkii.patchouli:Patchouli", version.ref="patchouli" }
+patchouli-forge  = { module="vazkii.patchouli:Patchouli", version.ref="patchouli-forge" }
 
 cardinalComponents = { module="dev.onyxstudios.cardinal-components-api:cardinal-components-api", version.ref="cardinalComponents" }
-entityReach        = { module="com.jamieswhiteshirt:reach-entity-attributes", version.ref="entityReach" }
 serializationHooks = { module="io.github.tropheusj:serialization-hooks", version.ref="serializationHooks" }
+mixinExtras        = { module="com.github.LlamaLad7:MixinExtras", version.ref="mixinExtras" }
 trinkets           = { module="dev.emi:trinkets", version.ref="trinkets" }
+
+clothConfig-fabric = { module="me.shedaniel.cloth:cloth-config-fabric", version.ref="clothConfig" }
+clothConfig-forge = { module="me.shedaniel.cloth:cloth-config-forge", version.ref="clothConfig" }
 
 findbugs-jsr305 = { module="com.google.code.findbugs:jsr305", version.ref="findbugs-jsr305" }
 
