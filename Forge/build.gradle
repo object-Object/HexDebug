@@ -33,6 +33,9 @@ configurations {
 dependencies {
     modCompileOnly libs.findbugs.jsr305
 
+    modImplementation libs.lsp4j
+    modImplementation libs.lsp4j.debug
+
     forge libs.forge
     modApi libs.architectury.forge
 

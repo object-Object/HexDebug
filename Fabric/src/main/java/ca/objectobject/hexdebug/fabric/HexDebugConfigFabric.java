@@ -13,7 +13,7 @@ import me.shedaniel.autoconfig.serializer.PartitioningSerializer;
 import net.fabricmc.api.EnvType;
 
 @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
-@Config(name = HexDebug.MOD_ID)
+@Config(name = HexDebug.MODID)
 public class HexDebugConfigFabric extends PartitioningSerializer.GlobalData {
     @ConfigEntry.Category("common")
     @ConfigEntry.Gui.TransitiveObject

@@ -1,7 +1,7 @@
 package ca.objectobject.hexdebug.fabric;
 
-import net.fabricmc.api.ModInitializer;
 import ca.objectobject.hexdebug.HexDebug;
+import net.fabricmc.api.ModInitializer;
 
 /**
  * This is your loading entrypoint on fabric(-likes), in case you need to initialize

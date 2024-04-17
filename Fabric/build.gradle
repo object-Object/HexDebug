@@ -31,6 +31,9 @@ repositories {
 dependencies {
     modCompileOnly libs.findbugs.jsr305
 
+    modImplementation libs.lsp4j
+    modImplementation libs.lsp4j.debug
+
     // Loaders and base APIs
     modImplementation libs.fabric.loader
     modApi libs.fabric.api

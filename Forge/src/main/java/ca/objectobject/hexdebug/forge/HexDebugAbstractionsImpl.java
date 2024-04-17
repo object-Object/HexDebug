@@ -1,19 +1,42 @@
 package ca.objectobject.hexdebug.forge;
 
-import ca.objectobject.hexdebug.HexDebugAbstractions;
+import ca.objectobject.hexdebug.IHexDebugAbstractions;
+import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
-public class HexDebugAbstractionsImpl {
-    /**
-     * This is the actual implementation of {@link HexDebugAbstractions#getConfigDirectory()}.
-     */
-    public static Path getConfigDirectory() {
+public class HexDebugAbstractionsImpl implements IHexDebugAbstractions {
+    public static IHexDebugAbstractions get() {
+        return new HexDebugAbstractionsImpl();
+    }
+
+    @Override
+    public Path getConfigDirectory() {
         return FMLPaths.CONFIGDIR.get();
     }
-	
-    public static void initPlatformSpecific() {
+
+    @Override
+    public void initPlatformSpecific() {
         HexDebugConfigForge.init();
+    }
+
+    @Override
+    public void onServerStarted(Consumer<MinecraftServer> callback) {
+        // TODO: is this how you do this???
+        MinecraftForge.EVENT_BUS.addListener((Consumer<ServerStartedEvent>) event -> {
+            callback.accept(event.getServer());
+        });
+    }
+
+    @Override
+    public void onServerStopping(Consumer<MinecraftServer> callback) {
+        MinecraftForge.EVENT_BUS.addListener((Consumer<ServerStoppingEvent>) event -> {
+            callback.accept(event.getServer());
+        });
     }
 }

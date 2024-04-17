@@ -39,6 +39,8 @@ asm = "9.4"
 dotenv = "2.0.0" # for template.env api keys
 modPublish = "0.3.0"
 
+lsp4j = "0.22.0"
+
 [bundles]
 asm = ["asm", "asm-analysis", "asm-commons", "asm-tree", "asm-util"]
 
@@ -50,7 +52,7 @@ kotlin-forge  = { module="thedarkcolour:kotlinforforge", version.ref="kotlin-for
 minecraft = { module="com.mojang:minecraft", version.ref="minecraft" }
 
 architectury        = { module="dev.architectury:architectury", version.ref="architectury" }
-architectury-forge  = { module="dev.architectury:architectury-fabric", version.ref="architectury" }
+architectury-forge  = { module="dev.architectury:architectury-forge", version.ref="architectury" }
 architectury-fabric = { module="dev.architectury:architectury-fabric", version.ref="architectury" }
 
 fabric-loader = { module="net.fabricmc:fabric-loader", version.ref="fabric-loader" }
@@ -85,6 +87,9 @@ asm-analysis = { module="org.ow2.asm:asm-analysis", version.ref="asm" }
 asm-commons  = { module="org.ow2.asm:asm-commons", version.ref="asm" }
 asm-tree     = { module="org.ow2.asm:asm-tree", version.ref="asm" }
 asm-util     = { module="org.ow2.asm:asm-util", version.ref="asm" }
+
+lsp4j = { module="org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref="lsp4j" }
+lsp4j-debug = { module="org.eclipse.lsp4j:org.eclipse.lsp4j.debug", version.ref="lsp4j" }
 
 [plugins]
 kotlin = { id="org.jetbrains.kotlin.jvm", version.ref="kotlin" }

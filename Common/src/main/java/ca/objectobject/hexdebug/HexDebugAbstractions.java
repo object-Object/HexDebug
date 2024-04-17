@@ -3,8 +3,6 @@ package ca.objectobject.hexdebug;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.architectury.platform.Platform;
 
-import java.nio.file.Path;
-
 public class HexDebugAbstractions {
     /**
      * This explanation is mostly from Architectury's template project.
@@ -18,22 +16,17 @@ public class HexDebugAbstractions {
      * <p>
      * Example:
      * <p>
-     * Expect: ca.objectobject.hexdebug.HexDebugAbstractions#getConfigDirectory()
+     * Expect: ca.objectobject.hexdebug.HexDebugAbstractions#get()
      * <p>
-     * Actual Fabric: ca.objectobject.hexdebug.fabric.HexDebugAbstractionsImpl#getConfigDirectory()
+     * Actual Fabric: ca.objectobject.hexdebug.fabric.HexDebugAbstractionsImpl#get()
      * <p>
-     * Actual Forge: ca.objectobject.hexdebug.forge.HexDebugAbstractionsImpl#getConfigDirectory()
+     * Actual Forge: ca.objectobject.hexdebug.forge.HexDebugAbstractionsImpl#get()
      * <p>
      * <a href="https://plugins.jetbrains.com/plugin/16210-architectury">You should also get the IntelliJ plugin to help with @ExpectPlatform.</a>
      */
     @ExpectPlatform
-    public static Path getConfigDirectory() {
+    public static IHexDebugAbstractions get() {
         // Just throw an error, the content should get replaced at runtime.
-        throw new AssertionError();
-    }
-	
-    @ExpectPlatform
-    public static void initPlatformSpecific() {
         throw new AssertionError();
     }
 }

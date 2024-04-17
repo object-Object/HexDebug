@@ -23,6 +23,9 @@ dependencies {
     modCompileOnly libs.paucal.common
     modCompileOnly libs.hexcasting.fabric
     modCompileOnly libs.patchouli.xplat
+
+    modApi libs.lsp4j
+    modApi libs.lsp4j.debug
 }
 
 publishing {
