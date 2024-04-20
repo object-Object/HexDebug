@@ -16,24 +16,31 @@ import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import ca.objectobject.hexdebug.debugger.allocators.SourceAllocator
 import ca.objectobject.hexdebug.debugger.allocators.VariablesAllocator
 import ca.objectobject.hexdebug.server.LaunchArgs
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import org.eclipse.lsp4j.debug.*
 import java.util.*
+import kotlin.math.min
 
 class HexDebugger(
     private val initArgs: InitializeRequestArguments,
     private val launchArgs: LaunchArgs,
     private val vm: CastingVM,
-    iotas: List<Iota>,
     private val world: ServerLevel,
     private val onExecute: ((Iota) -> Unit)? = null,
+    iotas: List<Iota>,
 ) {
     constructor(initArgs: InitializeRequestArguments, launchArgs: LaunchArgs, castArgs: DebugCastArgs)
-        : this(initArgs, launchArgs, castArgs.vm, castArgs.iotas, castArgs.world, castArgs.onExecute)
+        : this(initArgs, launchArgs, castArgs.vm, castArgs.world, castArgs.onExecute, castArgs.iotas)
 
     // Initialize the continuation stack to a single top-level eval for all iotas.
-    private var continuation = Done.pushFrame(FrameEvaluate(SpellList.LList(0, iotas), false))
-    private var callStack = getCallStack(continuation)
+    private var nextContinuation = Done.pushFrame(FrameEvaluate(SpellList.LList(0, iotas), false))
+        set(value) {
+            field = value
+            callStack = getCallStack(value)
+        }
+
+    private var callStack = getCallStack(nextContinuation)
 
     private val variablesAllocator = VariablesAllocator()
     private val sourceAllocator = SourceAllocator()
@@ -82,7 +89,7 @@ class HexDebugger(
             if (nextIota != null) {
                 val metadata = iotaMetadata[nextIota]!!
                 source = metadata.source
-                line = metadata.line
+                line = toClientLineNumber(metadata.line)
             }
         }
     }.asReversed().asSequence()
@@ -219,6 +226,7 @@ class HexDebugger(
 //        val callStackSize = continuations.count()
 //        val lineNumber = currentLineNumber
         while (executeOnce() != null) {
+            if (stopType == StopType.STEP_OVER) return "step" // TODO: fix
 //            if (isAtBreakpoint) return "breakpoint"
 //            val newCallStackSize = continuations.count()
 //            when (stopType) {
@@ -237,10 +245,8 @@ class HexDebugger(
     // Copy of CastingVM.queueExecuteAndWrapIotas to allow stepping by one pattern at a time.
     fun executeOnce(): String? {
         // bind locally so we can do smart casting
-        var continuation = continuation
+        var continuation = nextContinuation
         if (continuation !is NotDone) return null
-
-        val lastContinuation: NotDone = continuation
 
         variablesAllocator.clear()
 
@@ -249,25 +255,41 @@ class HexDebugger(
         var lastResolutionType = ResolvedPatternType.UNRESOLVED
         do {
             // Take the top of the continuation stack...
-            val nextFrame = (continuation as NotDone).frame
+            val frame = (continuation as NotDone).frame
+
+            // ensure all of the iotas to be evaluated are mapped to sources
+            registerNewSource(frame)
+
             // ...and execute it.
             // TODO there used to be error checking code here; I'm pretty sure any and all mishaps should already
             // get caught and folded into CastResult by evaluate.
-            val image2 = nextFrame.evaluate(continuation.next, world, vm)
-            // Then write all pertinent data back to the harness for the next iteration.
-            if (image2.newData != null) {
-                vm.image = image2.newData!!
+            val castResult = frame.evaluate(continuation.next, world, vm)
+            val newImage = castResult.newData
+
+            // handle indentation for generated sources
+            if (castResult.resolutionType == ResolvedPatternType.ESCAPED) {
+                // if the paren count changed, it was either an introspection or a retrospection
+                // in both cases, the pattern that changed the indent level should be at the lower indent level
+                val parenCount = min(vm.image.parenCount, (newImage ?: vm.image).parenCount)
+
+                iotaMetadata[castResult.cast]?.parenCount = parenCount
+                // TODO: invalidate source (only after pushing the list)
             }
-            vm.env.postExecution(image2)
+
+            // Then write all pertinent data back to the harness for the next iteration.
+            if (newImage != null) {
+                vm.image = newImage
+            }
+            vm.env.postExecution(castResult)
 
             if (continuation.frame is FrameEvaluate) {
-                onExecute?.invoke(image2.cast)
+                onExecute?.invoke(castResult.cast)
             }
 
-            continuation = image2.continuation
-            lastResolutionType = image2.resolutionType
+            continuation = castResult.continuation
+            lastResolutionType = castResult.resolutionType
             try {
-                vm.performSideEffects(info, image2.sideEffects)
+                vm.performSideEffects(info, castResult.sideEffects)
             } catch (e: Exception) {
                 e.printStackTrace()
                 vm.performSideEffects(info, listOf(OperatorSideEffect.DoMishap(MishapInternalException(e), Mishap.Context(null, null))))
@@ -283,16 +305,19 @@ class HexDebugger(
             && continuation.frame !is FrameEvaluate
         )
 
-        if (continuation is NotDone) {
-            lastResolutionType = if (lastResolutionType.success) {
-                ResolvedPatternType.EVALUATED
-            } else {
-                ResolvedPatternType.ERRORED
-            }
-        }
+        nextContinuation = continuation
 
-        this.continuation = continuation
-        return "step"
+        return when (continuation) {
+            is NotDone -> {
+                lastResolutionType = if (lastResolutionType.success) {
+                    ResolvedPatternType.EVALUATED
+                } else {
+                    ResolvedPatternType.ERRORED
+                }
+                "step"
+            }
+            is Done -> null
+        }
     }
 
     private fun iotaToString(iota: Iota, isSource: Boolean): String = when (iota) {
@@ -303,14 +328,14 @@ class HexDebugger(
                 is PatternShapeMatch.PerWorld -> getActionI18n(lookup.key, true)
                 is PatternShapeMatch.Special -> lookup.handler.name
                 is PatternShapeMatch.Nothing -> when (iota.pattern) {
-                    SpecialPatterns.INTROSPECTION -> getRawHookI18n(HexAPI.modLoc("open_paren"))
-                    SpecialPatterns.RETROSPECTION -> getRawHookI18n(HexAPI.modLoc("close_paren"))
+                    SpecialPatterns.INTROSPECTION -> Component.literal("{")
+                    SpecialPatterns.RETROSPECTION -> Component.literal("}")
                     SpecialPatterns.CONSIDERATION -> getRawHookI18n(HexAPI.modLoc("escape"))
                     SpecialPatterns.EVANITION -> getRawHookI18n(HexAPI.modLoc("undo"))
                     else -> iota.display()
                 }
-            }.string
-        }
+            }
+        }.string
 
         else -> {
             val result = when (iota) {

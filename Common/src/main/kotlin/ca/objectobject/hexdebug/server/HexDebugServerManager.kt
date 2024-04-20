@@ -13,6 +13,7 @@ object HexDebugServerManager {
     var queuedCast: DebugCastArgs? = null
 
     private var activeThread: Thread? = null
+    private var serverSocket: ServerSocket? = null
     private var stop: Boolean = false
 
     private val port get() = 4444 // TODO: config
@@ -24,11 +25,11 @@ object HexDebugServerManager {
         }
 
         activeThread = thread(name="HexDebugServer_$port") {
-            val serverSocket = ServerSocket(port)
+            serverSocket = ServerSocket(port)
 
             while (!stop) {
-                HexDebug.LOGGER.info("Listening on port ${serverSocket.localPort}...")
-                val clientSocket = serverSocket.accept()
+                HexDebug.LOGGER.info("Listening on port ${serverSocket?.localPort}...")
+                val clientSocket = serverSocket?.accept() ?: break
                 HexDebug.LOGGER.info("Client connected!")
 
                 try {
@@ -42,7 +43,7 @@ object HexDebugServerManager {
                 }
             }
 
-            serverSocket.close()
+            serverSocket?.close()
         }
     }
 
@@ -50,6 +51,7 @@ object HexDebugServerManager {
         stop = true
         HexDebug.LOGGER.info("Stopping server manager")
         server?.stop()
+        serverSocket?.close()
         activeThread?.join()
         server = null
         stop = false

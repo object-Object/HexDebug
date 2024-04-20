@@ -96,16 +96,16 @@ class HexDebugServer(
     fun startDebugging(cast: DebugCastArgs) = when (state) {
         HexDebugServerState.NOT_READY -> {
             queuedCast = cast
-            (cast.vm.env.castingEntity as? ServerPlayer)?.sendSystemMessage(
-                Component.translatable("text.hexdebug.no_client"), false
+            (cast.vm.env.castingEntity as? ServerPlayer)?.displayClientMessage(
+                Component.translatable("text.hexdebug.no_client"), true
             )
             true
         }
         HexDebugServerState.READY -> {
             state = HexDebugServerState.DEBUGGING
             debugger = HexDebugger(initArgs, launchArgs, cast)
-            (cast.vm.env.castingEntity as? ServerPlayer)?.sendSystemMessage(
-                Component.translatable("text.hexdebug.connected"), false
+            (cast.vm.env.castingEntity as? ServerPlayer)?.displayClientMessage(
+                Component.translatable("text.hexdebug.connected"), true
             )
             remoteProxy.initialized()
             true

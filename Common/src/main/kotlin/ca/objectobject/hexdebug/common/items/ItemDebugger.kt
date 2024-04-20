@@ -64,7 +64,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         val debugServer = HexDebugServerManager.server
         if (debugServer == null) {
             HexDebugServerManager.queuedCast = castArgs
-            player.sendSystemMessage(Component.translatable("text.hexdebug.no_client"), false)
+            player.displayClientMessage(Component.translatable("text.hexdebug.no_client"), true)
         } else when (debugServer.state) {
             HexDebugServerState.NOT_READY, HexDebugServerState.READY -> if (!debugServer.startDebugging(castArgs)) {
                 return InteractionResultHolder.fail(stack)

@@ -6,6 +6,6 @@ import org.eclipse.lsp4j.debug.Source
 class SourceAllocator : Allocator<Pair<Source, List<Iota>>>() {
     fun add(iotas: List<Iota>) = Source().apply {
         sourceReference = add(Pair(this, iotas))
-        name = "source_$sourceReference.hexpattern"
+        name = "source$sourceReference.hexpattern"
     }
 }
