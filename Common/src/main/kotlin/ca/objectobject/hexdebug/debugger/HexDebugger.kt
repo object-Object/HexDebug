@@ -14,6 +14,7 @@ import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.mishaps.Mishap
 import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
+import ca.objectobject.hexdebug.HexDebug
 import ca.objectobject.hexdebug.debugger.allocators.SourceAllocator
 import ca.objectobject.hexdebug.debugger.allocators.VariablesAllocator
 import ca.objectobject.hexdebug.server.LaunchArgs
@@ -289,14 +290,30 @@ class HexDebugger(
             val newImage = castResult.newData
             // Then write all pertinent data back to the harness for the next iteration.
             if (newImage != null) {
-                stepResult = handleIndent(stepResult, castResult, vm.image, newImage)
+                handleIndent(castResult, vm.image, newImage)?.also {
+                    stepResult = stepResult.copy(type = it)
+                }
                 vm.image = newImage
             }
             vm.env.postExecution(castResult)
 
-            if (continuation.frame is FrameEvaluate) {
+            val stepType = if (castResult.resolutionType == ResolvedPatternType.EVALUATED) {
                 onExecute?.invoke(castResult.cast)
-            }
+
+                // TODO: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+//                if (castResult.cast is ContinuationIota) {
+//                    DebugStepType.JUMP
+//                } else if (continuation.next === castResult.continuation) {
+//                    DebugStepType.OUT
+//                } else if (castResult.continuation.frame is FrameFinishEval) {
+//                    DebugStepType.OUT
+//                } else if (continuation.next !== castResult.continuation.next) {
+//                    DebugStepType.IN
+//                } else null
+            } else null
+//            if (stepType != null) stepResult = stepResult.copy(type = stepType)
+
+            HexDebug.LOGGER.info("{} {}", iotaToString(castResult.cast, false), stepType)
 
             continuation = castResult.continuation
             try {
@@ -327,7 +344,6 @@ class HexDebugger(
     }
 
     private fun handleIndent(
-        stepResult: DebugStepResult,
         castResult: CastResult,
         oldImage: CastingImage,
         newImage: CastingImage,
@@ -337,8 +353,7 @@ class HexDebugger(
             // in both cases, the pattern that changed the indent level should be at the lower indent level
             val parenCount = min(oldImage.parenCount, newImage.parenCount)
             iotaMetadata[castResult.cast]?.trySetParenCount(parenCount)
-
-            stepResult.copy(type = DebugStepType.ESCAPE)
+            DebugStepType.ESCAPE
         }
 
         ResolvedPatternType.EVALUATED -> if (
@@ -360,13 +375,13 @@ class HexDebugger(
                 sourceAllocator.reallocate(source.sourceReference)
             }
 
-            stepResult
+            null
         } else if (newImage.parenCount > 0) {
             // opened list
-            stepResult.copy(type = DebugStepType.ESCAPE)
-        } else stepResult
+            DebugStepType.ESCAPE
+        } else null
 
-        else -> stepResult
+        else -> null
     }
 
     private fun iotaToString(iota: Iota, isSource: Boolean): String = when (iota) {
@@ -408,6 +423,10 @@ class HexDebugger(
         }
     }
 }
+
+val SpellContinuation.frame get() = (this as? NotDone)?.frame
+
+val SpellContinuation.next get() = (this as? NotDone)?.next
 
 val ContinuationFrame.name get() = this::class.simpleName ?: "Unknown"
 
