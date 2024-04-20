@@ -2,12 +2,9 @@ package ca.objectobject.hexdebug.common.items
 
 import at.petrak.hexcasting.api.casting.ParticleSpray
 import at.petrak.hexcasting.api.casting.eval.vm.CastingVM
-import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.casting.iota.PatternIota
-import at.petrak.hexcasting.api.item.IotaHolderItem
 import at.petrak.hexcasting.api.mod.HexConfig
-import at.petrak.hexcasting.api.utils.getCompound
 import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import at.petrak.hexcasting.common.msgs.MsgNewSpiralPatternsS2C
 import at.petrak.hexcasting.xplat.IXplatAbstractions
@@ -27,18 +24,12 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
 
-class ItemDebugger(properties: Properties) : ItemPackagedHex(properties), IotaHolderItem {
+class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
     override fun canDrawMediaFromInventory(stack: ItemStack?) = true
 
     override fun breakAfterDepletion() = false
 
     override fun cooldown() = HexConfig.common().artifactCooldown()
-
-    override fun readIotaTag(stack: ItemStack?) = stack?.getCompound(TAG_PROGRAM)
-
-    override fun canWrite(stack: ItemStack?, iota: Iota?) = iota is ListIota
-
-    override fun writeDatum(stack: ItemStack?, iota: Iota?) = writeHex(stack, (iota as ListIota).list.toList(), null, 0)
 
     override fun use(world: Level, player: Player, usedHand: InteractionHand): InteractionResultHolder<ItemStack> {
         val stack = player.getItemInHand(usedHand)
