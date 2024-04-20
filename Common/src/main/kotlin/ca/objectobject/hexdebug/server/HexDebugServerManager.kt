@@ -29,7 +29,11 @@ object HexDebugServerManager {
 
             while (!stop) {
                 HexDebug.LOGGER.info("Listening on port ${serverSocket?.localPort}...")
-                val clientSocket = serverSocket?.accept() ?: break
+                val clientSocket = try {
+                    serverSocket?.accept() ?: break
+                } catch (_: SocketException) {
+                    break
+                }
                 HexDebug.LOGGER.info("Client connected!")
 
                 try {

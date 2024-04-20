@@ -2,8 +2,9 @@ package ca.objectobject.hexdebug.server
 
 import ca.objectobject.hexdebug.HexDebug
 import ca.objectobject.hexdebug.debugger.DebugCastArgs
+import ca.objectobject.hexdebug.debugger.DebugStepResult
 import ca.objectobject.hexdebug.debugger.HexDebugger
-import ca.objectobject.hexdebug.debugger.StopType
+import ca.objectobject.hexdebug.debugger.RequestStepType
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import org.eclipse.lsp4j.debug.*
@@ -77,6 +78,7 @@ class HexDebugServer(
 
         return Capabilities().apply {
             supportsConfigurationDoneRequest = true
+            supportsLoadedSourcesRequest = true
         }.toFuture()
     }
 
@@ -139,8 +141,8 @@ class HexDebugServer(
         logRequest("configurationDone", args)
         if (launchArgs.stopOnEntry) {
             sendStoppedEvent("entry")
-//        } else if (debugger.isAtBreakpoint) {
-//            sendStoppedEvent("breakpoint")
+        } else if (debugger.isAtBreakpoint) {
+            sendStoppedEvent("breakpoint")
         } else {
             handleDebuggerStep(debugger.executeUntilStopped())
         }
@@ -149,7 +151,7 @@ class HexDebugServer(
 
     override fun next(args: NextArguments?): CompletableFuture<Void> {
         logRequest("next", args)
-        handleDebuggerStep(debugger.executeUntilStopped(StopType.STEP_OVER))
+        handleDebuggerStep(debugger.executeUntilStopped(RequestStepType.OVER))
         return futureOf()
     }
 
@@ -167,7 +169,7 @@ class HexDebugServer(
 
     override fun stepOut(args: StepOutArguments?): CompletableFuture<Void> {
         logRequest("stepOut", args)
-        handleDebuggerStep(debugger.executeUntilStopped(StopType.STEP_OUT))
+        handleDebuggerStep(debugger.executeUntilStopped(RequestStepType.OUT))
         return futureOf()
     }
 
@@ -223,24 +225,23 @@ class HexDebugServer(
         }.toFuture()
     }
 
+    override fun loadedSources(args: LoadedSourcesArguments?): CompletableFuture<LoadedSourcesResponse> {
+        logRequest("loadedSources", args)
+        return LoadedSourcesResponse().apply {
+            sources = debugger.getSources().toTypedArray()
+        }.toFuture()
+    }
+
     // helpers
 
-    private fun handleDebuggerStep(reason: String?) {
-        if (reason != null) {
-            sendStoppedEvent(reason)
-//            if (debugger.currentLineNumber == 0) {
-//                // we stepped into a nested eval; refresh all the sources
-//                for (source in debugger.getSources()) {
-//                    remoteProxy.loadedSource(LoadedSourceEventArguments().also {
-//                        it.reason = LoadedSourceEventArgumentsReason.NEW
-//                        it.source = source
-//                    })
-//                }
-//            }
-        } else {
+    private fun handleDebuggerStep(result: DebugStepResult?) {
+        if (result == null) {
             HexDebug.LOGGER.info("Program exited, stopping debug server")
             stop()
+            return
         }
+
+        sendStoppedEvent(result.reason)
     }
 
     private fun sendStoppedEvent(reason: String) {
