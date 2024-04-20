@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "type": "hexdebug",
+            "request": "attach",
+            "name": "HexDebug: Attach",
+            "stopOnEntry": true
+        }
+    ]
+}

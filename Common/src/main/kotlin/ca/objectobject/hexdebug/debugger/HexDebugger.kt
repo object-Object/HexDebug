@@ -3,75 +3,106 @@ package ca.objectobject.hexdebug.debugger
 import at.petrak.hexcasting.api.HexAPI
 import at.petrak.hexcasting.api.casting.PatternShapeMatch
 import at.petrak.hexcasting.api.casting.SpellList
+import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
 import at.petrak.hexcasting.api.casting.eval.SpecialPatterns
 import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect
 import at.petrak.hexcasting.api.casting.eval.vm.*
+import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation.Done
+import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation.NotDone
 import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.mishaps.Mishap
 import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
+import ca.objectobject.hexdebug.debugger.allocators.SourceAllocator
+import ca.objectobject.hexdebug.debugger.allocators.VariablesAllocator
 import ca.objectobject.hexdebug.server.LaunchArgs
+import net.minecraft.server.level.ServerLevel
 import org.eclipse.lsp4j.debug.*
+import java.util.*
 
 class HexDebugger(
     private val initArgs: InitializeRequestArguments,
     private val launchArgs: LaunchArgs,
-    cast: DebugCastArgs,
+    private val vm: CastingVM,
+    iotas: List<Iota>,
+    private val world: ServerLevel,
+    private val onExecute: ((Iota) -> Unit)? = null,
 ) {
-    private val vm = cast.vm
-    private val world = cast.world
-    private val onExecute = cast.onExecute
+    constructor(initArgs: InitializeRequestArguments, launchArgs: LaunchArgs, castArgs: DebugCastArgs)
+        : this(initArgs, launchArgs, castArgs.vm, castArgs.iotas, castArgs.world, castArgs.onExecute)
 
-    var continuation = SpellContinuation.Done.pushFrame(
-        FrameEvaluate(SpellList.LList(0, cast.iotas), false)
-    )
+    // Initialize the continuation stack to a single top-level eval for all iotas.
+    private var continuation = Done.pushFrame(FrameEvaluate(SpellList.LList(0, iotas), false))
+    private var callStack = getCallStack(continuation)
 
-    var continuations: List<SpellContinuation.NotDone> = getContinuations(continuation)
+    private val variablesAllocator = VariablesAllocator()
+    private val sourceAllocator = SourceAllocator()
+    private val iotaMetadata = IdentityHashMap<Iota, IotaMetadata>()
+    private val breakpoints = mutableMapOf<Int, Set<Int>>() // source id -> line number
+
+    init {
+        registerNewSource(iotas)
+    }
+
+    private fun registerNewSource(frame: ContinuationFrame): Iota? {
+        val iotas = when (frame) {
+            is FrameEvaluate -> frame.list
+            is FrameForEach -> frame.code
+            else -> return null
+        }
+        if (!iotas.nonEmpty) return null
+        registerNewSource(iotas)
+        return iotas.car
+    }
+
+    private fun registerNewSource(iotas: Iterable<Iota>) {
+        val unregisteredIotas = iotas.filter { it !in iotaMetadata }
+        if (unregisteredIotas.isEmpty()) return
+
+        val source = sourceAllocator.add(unregisteredIotas)
+        for ((line, iota) in unregisteredIotas.withIndex()) {
+            iotaMetadata[iota] = IotaMetadata(source, line)
+        }
+    }
 
     // current continuation is last
-    private fun getContinuations(current: SpellContinuation) =
-        generateSequence(current as? SpellContinuation.NotDone) {
-            when (val next = it.next) {
-                is SpellContinuation.Done -> null
-                is SpellContinuation.NotDone -> next
-            }
-        }.toList().asReversed()
+    private fun getCallStack(current: SpellContinuation) = generateSequence(current as? NotDone) {
+        when (val next = it.next) {
+            is Done -> null
+            is NotDone -> next
+        }
+    }.toList().asReversed()
 
-    var currentLineNumber = 0
-
-    private val breakpoints = mutableMapOf<Int, Set<Int>>() // source id -> line number
-    private val allocatedVariables = mutableListOf<Sequence<Variable>>()
-    private var sources: List<Source>? = null
-
-    fun getStackFrames(): Sequence<StackFrame> = continuations.mapIndexed { i, it ->
+    fun getStackFrames(): Sequence<StackFrame> = callStack.mapIndexed { i, continuation ->
+        val frame = continuation.frame
+        val nextIota = registerNewSource(frame)
         StackFrame().apply {
             id = i + 1
-            name = "Frame $id (${it.frame.name})"
-            source = getSource(id, it.frame)
-            if (id == continuations.count()) {
-                line = serverToClientLineNumber(currentLineNumber)
+            name = "Frame $id (${frame.name})"
+            if (nextIota != null) {
+                val metadata = iotaMetadata[nextIota]!!
+                source = metadata.source
+                line = metadata.line
             }
         }
     }.asReversed().asSequence()
 
     fun getScopes(frameId: Int): List<Scope> {
-        val scopes = mutableListOf(
-            Scope().apply {
-                name = "State"
-                variablesReference = vm.image.run {
-                    val variables = mutableListOf(
-                        toVariable("Stack", stack.asReversed()),
-                        toVariable("Ravenmind", getRavenmind()),
-                        toVariable("OpsConsumed", opsConsumed.toString()),
-                        toVariable("EscapeNext", escapeNext.toString()),
-                    )
-                    if (parenCount > 0) {
-                        variables += toVariable("Intro/Retro", parenthesized.map { it.iota })
-                    }
-                    allocateVariables(variables.asSequence())
+        val scopes = mutableListOf(Scope().apply {
+            name = "State"
+            variablesReference = vm.image.run {
+                val variables = mutableListOf(
+                    toVariable("Stack", stack.asReversed()),
+                    toVariable("Ravenmind", getRavenmind()),
+                    toVariable("OpsConsumed", opsConsumed.toString()),
+                    toVariable("EscapeNext", escapeNext.toString()),
+                )
+                if (parenCount > 0) {
+                    variables += toVariable("Intro/Retro", parenthesized.map { it.iota })
                 }
+                variablesAllocator.add(variables)
             }
-        )
+        })
 
         val frame = getContinuationFrame(frameId)
         when (frame) {
@@ -93,21 +124,21 @@ class HexDebugger(
         }?.also {
             scopes += Scope().apply {
                 name = frame.name
-                variablesReference = allocateVariables(it)
+                variablesReference = variablesAllocator.add(it)
             }
         }
 
         return scopes
     }
 
-    fun getVariables(variablesReference: Int): Sequence<Variable> {
-        return allocatedVariables.getOrElse(variablesReference - 1) { sequenceOf() }
-    }
+    fun getVariables(reference: Int) = variablesAllocator.getOrEmpty(reference)
 
-    private fun getRavenmind() = if (vm.image.userData.contains(HexAPI.RAVENMIND_USERDATA)) {
-        IotaType.deserialize(vm.image.userData.getCompound(HexAPI.RAVENMIND_USERDATA), vm.env.world)
-    } else {
-        NullIota()
+    private fun getRavenmind() = vm.image.userData.let {
+        if (it.contains(HexAPI.RAVENMIND_USERDATA)) {
+            IotaType.deserialize(it.getCompound(HexAPI.RAVENMIND_USERDATA), vm.env.world)
+        } else {
+            NullIota()
+        }
     }
 
     private fun toVariables(iotas: Iterable<Iota>) = toVariables(iotas.asSequence())
@@ -121,10 +152,11 @@ class HexDebugger(
         type = iota::class.simpleName
         value = when (iota) {
             is ListIota -> {
-                variablesReference = allocateVariables(toVariables(iota.list))
+                variablesReference = allocateVariables(iota.list)
                 indexedVariables = iota.list.size()
                 "(${iota.list.count()}) ${iotaToString(iota, false)}"
             }
+
             else -> iotaToString(iota, false)
         }
     }
@@ -140,158 +172,127 @@ class HexDebugger(
         it.value = value
     }
 
-    private fun allocateVariables(iotas: Iterable<Iota>) = allocateVariables(toVariables(iotas))
+    private fun allocateVariables(iotas: Iterable<Iota>) = variablesAllocator.add(toVariables(iotas))
 
-    private fun allocateVariables(vararg variables: Variable) = allocateVariables(sequenceOf(*variables))
+    fun getSources() = sourceAllocator.asSequence().map { it.first }
 
-    private fun allocateVariables(values: Sequence<Variable>): Int {
-        allocatedVariables.add(values)
-        return allocatedVariables.lastIndex + 1
-    }
+    fun getSourceContents(reference: Int) = getSourceContents(sourceAllocator[reference].second)
 
-    fun getSources() = sources ?: continuations.mapIndexedNotNull { i, it ->
-        getSource(i + 1, it.frame)
-    }.also {
-        this.sources = it
-    }
-
-    fun getSource(frameId: Int, frame: ContinuationFrame) = if (hasSource(frame)) {
-        Source().apply {
-            name = "frame${frameId}_${frame.name}.hexpattern"
-            sourceReference = frameId
+    private fun getSourceContents(iotas: Iterable<Iota>): String {
+        return iotas.joinToString("\n") {
+            val indent = iotaMetadata[it]?.indent(launchArgs.indentWidth) ?: ""
+            indent + iotaToString(it, true)
         }
-    } else {
-        null
     }
 
-    fun hasSource(frameId: Int) = hasSource(getContinuationFrame(frameId))
+    private fun getContinuationFrame(frameId: Int) = callStack.elementAt(frameId - 1).frame
 
-    fun hasSource(frame: ContinuationFrame) = when (frame) {
-        is FrameEvaluate, is FrameForEach -> true
-        else -> false
-    }
-
-    fun getSourceContents(sourceReference: Int) = when (val frame = getContinuationFrame(sourceReference)) {
-        is FrameEvaluate -> getSourceContents(frame.list)
-        is FrameForEach -> getSourceContents(frame.code)
-        is FrameFinishEval -> null
-        else -> null
-    }
-
-    private fun getSourceContents(list: SpellList) = getSourceContents(list.toList())
-
-    private fun getSourceContents(iotas: List<Iota>): String {
-        return iotas.joinToString("\n") { iotaToString(it, true) }
-    }
-
-    private fun getContinuationFrame(frameId: Int) = continuations.elementAt(frameId - 1).frame
-
-    fun setBreakpoints(sourceReference: Int?, sourceBreakpoints: Array<SourceBreakpoint>) = sourceBreakpoints.map {
-        Breakpoint().apply {
-            isVerified = true
-            line = it.line
-            column = it.column
+    fun setBreakpoints(sourceReference: Int, sourceBreakpoints: Array<SourceBreakpoint>): List<Breakpoint> {
+        val (source, iotas) = sourceAllocator[sourceReference]
+        return sourceBreakpoints.map {
+            Breakpoint().apply {
+                if (toServerLineNumber(it.line) <= iotas.lastIndex) {
+                    isVerified = true
+                    this.source = source
+                    line = it.line
+                } else {
+                    isVerified = false
+                    message = "Line number out of range"
+                }
+            }
         }
-    }.also {
-        breakpoints.clear()
-        breakpoints[sourceReference ?: continuations.count()] = it.map {
-            breakpoint -> clientToServerLineNumber(breakpoint.line)
-        }.toSet()
     }
 
-    private fun clientToServerLineNumber(line: Int) = if (initArgs.linesStartAt1) {
+    private fun toServerLineNumber(line: Int) = if (initArgs.linesStartAt1) {
         line - 1
     } else {
         line
     }
 
-    private fun serverToClientLineNumber(line: Int) = if (initArgs.linesStartAt1) {
+    private fun toClientLineNumber(line: Int) = if (initArgs.linesStartAt1) {
         line + 1
     } else {
         line
     }
 
     fun executeUntilStopped(stopType: StopType? = null): String? {
-        val callStackSize = continuations.count()
-        val lineNumber = currentLineNumber
+//        val callStackSize = continuations.count()
+//        val lineNumber = currentLineNumber
         while (executeOnce() != null) {
-            if (isAtBreakpoint) return "breakpoint"
-            val newCallStackSize = continuations.count()
-            when (stopType) {
-                StopType.STEP_OVER -> if (newCallStackSize == callStackSize) {
-                    currentLineNumber = lineNumber + 1
-                    return "step"
-                } else if (newCallStackSize < callStackSize) return "step"
-                StopType.STEP_OUT -> if (newCallStackSize < callStackSize) return "step"
-                else -> {}
-            }
+//            if (isAtBreakpoint) return "breakpoint"
+//            val newCallStackSize = continuations.count()
+//            when (stopType) {
+//                StopType.STEP_OVER -> if (newCallStackSize == callStackSize) {
+//                    currentLineNumber = lineNumber + 1
+//                    return "step"
+//                } else if (newCallStackSize < callStackSize) return "step"
+//
+//                StopType.STEP_OUT -> if (newCallStackSize < callStackSize) return "step"
+//                else -> {}
+//            }
         }
         return null
     }
 
-    val isAtBreakpoint get() = breakpoints[continuations.count()]?.contains(currentLineNumber) == true
-
     // Copy of CastingVM.queueExecuteAndWrapIotas to allow stepping by one pattern at a time.
     fun executeOnce(): String? {
-        allocatedVariables.clear()
-        currentLineNumber += 1
+        // bind locally so we can do smart casting
+        var continuation = continuation
+        if (continuation !is NotDone) return null
 
-        val callStackSize = continuations.count()
+        val lastContinuation: NotDone = continuation
 
+        variablesAllocator.clear()
+
+        // Begin aggregating info
         val info = CastingVM.TempControllerInfo(earlyExit = false)
-        var currentContinuation = continuation
-        while (currentContinuation is SpellContinuation.NotDone) {
+        var lastResolutionType = ResolvedPatternType.UNRESOLVED
+        do {
             // Take the top of the continuation stack...
-            val next = currentContinuation.frame
+            val nextFrame = (continuation as NotDone).frame
             // ...and execute it.
             // TODO there used to be error checking code here; I'm pretty sure any and all mishaps should already
             // get caught and folded into CastResult by evaluate.
-            val image2 = next.evaluate(currentContinuation.next, world, vm)
+            val image2 = nextFrame.evaluate(continuation.next, world, vm)
             // Then write all pertinent data back to the harness for the next iteration.
             if (image2.newData != null) {
                 vm.image = image2.newData!!
             }
             vm.env.postExecution(image2)
 
-            currentContinuation = image2.continuation
-            val notDoneContinuation = currentContinuation as? SpellContinuation.NotDone
+            if (continuation.frame is FrameEvaluate) {
+                onExecute?.invoke(image2.cast)
+            }
 
+            continuation = image2.continuation
+            lastResolutionType = image2.resolutionType
             try {
                 vm.performSideEffects(info, image2.sideEffects)
             } catch (e: Exception) {
                 e.printStackTrace()
-                vm.performSideEffects(
-                    info,
-                    listOf(OperatorSideEffect.DoMishap(MishapInternalException(e), Mishap.Context(null, null)))
-                )
+                vm.performSideEffects(info, listOf(OperatorSideEffect.DoMishap(MishapInternalException(e), Mishap.Context(null, null))))
             }
+            info.earlyExit = info.earlyExit || !lastResolutionType.success
+        } while (
+            // keep iterating if the current frame succeeded...
+            !info.earlyExit
+            // and skipNonEvalFrames is enabled...
+            && launchArgs.skipNonEvalFrames
+            // and we won't execute another eval frame
+            && continuation is NotDone
+            && continuation.frame !is FrameEvaluate
+        )
 
-            // if we detect a nested evaluation, reset the line number and invalidate all sources
-            // TODO: ask Alwinfy or someone if there's a better way to do this????
-            val evaluatedFrame = next as? FrameEvaluate
-            val currentFrame = notDoneContinuation?.frame as? FrameEvaluate
-            if (
-                evaluatedFrame != null
-                && currentFrame != null
-                && evaluatedFrame.list.cdr.toList() != currentFrame.list.toList()
-                || currentFrame !is FrameEvaluate
-            ) {
-                currentLineNumber = 0
-                sources = null
-            }
-
-            if (info.earlyExit) return null
-
-            if (notDoneContinuation?.frame is FrameEvaluate) {
-                onExecute?.invoke(image2.cast)
-                break
+        if (continuation is NotDone) {
+            lastResolutionType = if (lastResolutionType.success) {
+                ResolvedPatternType.EVALUATED
+            } else {
+                ResolvedPatternType.ERRORED
             }
         }
 
-        continuation = currentContinuation
-        continuations = getContinuations(continuation)
-
-        return if (continuation is SpellContinuation.NotDone) { "step" } else { null }
+        this.continuation = continuation
+        return "step"
     }
 
     private fun iotaToString(iota: Iota, isSource: Boolean): String = when (iota) {
@@ -304,8 +305,8 @@ class HexDebugger(
                 is PatternShapeMatch.Nothing -> when (iota.pattern) {
                     SpecialPatterns.INTROSPECTION -> getRawHookI18n(HexAPI.modLoc("open_paren"))
                     SpecialPatterns.RETROSPECTION -> getRawHookI18n(HexAPI.modLoc("close_paren"))
-                    SpecialPatterns.INTROSPECTION -> getRawHookI18n(HexAPI.modLoc("escape"))
-                    SpecialPatterns.INTROSPECTION -> getRawHookI18n(HexAPI.modLoc("undo"))
+                    SpecialPatterns.CONSIDERATION -> getRawHookI18n(HexAPI.modLoc("escape"))
+                    SpecialPatterns.EVANITION -> getRawHookI18n(HexAPI.modLoc("undo"))
                     else -> iota.display()
                 }
             }.string
@@ -329,6 +330,5 @@ class HexDebugger(
 val ContinuationFrame.name get() = this::class.simpleName ?: "Unknown"
 
 enum class StopType {
-    STEP_OVER,
-    STEP_OUT,
+    STEP_OVER, STEP_OUT,
 }

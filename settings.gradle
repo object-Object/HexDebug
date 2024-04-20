@@ -7,6 +7,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = "hexdebug"
+rootProject.name = "HexDebug"
 
 include("Common", "Fabric", "Forge")

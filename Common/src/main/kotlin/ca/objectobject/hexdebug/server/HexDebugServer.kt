@@ -104,10 +104,10 @@ class HexDebugServer(
         HexDebugServerState.READY -> {
             state = HexDebugServerState.DEBUGGING
             debugger = HexDebugger(initArgs, launchArgs, cast)
-            remoteProxy.initialized()
             (cast.vm.env.castingEntity as? ServerPlayer)?.sendSystemMessage(
                 Component.translatable("text.hexdebug.connected"), false
             )
+            remoteProxy.initialized()
             true
         }
         else -> {
@@ -136,10 +136,11 @@ class HexDebugServer(
     }
 
     override fun configurationDone(args: ConfigurationDoneArguments?): CompletableFuture<Void> {
+        logRequest("configurationDone", args)
         if (launchArgs.stopOnEntry) {
             sendStoppedEvent("entry")
-        } else if (debugger.isAtBreakpoint) {
-            sendStoppedEvent("breakpoint")
+//        } else if (debugger.isAtBreakpoint) {
+//            sendStoppedEvent("breakpoint")
         } else {
             handleDebuggerStep(debugger.executeUntilStopped())
         }
@@ -184,8 +185,8 @@ class HexDebugServer(
     // runtime data
 
     override fun threads(): CompletableFuture<ThreadsResponse> {
-        // always return the same dummy thread - we don't support multithreading
         logRequest("threads")
+        // always return the same dummy thread - we don't support multithreading
         return ThreadsResponse().apply {
             threads = arrayOf(Thread().apply {
                 id = 0
@@ -216,14 +217,10 @@ class HexDebugServer(
     }
 
     override fun source(args: SourceArguments): CompletableFuture<SourceResponse> {
-        val source = debugger.getSourceContents(args.source.sourceReference)
-        return if (source != null) {
-            SourceResponse().apply {
-                content = debugger.getSourceContents(args.source.sourceReference)
-            }.toFuture()
-        } else {
-            futureOf()
-        }
+        logRequest("source", args)
+        return SourceResponse().apply {
+            content = debugger.getSourceContents(args.source.sourceReference)
+        }.toFuture()
     }
 
     // helpers
@@ -231,15 +228,15 @@ class HexDebugServer(
     private fun handleDebuggerStep(reason: String?) {
         if (reason != null) {
             sendStoppedEvent(reason)
-            if (debugger.currentLineNumber == 0) {
-                // we stepped into a nested eval; refresh all the sources
-                for (source in debugger.getSources()) {
-                    remoteProxy.loadedSource(LoadedSourceEventArguments().also {
-                        it.reason = LoadedSourceEventArgumentsReason.NEW
-                        it.source = source
-                    })
-                }
-            }
+//            if (debugger.currentLineNumber == 0) {
+//                // we stepped into a nested eval; refresh all the sources
+//                for (source in debugger.getSources()) {
+//                    remoteProxy.loadedSource(LoadedSourceEventArguments().also {
+//                        it.reason = LoadedSourceEventArgumentsReason.NEW
+//                        it.source = source
+//                    })
+//                }
+//            }
         } else {
             HexDebug.LOGGER.info("Program exited, stopping debug server")
             stop()
