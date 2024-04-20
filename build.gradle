@@ -20,8 +20,10 @@ subprojects {
     dependencies {
         minecraft libs.minecraft
 
-        mappings loom.officialMojangMappings()
-        // Or feel free to use any other mappings you prefer
+        mappings loom.layered() {
+            officialMojangMappings()
+            parchment(libs.parchment)
+        }
 
         annotationProcessor libs.bundles.asm
     }
@@ -71,6 +73,10 @@ allprojects {
         maven {
             name = 'GeckoLib'
             url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        }
+        maven {
+            name = "ParchmentMC"
+            url = "https://maven.parchmentmc.org"
         }
         exclusiveContent {
             forRepository {
