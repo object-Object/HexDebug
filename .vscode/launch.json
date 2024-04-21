@@ -4,7 +4,8 @@
             "type": "hexdebug",
             "request": "attach",
             "name": "HexDebug: Attach",
-            "stopOnEntry": true
+            "stopOnEntry": true,
+            // "skipNonEvalFrames": false,
         }
     ]
 }

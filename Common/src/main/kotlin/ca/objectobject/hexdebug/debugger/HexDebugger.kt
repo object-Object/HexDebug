@@ -47,6 +47,7 @@ class HexDebugger(
     private val variablesAllocator = VariablesAllocator()
     private val sourceAllocator = SourceAllocator()
     private val iotaMetadata = IdentityHashMap<Iota, IotaMetadata>()
+    private val frameIotaOverrides = IdentityHashMap<ContinuationFrame, Iota>()
     private val breakpoints = mutableMapOf<Int, MutableSet<Int>>() // source id -> line number
 
     private val nextFrame get() = (nextContinuation as? NotDone)?.frame
@@ -89,11 +90,17 @@ class HexDebugger(
     fun getStackFrames(): Sequence<StackFrame> = callStack.mapIndexed { i, continuation ->
         val frame = continuation.frame
         val nextIota = registerNewSource(frame)
+
+        val metadata = if (frame in frameIotaOverrides) {
+            iotaMetadata[frameIotaOverrides[frame]]
+        } else if (nextIota != null) {
+            iotaMetadata[nextIota]
+        } else null
+
         StackFrame().apply {
             id = i + 1
             name = "Frame $id (${frame.name})"
-            if (nextIota != null) {
-                val metadata = iotaMetadata[nextIota]!!
+            if (metadata != null) {
                 source = metadata.source
                 line = toClientLineNumber(metadata.line)
             }
@@ -101,21 +108,30 @@ class HexDebugger(
     }.asReversed().asSequence()
 
     fun getScopes(frameId: Int): List<Scope> {
-        val scopes = mutableListOf(Scope().apply {
-            name = "State"
-            variablesReference = vm.image.run {
-                val variables = mutableListOf(
-                    toVariable("Stack", stack.asReversed()),
-                    toVariable("Ravenmind", getRavenmind()),
-                    toVariable("OpsConsumed", opsConsumed.toString()),
-                    toVariable("EscapeNext", escapeNext.toString()),
-                )
-                if (parenCount > 0) {
-                    variables += toVariable("Intro/Retro", parenthesized.map { it.iota })
+        val scopes = mutableListOf(
+            Scope().apply {
+                name = "Data"
+                variablesReference = vm.image.run {
+                    variablesAllocator.add(
+                        toVariable("Stack", stack.asReversed()),
+                        toVariable("Ravenmind", getRavenmind()),
+                    )
                 }
-                variablesAllocator.add(variables)
-            }
-        })
+            },
+            Scope().apply {
+                name = "State"
+                variablesReference = vm.image.run {
+                    val variables = mutableListOf(
+                        toVariable("OpsConsumed", opsConsumed.toString()),
+                        toVariable("EscapeNext", escapeNext.toString()),
+                    )
+                    if (parenCount > 0) {
+                        variables += toVariable("Intro/Retro", parenthesized.map { it.iota })
+                    }
+                    variablesAllocator.add(variables)
+                }
+            },
+        )
 
         val frame = getContinuationFrame(frameId)
         when (frame) {
@@ -136,7 +152,7 @@ class HexDebugger(
             else -> null
         }?.also {
             scopes += Scope().apply {
-                name = frame.name
+                name = "Frame"
                 variablesReference = variablesAllocator.add(it)
             }
         }
@@ -239,34 +255,55 @@ class HexDebugger(
         ?: false
 
     fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult? {
-        var stepDepth = 0
+        val lastContinuation = nextContinuation as? NotDone ?: return null
+
         var lastResult: DebugStepResult? = null
+        var isEscaping: Boolean? = null
+        var stepDepth = 0
 
         while (true) {
-            var result = executeOnce() ?: return null
+            var result = executeOnce(exactlyOnce = true) ?: return null
             if (lastResult != null) result += lastResult
             lastResult = result
 
-            if (isAtBreakpoint) return result.copy(reason = "breakpoint")
+            if (isAtBreakpoint) {
+                return result.copy(reason = "breakpoint")
+            }
 
-            stepDepth = when (result.type) {
-                DebugStepType.IN -> stepDepth + 1
-                DebugStepType.OUT -> stepDepth - 1
-                DebugStepType.JUMP -> -1
-                else -> stepDepth
+            if (stepType == null) continue
+
+            // alwinfy says: "beware Iris very much"
+            if (result.type == DebugStepType.JUMP) {
+                return result
+            }
+
+            stepDepth += when (result.type) {
+                DebugStepType.IN -> 1
+                DebugStepType.OUT -> -1
+                else -> 0
+            }
+
+            if (isEscaping == null) {
+                isEscaping = result.type == DebugStepType.ESCAPE
             }
 
             val shouldStop = when (stepType) {
-                RequestStepType.OVER -> stepDepth <= 0 && result.type != DebugStepType.ESCAPE
-                RequestStepType.OUT -> stepDepth < 0
-                else -> false
+                RequestStepType.OVER -> if (isEscaping) {
+                    result.type != DebugStepType.ESCAPE
+                } else {
+                    nextContinuation.next === lastContinuation.next || stepDepth <= 0
+                }
+                RequestStepType.OUT -> {
+                    HexDebug.LOGGER.info(stepDepth)
+                    stepDepth < 0
+                }
             }
             if (shouldStop) return result
         }
     }
 
     // Copy of CastingVM.queueExecuteAndWrapIotas to allow stepping by one pattern at a time.
-    fun executeOnce(): DebugStepResult? {
+    fun executeOnce(exactlyOnce: Boolean = false): DebugStepResult? {
         var continuation = nextContinuation // bind locally so we can do smart casting
         if (continuation !is NotDone) return null
 
@@ -276,46 +313,40 @@ class HexDebugger(
 
         // Begin aggregating info
         val info = CastingVM.TempControllerInfo(earlyExit = false)
-        do {
+        while (continuation is NotDone && !info.earlyExit) {
             // Take the top of the continuation stack...
-            val frame = (continuation as NotDone).frame
+            val frame = continuation.frame
 
             // ensure all of the iotas to be evaluated are mapped to sources
             registerNewSource(frame)
 
             // ...and execute it.
-            // TODO there used to be error checking code here; I'm pretty sure any and all mishaps should already
-            // get caught and folded into CastResult by evaluate.
             val castResult = frame.evaluate(continuation.next, world, vm)
             val newImage = castResult.newData
+            val newContinuation = castResult.continuation
+
             // Then write all pertinent data back to the harness for the next iteration.
             if (newImage != null) {
-                handleIndent(castResult, vm.image, newImage)?.also {
-                    stepResult = stepResult.copy(type = it)
-                }
+                handleIndent(castResult, vm.image, newImage)
                 vm.image = newImage
             }
             vm.env.postExecution(castResult)
 
-            val stepType = if (castResult.resolutionType == ResolvedPatternType.EVALUATED) {
+            if (castResult.resolutionType == ResolvedPatternType.EVALUATED) {
                 onExecute?.invoke(castResult.cast)
+            }
 
-                // TODO: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-//                if (castResult.cast is ContinuationIota) {
-//                    DebugStepType.JUMP
-//                } else if (continuation.next === castResult.continuation) {
-//                    DebugStepType.OUT
-//                } else if (castResult.continuation.frame is FrameFinishEval) {
-//                    DebugStepType.OUT
-//                } else if (continuation.next !== castResult.continuation.next) {
-//                    DebugStepType.IN
-//                } else null
-            } else null
-//            if (stepType != null) stepResult = stepResult.copy(type = stepType)
+            val stepType = getStepType(castResult, continuation, newContinuation)
+            if (newContinuation is NotDone) {
+                setIotaOverrides(castResult, frame, newContinuation, stepType)
+            }
+            if (stepType != null) {
+                stepResult = stepResult.copy(type = stepType)
+                HexDebug.LOGGER.info("{}: {}", iotaToString(castResult.cast), stepType)
+            }
 
-            HexDebug.LOGGER.info("{} {}", iotaToString(castResult.cast, false), stepType)
+            continuation = newContinuation
 
-            continuation = castResult.continuation
             try {
                 vm.performSideEffects(info, castResult.sideEffects)
             } catch (e: Exception) {
@@ -326,15 +357,16 @@ class HexDebugger(
                 )
             }
             info.earlyExit = info.earlyExit || !castResult.resolutionType.success
-        } while (
-            // keep iterating if the current frame succeeded...
-            !info.earlyExit
-            // and skipNonEvalFrames is enabled...
-            && launchArgs.skipNonEvalFrames
-            // and we won't execute another eval frame
-            && continuation is NotDone
-            && continuation.frame !is FrameEvaluate
-        )
+
+            if (
+                exactlyOnce
+                || !launchArgs.skipNonEvalFrames
+                || continuation.frame is FrameEvaluate
+                || stepType == DebugStepType.OUT
+            ) {
+                break
+            }
+        }
 
         nextContinuation = continuation
 
@@ -347,44 +379,103 @@ class HexDebugger(
         castResult: CastResult,
         oldImage: CastingImage,
         newImage: CastingImage,
-    ) = when (castResult.resolutionType) {
-        ResolvedPatternType.ESCAPED -> {
-            // if the paren count changed, it was either an introspection or a retrospection
-            // in both cases, the pattern that changed the indent level should be at the lower indent level
-            val parenCount = min(oldImage.parenCount, newImage.parenCount)
-            iotaMetadata[castResult.cast]?.trySetParenCount(parenCount)
-            DebugStepType.ESCAPE
-        }
-
-        ResolvedPatternType.EVALUATED -> if (
-            newImage.parenCount == 0
-            && newImage.parenthesized.isEmpty()
-            && oldImage.parenthesized.isNotEmpty()
-        ) {
-            // closed list
-            val sources = oldImage.parenthesized.asSequence()
-                .mapNotNull { iotaMetadata[it.iota] }
-                .filter { it.needsReload.also { _ -> it.needsReload = false } }
-                .map { it.source }
-                .toSet()
-
-            for (source in sources) {
-                // this feels scuffed...
-                // reassign the source a new id so the client thinks it has to reload it
-                // but the filename stays the same, so the user shouldn't really notice
-                sourceAllocator.reallocate(source.sourceReference)
+    ) {
+        when (castResult.resolutionType) {
+            ResolvedPatternType.ESCAPED -> {
+                // if the paren count changed, it was either an introspection or a retrospection
+                // in both cases, the pattern that changed the indent level should be at the lower indent level
+                val parenCount = min(oldImage.parenCount, newImage.parenCount)
+                iotaMetadata[castResult.cast]?.trySetParenCount(parenCount)
             }
 
-            null
-        } else if (newImage.parenCount > 0) {
-            // opened list
-            DebugStepType.ESCAPE
-        } else null
+            ResolvedPatternType.EVALUATED -> if (
+                newImage.parenCount == 0
+                && newImage.parenthesized.isEmpty()
+                && oldImage.parenthesized.isNotEmpty()
+            ) {
+                // closed list
+                val sources = oldImage.parenthesized.asSequence()
+                    .mapNotNull { iotaMetadata[it.iota] }
+                    .filter { it.needsReload.also { _ -> it.needsReload = false } }
+                    .map { it.source }
+                    .toSet()
 
-        else -> null
+                for (source in sources) {
+                    // this feels scuffed...
+                    // reassign the source a new id so the client thinks it has to reload it
+                    // but the filename stays the same, so the user shouldn't really notice
+                    sourceAllocator.reallocate(source.sourceReference)
+                }
+            }
+
+            else -> {}
+        }
     }
 
-    private fun iotaToString(iota: Iota, isSource: Boolean): String = when (iota) {
+    private fun getStepType(
+        castResult: CastResult,
+        continuation: NotDone,
+        newContinuation: SpellContinuation,
+    ): DebugStepType? {
+        val isEscaped = when (castResult.resolutionType) {
+            ResolvedPatternType.ESCAPED -> true
+            ResolvedPatternType.EVALUATED -> (castResult.newData?.parenCount ?: 0) > 0
+            else -> false
+        }
+        if (isEscaped) {
+            return DebugStepType.ESCAPE
+        }
+
+        if (castResult.cast is ContinuationIota) {
+            return DebugStepType.JUMP
+        }
+
+        if (newContinuation !is NotDone) {
+            return null
+        }
+
+        if (newContinuation === continuation.next) {
+            // don't emit OUT when finishing a Thoth inner loop
+            if (newContinuation.frame is FrameForEach) {
+                return null
+            }
+            return DebugStepType.OUT
+        }
+
+        if (
+            continuation.next !== newContinuation.next
+            || continuation.frame.type != newContinuation.frame.type
+        ) {
+            // don't emit IN when starting a Thoth inner loop
+            if (continuation.frame is FrameForEach) {
+                return null
+            }
+            return DebugStepType.IN
+        }
+
+        return null
+    }
+
+    private fun setIotaOverrides(
+        castResult: CastResult,
+        frame: ContinuationFrame,
+        newContinuation: NotDone,
+        stepType: DebugStepType?,
+    ) {
+        val newFrame = newContinuation.frame
+        val newNextFrame = newContinuation.next.frame
+        if (stepType == DebugStepType.IN) {
+            if (newFrame !is FrameEvaluate) {
+                frameIotaOverrides[newFrame] = castResult.cast
+            } else if (newNextFrame != null && newNextFrame !is FrameEvaluate) {
+                frameIotaOverrides[newNextFrame] = castResult.cast
+            }
+        } else if (frame is FrameForEach && newNextFrame != null && newNextFrame is FrameForEach) {
+            frameIotaOverrides[newNextFrame] = frameIotaOverrides[frame]
+        }
+    }
+
+    private fun iotaToString(iota: Iota, isSource: Boolean = false): String = when (iota) {
         // i feel like hex should have a thing for this...
         is PatternIota -> HexAPI.instance().run {
             when (val lookup = PatternRegistryManifest.matchPattern(iota.pattern, vm.env, false)) {

@@ -79,6 +79,7 @@ class HexDebugServer(
         return Capabilities().apply {
             supportsConfigurationDoneRequest = true
             supportsLoadedSourcesRequest = true
+            supportsTerminateRequest = true
         }.toFuture()
     }
 
@@ -175,6 +176,12 @@ class HexDebugServer(
 
     override fun pause(args: PauseArguments): CompletableFuture<Void> {
         logRequest("pause", args)
+        return futureOf()
+    }
+
+    override fun terminate(args: TerminateArguments?): CompletableFuture<Void> {
+        logRequest("terminate", args)
+        stop()
         return futureOf()
     }
 
