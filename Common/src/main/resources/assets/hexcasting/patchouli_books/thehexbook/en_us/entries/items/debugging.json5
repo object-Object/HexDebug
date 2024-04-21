@@ -1,0 +1,13 @@
+{
+  name: "hexdebug.category.items.entry.debugging",
+  category: "hexcasting:items",
+  icon: "hexdebug:debugger",
+  advancement: "hexcasting:root",
+  pages: [
+    {
+      type: "patchouli:spotlight",
+      item: "hexdebug:debugger",
+      text: "hexdebug.category.items.entry.debugging.page.1",
+    },
+  ],
+}

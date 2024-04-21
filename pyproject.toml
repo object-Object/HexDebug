@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "hatchling",
-    "hatch-gradle-version>=0.8.0",
+    "hatch-gradle-version>=0.9.6",
 ]
 build-backend = "hatchling.build"
 
@@ -30,12 +30,12 @@ source = "gradle-properties"
 py-path = "doc/src/hexdoc_hexdebug/__version__.py"
 key = "modVersion"
 
-[tool.hatch.metadata.hooks.gradle-properties]
+[tool.hatch.metadata.hooks.version-catalog]
 dependencies = [
-    { package="hexdoc-hexcasting", op="~=", py-version="1.0", key="hexcastingVersion" },
+    { package="hexdoc-hexcasting", op="~=", py-version="1.0", key="hexcasting" },
 ]
 
-[tool.hatch.metadata.hooks.gradle-properties.optional-dependencies]
+[tool.hatch.metadata.hooks.version-catalog.optional-dependencies]
 dev = [
     "ruff~=0.3.7",
 ]

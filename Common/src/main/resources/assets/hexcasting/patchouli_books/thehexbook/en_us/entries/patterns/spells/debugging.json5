@@ -1,0 +1,27 @@
+{
+  name: "hexdebug.category.patterns/spells.entry.debugging",
+  category: "hexcasting:patterns/spells",
+  icon: "hexdebug:debugger",
+  advancement: "hexcasting:root",
+  pages: [
+    // TODO: replace with hexcasting:pattern when these are actually implemented
+    {
+      type: "hexcasting:manual_pattern_nosig",
+      header: "hexcasting.action.hexdebug:breakpoint/before",
+      text: "hexdebug.category.patterns/spells.entry.debugging.page.breakpoint/before",
+      patterns: {
+        startdir: "EAST",
+        signature: "",
+      },
+    },
+    {
+      type: "hexcasting:manual_pattern_nosig",
+      header: "hexcasting.action.hexdebug:breakpoint/after",
+      text: "hexdebug.category.patterns/spells.entry.debugging.page.breakpoint/after",
+      patterns: {
+        startdir: "EAST",
+        signature: "",
+      },
+    },
+  ],
+}

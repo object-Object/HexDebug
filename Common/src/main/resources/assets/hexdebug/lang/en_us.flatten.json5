@@ -2,8 +2,48 @@
   "item.hexdebug": {
     debugger: "Debugger",
   },
+
   "text.hexdebug": {
     no_client: "Waiting for debug client to connect...",
     connected: "Debug client connected!",
+  },
+
+  "hexcasting.action": {
+    "hexdebug:": {
+      "breakpoint/": {
+        before: "Set Breakpoint Before",
+        after: "Set Breakpoint After"
+      },
+    },
+    "book.hexdebug:": {},
+  },
+
+  hexdebug: {
+    category: {
+      items: {
+        entry: {
+          debugging: {
+            "": "Debugging",
+            page: {
+              "1": "TODO: actually write this",
+            },
+          },
+        },
+      },
+
+      "patterns/spells": {
+        entry: {
+          debugging: {
+            "": "Debugging",
+            page: {
+              "breakpoint/": {
+                before: "Pauses the debugger before executing this pattern.",
+                after: "Pauses the debugger after executing this pattern (ie. before executing the next pattern).",
+              }
+            },
+          },
+        },
+      },
+    },
   },
 }
