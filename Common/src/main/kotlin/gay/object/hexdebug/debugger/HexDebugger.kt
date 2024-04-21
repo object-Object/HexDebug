@@ -124,6 +124,7 @@ class HexDebugger(
                     val variables = mutableListOf(
                         toVariable("OpsConsumed", opsConsumed.toString()),
                         toVariable("EscapeNext", escapeNext.toString()),
+                        toVariable("ParenCount", parenCount.toString()),
                     )
                     if (parenCount > 0) {
                         variables += toVariable("Intro/Retro", parenthesized.map { it.iota })
