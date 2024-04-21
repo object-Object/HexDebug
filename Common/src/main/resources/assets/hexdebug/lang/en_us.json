@@ -1,5 +1,0 @@
-{
-  "item.hexdebug.debugger": "Debugger",
-  "text.hexdebug.no_client": "Waiting for debug client to connect...",
-  "text.hexdebug.connected": "Debug client connected!"
-}

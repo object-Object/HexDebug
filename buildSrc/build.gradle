@@ -1,0 +1,14 @@
+plugins {
+    id("groovy-gradle-plugin")
+}
+
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+    maven { url "https://maven.blamejared.com/" }
+}
+
+dependencies {
+    implementation(libs.pkpcpbp)
+    runtimeClasspath(libs.pkpcpbp)
+}

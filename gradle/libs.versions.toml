@@ -42,6 +42,7 @@ findbugs-jsr305 = "3.0.2" # for @Nonnull
 asm = "9.4"
 dotenv = "2.0.0" # for template.env api keys
 modPublish = "0.3.0"
+pkpcpbp = "0.1.0-pre-87"
 
 lsp4j = "0.22.0"
 
@@ -95,6 +96,8 @@ asm-util     = { module="org.ow2.asm:asm-util", version.ref="asm" }
 
 lsp4j = { module="org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref="lsp4j" }
 lsp4j-debug = { module="org.eclipse.lsp4j:org.eclipse.lsp4j.debug", version.ref="lsp4j" }
+
+pkpcpbp = { module="at.petra-k.pkpcpbp:PKPCPBP", version.ref="pkpcpbp" }
 
 [plugins]
 kotlin = { id="org.jetbrains.kotlin.jvm", version.ref="kotlin" }
