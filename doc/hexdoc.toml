@@ -43,12 +43,12 @@ pattern_stubs = []
 
 [_common]
 src = "../Common/src"
-package = "{src}/main/java/ca/objectobject/hexdebug"
+package = "{src}/main/java/gay/object/hexdebug"
 
 [_fabric]
 src = "../Fabric/src"
-package = "{src}/main/java/ca/objectobject/hexdebug/fabric"
+package = "{src}/main/java/gay/object/hexdebug/fabric"
 
 [_forge]
 src = "../Forge/src"
-package = "{src}/main/java/ca/objectobject/hexdebug/forge"
+package = "{src}/main/java/gay/object/hexdebug/forge"

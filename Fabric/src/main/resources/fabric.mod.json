@@ -16,10 +16,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "ca.objectobject.hexdebug.fabric.HexDebugFabric"
+      "gay.object.hexdebug.fabric.HexDebugFabric"
     ],
     "client": [
-      "ca.objectobject.hexdebug.fabric.HexDebugClientFabric"
+      "gay.object.hexdebug.fabric.HexDebugClientFabric"
     ]
   },
   "mixins": [

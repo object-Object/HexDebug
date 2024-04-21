@@ -16,5 +16,5 @@ java_version: 17
 license: MIT
 mappings_name: Mojmap
 modid: hexdebug
-package: ca.objectobject.hexdebug
+package: gay.object.hexdebug
 sources_url: https://github.com/object-Object/HexDebug
