@@ -14,7 +14,6 @@ import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.mishaps.Mishap
 import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
-import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
 import gay.`object`.hexdebug.server.LaunchArgs
@@ -56,11 +55,17 @@ class HexDebugger(
         registerNewSource(iotas)
     }
 
-    private fun registerNewSource(frame: ContinuationFrame): Iota? {
+    private fun registerNewSource(frame: ContinuationFrame): IotaMetadata? {
         val iotas = getIotas(frame) ?: return null
         if (!iotas.nonEmpty) return null
+
         registerNewSource(iotas)
-        return iotas.car
+
+        return if (frame in frameIotaOverrides) {
+            iotaMetadata[frameIotaOverrides[frame]]
+        } else {
+            iotaMetadata[iotas.car]
+        }
     }
 
     private fun registerNewSource(iotas: Iterable<Iota>) {
@@ -88,21 +93,12 @@ class HexDebugger(
     }.toList().asReversed()
 
     fun getStackFrames(): Sequence<StackFrame> = callStack.mapIndexed { i, continuation ->
-        val frame = continuation.frame
-        val nextIota = registerNewSource(frame)
-
-        val metadata = if (frame in frameIotaOverrides) {
-            iotaMetadata[frameIotaOverrides[frame]]
-        } else if (nextIota != null) {
-            iotaMetadata[nextIota]
-        } else null
-
         StackFrame().apply {
             id = i + 1
-            name = "Frame $id (${frame.name})"
-            if (metadata != null) {
-                source = metadata.source
-                line = toClientLineNumber(metadata.line)
+            name = "Frame $id (${continuation.frame.name})"
+            registerNewSource(continuation.frame)?.also {
+                source = it.source
+                line = toClientLineNumber(it.line)
             }
         }
     }.asReversed().asSequence()
@@ -135,23 +131,7 @@ class HexDebugger(
         )
 
         val frame = getContinuationFrame(frameId)
-        when (frame) {
-            is FrameEvaluate -> sequenceOf(
-                toVariable("Code", frame.list),
-                toVariable("IsMetacasting", frame.isMetacasting.toString()),
-            )
-
-            is FrameForEach -> {
-                sequenceOf(
-                    toVariable("Code", frame.code),
-                    toVariable("Data", frame.data),
-                    frame.baseStack?.let { toVariable("BaseStack", it) },
-                    toVariable("Result", frame.acc),
-                ).filterNotNull()
-            }
-
-            else -> null
-        }?.also {
+        getFrameVariables(frame)?.also {
             scopes += Scope().apply {
                 name = "Frame"
                 variablesReference = variablesAllocator.add(it)
@@ -162,6 +142,47 @@ class HexDebugger(
     }
 
     fun getVariables(reference: Int) = variablesAllocator.getOrEmpty(reference)
+
+    private fun getContinuationVariable(
+        continuation: SpellContinuation,
+        variableName: String = "",
+    ): Variable = Variable().apply {
+        name = variableName
+        when (continuation) {
+            is Done -> value = "Done"
+            is NotDone -> {
+                value = "NotDone"
+                variablesReference = variablesAllocator.add(
+                    Variable().apply {
+                        name = "Frame"
+                        value = continuation.frame.name
+                        getFrameVariables(continuation.frame)?.let {
+                            variablesReference = variablesAllocator.add(it)
+                        }
+                    },
+                    getContinuationVariable(continuation.next, "Next"),
+                )
+            }
+        }
+    }
+
+    private fun getFrameVariables(frame: ContinuationFrame) = when (frame) {
+        is FrameEvaluate -> sequenceOf(
+            toVariable("Code", frame.list),
+            toVariable("IsMetacasting", frame.isMetacasting.toString()),
+        )
+
+        is FrameForEach -> {
+            sequenceOf(
+                toVariable("Code", frame.code),
+                toVariable("Data", frame.data),
+                frame.baseStack?.let { toVariable("BaseStack", it) },
+                toVariable("Result", frame.acc),
+            ).filterNotNull()
+        }
+
+        else -> null
+    }
 
     private fun getRavenmind() = vm.image.userData.let {
         if (it.contains(HexAPI.RAVENMIND_USERDATA)) {
@@ -177,17 +198,22 @@ class HexDebugger(
 
     private fun toVariable(index: Number, iota: Iota) = toVariable("$index", iota)
 
-    private fun toVariable(name: String, iota: Iota): Variable = Variable().apply {
-        this.name = name
+    private fun toVariable(variableName: String, iota: Iota): Variable = Variable().apply {
+        name = variableName
         type = iota::class.simpleName
-        value = when (iota) {
+        when (iota) {
             is ListIota -> {
+                value = "(${iota.list.count()}) ${iotaToString(iota)}"
                 variablesReference = allocateVariables(iota.list)
                 indexedVariables = iota.list.size()
-                "(${iota.list.count()}) ${iotaToString(iota, false)}"
             }
 
-            else -> iotaToString(iota, false)
+            is ContinuationIota -> getContinuationVariable(iota.continuation).also {
+                value = "${iotaToString(iota)} -> ${it.value}"
+                variablesReference = it.variablesReference
+            }
+
+            else -> value = iotaToString(iota)
         }
     }
 
@@ -261,6 +287,7 @@ class HexDebugger(
         var lastResult: DebugStepResult? = null
         var isEscaping: Boolean? = null
         var stepDepth = 0
+        var shouldStop = false
 
         while (true) {
             var result = executeOnce(exactlyOnce = true) ?: return null
@@ -271,11 +298,12 @@ class HexDebugger(
                 return result.copy(reason = "breakpoint")
             }
 
+            // if stepType is null, we should ONLY stop on breakpoints
             if (stepType == null) continue
 
             // alwinfy says: "beware Iris very much"
             if (result.type == DebugStepType.JUMP) {
-                return result
+                shouldStop = true
             }
 
             stepDepth += when (result.type) {
@@ -288,18 +316,18 @@ class HexDebugger(
                 isEscaping = result.type == DebugStepType.ESCAPE
             }
 
-            val shouldStop = when (stepType) {
+            shouldStop = shouldStop || when (stepType) {
                 RequestStepType.OVER -> if (isEscaping) {
                     result.type != DebugStepType.ESCAPE
                 } else {
                     nextContinuation.next === lastContinuation.next || stepDepth <= 0
                 }
                 RequestStepType.OUT -> {
-                    HexDebug.LOGGER.info(stepDepth)
                     stepDepth < 0
                 }
             }
-            if (shouldStop) return result
+
+            if (shouldStop && !isSkippedByLaunchArgs(nextContinuation)) return result
         }
     }
 
@@ -343,7 +371,6 @@ class HexDebugger(
             }
             if (stepType != null) {
                 stepResult = stepResult.copy(type = stepType)
-                HexDebug.LOGGER.info("{}: {}", iotaToString(castResult.cast), stepType)
             }
 
             continuation = newContinuation
@@ -359,12 +386,7 @@ class HexDebugger(
             }
             info.earlyExit = info.earlyExit || !castResult.resolutionType.success
 
-            if (
-                exactlyOnce
-                || !launchArgs.skipNonEvalFrames
-                || continuation.frame is FrameEvaluate
-                || stepType == DebugStepType.OUT
-            ) {
+            if (exactlyOnce || !isSkippedByLaunchArgs(continuation)) {
                 break
             }
         }
@@ -374,6 +396,11 @@ class HexDebugger(
         if (continuation is Done) return null
 
         return stepResult
+    }
+
+    private fun isSkippedByLaunchArgs(continuation: SpellContinuation): Boolean {
+        if (continuation !is NotDone) return false
+        return launchArgs.skipNonEvalFrames && continuation.frame !is FrameEvaluate
     }
 
     private fun handleIndent(

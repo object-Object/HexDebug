@@ -8,6 +8,7 @@ class SourceAllocator : Allocator<Pair<Source, List<Iota>>>() {
     fun add(iotas: List<Iota>) = Source().apply {
         sourceReference = add(this to iotas)
         name = "source$sourceReference.hexpattern"
+        path = name
     }
 
     fun reallocate(reference: Int) {
