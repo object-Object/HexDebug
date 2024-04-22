@@ -14,6 +14,8 @@ import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.mishaps.Mishap
 import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
+import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.api.IMixinCastingImage
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
 import gay.`object`.hexdebug.server.LaunchArgs
@@ -318,7 +320,7 @@ class HexDebugger(
                 RequestStepType.OVER -> if (isEscaping) {
                     result.type != DebugStepType.ESCAPE
                 } else {
-                    nextContinuation.next === lastContinuation.next || stepDepth <= 0
+                    stepDepth <= 0
                 }
                 RequestStepType.OUT -> {
                     stepDepth < 0
@@ -475,7 +477,10 @@ class HexDebugger(
             return DebugStepType.IN
         }
 
-        return null
+        @Suppress("KotlinConstantConditions")
+        val newImage = castResult.newData as IMixinCastingImage
+        HexDebug.LOGGER.info(newImage.`hexDebug$getDebugStepType`())
+        return newImage.`hexDebug$getDebugStepType`()
     }
 
     private fun setIotaOverrides(

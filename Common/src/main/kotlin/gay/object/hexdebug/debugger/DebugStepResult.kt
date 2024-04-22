@@ -8,14 +8,15 @@ data class DebugStepResult(
     val type: DebugStepType? = null,
     val loadedSources: Map<Source, LoadedSourceReason> = mapOf(),
 ) {
-
-    @Suppress("UNUSED_PARAMETER")
-    operator fun plus(lastResult: DebugStepResult) = this
+    operator fun plus(other: DebugStepResult) = copy(
+        loadedSources = loadedSources + other.loadedSources,
+    )
 
     fun withLoadedSource(source: Source, reason: LoadedSourceReason) = withLoadedSources(sequenceOf(source to reason))
 
-    fun withLoadedSources(sources: Sequence<Pair<Source, LoadedSourceReason>>) =
-        copy(loadedSources = loadedSources + sources)
+    fun withLoadedSources(sources: Sequence<Pair<Source, LoadedSourceReason>>): DebugStepResult {
+        return copy(loadedSources = loadedSources + sources)
+    }
 }
 
 enum class DebugStepType {

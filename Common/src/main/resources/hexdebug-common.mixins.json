@@ -6,6 +6,8 @@
   "client": [
   ],
   "mixins": [
+    "MixinCastingImage",
+    "MixinOpEval"
   ],
   "injectors": {
     "defaultRequire": 1
