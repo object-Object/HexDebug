@@ -22,6 +22,7 @@ import net.minecraft.server.level.ServerLevel
 import org.eclipse.lsp4j.debug.*
 import java.util.*
 import kotlin.math.min
+import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceReason
 
 class HexDebugger(
     private val initArgs: InitializeRequestArguments,
@@ -55,33 +56,31 @@ class HexDebugger(
         registerNewSource(iotas)
     }
 
-    private fun registerNewSource(frame: ContinuationFrame): IotaMetadata? {
-        val iotas = getIotas(frame) ?: return null
-        if (!iotas.nonEmpty) return null
+    private fun registerNewSource(frame: ContinuationFrame): Source? = getIotas(frame)?.let(::registerNewSource)
 
-        registerNewSource(iotas)
-
-        return if (frame in frameIotaOverrides) {
-            iotaMetadata[frameIotaOverrides[frame]]
-        } else {
-            iotaMetadata[iotas.car]
-        }
-    }
-
-    private fun registerNewSource(iotas: Iterable<Iota>) {
+    private fun registerNewSource(iotas: Iterable<Iota>): Source? {
         val unregisteredIotas = iotas.filter { it !in iotaMetadata }
-        if (unregisteredIotas.isEmpty()) return
+        if (unregisteredIotas.isEmpty()) return null
 
         val source = sourceAllocator.add(unregisteredIotas)
-        for ((line, iota) in unregisteredIotas.withIndex()) {
-            iotaMetadata[iota] = IotaMetadata(source, line)
+        for ((index, iota) in unregisteredIotas.withIndex()) {
+            iotaMetadata[iota] = IotaMetadata(source, indexToLineNumber(index))
         }
+        return source
     }
 
     private fun getIotas(frame: ContinuationFrame) = when (frame) {
         is FrameEvaluate -> frame.list
         is FrameForEach -> frame.code
         else -> null
+    }
+
+    private fun getFirstIotaMetadata(frame: ContinuationFrame): IotaMetadata? {
+        if (frame in frameIotaOverrides) {
+            return iotaMetadata[frameIotaOverrides[frame]]
+        }
+        val iotas = getIotas(frame) ?: return null
+        return iotaMetadata[iotas.car]
     }
 
     // current continuation is last
@@ -93,12 +92,13 @@ class HexDebugger(
     }.toList().asReversed()
 
     fun getStackFrames(): Sequence<StackFrame> = callStack.mapIndexed { i, continuation ->
+        val frame = continuation.frame
         StackFrame().apply {
             id = i + 1
-            name = "Frame $id (${continuation.frame.name})"
-            registerNewSource(continuation.frame)?.also {
+            name = "Frame $id (${frame.name})"
+            getFirstIotaMetadata(frame)?.also {
                 source = it.source
-                line = toClientLineNumber(it.line)
+                line = it.line
             }
         }
     }.asReversed().asSequence()
@@ -123,7 +123,7 @@ class HexDebugger(
                         toVariable("ParenCount", parenCount.toString()),
                     )
                     if (parenCount > 0) {
-                        variables += toVariable("Intro/Retro", parenthesized.map { it.iota })
+                        variables += toVariable("Parenthesized", parenthesized.map { it.iota })
                     }
                     variablesAllocator.add(variables)
                 }
@@ -166,22 +166,25 @@ class HexDebugger(
         }
     }
 
-    private fun getFrameVariables(frame: ContinuationFrame) = when (frame) {
-        is FrameEvaluate -> sequenceOf(
-            toVariable("Code", frame.list),
-            toVariable("IsMetacasting", frame.isMetacasting.toString()),
-        )
+    private fun getFrameVariables(frame: ContinuationFrame): Sequence<Variable>? {
+        val sourceLine = getFirstIotaMetadata(frame)?.toString() ?: ""
+        return when (frame) {
+            is FrameEvaluate -> sequenceOf(
+                toVariable("Code", frame.list, sourceLine),
+                toVariable("IsMetacasting", frame.isMetacasting.toString()),
+            )
 
-        is FrameForEach -> {
-            sequenceOf(
-                toVariable("Code", frame.code),
+            is FrameForEach -> sequenceOf(
+                toVariable("Code", frame.code, sourceLine),
                 toVariable("Data", frame.data),
                 frame.baseStack?.let { toVariable("BaseStack", it) },
                 toVariable("Result", frame.acc),
             ).filterNotNull()
-        }
 
-        else -> null
+            else -> if (sourceLine.isNotEmpty()) sequenceOf(
+                toVariable("Code", sourceLine),
+            ) else null
+        }
     }
 
     private fun getRavenmind() = vm.image.userData.let {
@@ -217,10 +220,10 @@ class HexDebugger(
         }
     }
 
-    private fun toVariable(name: String, iotas: Iterable<Iota>): Variable = Variable().apply {
-        this.name = name
-        value = ""
-        variablesReference = allocateVariables(iotas)
+    private fun toVariable(name: String, iotas: Iterable<Iota>, value: String = ""): Variable = Variable().also {
+        it.name = name
+        it.value = value
+        it.variablesReference = allocateVariables(iotas)
     }
 
     private fun toVariable(name: String, value: String): Variable = Variable().also {
@@ -244,12 +247,13 @@ class HexDebugger(
     private fun getContinuationFrame(frameId: Int) = callStack.elementAt(frameId - 1).frame
 
     // TODO: gross.
+    // TODO: there's probably a bug here somewhere - shouldn't we be using the metadata?
     fun setBreakpoints(sourceReference: Int, sourceBreakpoints: Array<SourceBreakpoint>): List<Breakpoint> {
         val (source, iotas) = sourceAllocator[sourceReference]
         val breakpointLines = breakpoints.getOrPut(sourceReference, ::mutableSetOf).apply { clear() }
         return sourceBreakpoints.map {
             Breakpoint().apply {
-                if (toServerLineNumber(it.line) <= iotas.lastIndex) {
+                if (it.line <= indexToLineNumber(iotas.lastIndex)) {
                     breakpointLines.add(it.line)
                     isVerified = true
                     this.source = source
@@ -262,16 +266,10 @@ class HexDebugger(
         }
     }
 
-    private fun toServerLineNumber(line: Int) = if (initArgs.linesStartAt1) {
-        line - 1
+    private fun indexToLineNumber(index: Int) = if (initArgs.linesStartAt1) {
+        index + 1
     } else {
-        line
-    }
-
-    private fun toClientLineNumber(line: Int) = if (initArgs.linesStartAt1) {
-        line + 1
-    } else {
-        line
+        index
     }
 
     val isAtBreakpoint get(): Boolean = nextFrame
@@ -346,9 +344,6 @@ class HexDebugger(
             // Take the top of the continuation stack...
             val frame = continuation.frame
 
-            // ensure all of the iotas to be evaluated are mapped to sources
-            registerNewSource(frame)
-
             // ...and execute it.
             val castResult = frame.evaluate(continuation.next, world, vm)
             val newImage = castResult.newData
@@ -356,7 +351,7 @@ class HexDebugger(
 
             // Then write all pertinent data back to the harness for the next iteration.
             if (newImage != null) {
-                handleIndent(castResult, vm.image, newImage)
+                stepResult = handleIndent(castResult, vm.image, newImage, stepResult)
                 vm.image = newImage
             }
             vm.env.postExecution(castResult)
@@ -368,6 +363,11 @@ class HexDebugger(
             val stepType = getStepType(castResult, continuation, newContinuation)
             if (newContinuation is NotDone) {
                 setIotaOverrides(castResult, frame, newContinuation, stepType)
+
+                // ensure all of the iotas to be evaluated in the next frame are mapped to a source
+                registerNewSource(newContinuation.frame)?.also {
+                    stepResult = stepResult.withLoadedSource(it, LoadedSourceReason.NEW)
+                }
             }
             if (stepType != null) {
                 stepResult = stepResult.copy(type = stepType)
@@ -407,37 +407,31 @@ class HexDebugger(
         castResult: CastResult,
         oldImage: CastingImage,
         newImage: CastingImage,
-    ) {
-        when (castResult.resolutionType) {
-            ResolvedPatternType.ESCAPED -> {
-                // if the paren count changed, it was either an introspection or a retrospection
-                // in both cases, the pattern that changed the indent level should be at the lower indent level
-                val parenCount = min(oldImage.parenCount, newImage.parenCount)
-                iotaMetadata[castResult.cast]?.trySetParenCount(parenCount)
-            }
-
-            ResolvedPatternType.EVALUATED -> if (
-                newImage.parenCount == 0
-                && newImage.parenthesized.isEmpty()
-                && oldImage.parenthesized.isNotEmpty()
-            ) {
-                // closed list
-                val sources = oldImage.parenthesized.asSequence()
-                    .mapNotNull { iotaMetadata[it.iota] }
-                    .filter { it.needsReload.also { _ -> it.needsReload = false } }
-                    .map { it.source }
-                    .toSet()
-
-                for (source in sources) {
-                    // this feels scuffed...
-                    // reassign the source a new id so the client thinks it has to reload it
-                    // but the filename stays the same, so the user shouldn't really notice
-                    sourceAllocator.reallocate(source.sourceReference)
-                }
-            }
-
-            else -> {}
+        stepResult: DebugStepResult,
+    ) = when (castResult.resolutionType) {
+        ResolvedPatternType.ESCAPED -> {
+            // if the paren count changed, it was either an introspection or a retrospection
+            // in both cases, the pattern that changed the indent level should be at the lower indent level
+            val parenCount = min(oldImage.parenCount, newImage.parenCount)
+            iotaMetadata[castResult.cast]?.trySetParenCount(parenCount)
+            stepResult
         }
+
+        ResolvedPatternType.EVALUATED -> if (
+            newImage.parenCount == 0
+            && newImage.parenthesized.isEmpty()
+            && oldImage.parenthesized.isNotEmpty()
+        ) {
+            // closed list
+            val sources = oldImage.parenthesized.asSequence()
+                .mapNotNull { iotaMetadata[it.iota] }
+                .filter { it.needsReload.also { _ -> it.needsReload = false } }
+                .map { it.source to LoadedSourceReason.CHANGED }
+
+            stepResult.withLoadedSources(sources)
+        } else stepResult
+
+        else -> stepResult
     }
 
     private fun getStepType(

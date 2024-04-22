@@ -18,4 +18,6 @@ data class IotaMetadata(
     }
 
     fun indent(width: Int) = " ".repeat(width * (parenCount ?: 0))
+
+    override fun toString() = "${source.name}:$line"
 }

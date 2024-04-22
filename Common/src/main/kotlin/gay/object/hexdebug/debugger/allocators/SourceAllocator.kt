@@ -1,7 +1,6 @@
 package gay.`object`.hexdebug.debugger.allocators
 
 import at.petrak.hexcasting.api.casting.iota.Iota
-import gay.`object`.hexdebug.HexDebug
 import org.eclipse.lsp4j.debug.Source
 
 class SourceAllocator : Allocator<Pair<Source, List<Iota>>>() {
@@ -9,13 +8,5 @@ class SourceAllocator : Allocator<Pair<Source, List<Iota>>>() {
         sourceReference = add(this to iotas)
         name = "source$sourceReference.hexpattern"
         path = name
-    }
-
-    fun reallocate(reference: Int) {
-        val (source, iotas) = get(reference)
-        source.apply {
-            sourceReference = add(this to iotas)
-            HexDebug.LOGGER.debug("Reallocating {} from {} to {}", name, reference, sourceReference)
-        }
     }
 }

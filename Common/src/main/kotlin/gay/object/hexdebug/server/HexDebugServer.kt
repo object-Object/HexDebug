@@ -248,6 +248,13 @@ class HexDebugServer(
             return
         }
 
+        for ((source, reason) in result.loadedSources) {
+            remoteProxy.loadedSource(LoadedSourceEventArguments().also {
+                it.source = source
+                it.reason = reason
+            })
+        }
+
         sendStoppedEvent(result.reason)
     }
 
