@@ -1,4 +1,4 @@
-package gay.`object`.hexdebug.server
+package gay.`object`.hexdebug.adapter
 
 class LaunchArgs(rawData: Map<String, Any>) {
     private val data = rawData.withDefault {

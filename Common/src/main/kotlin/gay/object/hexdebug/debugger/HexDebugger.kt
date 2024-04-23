@@ -14,11 +14,10 @@ import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.mishaps.Mishap
 import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
-import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.adapter.LaunchArgs
 import gay.`object`.hexdebug.api.IMixinCastingImage
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
-import gay.`object`.hexdebug.server.LaunchArgs
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import org.eclipse.lsp4j.debug.*
@@ -34,9 +33,6 @@ class HexDebugger(
     private val onExecute: ((Iota) -> Unit)? = null,
     iotas: List<Iota>,
 ) {
-    constructor(initArgs: InitializeRequestArguments, launchArgs: LaunchArgs, castArgs: DebugCastArgs)
-            : this(initArgs, launchArgs, castArgs.vm, castArgs.world, castArgs.onExecute, castArgs.iotas)
-
     // Initialize the continuation stack to a single top-level eval for all iotas.
     private var nextContinuation = Done.pushFrame(FrameEvaluate(SpellList.LList(0, iotas), false))
         set(value) {
@@ -282,8 +278,6 @@ class HexDebugger(
         ?: false
 
     fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult? {
-        val lastContinuation = nextContinuation as? NotDone ?: return null
-
         var lastResult: DebugStepResult? = null
         var isEscaping: Boolean? = null
         var stepDepth = 0
@@ -479,7 +473,6 @@ class HexDebugger(
 
         @Suppress("KotlinConstantConditions")
         val newImage = castResult.newData as IMixinCastingImage
-        HexDebug.LOGGER.info(newImage.`hexDebug$getDebugStepType`())
         return newImage.`hexDebug$getDebugStepType`()
     }
 

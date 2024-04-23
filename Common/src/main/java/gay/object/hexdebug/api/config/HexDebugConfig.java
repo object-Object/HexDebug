@@ -4,7 +4,7 @@ import gay.object.hexdebug.HexDebug;
 
 /**
  * Platform-agnostic class for statically accessing current config values.
- * If any of the config types (common, client, server) are not needed in your mod,
+ * If any of the config types (common, client, adapter) are not needed in your mod,
  * feel free to remove anything related to them in this class and platform-specific config implementations.
  */
 public class HexDebugConfig {

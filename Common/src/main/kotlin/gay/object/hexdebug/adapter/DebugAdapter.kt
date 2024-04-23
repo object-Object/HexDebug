@@ -1,65 +1,48 @@
-package gay.`object`.hexdebug.server
+package gay.`object`.hexdebug.adapter
 
+import at.petrak.hexcasting.api.casting.eval.env.PlayerBasedCastEnv
+import at.petrak.hexcasting.api.casting.eval.vm.CastingVM
+import at.petrak.hexcasting.api.casting.iota.Iota
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.debugger.DebugCastArgs
 import gay.`object`.hexdebug.debugger.DebugStepResult
 import gay.`object`.hexdebug.debugger.HexDebugger
 import gay.`object`.hexdebug.debugger.RequestStepType
+import gay.`object`.hexdebug.utils.futureOf
+import gay.`object`.hexdebug.utils.paginate
+import gay.`object`.hexdebug.utils.toFuture
 import net.minecraft.network.chat.Component
-import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.level.ServerLevel
 import org.eclipse.lsp4j.debug.*
-import org.eclipse.lsp4j.debug.launch.DSPLauncher
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer
-import java.io.InputStream
-import java.io.OutputStream
-import java.net.Socket
+import org.eclipse.lsp4j.jsonrpc.Launcher
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Future
 
-/*
-TODO:
-- auto-evaluate all non-eval frames
-- line number is super wrong
-- program source not refreshing??
- */
-
-class HexDebugServer(
-    input: InputStream,
-    output: OutputStream,
-    private var queuedCast: DebugCastArgs? = null,
+class DebugAdapter(
+    private val iotas: List<Iota>,
+    private val env: PlayerBasedCastEnv,
+    private val world: ServerLevel,
+    private val onExecute: ((Iota) -> Unit)? = null,
 ) : IDebugProtocolServer {
-    constructor(clientSocket: Socket, queuedCast: DebugCastArgs? = null) : this(
-        clientSocket.inputStream,
-        clientSocket.outputStream,
-        queuedCast,
-    )
-
-    private val launcher = DSPLauncher.createServerLauncher(this, input, output)
-    private var future: Future<Void>? = null
-
-    private val remoteProxy: IDebugProtocolClient get() = launcher.remoteProxy
-
-    public var state: HexDebugServerState = HexDebugServerState.NOT_READY
+    lateinit var launcher: Launcher<IDebugProtocolClient>
 
     private lateinit var initArgs: InitializeRequestArguments
     private lateinit var launchArgs: LaunchArgs
     private lateinit var debugger: HexDebugger
 
-    fun start(): Future<Void> {
-        return launcher.startListening().also { future = it }
-    }
+    private val remoteProxy: IDebugProtocolClient get() = launcher.remoteProxy
+
+    var isTerminated = false
 
     fun stop(notifyClient: Boolean = true) {
-        state = HexDebugServerState.CLOSED
-        HexDebug.LOGGER.info("Stopping debug server")
-
-        future?.cancel(true)
+        HexDebug.LOGGER.info("Stopping debug adapter")
 
         if (notifyClient) {
             remoteProxy.exited(ExitedEventArguments().also { it.exitCode = 0 })
             remoteProxy.terminated(TerminatedEventArguments())
         }
+
+        isTerminated = true
     }
 
     fun print(value: String, category: String = OutputEventArgumentsCategory.STDOUT) {
@@ -87,36 +70,11 @@ class HexDebugServer(
         logRequest("attach", args)
 
         launchArgs = LaunchArgs(args)
-        state = HexDebugServerState.READY
+        debugger = createDebugger()
+        env.caster?.displayClientMessage(Component.translatable("text.hexdebug.connected"), true)
 
-        queuedCast?.also(::startDebugging)
-        queuedCast = null
-
+        remoteProxy.initialized()
         return futureOf()
-    }
-
-    // not a request
-    fun startDebugging(cast: DebugCastArgs) = when (state) {
-        HexDebugServerState.NOT_READY -> {
-            queuedCast = cast
-            (cast.vm.env.castingEntity as? ServerPlayer)?.displayClientMessage(
-                Component.translatable("text.hexdebug.no_client"), true
-            )
-            true
-        }
-        HexDebugServerState.READY -> {
-            state = HexDebugServerState.DEBUGGING
-            debugger = HexDebugger(initArgs, launchArgs, cast)
-            (cast.vm.env.castingEntity as? ServerPlayer)?.displayClientMessage(
-                Component.translatable("text.hexdebug.connected"), true
-            )
-            remoteProxy.initialized()
-            true
-        }
-        else -> {
-            HexDebug.LOGGER.info("Debugger is already started, cancelling")
-            false
-        }
     }
 
     override fun setBreakpoints(args: SetBreakpointsArguments): CompletableFuture<SetBreakpointsResponse> {
@@ -241,9 +199,11 @@ class HexDebugServer(
 
     // helpers
 
+    private fun createDebugger() = HexDebugger(initArgs, launchArgs, CastingVM.empty(env), world, onExecute, iotas)
+
     private fun handleDebuggerStep(result: DebugStepResult?) {
         if (result == null) {
-            HexDebug.LOGGER.info("Program exited, stopping debug server")
+            HexDebug.LOGGER.info("Program exited, stopping debug adapter")
             stop()
             return
         }
@@ -270,19 +230,4 @@ class HexDebugServer(
     }
 }
 
-fun <T> T.toFuture(): CompletableFuture<T> = CompletableFuture.completedFuture(this)
 
-fun <T> futureOf(value: T): CompletableFuture<T> = CompletableFuture.completedFuture(value)
-
-fun <T> futureOf(): CompletableFuture<T> = CompletableFuture.completedFuture(null)
-
-inline fun <reified T> Sequence<T>.paginate(start: Int?, count: Int?): Array<T> {
-    var result = this
-    if (start != null && start > 0) {
-        result = result.drop(start)
-    }
-    if (count != null && count > 0) {
-        result = result.take(count)
-    }
-    return result.toList().toTypedArray()
-}

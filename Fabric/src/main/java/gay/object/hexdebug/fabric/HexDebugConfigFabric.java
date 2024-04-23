@@ -21,7 +21,7 @@ public class HexDebugConfigFabric extends PartitioningSerializer.GlobalData {
     @ConfigEntry.Category("client")
     @ConfigEntry.Gui.TransitiveObject
     public final Client client = new Client();
-    @ConfigEntry.Category("server")
+    @ConfigEntry.Category("adapter")
     @ConfigEntry.Gui.TransitiveObject
     public final Server server = new Server();
 
@@ -35,7 +35,7 @@ public class HexDebugConfigFabric extends PartitioningSerializer.GlobalData {
             HexDebugConfig.setClient(instance.client);
         }
 
-        // Needed for logical server in singleplayer, do not access server configs from client code
+        // Needed for logical adapter in singleplayer, do not access adapter configs from client code
         HexDebugConfig.setServer(instance.server);
     }
 
@@ -49,7 +49,7 @@ public class HexDebugConfigFabric extends PartitioningSerializer.GlobalData {
     }
 
 
-    @Config(name = "server")
+    @Config(name = "adapter")
     private static class Server implements ConfigData, HexDebugConfig.ServerConfigAccess {
 
         @ConfigEntry.Gui.CollapsibleObject
