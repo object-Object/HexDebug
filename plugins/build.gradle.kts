@@ -7,14 +7,11 @@ plugins {
 }
 
 repositories {
-    // plugins
+    mavenCentral()
     gradlePluginPortal()
     maven { url = uri("https://maven.architectury.dev/") }
     maven { url = uri("https://maven.fabricmc.net/") }
     maven { url = uri("https://maven.minecraftforge.net/") }
-
-    // libraries
-    mavenCentral()
     maven { url = uri("https://maven.blamejared.com/") }
 }
 
@@ -29,7 +26,6 @@ dependencies {
 
     // libraries used by script plugins
     implementation(libs.pkpcpbp)
-    runtimeClasspath(libs.pkpcpbp)
 
     // https://stackoverflow.com/a/70878181
     // https://github.com/gradle/gradle/issues/15383
