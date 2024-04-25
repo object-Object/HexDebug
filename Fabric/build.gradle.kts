@@ -2,17 +2,23 @@ plugins {
     id("hexdebug.conventions.platform")
 }
 
+architectury {
+    fabric()
+}
+
 hexdebugArchitectury {
     platform = "fabric"
     mavenPublication("mavenFabric")
 }
 
 hexdebugPlatform {
+    developmentConfiguration("developmentFabric")
     shadowCommonConfiguration("transformProductionFabric")
 }
 
 hexdebugModDependencies {
     filesMatching.add("fabric.mod.json")
+
     versions = versions.get().mapValues { (_, version) ->
         version
             .replace(",", " ")
@@ -24,18 +30,8 @@ hexdebugModDependencies {
     }
 }
 
-architectury {
-    fabric()
-}
-
 repositories {
     flatDir { dir("libs") }
-}
-
-configurations {
-    named("developmentFabric") {
-        extendsFrom(get("common"))
-    }
 }
 
 dependencies {
@@ -72,8 +68,7 @@ dependencies {
 }
 
 publishMods {
-    modLoaders.add("fabric")
-    modLoaders.add("quilt")
+    modLoaders.addAll("fabric", "quilt")
 
     // Uncomment your desired platform(s)
 //    curseforge {

@@ -5,6 +5,14 @@ import hexdebug.hexdebugProperties
 // plugin config
 
 abstract class HexDebugPlatformExtension(private val project: Project) {
+    fun developmentConfiguration(name: String) = project.run {
+        configurations {
+            named(name) {
+                extendsFrom(get("common"))
+            }
+        }
+    }
+
     fun shadowCommonConfiguration(configuration: String) = project.run {
         dependencies {
             "shadowCommon"(project(":Common", configuration)) { isTransitive = false }

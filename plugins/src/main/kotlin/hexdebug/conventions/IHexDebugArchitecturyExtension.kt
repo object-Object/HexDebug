@@ -7,6 +7,4 @@ interface IHexDebugArchitecturyExtension {
     val platform: Property<String>
 
     val artifactId: Provider<String>
-
-    fun mavenPublication(name: String)
 }

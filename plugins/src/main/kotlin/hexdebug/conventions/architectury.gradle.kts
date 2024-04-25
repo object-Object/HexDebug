@@ -10,7 +10,7 @@ abstract class HexDebugArchitecturyExtension(private val project: Project) : IHe
         project.hexdebugProperties.getArtifactId(platform.get())
     }
 
-    override fun mavenPublication(name: String) = project.run {
+    fun mavenPublication(name: String) = project.run {
         publishing {
             publications {
                 register<MavenPublication>(name) {

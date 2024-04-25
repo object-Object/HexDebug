@@ -2,13 +2,13 @@ plugins {
     id("hexdebug.conventions.architectury")
 }
 
+architectury {
+    common("fabric", "forge")
+}
+
 hexdebugArchitectury {
     platform = "common"
     mavenPublication("mavenCommon")
-}
-
-architectury {
-    common("fabric", "forge")
 }
 
 dependencies {

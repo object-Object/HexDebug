@@ -2,19 +2,6 @@ plugins {
     id("hexdebug.conventions.platform")
 }
 
-hexdebugArchitectury {
-    platform = "forge"
-    mavenPublication("mavenForge")
-}
-
-hexdebugPlatform {
-    shadowCommonConfiguration("transformProductionForge")
-}
-
-hexdebugModDependencies {
-    filesMatching.add("META-INF/mods.toml")
-}
-
 architectury {
     forge()
 }
@@ -29,10 +16,18 @@ loom {
     }
 }
 
-configurations {
-    named("developmentForge") {
-        extendsFrom(get("common"))
-    }
+hexdebugArchitectury {
+    platform = "forge"
+    mavenPublication("mavenForge")
+}
+
+hexdebugPlatform {
+    developmentConfiguration("developmentForge")
+    shadowCommonConfiguration("transformProductionForge")
+}
+
+hexdebugModDependencies {
+    filesMatching.add("META-INF/mods.toml")
 }
 
 dependencies {
