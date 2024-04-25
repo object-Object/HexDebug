@@ -40,12 +40,6 @@ dependencies {
     modImplementation(libs.paucal.forge)
     modImplementation(libs.patchouli.forge)
 
-//    modCompileOnly libs.paucal.forge
-//    modCompileOnly libs.patchouli.forge
-//
-//    modRuntimeOnly libs.paucal.forge
-//    modRuntimeOnly libs.patchouli.forge
-
     modRuntimeOnly(libs.kotlin.forge)
 
     modApi(libs.clothConfig.forge)

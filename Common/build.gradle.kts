@@ -18,6 +18,6 @@ dependencies {
     modApi(libs.architectury)
 
     modCompileOnly(libs.paucal.common)
-    modCompileOnly(libs.hexcasting.fabric) // ???
+    modCompileOnly(libs.hexcasting.common) // ???
     modCompileOnly(libs.patchouli.xplat)
 }

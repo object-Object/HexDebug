@@ -30,7 +30,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         val stack = player.getItemInHand(usedHand)
 
         if (world.isClientSide) {
-            return InteractionResultHolder.pass(stack)
+            return InteractionResultHolder.success(stack)
         }
 
         val serverPlayer = player as ServerPlayer
@@ -67,7 +67,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         player.awardStat(stat)
 
         serverPlayer.cooldowns.addCooldown(this, this.cooldown())
-        return InteractionResultHolder.success(stack)
+        return InteractionResultHolder.consume(stack)
     }
 }
 
