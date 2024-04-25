@@ -37,10 +37,10 @@ clothConfig = "11.1.106"
 
 # other non-Minecraft dependencies
 
-shadow = "7.1.2"
 findbugs-jsr305 = "3.0.2" # for @Nonnull
 asm = "9.4"
 dotenv = "2.0.0" # for template.env api keys
+shadow = "7.1.2"
 modPublish = "0.3.0"
 pkpcpbp = "0.1.0-pre-87"
 
@@ -48,6 +48,7 @@ lsp4j = "0.22.0"
 
 [bundles]
 asm = ["asm", "asm-analysis", "asm-commons", "asm-tree", "asm-util"]
+lsp4j = ["lsp4j", "lsp4j-debug"]
 
 [libraries]
 kotlin-stdlib = { module="org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
@@ -100,11 +101,11 @@ lsp4j-debug = { module="org.eclipse.lsp4j:org.eclipse.lsp4j.debug", version.ref=
 pkpcpbp = { module="at.petra-k.pkpcpbp:PKPCPBP", version.ref="pkpcpbp" }
 
 [plugins]
-kotlin = { id="org.jetbrains.kotlin.jvm", version.ref="kotlin" }
+kotlin-jvm = { id="org.jetbrains.kotlin.jvm", version.ref="kotlin" }
 
 architectury      = { id="architectury-plugin", version.ref="architectury-plugin" }
 architectury-loom = { id="dev.architectury.loom", version.ref="architectury-loom" }
 
-shadow     = { id="com.github.johnrengelman.shadow", version.ref="shadow" }
 dotenv     = { id="co.uzzu.dotenv.gradle", version.ref="dotenv" }
+shadow     = { id="com.github.johnrengelman.shadow", version.ref="shadow" }
 modPublish = { id="me.modmuss50.mod-publish-plugin", version.ref="modPublish" }
