@@ -18,7 +18,7 @@ val extension = extensions.create<HexDebugPlatformExtension>("hexdebugPlatform")
 
 plugins {
     id("hexdebug.conventions.architectury")
-    id("hexdebug.utils.mod-dependency-versions")
+    id("hexdebug.utils.mod-dependencies")
 
     id("com.github.johnrengelman.shadow")
     id("me.modmuss50.mod-publish-plugin")

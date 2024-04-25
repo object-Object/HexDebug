@@ -11,6 +11,10 @@ hexdebugPlatform {
     shadowCommonConfiguration("transformProductionForge")
 }
 
+hexdebugModDependencies {
+    filesMatching.add("META-INF/mods.toml")
+}
+
 architectury {
     forge()
 }

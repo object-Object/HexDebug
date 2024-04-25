@@ -11,6 +11,19 @@ hexdebugPlatform {
     shadowCommonConfiguration("transformProductionFabric")
 }
 
+hexdebugModDependencies {
+    filesMatching.add("fabric.mod.json")
+    versions = versions.get().mapValues { (_, version) ->
+        version
+            .replace(",", " ")
+            .replace(Regex("""\s+"""), " ")
+            .replace(Regex("""\[(\S+)"""), ">=$1")
+            .replace(Regex("""(\S+)\]"""), "<=$1")
+            .replace(Regex("""\](\S+)"""), ">$1")
+            .replace(Regex("""(\S+)\["""), "<$1")
+    }
+}
+
 architectury {
     fabric()
 }

@@ -2,12 +2,12 @@ package hexdebug.utils
 
 // plugin config
 
-interface ModDependencyVersionsExtension {
+interface HexDebugModDependenciesExtension {
     val filesMatching: ListProperty<String>
     val versions: MapProperty<String, String>
 }
 
-val extension = extensions.create<ModDependencyVersionsExtension>("modDependencyVersions")
+val extension = extensions.create<HexDebugModDependenciesExtension>("hexdebugModDependencies")
 
 val versionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 extension.versions.convention(provider {
@@ -31,7 +31,7 @@ tasks.withType<ProcessResources>().configureEach {
     // for incremental builds
     inputs.properties(dependencyVersions)
 
-    filesMatching(listOf("fabric.mod.json", "META-INF/mods.toml")) {
+    filesMatching(extension.filesMatching.get()) {
         expand(dependencyVersions)
     }
 }

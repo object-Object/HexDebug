@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "hexdebug",
-  "version": "${version}",
+  "version": "${modVersion}",
   "name": "HexDebug",
   "description": "The HexDebug addon for Hex Casting",
   "authors": [
