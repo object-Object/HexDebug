@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.adapter
 
-import gay.`object`.hexdebug.proxy.DebugAdapterProxyServer
+import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.adapter.proxy.DebugAdapterProxyServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import java.util.*
@@ -22,9 +23,12 @@ object DebugAdapterManager {
     }
 
     fun stopAll() {
-        for ((_, proxyServer) in proxyServers) {
+        HexDebug.LOGGER.info("Stopping {} debug adapters", proxyServers.size)
+        for ((playerUUID, proxyServer) in proxyServers) {
+            HexDebug.LOGGER.info("Stopping debug adapter for player {}", playerUUID)
             proxyServer.debugAdapter.stop()
         }
         proxyServers.clear()
+        HexDebug.LOGGER.info("Stopped all debug adapters")
     }
 }

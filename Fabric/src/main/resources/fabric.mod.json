@@ -16,10 +16,22 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "gay.object.hexdebug.fabric.HexDebugFabric"
+      {
+        "adapter": "kotlin",
+        "value": "gay.object.hexdebug.fabric.HexDebugFabric"
+      }
     ],
     "client": [
-      "gay.object.hexdebug.fabric.HexDebugClientFabric"
+      {
+        "adapter":  "kotlin",
+        "value": "gay.object.hexdebug.fabric.HexDebugClientFabric"
+      }
+    ],
+    "server": [
+      {
+        "adapter":  "kotlin",
+        "value": "gay.object.hexdebug.fabric.HexDebugServerFabric"
+      }
     ]
   },
   "mixins": [

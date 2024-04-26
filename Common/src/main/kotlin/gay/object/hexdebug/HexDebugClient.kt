@@ -1,17 +1,15 @@
 package gay.`object`.hexdebug
 
-import gay.`object`.hexdebug.proxy.DebugAdapterProxyClient
+import dev.architectury.event.events.client.ClientPlayerEvent
+import gay.`object`.hexdebug.adapter.proxy.DebugAdapterProxyClient
 
 object HexDebugClient {
-    @JvmStatic
     fun init() {
-        HexDebugAbstractions.get().apply {
-            onClientJoin {
-                DebugAdapterProxyClient.start()
-            }
-            onClientDisconnect {
-                DebugAdapterProxyClient.stop()
-            }
+        ClientPlayerEvent.CLIENT_PLAYER_JOIN.register {
+            DebugAdapterProxyClient.start()
+        }
+        ClientPlayerEvent.CLIENT_PLAYER_QUIT.register {
+            DebugAdapterProxyClient.stop()
         }
     }
 }

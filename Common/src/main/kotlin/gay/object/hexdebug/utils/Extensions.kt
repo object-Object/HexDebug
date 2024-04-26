@@ -1,12 +1,17 @@
 package gay.`object`.hexdebug.utils
 
+import net.minecraft.world.InteractionHand
 import java.util.concurrent.CompletableFuture
+
+// futures
 
 fun <T> T.toFuture(): CompletableFuture<T> = CompletableFuture.completedFuture(this)
 
 fun <T> futureOf(value: T): CompletableFuture<T> = CompletableFuture.completedFuture(value)
 
 fun <T> futureOf(): CompletableFuture<T> = CompletableFuture.completedFuture(null)
+
+// selecting sequence range via start/count (for the debug adapter)
 
 inline fun <reified T> Sequence<T>.paginate(start: Int?, count: Int?): Array<T> {
     var result = this
@@ -17,4 +22,11 @@ inline fun <reified T> Sequence<T>.paginate(start: Int?, count: Int?): Array<T> 
         result = result.take(count)
     }
     return result.toList().toTypedArray()
+}
+
+// item helpers
+
+val InteractionHand.otherHand get() = when (this) {
+    InteractionHand.MAIN_HAND -> InteractionHand.OFF_HAND
+    InteractionHand.OFF_HAND -> InteractionHand.MAIN_HAND
 }

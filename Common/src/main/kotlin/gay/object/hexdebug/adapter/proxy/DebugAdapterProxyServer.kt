@@ -1,4 +1,4 @@
-package gay.`object`.hexdebug.proxy
+package gay.`object`.hexdebug.adapter.proxy
 
 import gay.`object`.hexdebug.adapter.DebugAdapter
 import gay.`object`.hexdebug.networking.HexDebugNetworking

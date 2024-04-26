@@ -35,8 +35,6 @@ class DebugAdapter(
     var isTerminated = false
 
     fun stop(notifyClient: Boolean = true) {
-        HexDebug.LOGGER.info("Stopping debug adapter")
-
         if (notifyClient) {
             remoteProxy.exited(ExitedEventArguments().also { it.exitCode = 0 })
             remoteProxy.terminated(TerminatedEventArguments())

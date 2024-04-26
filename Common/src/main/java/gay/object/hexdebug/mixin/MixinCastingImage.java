@@ -14,15 +14,15 @@ import org.spongepowered.asm.mixin.Unique;
 public abstract class MixinCastingImage implements IMixinCastingImage {
     @Unique
     @Nullable
-    private DebugStepType debugStepType;
+    private DebugStepType hexDebug$debugStepType;
 
     @Override
     public @Nullable DebugStepType hexDebug$getDebugStepType() {
-        return debugStepType;
+        return hexDebug$debugStepType;
     }
 
     @Override
     public void hexDebug$setDebugStepType(@Nullable DebugStepType debugStepType) {
-        this.debugStepType = debugStepType;
+        this.hexDebug$debugStepType = debugStepType;
     }
 }

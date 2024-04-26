@@ -1,8 +1,12 @@
-package gay.`object`.hexdebug.proxy
+package gay.`object`.hexdebug.adapter.proxy
 
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.networking.HexDebugNetworking
 import gay.`object`.hexdebug.networking.MsgDebugAdapterProxyC2S
+import io.ktor.network.selector.*
+import io.ktor.network.sockets.*
+import io.ktor.utils.io.jvm.javaio.*
+import kotlinx.coroutines.*
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException
 import org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor
 import org.eclipse.lsp4j.jsonrpc.json.StreamMessageConsumer
@@ -10,15 +14,18 @@ import org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.net.ServerSocket
 import java.net.Socket
-import java.net.SocketException
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.CancellationException
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
+import io.ktor.network.sockets.Socket as KtorSocket
 
 data class DebugAdapterProxyClient(val input: InputStream, val output: OutputStream) {
+    constructor(socket: KtorSocket) : this(
+        socket.openReadChannel().toInputStream(),
+        socket.openWriteChannel().toOutputStream(),
+    )
+
     constructor(socket: Socket) : this(socket.inputStream, socket.outputStream)
 
     private val proxyProducer = ProxyProducer()
@@ -79,53 +86,60 @@ data class DebugAdapterProxyClient(val input: InputStream, val output: OutputStr
 
     companion object {
         var instance: DebugAdapterProxyClient? = null
-
-        private var activeThread: Thread? = null
-        private var serverSocket: ServerSocket? = null
-        private var stop: Boolean = false
+            private set
 
         private val port get() = 4444 // TODO: config
 
         private val executorService = Executors.newCachedThreadPool()
 
+        private var thread: Thread? = null
+        private var job: Job? = null
+
         fun start() {
-            if (activeThread != null) {
+            thread = thread?.also {
                 HexDebug.LOGGER.warn("Tried to start DebugAdapterProxyClient while already running")
-                return
-            }
-
-            activeThread = thread(name="DebugAdapterProxyClient_$port") {
-                serverSocket = ServerSocket(port)
-                while (!stop) {
-                    HexDebug.LOGGER.info("Listening on port ${serverSocket?.localPort}...")
-                    val clientSocket = try {
-                        serverSocket?.accept() ?: break
-                    } catch (_: SocketException) {
-                        break
-                    }
-                    HexDebug.LOGGER.info("Client connected!")
-
-                    instance = DebugAdapterProxyClient(clientSocket)
-
-                    try {
-                        instance?.processor?.beginProcessing(executorService)?.get()
-                    } catch (_: SocketException) {
-                    } catch (_: CancellationException) {
-                    } finally {
-                        instance = null
+            } ?: thread(name="DebugAdapterProxyClient_$port") {
+                runBlocking {
+                    job = launch {
+                        runServer()
                     }
                 }
-                serverSocket?.close()
+                thread = null
             }
         }
 
         fun stop() {
-            stop = true
             HexDebug.LOGGER.info("Stopping DebugAdapterProxyClient")
-            serverSocket?.close()
-            activeThread?.join()
-            instance = null
-            stop = false
+            runBlocking {
+                job?.cancel()
+            }
+            thread?.join()
+            HexDebug.LOGGER.info("Stopped DebugAdapterProxyClient")
+        }
+
+        private suspend fun runServer() {
+            val selector = SelectorManager(Dispatchers.IO)
+            aSocket(selector).tcp().bind(port = port).use { serverSocket ->
+                while (true) {
+                    acceptClient(serverSocket)
+                }
+            }
+        }
+
+        private suspend fun acceptClient(serverSocket: ServerSocket) {
+            HexDebug.LOGGER.info("Listening for debug client on port {}...", port)
+            serverSocket.accept().use { clientSocket ->
+                HexDebug.LOGGER.info("Debug client connected!")
+
+                try {
+                    instance = DebugAdapterProxyClient(clientSocket)
+                    runInterruptible(Dispatchers.IO) {
+                        instance?.processor?.beginProcessing(executorService)?.get()
+                    }
+                } finally {
+                    instance = null
+                }
+            }
         }
     }
 }

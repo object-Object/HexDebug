@@ -2,7 +2,7 @@ package gay.`object`.hexdebug.networking
 
 import dev.architectury.networking.NetworkManager.PacketContext
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.proxy.DebugAdapterProxyClient
+import gay.`object`.hexdebug.adapter.proxy.DebugAdapterProxyClient
 import net.minecraft.network.FriendlyByteBuf
 import java.util.function.Supplier
 

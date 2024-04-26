@@ -1,4 +1,4 @@
-package gay.`object`.hexdebug.common.items
+package gay.`object`.hexdebug.item
 
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.casting.iota.PatternIota
@@ -9,6 +9,7 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.adapter.DebugAdapter
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.debugger.DebugItemCastEnv
+import gay.`object`.hexdebug.utils.otherHand
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -19,7 +20,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 
-class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
+class DebuggerItem(properties: Properties) : ItemPackagedHex(properties) {
     override fun canDrawMediaFromInventory(stack: ItemStack?) = true
 
     override fun breakAfterDepletion() = false
@@ -38,7 +39,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
 
         val debugAdapter = DebugAdapterManager[player]?.debugAdapter
         if (debugAdapter != null && !debugAdapter.isTerminated) {
-            // step ongoing debug session
+            // step ongoing debug session (TODO: raises exception if the client hasn't connected)
             debugAdapter.next(null)
         } else {
             val instrs = if (hasHex(stack)) {
@@ -69,9 +70,4 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         serverPlayer.cooldowns.addCooldown(this, this.cooldown())
         return InteractionResultHolder.consume(stack)
     }
-}
-
-val InteractionHand.otherHand get() = when (this) {
-    InteractionHand.MAIN_HAND -> InteractionHand.OFF_HAND
-    InteractionHand.OFF_HAND -> InteractionHand.MAIN_HAND
 }
