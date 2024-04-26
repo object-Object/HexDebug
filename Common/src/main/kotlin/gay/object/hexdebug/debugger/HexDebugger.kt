@@ -15,7 +15,6 @@ import at.petrak.hexcasting.api.casting.mishaps.Mishap
 import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import gay.`object`.hexdebug.adapter.LaunchArgs
-import gay.`object`.hexdebug.api.IMixinCastingImage
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
 import net.minecraft.network.chat.Component

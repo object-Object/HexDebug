@@ -1,16 +1,7 @@
 package gay.`object`.hexdebug.adapter
 
-class LaunchArgs(rawData: Map<String, Any>) {
-    private val data = rawData.withDefault {
-        when (it) {
-            "stopOnEntry" -> false
-            "skipNonEvalFrames" -> true
-            "indentWidth" -> 4
-            else -> null
-        }
-    }
-
-    val stopOnEntry: Boolean by data
-    val skipNonEvalFrames: Boolean by data
-    val indentWidth: Int by data
+class LaunchArgs(data: Map<String, Any>) {
+    val stopOnEntry: Boolean by data.withDefault { true }
+    val skipNonEvalFrames: Boolean by data.withDefault { true }
+    val indentWidth: Int by data.withDefault { 4 }
 }

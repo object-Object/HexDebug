@@ -1,7 +1,7 @@
 package gay.object.hexdebug.mixin;
 
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
-import gay.object.hexdebug.api.IMixinCastingImage;
+import gay.object.hexdebug.debugger.IMixinCastingImage;
 import gay.object.hexdebug.debugger.DebugStepType;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;

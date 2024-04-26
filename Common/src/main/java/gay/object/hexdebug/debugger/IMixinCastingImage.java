@@ -1,6 +1,4 @@
-package gay.object.hexdebug.api;
-
-import gay.object.hexdebug.debugger.DebugStepType;
+package gay.object.hexdebug.debugger;
 
 public interface IMixinCastingImage {
     DebugStepType hexDebug$getDebugStepType();

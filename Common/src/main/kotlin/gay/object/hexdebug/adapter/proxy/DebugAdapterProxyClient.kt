@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.adapter.proxy
 
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.networking.HexDebugNetworking
 import gay.`object`.hexdebug.networking.MsgDebugAdapterProxyC2S
 import io.ktor.network.selector.*
@@ -88,7 +89,7 @@ data class DebugAdapterProxyClient(val input: InputStream, val output: OutputStr
         var instance: DebugAdapterProxyClient? = null
             private set
 
-        private val port get() = 4444 // TODO: config
+        private val port get() = HexDebugConfig.getClient().debugPort
 
         private val executorService = Executors.newCachedThreadPool()
 

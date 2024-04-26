@@ -34,12 +34,13 @@ serializationHooks = "0.4.99999"
 mixinExtras = "0.1.1"
 trinkets = "3.7.0"
 clothConfig = "11.1.106"
+modMenu = "7.1.0"
 
 # other non-Minecraft dependencies
 
 findbugs-jsr305 = "3.0.2" # for @Nonnull
 asm = "9.4"
-dotenv = "2.0.0" # for template.env api keys
+dotenv = "2.0.0" # for template.env debugger keys
 shadow = "7.1.2"
 modPublish = "0.3.0"
 pkpcpbp = "0.1.0-pre-87"
@@ -84,9 +85,11 @@ cardinalComponents = { module="dev.onyxstudios.cardinal-components-api:cardinal-
 serializationHooks = { module="io.github.tropheusj:serialization-hooks", version.ref="serializationHooks" }
 mixinExtras        = { module="com.github.LlamaLad7:MixinExtras", version.ref="mixinExtras" }
 trinkets           = { module="dev.emi:trinkets", version.ref="trinkets" }
+modMenu            = { module="com.terraformersmc:modmenu", version.ref="modMenu" }
 
+clothConfig-common = { module="me.shedaniel.cloth:cloth-config", version.ref="clothConfig" }
 clothConfig-fabric = { module="me.shedaniel.cloth:cloth-config-fabric", version.ref="clothConfig" }
-clothConfig-forge = { module="me.shedaniel.cloth:cloth-config-forge", version.ref="clothConfig" }
+clothConfig-forge  = { module="me.shedaniel.cloth:cloth-config-forge", version.ref="clothConfig" }
 
 findbugs-jsr305 = { module="com.google.code.findbugs:jsr305", version.ref="findbugs-jsr305" }
 

@@ -1,5 +1,6 @@
 package gay.`object`.hexdebug
 
+import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.networking.HexDebugNetworking
 import gay.`object`.hexdebug.registry.HexDebugItems
 import net.minecraft.resources.ResourceLocation
@@ -14,6 +15,7 @@ object HexDebug {
 
     fun init() {
         LOGGER.info("HexDebug <3 HexBug")
+        HexDebugConfig.init()
         HexDebugItems.init()
         HexDebugNetworking.init()
     }

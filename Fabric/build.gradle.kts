@@ -63,8 +63,10 @@ dependencies {
     modImplementation(libs.trinkets)
 
     modApi(libs.clothConfig.fabric) {
-        exclude(group = "net.fabricmc.fabric-api")
+        exclude(group = "net.fabricmc.fabric-debugger")
     }
+
+    modApi(libs.modMenu)
 }
 
 publishMods {
@@ -77,10 +79,10 @@ publishMods {
 //        minecraftVersions.add(minecraftVersion)
 //
 //        requires{
-//            slug = "fabric-api"
+//            slug = "fabric-debugger"
 //        }
 //        requires {
-//            slug = "architectury-api"
+//            slug = "architectury-debugger"
 //        }
 //        requires {
 //            slug = "fabric-language-kotlin"
@@ -96,10 +98,10 @@ publishMods {
 //        minecraftVersions.add("1.19.2")
 //
 //        requires{
-//            slug = "fabric-api"
+//            slug = "fabric-debugger"
 //        }
 //        requires {
-//            slug = "architectury-api"
+//            slug = "architectury-debugger"
 //        }
 //        requires {
 //            slug = "fabric-language-kotlin"

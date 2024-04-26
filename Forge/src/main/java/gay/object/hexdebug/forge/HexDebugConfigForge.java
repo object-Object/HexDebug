@@ -1,7 +1,7 @@
 package gay.object.hexdebug.forge;
 
 import at.petrak.hexcasting.api.misc.MediaConstants;
-import gay.object.hexdebug.api.config.HexDebugConfig;
+import gay.object.hexdebug.debugger.config.HexDebugConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;

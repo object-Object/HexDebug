@@ -23,13 +23,19 @@
     ],
     "client": [
       {
-        "adapter":  "kotlin",
+        "adapter": "kotlin",
         "value": "gay.object.hexdebug.fabric.HexDebugClientFabric"
+      }
+    ],
+    "modmenu": [
+      {
+        "adapter": "kotlin",
+        "value": "gay.object.hexdebug.fabric.HexDebugModMenuIntegration"
       }
     ],
     "server": [
       {
-        "adapter":  "kotlin",
+        "adapter": "kotlin",
         "value": "gay.object.hexdebug.fabric.HexDebugServerFabric"
       }
     ]
@@ -39,11 +45,13 @@
     "hexdebug.mixins.json"
   ],
   "depends": {
-    "minecraft": ">=${versions.minecraft}",
+    "minecraft": "${versions.minecraft}",
     "fabricloader": ">=${versions.fabric_loader}",
-    "fabric-api": "*",
+    "fabric-api": ">=${versions.fabric_api}",
     "fabric-language-kotlin": ">=${versions.kotlin_fabric}",
     "architectury": ">=${versions.architectury}",
-    "hexcasting": ">=${versions.hexcasting}"
+    "hexcasting": ">=${versions.hexcasting}",
+    "cloth-config": ">=${versions.clothConfig}",
+    "modmenu": ">=${versions.modMenu}"
   }
 }

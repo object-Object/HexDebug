@@ -108,7 +108,7 @@ publishMods {
 //        minecraftVersions.add(minecraftVersion)
 //
 //        requires {
-//            slug = "architectury-api"
+//            slug = "architectury-debugger"
 //        }
 //        requires {
 //            slug = "kotlin-for-forge"
@@ -124,7 +124,7 @@ publishMods {
 //        minecraftVersions.add(minecraftVersion)
 //
 //        requires {
-//            slug = "architectury-api"
+//            slug = "architectury-debugger"
 //        }
 //        requires {
 //            slug = "kotlin-for-forge"

@@ -4,8 +4,10 @@
             "type": "hexdebug",
             "request": "attach",
             "name": "HexDebug: Attach",
-            "stopOnEntry": true,
-            // "skipNonEvalFrames": false,
+            "port": 4445,
+            // "stopOnEntry": true,
+            // "skipNonEvalFrames": true,
+            // "indentWidth": 4,
         }
     ]
 }

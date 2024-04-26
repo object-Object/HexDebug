@@ -6,6 +6,5 @@ import net.fabricmc.api.ModInitializer
 object HexDebugFabric : ModInitializer {
     override fun onInitialize() {
         HexDebug.init()
-        HexDebugConfigFabric.init()
     }
 }

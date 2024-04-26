@@ -20,4 +20,5 @@ dependencies {
     modCompileOnly(libs.paucal.common)
     modCompileOnly(libs.hexcasting.common) // ???
     modCompileOnly(libs.patchouli.xplat)
+    modCompileOnly(libs.clothConfig.common)
 }
