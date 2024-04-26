@@ -8,6 +8,7 @@ import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.*
+import net.minecraft.world.InteractionResult
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException
 import org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor
 import org.eclipse.lsp4j.jsonrpc.json.StreamMessageConsumer
@@ -89,37 +90,54 @@ data class DebugAdapterProxyClient(val input: InputStream, val output: OutputStr
         var instance: DebugAdapterProxyClient? = null
             private set
 
-        private val port get() = HexDebugConfig.getClient().debugPort
+        private val port get() = HexDebugConfig.get().client.debugPort
 
         private val executorService = Executors.newCachedThreadPool()
 
         private var thread: Thread? = null
-        private var job: Job? = null
+        private var wrapperJob: Job? = null
+        private var serverJob: Job? = null
+
+        fun init() {
+            HexDebugConfig.getHolder().registerSaveListener { _, _ ->
+                reload()
+                InteractionResult.PASS
+            }
+        }
 
         fun start() {
             thread = thread?.also {
                 HexDebug.LOGGER.warn("Tried to start DebugAdapterProxyClient while already running")
             } ?: thread(name="DebugAdapterProxyClient_$port") {
                 runBlocking {
-                    job = launch {
-                        runServer()
-                    }
+                    wrapperJob = launch { runServerWrapper() }
                 }
                 thread = null
             }
         }
 
+        private fun reload() {
+            serverJob?.cancel()
+        }
+
         fun stop() {
             HexDebug.LOGGER.info("Stopping DebugAdapterProxyClient")
-            runBlocking {
-                job?.cancel()
-            }
+            wrapperJob?.cancel()
             thread?.join()
             HexDebug.LOGGER.info("Stopped DebugAdapterProxyClient")
         }
 
-        private suspend fun runServer() {
+        private suspend fun runServerWrapper() {
             val selector = SelectorManager(Dispatchers.IO)
+            while (true) {
+                coroutineScope {
+                    serverJob = launch { runServer(selector) }
+                }
+            }
+        }
+
+        private suspend fun runServer(selector: SelectorManager) {
+            HexDebug.LOGGER.info("Listening for debug client on port {}...", port)
             aSocket(selector).tcp().bind(port = port).use { serverSocket ->
                 while (true) {
                     acceptClient(serverSocket)
@@ -128,10 +146,9 @@ data class DebugAdapterProxyClient(val input: InputStream, val output: OutputStr
         }
 
         private suspend fun acceptClient(serverSocket: ServerSocket) {
-            HexDebug.LOGGER.info("Listening for debug client on port {}...", port)
+            HexDebug.LOGGER.debug("Waiting for client...")
             serverSocket.accept().use { clientSocket ->
-                HexDebug.LOGGER.info("Debug client connected!")
-
+                HexDebug.LOGGER.debug("Debug client connected!")
                 try {
                     instance = DebugAdapterProxyClient(clientSocket)
                     runInterruptible(Dispatchers.IO) {

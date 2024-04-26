@@ -21,9 +21,9 @@ object HexDebugConfig {
     }
 
     // functions instead of getters to make it more clear that these can't be used until after init()
-    fun get(): Global = AutoConfig.getConfigHolder(Global::class.java).config
+    fun getHolder() = AutoConfig.getConfigHolder(Global::class.java)!!
 
-    fun getClient() = get().client
+    fun get() = getHolder().config!!
 
     @Config(name = HexDebug.MODID)
     class Global : GlobalData() {

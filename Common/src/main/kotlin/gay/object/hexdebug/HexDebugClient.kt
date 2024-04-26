@@ -5,6 +5,7 @@ import gay.`object`.hexdebug.adapter.proxy.DebugAdapterProxyClient
 
 object HexDebugClient {
     fun init() {
+        DebugAdapterProxyClient.init()
         ClientPlayerEvent.CLIENT_PLAYER_JOIN.register {
             DebugAdapterProxyClient.start()
         }

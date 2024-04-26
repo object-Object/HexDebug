@@ -8,6 +8,18 @@
     connected: "Debug client connected!",
   },
 
+  "text.autoconfig.hexdebug": {
+    title: "HexDebug Config",
+    category: {
+      client: "Client",
+    },
+    option: {
+      client: {
+        debugPort: "Debug Port",
+      },
+    },
+  },
+
   "hexcasting.action": {
     "hexdebug:": {
       "breakpoint/": {
