@@ -73,12 +73,12 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
     }
 
     companion object {
+        val DEBUGGER_STATE_ID = HexDebug.id("debugger_state")
+
         var debuggerState: DebuggerState = DebuggerState.INACTIVE
 
         fun getProperties() = mapOf(
-            HexDebug.id("debugger_state") to ClampedItemPropertyFunction { _, _, _, _ ->
-                debuggerState.ordinal.toFloat() / DebuggerState.entries.lastIndex
-            },
+            DEBUGGER_STATE_ID to ClampedItemPropertyFunction { _, _, _, _ -> debuggerState.itemOverride },
         )
     }
 }
@@ -88,3 +88,5 @@ enum class DebuggerState {
     WAITING_FOR_CLIENT,
     ACTIVE,
 }
+
+val DebuggerState.itemOverride get() = ordinal.toFloat() / DebuggerState.entries.lastIndex

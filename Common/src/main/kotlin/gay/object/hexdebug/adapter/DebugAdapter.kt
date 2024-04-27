@@ -107,7 +107,6 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     private fun handleDebuggerStep(result: DebugStepResult?) {
         if (result == null) {
-            HexDebug.LOGGER.info("Program exited, stopping debug adapter")
             terminate()
             return
         }
