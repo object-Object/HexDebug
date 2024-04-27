@@ -18,10 +18,18 @@ sealed interface DebugAdapterState {
     val castArgs: CastArgs?
 
     data class NotDebugging(
-        var initArgs: InitializeRequestArguments? = null,
-        var launchArgs: LaunchArgs? = null,
-        override var castArgs: CastArgs? = null,
-    ) : DebugAdapterState
+        val initArgs: InitializeRequestArguments? = null,
+        val launchArgs: LaunchArgs? = null,
+        override val castArgs: CastArgs? = null,
+    ) : DebugAdapterState {
+        fun tryStartDebugging(): DebugAdapterState {
+            return Debugging(
+                initArgs ?: return this,
+                launchArgs ?: return this,
+                castArgs ?: return this,
+            )
+        }
+    }
 
     data class Debugging(
         val initArgs: InitializeRequestArguments,

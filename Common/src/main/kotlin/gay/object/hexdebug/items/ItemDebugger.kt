@@ -1,4 +1,4 @@
-package gay.`object`.hexdebug.item
+package gay.`object`.hexdebug.items
 
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.casting.iota.PatternIota
@@ -6,10 +6,12 @@ import at.petrak.hexcasting.api.mod.HexConfig
 import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import at.petrak.hexcasting.common.msgs.MsgNewSpiralPatternsS2C
 import at.petrak.hexcasting.xplat.IXplatAbstractions
+import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.CastArgs
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.debugger.DebugItemCastEnv
 import gay.`object`.hexdebug.utils.otherHand
+import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
@@ -19,7 +21,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 
-class DebuggerItem(properties: Properties) : ItemPackagedHex(properties) {
+class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
     override fun canDrawMediaFromInventory(stack: ItemStack?) = true
 
     override fun breakAfterDepletion() = false
@@ -69,4 +71,20 @@ class DebuggerItem(properties: Properties) : ItemPackagedHex(properties) {
         serverPlayer.cooldowns.addCooldown(this, this.cooldown())
         return InteractionResultHolder.consume(stack)
     }
+
+    companion object {
+        var debuggerState: DebuggerState = DebuggerState.INACTIVE
+
+        fun getProperties() = mapOf(
+            HexDebug.id("debugger_state") to ClampedItemPropertyFunction { _, _, _, _ ->
+                debuggerState.ordinal.toFloat() / DebuggerState.entries.lastIndex
+            },
+        )
+    }
+}
+
+enum class DebuggerState {
+    INACTIVE,
+    WAITING_FOR_CLIENT,
+    ACTIVE,
 }

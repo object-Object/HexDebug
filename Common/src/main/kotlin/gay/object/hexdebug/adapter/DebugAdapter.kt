@@ -6,6 +6,9 @@ import gay.`object`.hexdebug.adapter.DebugAdapterState.NotDebugging
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyServerLauncher
 import gay.`object`.hexdebug.debugger.DebugStepResult
 import gay.`object`.hexdebug.debugger.RequestStepType
+import gay.`object`.hexdebug.items.DebuggerState
+import gay.`object`.hexdebug.networking.HexDebugNetworking
+import gay.`object`.hexdebug.networking.MsgDebuggerStateS2C
 import gay.`object`.hexdebug.utils.futureOf
 import gay.`object`.hexdebug.utils.paginate
 import gay.`object`.hexdebug.utils.toFuture
@@ -27,6 +30,22 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     private val remoteProxy: IDebugProtocolClient get() = launcher.remoteProxy
 
     private var state: DebugAdapterState = NotDebugging()
+        set(value) {
+            field = value
+            val debuggerState = when (value) {
+                is Debugging -> DebuggerState.ACTIVE
+                is NotDebugging -> if (state.castArgs != null) {
+                    DebuggerState.WAITING_FOR_CLIENT
+                } else {
+                    DebuggerState.INACTIVE
+                }
+            }
+            HexDebugNetworking.sendToPlayer(player, MsgDebuggerStateS2C(debuggerState))
+        }
+
+    init {
+        HexDebugNetworking.sendToPlayer(player, MsgDebuggerStateS2C(DebuggerState.INACTIVE))
+    }
 
     val isDebugging get() = state is Debugging
 
@@ -34,7 +53,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         if (state is Debugging) {
             terminate()
         }
-        setArgs { castArgs = args }
+        setArgs { copy(castArgs = args) }
         if (state is NotDebugging) {
             player.displayClientMessage(Component.translatable("text.hexdebug.no_client"), true)
         }
@@ -75,21 +94,13 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         return ResponseError(ResponseErrorCode.UnknownErrorCode, message, e.stackTraceToString())
     }
 
-    private fun setArgs(action: NotDebugging.() -> Unit) = setArgs(state.assert(), action)
+    private fun setArgs(action: NotDebugging.() -> NotDebugging) = setArgs(state.assert(), action)
 
-    private fun setArgs(notDebugging: NotDebugging, action: NotDebugging.() -> Unit) {
-        action.invoke(notDebugging)
-
-        val debugging = notDebugging.run {
-            Debugging(
-                initArgs ?: return,
-                launchArgs ?: return,
-                castArgs ?: return,
-            )
+    private fun setArgs(notDebugging: NotDebugging, action: NotDebugging.() -> NotDebugging) {
+        state = action.invoke(notDebugging).tryStartDebugging()
+        if (state is Debugging) {
+            remoteProxy.initialized()
         }
-
-        state = debugging
-        remoteProxy.initialized()
     }
 
     private fun getDebugger() = state.assert<Debugging>().debugger
@@ -121,7 +132,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     // initialization
 
     override fun initialize(args: InitializeRequestArguments): CompletableFuture<Capabilities> {
-        setArgs { initArgs = args }
+        setArgs { copy(initArgs = args) }
         return Capabilities().apply {
             supportsConfigurationDoneRequest = true
             supportsLoadedSourcesRequest = true
@@ -130,7 +141,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun attach(args: MutableMap<String, Any>): CompletableFuture<Void> {
-        setArgs { launchArgs = LaunchArgs(args) }
+        setArgs { copy(launchArgs = LaunchArgs(args)) }
         player.displayClientMessage(Component.translatable("text.hexdebug.connected"), true)
         return futureOf()
     }

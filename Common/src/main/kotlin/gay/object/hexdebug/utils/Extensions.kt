@@ -24,7 +24,7 @@ inline fun <reified T> Sequence<T>.paginate(start: Int?, count: Int?): Array<T> 
     return result.toList().toTypedArray()
 }
 
-// item helpers
+// items helpers
 
 val InteractionHand.otherHand get() = when (this) {
     InteractionHand.MAIN_HAND -> InteractionHand.OFF_HAND
