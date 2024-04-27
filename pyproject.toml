@@ -32,6 +32,7 @@ key = "modVersion"
 
 [tool.hatch.metadata.hooks.version-catalog]
 dependencies = [
+    "hexdoc>=1!0.1.0a13",
     { package="hexdoc-hexcasting", op="~=", py-version="1.0", key="hexcasting" },
 ]
 
