@@ -1,6 +1,6 @@
 {
   "parent": "hexdebug:item/debugger",
   "textures": {
-    "layer1": "hexdebug:item/debugger/state/active"
+    "layer1": "hexdebug:item/debugger/step_mode/in"
   }
 }

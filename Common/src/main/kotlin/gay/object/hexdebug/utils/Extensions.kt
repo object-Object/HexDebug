@@ -2,6 +2,7 @@ package gay.`object`.hexdebug.utils
 
 import net.minecraft.world.InteractionHand
 import java.util.concurrent.CompletableFuture
+import kotlin.enums.enumEntries
 
 // futures
 
@@ -30,3 +31,6 @@ val InteractionHand.otherHand get() = when (this) {
     InteractionHand.MAIN_HAND -> InteractionHand.OFF_HAND
     InteractionHand.OFF_HAND -> InteractionHand.MAIN_HAND
 }
+
+@OptIn(ExperimentalStdlibApi::class)
+inline val <reified T : Enum<T>> T.itemPredicate get() = (ordinal.toFloat() / enumEntries<T>().lastIndex)

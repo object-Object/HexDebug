@@ -1,5 +1,6 @@
 package hexdebug.conventions
 
+import gradle.kotlin.dsl.accessors._7240c06933e5a2db9c96bafe5c54e888.sourceSets
 import hexdebug.hexdebugProperties
 
 // plugin config
@@ -51,6 +52,14 @@ configurations {
 
 dependencies {
     "common"(project(":Common", "namedElements")) { isTransitive = false }
+}
+
+sourceSets {
+    main {
+        resources {
+            source(project(":Common").sourceSets.main.get().resources)
+        }
+    }
 }
 
 tasks {

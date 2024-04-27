@@ -6,7 +6,7 @@ import gay.`object`.hexdebug.adapter.DebugAdapterState.NotDebugging
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyServerLauncher
 import gay.`object`.hexdebug.debugger.DebugStepResult
 import gay.`object`.hexdebug.debugger.RequestStepType
-import gay.`object`.hexdebug.items.DebuggerState
+import gay.`object`.hexdebug.items.ItemDebugger
 import gay.`object`.hexdebug.networking.HexDebugNetworking
 import gay.`object`.hexdebug.networking.MsgDebuggerStateS2C
 import gay.`object`.hexdebug.utils.futureOf
@@ -33,18 +33,18 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         set(value) {
             field = value
             val debuggerState = when (value) {
-                is Debugging -> DebuggerState.ACTIVE
+                is Debugging -> ItemDebugger.State.ACTIVE
                 is NotDebugging -> if (state.castArgs != null) {
-                    DebuggerState.WAITING_FOR_CLIENT
+                    ItemDebugger.State.WAITING_FOR_CLIENT
                 } else {
-                    DebuggerState.INACTIVE
+                    ItemDebugger.State.INACTIVE
                 }
             }
             HexDebugNetworking.sendToPlayer(player, MsgDebuggerStateS2C(debuggerState))
         }
 
     init {
-        HexDebugNetworking.sendToPlayer(player, MsgDebuggerStateS2C(DebuggerState.INACTIVE))
+        HexDebugNetworking.sendToPlayer(player, MsgDebuggerStateS2C(ItemDebugger.State.INACTIVE))
     }
 
     val isDebugging get() = state is Debugging

@@ -10,6 +10,7 @@ import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.CastArgs
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.debugger.DebugItemCastEnv
+import gay.`object`.hexdebug.utils.itemPredicate
 import gay.`object`.hexdebug.utils.otherHand
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
 import net.minecraft.server.level.ServerLevel
@@ -73,20 +74,31 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
     }
 
     companion object {
-        val DEBUGGER_STATE_ID = HexDebug.id("debugger_state")
+        val STATE_PREDICATE = HexDebug.id("state")
+        val STEP_MODE_PREDICATE = HexDebug.id("step_mode")
 
-        var debuggerState: DebuggerState = DebuggerState.INACTIVE
+        var debuggerState: State = State.INACTIVE
+
+        // TODO: use CC or something probably
+        val debuggerStepMode
+            get(): StepMode = StepMode.entries[(System.currentTimeMillis() / 4000).toInt() % 4]
 
         fun getProperties() = mapOf(
-            DEBUGGER_STATE_ID to ClampedItemPropertyFunction { _, _, _, _ -> debuggerState.itemOverride },
+            STATE_PREDICATE to ClampedItemPropertyFunction { _, _, _, _ -> debuggerState.itemPredicate },
+            STEP_MODE_PREDICATE to ClampedItemPropertyFunction { _, _, _, _ -> debuggerStepMode.itemPredicate },
         )
     }
-}
 
-enum class DebuggerState {
-    INACTIVE,
-    WAITING_FOR_CLIENT,
-    ACTIVE,
-}
+    enum class State {
+        INACTIVE,
+        WAITING_FOR_CLIENT,
+        ACTIVE,
+    }
 
-val DebuggerState.itemOverride get() = ordinal.toFloat() / DebuggerState.entries.lastIndex
+    enum class StepMode {
+        IN,
+        OUT,
+        OVER,
+        CONTINUE,
+    }
+}

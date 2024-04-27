@@ -1,10 +1,9 @@
 package gay.`object`.hexdebug.forge.datagen
 
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.items.DebuggerState
 import gay.`object`.hexdebug.items.ItemDebugger
-import gay.`object`.hexdebug.items.itemOverride
 import gay.`object`.hexdebug.registry.HexDebugItems
+import gay.`object`.hexdebug.utils.itemPredicate
 import net.minecraft.data.PackOutput
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.client.model.generators.ItemModelProvider
@@ -16,21 +15,28 @@ class HexDebugModelProvider(output: PackOutput, efh: ExistingFileHelper) : ItemM
     }
 
     private fun debugger(item: ResourceLocation) {
-        val debugger = basicItem(item)
-        val debuggerPath = debugger.location.path
+        val baseModel = basicItem(item)
+        val basePath = baseModel.location.path
 
-        for (state in DebuggerState.entries) {
-            if (state == DebuggerState.INACTIVE) continue
+        for (stepMode in ItemDebugger.StepMode.entries) {
+            val stepModeName = stepMode.name.lowercase()
 
-            val stateName = state.name.lowercase()
-            val model = getBuilder("$debuggerPath/$stateName")
-                .parent(debugger)
-                .texture("layer1", "$debuggerPath/state/$stateName")
+            for (state in ItemDebugger.State.entries) {
+                val stateName = state.name.lowercase()
 
-            debugger.override()
-                .model(model)
-                .predicate(ItemDebugger.DEBUGGER_STATE_ID, state.itemOverride)
-                .end()
+                val model = getBuilder("$basePath/$stepModeName/$stateName")
+                    .parent(baseModel)
+                    .texture("layer1", "$basePath/step_mode/$stepModeName")
+
+                val override = baseModel.override()
+                    .model(model)
+                    .predicate(ItemDebugger.STEP_MODE_PREDICATE, stepMode.itemPredicate)
+
+                if (state != ItemDebugger.State.INACTIVE) {
+                    model.texture("layer2", "$basePath/state/$stateName")
+                    override.predicate(ItemDebugger.STATE_PREDICATE, state.itemPredicate)
+                }
+            }
         }
     }
 }

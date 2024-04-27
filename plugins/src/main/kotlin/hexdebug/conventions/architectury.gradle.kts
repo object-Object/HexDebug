@@ -1,5 +1,7 @@
 package hexdebug.conventions
 
+import gradle.kotlin.dsl.accessors._6658e65164901546bb7440bcefa138c2.main
+import gradle.kotlin.dsl.accessors._6658e65164901546bb7440bcefa138c2.sourceSets
 import hexdebug.hexdebugProperties
 import hexdebug.libs
 
@@ -56,8 +58,12 @@ dependencies {
 
 sourceSets {
     main {
-        kotlin.srcDirs += file("src/main/java")
-        resources.srcDirs += file("src/generated/resources")
+        kotlin {
+            srcDir(file("src/main/java"))
+        }
+        resources {
+            srcDir(file("src/generated/resources"))
+        }
     }
 }
 
