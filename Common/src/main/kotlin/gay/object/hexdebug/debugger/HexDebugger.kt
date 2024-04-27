@@ -49,7 +49,7 @@ class HexDebugger(
     private var callStack = getCallStack(nextContinuation)
 
     private val variablesAllocator = VariablesAllocator()
-    private val sourceAllocator = SourceAllocator()
+    private val sourceAllocator = SourceAllocator(iotas.hashCode())
     private val iotaMetadata = IdentityHashMap<Iota, IotaMetadata>()
     private val frameIotaOverrides = IdentityHashMap<ContinuationFrame, Iota>()
     private val breakpoints = mutableMapOf<Int, MutableSet<Int>>() // source id -> line number
