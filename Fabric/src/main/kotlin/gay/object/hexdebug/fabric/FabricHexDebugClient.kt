@@ -3,7 +3,7 @@ package gay.`object`.hexdebug.fabric
 import gay.`object`.hexdebug.HexDebugClient
 import net.fabricmc.api.ClientModInitializer
 
-object HexDebugClientFabric : ClientModInitializer {
+object FabricHexDebugClient : ClientModInitializer {
     override fun onInitializeClient() {
         HexDebugClient.init()
     }

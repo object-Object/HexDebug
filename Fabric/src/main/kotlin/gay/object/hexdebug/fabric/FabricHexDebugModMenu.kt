@@ -8,7 +8,7 @@ import net.fabricmc.api.EnvType.CLIENT
 import net.fabricmc.api.Environment
 
 @Environment(CLIENT)
-object HexDebugModMenuIntegration : ModMenuApi {
+object FabricHexDebugModMenu : ModMenuApi {
     override fun getModConfigScreenFactory() = ConfigScreenFactory { parent ->
         AutoConfig.getConfigScreen(HexDebugConfig.Global::class.java, parent).get()
     }

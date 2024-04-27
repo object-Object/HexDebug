@@ -15,24 +15,18 @@
   "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      {
-        "adapter": "kotlin",
-        "value": "gay.object.hexdebug.fabric.HexDebugFabric"
-      }
-    ],
-    "client": [
-      {
-        "adapter": "kotlin",
-        "value": "gay.object.hexdebug.fabric.HexDebugClientFabric"
-      }
-    ],
-    "modmenu": [
-      {
-        "adapter": "kotlin",
-        "value": "gay.object.hexdebug.fabric.HexDebugModMenuIntegration"
-      }
-    ]
+    "main": [{
+      "adapter": "kotlin",
+      "value": "gay.object.hexdebug.fabric.FabricHexDebug"
+    }],
+    "client": [{
+      "adapter": "kotlin",
+      "value": "gay.object.hexdebug.fabric.FabricHexDebugClient"
+    }],
+    "modmenu": [{
+      "adapter": "kotlin",
+      "value": "gay.object.hexdebug.fabric.FabricHexDebugModMenu"
+    }]
   },
   "mixins": [
     "hexdebug-common.mixins.json",
