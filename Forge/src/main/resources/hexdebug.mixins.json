@@ -6,7 +6,9 @@
   "client": [
   ],
   "mixins": [
+    "MixinDatagenMain"
   ],
+  "plugin": "gay.object.hexdebug.forge.mixin.ForgeHexDebugMixinConfigPlugin",
   "injectors": {
     "defaultRequire": 1
   }

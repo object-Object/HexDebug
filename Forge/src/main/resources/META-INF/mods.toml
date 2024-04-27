@@ -1,5 +1,5 @@
-modLoader = "javafml"
-loaderVersion = "[${versions.forge_dependency},)"
+modLoader = "kotlinforforge"
+loaderVersion = "[${versions.kotlin_forge},)"
 license = "MIT"
 
 [[mods]]

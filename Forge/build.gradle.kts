@@ -11,8 +11,22 @@ loom {
         convertAccessWideners = true
         extraAccessWideners.add(loom.accessWidenerPath.get().asFile.name)
 
-        mixinConfig("hexdebug-common.mixins.json")
-        mixinConfig("hexdebug.mixins.json")
+        mixinConfig("hexdebug-common.mixins.json", "hexdebug.mixins.json")
+    }
+
+    runs {
+        register("commonDatagen") {
+            data()
+            programArgs(
+                "--mod", hexdebugProperties.modId,
+                "--all",
+                // we're using forge to do the common datagen because fabric's datagen kind of sucks
+                "--output", project(":Common").file("src/generated/resources").absolutePath,
+                "--existing", file("src/main/resources").absolutePath,
+                "--existing", project(":Common").file("src/main/resources").absolutePath,
+            )
+            property("hexdebug.apply-datagen-mixin", "true")
+        }
     }
 }
 
@@ -35,12 +49,12 @@ dependencies {
 
     modApi(libs.architectury.forge)
 
-    modImplementation(libs.hexcasting.forge) { isTransitive = false }
+    implementation(libs.kotlin.forge)
+
+    modRuntimeOnly(libs.hexcasting.forge) { isTransitive = false }
 
     modImplementation(libs.paucal.forge)
     modImplementation(libs.patchouli.forge)
-
-    modRuntimeOnly(libs.kotlin.forge)
 
     modApi(libs.clothConfig.forge)
 }

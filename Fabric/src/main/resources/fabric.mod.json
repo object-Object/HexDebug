@@ -29,8 +29,7 @@
     }]
   },
   "mixins": [
-    "hexdebug-common.mixins.json",
-    "hexdebug.mixins.json"
+    "hexdebug-common.mixins.json"
   ],
   "depends": {
     "minecraft": "${versions.minecraft}",

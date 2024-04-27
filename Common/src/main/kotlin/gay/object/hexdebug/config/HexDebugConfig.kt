@@ -9,6 +9,7 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.TransitiveObject
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer.GlobalData
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer
+import net.minecraft.client.gui.screens.Screen
 
 // we can't use a companion object because GlobalData sees the field and throws an error :/
 
@@ -19,6 +20,8 @@ object HexDebugConfig {
             PartitioningSerializer.wrap(::Toml4jConfigSerializer),
         )
     }
+
+    fun getConfigScreen(parent: Screen): Screen = AutoConfig.getConfigScreen(Global::class.java, parent).get()
 
     // functions instead of getters to make it more clear that these can't be used until after init()
     fun getHolder() = AutoConfig.getConfigHolder(Global::class.java)!!

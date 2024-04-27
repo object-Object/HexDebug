@@ -1,8 +1,5 @@
 {
-  "parent": "minecraft:item/handheld_rod",
-  "textures": {
-    "layer0": "hexdebug:item/debugger"
-  },
+  "parent": "minecraft:item/generated",
   "overrides": [
     {
       "model": "hexdebug:item/debugger/waiting_for_client",
@@ -13,8 +10,11 @@
     {
       "model": "hexdebug:item/debugger/active",
       "predicate": {
-        "hexdebug:debugger_state": 1
+        "hexdebug:debugger_state": 1.0
       }
     }
-  ]
+  ],
+  "textures": {
+    "layer0": "hexdebug:item/debugger"
+  }
 }
