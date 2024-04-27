@@ -43,7 +43,7 @@
         },
       },
 
-      "patterns/spells": {
+      patterns: {
         entry: {
           debugging: {
             "": "Debugging",

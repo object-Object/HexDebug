@@ -9,7 +9,7 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.CastArgs
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
-import gay.`object`.hexdebug.debugger.DebugItemCastEnv
+import gay.`object`.hexdebug.casting.eval.DebugItemCastEnv
 import gay.`object`.hexdebug.utils.itemPredicate
 import gay.`object`.hexdebug.utils.otherHand
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction

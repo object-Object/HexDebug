@@ -1,4 +1,4 @@
-package gay.`object`.hexdebug.debugger
+package gay.`object`.hexdebug.casting.eval
 
 import at.petrak.hexcasting.api.casting.eval.env.PackagedItemCastEnv
 import gay.`object`.hexdebug.adapter.DebugAdapterManager

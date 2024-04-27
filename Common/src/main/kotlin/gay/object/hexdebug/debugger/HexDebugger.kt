@@ -16,8 +16,10 @@ import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import gay.`object`.hexdebug.adapter.CastArgs
 import gay.`object`.hexdebug.adapter.LaunchArgs
+import gay.`object`.hexdebug.casting.eval.FrameBreakpoint
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
+import gay.`object`.hexdebug.registry.HexDebugActions
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import org.eclipse.lsp4j.debug.*
@@ -274,18 +276,30 @@ class HexDebugger(
         index
     }
 
-    private val isAtBreakpoint
-        get() = (nextFrame as? FrameEvaluate)
-            ?.let { getIotas(it)?.car }
-            ?.let { iotaMetadata[it] }
+    private fun isAtBreakpoint(): Boolean {
+        val nextIota = when (val frame = nextFrame) {
+            is FrameBreakpoint -> return true
+            is FrameEvaluate -> getIotas(frame)?.car
+            else -> null
+        } ?: return false
+
+        if (
+            nextIota is PatternIota
+            && nextIota.pattern == HexDebugActions.BREAKPOINT_BEFORE.get().prototype
+            && vm.image.parenCount == 0
+            && !vm.image.escapeNext
+        ) return true
+
+        return iotaMetadata[nextIota]
             ?.let { breakpoints[it.source.sourceReference]?.contains(it.line) }
             ?: false
+    }
 
     fun start(): DebugStepResult? {
         val loadedSources = mapOf(initialSource to LoadedSourceReason.NEW)
         return if (launchArgs.stopOnEntry) {
             DebugStepResult("entry", loadedSources = loadedSources)
-        } else if (isAtBreakpoint) {
+        } else if (isAtBreakpoint()) {
             DebugStepResult("breakpoint", loadedSources = loadedSources)
         } else {
             executeUntilStopped()?.withLoadedSources(loadedSources)
@@ -297,13 +311,18 @@ class HexDebugger(
         var isEscaping: Boolean? = null
         var stepDepth = 0
         var shouldStop = false
+        var hitBreakpoint = false
 
         while (true) {
             var result = executeOnce(exactlyOnce = true) ?: return null
             if (lastResult != null) result += lastResult
             lastResult = result
 
-            if (isAtBreakpoint) {
+            if (isAtBreakpoint()) {
+                hitBreakpoint = true
+            }
+
+            if (hitBreakpoint && !isSkippedByLaunchArgs(nextContinuation)) {
                 return result.copy(reason = "breakpoint")
             }
 
@@ -337,7 +356,9 @@ class HexDebugger(
                 }
             }
 
-            if (shouldStop && !isSkippedByLaunchArgs(nextContinuation)) return result
+            if (shouldStop && !isSkippedByLaunchArgs(nextContinuation)) {
+                return result
+            }
         }
     }
 

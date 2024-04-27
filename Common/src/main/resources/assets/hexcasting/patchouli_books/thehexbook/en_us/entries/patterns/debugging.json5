@@ -1,0 +1,20 @@
+{
+  name: "hexdebug.category.patterns.entry.debugging",
+  category: "hexcasting:patterns",
+  icon: "hexdebug:debugger",
+  advancement: "hexcasting:root",
+  pages: [
+    {
+      type: "hexcasting:pattern",
+      op_id: "hexdebug:breakpoint/before",
+      anchor: "hexdebug:breakpoint/before",
+      text: "hexdebug.category.patterns.entry.debugging.page.breakpoint/before",
+    },
+    {
+      type: "hexcasting:pattern",
+      op_id: "hexdebug:breakpoint/after",
+      anchor: "hexdebug:breakpoint/after",
+      text: "hexdebug.category.patterns.entry.debugging.page.breakpoint/after",
+    },
+  ],
+}
