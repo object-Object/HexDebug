@@ -6,11 +6,10 @@ import at.petrak.hexcasting.api.mod.HexConfig
 import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import at.petrak.hexcasting.common.msgs.MsgNewSpiralPatternsS2C
 import at.petrak.hexcasting.xplat.IXplatAbstractions
-import gay.`object`.hexdebug.adapter.DebugAdapter
+import gay.`object`.hexdebug.adapter.CastArgs
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.debugger.DebugItemCastEnv
 import gay.`object`.hexdebug.utils.otherHand
-import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
@@ -37,11 +36,12 @@ class DebuggerItem(properties: Properties) : ItemPackagedHex(properties) {
         val serverPlayer = player as ServerPlayer
         val serverLevel = world as ServerLevel
 
-        val debugAdapter = DebugAdapterManager[player]?.debugAdapter
-        if (debugAdapter != null && !debugAdapter.isTerminated) {
-            // step ongoing debug session (TODO: raises exception if the client hasn't connected)
+        val debugAdapter = DebugAdapterManager[player] ?: return InteractionResultHolder.fail(stack)
+        if (debugAdapter.isDebugging) {
+            // step the ongoing debug session (TODO: step types)
             debugAdapter.next(null)
         } else {
+            // start a new debug session
             val instrs = if (hasHex(stack)) {
                 getHex(stack, serverLevel) ?: return InteractionResultHolder.fail(stack)
             } else {
@@ -53,15 +53,14 @@ class DebuggerItem(properties: Properties) : ItemPackagedHex(properties) {
             } ?: return InteractionResultHolder.fail(stack)
 
             val ctx = DebugItemCastEnv(serverPlayer, usedHand)
-            val newDebugAdapter = DebugAdapter(instrs, ctx, serverLevel) {
+            val args = CastArgs(instrs, ctx, serverLevel) {
                 if (it is PatternIota) {
                     val packet = MsgNewSpiralPatternsS2C(serverPlayer.uuid, listOf(it.pattern), 140)
                     IXplatAbstractions.INSTANCE.sendPacketToPlayer(serverPlayer, packet)
                     IXplatAbstractions.INSTANCE.sendPacketTracking(serverPlayer, packet)
                 }
             }
-            DebugAdapterManager.register(serverPlayer, newDebugAdapter)
-            player.displayClientMessage(Component.translatable("text.hexdebug.no_client"), true)
+            debugAdapter.cast(args)
         }
 
         val stat = Stats.ITEM_USED[this]

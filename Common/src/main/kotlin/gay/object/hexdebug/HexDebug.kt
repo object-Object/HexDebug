@@ -1,5 +1,6 @@
 package gay.`object`.hexdebug
 
+import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.networking.HexDebugNetworking
 import gay.`object`.hexdebug.registry.HexDebugItems
@@ -18,6 +19,7 @@ object HexDebug {
         HexDebugConfig.init()
         HexDebugItems.init()
         HexDebugNetworking.init()
+        DebugAdapterManager.init()
     }
 
     @JvmStatic

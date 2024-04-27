@@ -16,7 +16,7 @@ data class MsgDebugAdapterProxyC2S(private val content: String) {
     fun apply(supplier: Supplier<PacketContext>) = supplier.get().also { ctx ->
         ctx.queue {
             HexDebug.LOGGER.debug("Server received packet from {}: {}", ctx.player.name.string, this)
-            DebugAdapterManager[ctx.player]?.produce(content)
+            DebugAdapterManager[ctx.player]?.launcher?.handleMessage(content)
         }
     }
 }

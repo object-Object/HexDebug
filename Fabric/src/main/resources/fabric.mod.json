@@ -32,12 +32,6 @@
         "adapter": "kotlin",
         "value": "gay.object.hexdebug.fabric.HexDebugModMenuIntegration"
       }
-    ],
-    "server": [
-      {
-        "adapter": "kotlin",
-        "value": "gay.object.hexdebug.fabric.HexDebugServerFabric"
-      }
     ]
   },
   "mixins": [

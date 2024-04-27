@@ -12,9 +12,9 @@ data class DebugStepResult(
         loadedSources = loadedSources + other.loadedSources,
     )
 
-    fun withLoadedSource(source: Source, reason: LoadedSourceReason) = withLoadedSources(sequenceOf(source to reason))
+    fun withLoadedSource(source: Source, reason: LoadedSourceReason) = withLoadedSources(mapOf(source to reason))
 
-    fun withLoadedSources(sources: Sequence<Pair<Source, LoadedSourceReason>>): DebugStepResult {
+    fun withLoadedSources(sources: Map<Source, LoadedSourceReason>): DebugStepResult {
         return copy(loadedSources = loadedSources + sources)
     }
 }

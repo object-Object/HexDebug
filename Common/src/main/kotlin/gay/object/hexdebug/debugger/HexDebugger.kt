@@ -14,6 +14,7 @@ import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.mishaps.Mishap
 import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
+import gay.`object`.hexdebug.adapter.CastArgs
 import gay.`object`.hexdebug.adapter.LaunchArgs
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
@@ -32,6 +33,12 @@ class HexDebugger(
     private val onExecute: ((Iota) -> Unit)? = null,
     iotas: List<Iota>,
 ) {
+    constructor(
+        initArgs: InitializeRequestArguments,
+        launchArgs: LaunchArgs,
+        castArgs: CastArgs,
+    ) : this(initArgs, launchArgs, CastingVM.empty(castArgs.env), castArgs.world, castArgs.onExecute, castArgs.iotas)
+
     // Initialize the continuation stack to a single top-level eval for all iotas.
     private var nextContinuation = Done.pushFrame(FrameEvaluate(SpellList.LList(0, iotas), false))
         set(value) {
@@ -49,9 +56,7 @@ class HexDebugger(
 
     private val nextFrame get() = (nextContinuation as? NotDone)?.frame
 
-    init {
-        registerNewSource(iotas)
-    }
+    private val initialSource = registerNewSource(iotas)!!
 
     private fun registerNewSource(frame: ContinuationFrame): Source? = getIotas(frame)?.let(::registerNewSource)
 
@@ -269,12 +274,23 @@ class HexDebugger(
         index
     }
 
-    val isAtBreakpoint get(): Boolean = nextFrame
-        ?.let(::getIotas)
-        ?.car
-        ?.let(iotaMetadata::get)
-        ?.let { breakpoints[it.source.sourceReference]?.contains(it.line) }
-        ?: false
+    private val isAtBreakpoint
+        get() = (nextFrame as? FrameEvaluate)
+            ?.let { getIotas(it)?.car }
+            ?.let { iotaMetadata[it] }
+            ?.let { breakpoints[it.source.sourceReference]?.contains(it.line) }
+            ?: false
+
+    fun start(): DebugStepResult? {
+        val loadedSources = mapOf(initialSource to LoadedSourceReason.NEW)
+        return if (launchArgs.stopOnEntry) {
+            DebugStepResult("entry", loadedSources = loadedSources)
+        } else if (isAtBreakpoint) {
+            DebugStepResult("breakpoint", loadedSources = loadedSources)
+        } else {
+            executeUntilStopped()?.withLoadedSources(loadedSources)
+        }
+    }
 
     fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult? {
         var lastResult: DebugStepResult? = null
@@ -315,6 +331,7 @@ class HexDebugger(
                 } else {
                     stepDepth <= 0
                 }
+
                 RequestStepType.OUT -> {
                     stepDepth < 0
                 }
@@ -421,7 +438,7 @@ class HexDebugger(
             val sources = oldImage.parenthesized.asSequence()
                 .mapNotNull { iotaMetadata[it.iota] }
                 .filter { it.needsReload.also { _ -> it.needsReload = false } }
-                .map { it.source to LoadedSourceReason.CHANGED }
+                .associate { it.source to LoadedSourceReason.CHANGED }
 
             stepResult.withLoadedSources(sources)
         } else stepResult
@@ -507,11 +524,13 @@ class HexDebugger(
                     } else {
                         getRawHookI18n(HexAPI.modLoc("open_paren"))
                     }
+
                     SpecialPatterns.RETROSPECTION -> if (isSource) {
                         Component.literal("}")
                     } else {
                         getRawHookI18n(HexAPI.modLoc("close_paren"))
                     }
+
                     SpecialPatterns.CONSIDERATION -> getRawHookI18n(HexAPI.modLoc("escape"))
                     SpecialPatterns.EVANITION -> getRawHookI18n(HexAPI.modLoc("undo"))
                     else -> iota.display()

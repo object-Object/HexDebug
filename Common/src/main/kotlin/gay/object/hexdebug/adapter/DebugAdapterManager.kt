@@ -1,34 +1,45 @@
 package gay.`object`.hexdebug.adapter
 
+import dev.architectury.event.events.common.LifecycleEvent
+import dev.architectury.event.events.common.PlayerEvent
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.adapter.proxy.DebugAdapterProxyServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import java.util.*
 
 object DebugAdapterManager {
-    private val proxyServers = mutableMapOf<UUID, DebugAdapterProxyServer>()
+    private val debugAdapters = mutableMapOf<UUID, DebugAdapter>()
 
-    operator fun get(player: Player) = get(player.uuid)
+    operator fun get(player: Player) = debugAdapters[player.uuid]
 
-    operator fun get(playerUUID: UUID) = proxyServers[playerUUID]
-
-    fun register(player: ServerPlayer, debugAdapter: DebugAdapter) {
-        proxyServers[player.uuid] = DebugAdapterProxyServer(player, debugAdapter)
-    }
-
-    fun stop(playerUUID: UUID) {
-        get(playerUUID)?.debugAdapter?.stop()
-        proxyServers.remove(playerUUID)
-    }
-
-    fun stopAll() {
-        HexDebug.LOGGER.info("Stopping {} debug adapters", proxyServers.size)
-        for ((playerUUID, proxyServer) in proxyServers) {
-            HexDebug.LOGGER.info("Stopping debug adapter for player {}", playerUUID)
-            proxyServer.debugAdapter.stop()
+    fun init() {
+        PlayerEvent.PLAYER_JOIN.register { player ->
+            add(player)
         }
-        proxyServers.clear()
-        HexDebug.LOGGER.info("Stopped all debug adapters")
+        PlayerEvent.PLAYER_QUIT.register { player ->
+            remove(player)
+        }
+        LifecycleEvent.SERVER_STOPPING.register {
+            removeAll()
+        }
+    }
+
+    private fun add(player: ServerPlayer) {
+        HexDebug.LOGGER.info("Adding debug adapter for {}", player.uuid)
+        debugAdapters[player.uuid] = DebugAdapter(player)
+    }
+
+    private fun remove(player: ServerPlayer) {
+        HexDebug.LOGGER.info("Removing debug adapter for {}", player.uuid)
+        get(player)?.terminate()
+        debugAdapters.remove(player.uuid)
+    }
+
+    private fun removeAll() {
+        HexDebug.LOGGER.info("Removing {} debug adapters", debugAdapters.size)
+        for (debugAdapter in debugAdapters.values) {
+            debugAdapter.terminate()
+        }
+        debugAdapters.clear()
     }
 }
