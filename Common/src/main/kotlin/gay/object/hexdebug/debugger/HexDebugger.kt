@@ -16,6 +16,7 @@ import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import gay.`object`.hexdebug.adapter.CastArgs
 import gay.`object`.hexdebug.adapter.LaunchArgs
+import gay.`object`.hexdebug.casting.eval.DebugCastEnv
 import gay.`object`.hexdebug.casting.eval.FrameBreakpoint
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
@@ -40,6 +41,12 @@ class HexDebugger(
         launchArgs: LaunchArgs,
         castArgs: CastArgs,
     ) : this(initArgs, launchArgs, CastingVM.empty(castArgs.env), castArgs.world, castArgs.onExecute, castArgs.iotas)
+
+    init {
+        if (vm.env !is DebugCastEnv) {
+            throw IllegalArgumentException("HexDebugger requires env to implement DebugCastEnv, but got ${vm.env}")
+        }
+    }
 
     // Initialize the continuation stack to a single top-level eval for all iotas.
     private var nextContinuation = Done.pushFrame(FrameEvaluate(SpellList.LList(0, iotas), false))

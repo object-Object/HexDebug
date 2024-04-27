@@ -22,6 +22,7 @@
 
   "hexcasting.action": {
     "hexdebug:": {
+      "const/debugging": "Debugger's Reflection",
       "breakpoint/": {
         before: "Set Breakpoint Before",
         after: "Set Breakpoint After"
@@ -48,9 +49,10 @@
           debugging: {
             "": "Debugging",
             page: {
+              "const/debugging": "Adds $(thing)True/$ to the top of the stack if executed by a $(l:items/debugging#debugger)$(item)debugger/$, or $(thing)False/$ otherwise.",
               "breakpoint/": {
-                before: "Pauses the debugger before executing this pattern.",
-                after: "Pauses the debugger after executing this pattern (ie. before executing the next pattern).",
+                before: "Pauses the $(l:items/debugging#debugger)$(item)debugger/$ before executing this pattern.",
+                after: "Pauses the $(l:items/debugging#debugger)$(item)debugger/$ after executing this pattern (ie. before executing the next pattern).",
               }
             },
           },

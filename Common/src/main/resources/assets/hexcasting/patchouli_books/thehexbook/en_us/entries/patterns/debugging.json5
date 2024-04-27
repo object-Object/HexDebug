@@ -6,6 +6,13 @@
   pages: [
     {
       type: "hexcasting:pattern",
+      op_id: "hexdebug:const/debugging",
+      anchor: "hexdebug:const/debugging",
+      output: "bool",
+      text: "hexdebug.category.patterns.entry.debugging.page.const/debugging",
+    },
+    {
+      type: "hexcasting:pattern",
       op_id: "hexdebug:breakpoint/before",
       anchor: "hexdebug:breakpoint/before",
       text: "hexdebug.category.patterns.entry.debugging.page.breakpoint/before",

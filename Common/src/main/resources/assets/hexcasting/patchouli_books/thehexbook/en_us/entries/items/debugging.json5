@@ -7,6 +7,7 @@
     {
       type: "patchouli:spotlight",
       item: "hexdebug:debugger",
+      anchor: "debugger",
       text: "hexdebug.category.items.entry.debugging.page.1",
     },
   ],

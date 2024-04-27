@@ -9,7 +9,7 @@ import net.minecraft.world.InteractionHand
 class DebugItemCastEnv(
     caster: ServerPlayer,
     castingHand: InteractionHand,
-) : PackagedItemCastEnv(caster, castingHand) {
+) : PackagedItemCastEnv(caster, castingHand), DebugCastEnv {
     override fun printMessage(message: Component) {
         super.printMessage(message)
         DebugAdapterManager[caster]?.print(message.string + "\n")
