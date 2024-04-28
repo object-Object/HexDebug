@@ -3,6 +3,8 @@ package gay.`object`.hexdebug.items
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.mod.HexConfig
+import at.petrak.hexcasting.api.utils.getInt
+import at.petrak.hexcasting.api.utils.putInt
 import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import at.petrak.hexcasting.common.msgs.MsgNewSpiralPatternsS2C
 import at.petrak.hexcasting.xplat.IXplatAbstractions
@@ -10,9 +12,11 @@ import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.CastArgs
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.DebugItemCastEnv
+import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.itemPredicate
 import gay.`object`.hexdebug.utils.otherHand
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
@@ -41,8 +45,15 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
 
         val debugAdapter = DebugAdapterManager[player] ?: return InteractionResultHolder.fail(stack)
         if (debugAdapter.isDebugging) {
-            // step the ongoing debug session (TODO: step types)
-            debugAdapter.next(null)
+            // step the ongoing debug session
+            debugAdapter.apply {
+                when (getStepMode(stack)) {
+                    StepMode.IN -> stepIn(null)
+                    StepMode.OUT -> stepOut(null)
+                    StepMode.OVER -> next(null)
+                    StepMode.CONTINUE -> continue_(null)
+                }
+            }
         } else {
             // start a new debug session
             val instrs = if (hasHex(stack)) {
@@ -77,16 +88,34 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         val STATE_PREDICATE = HexDebug.id("state")
         val STEP_MODE_PREDICATE = HexDebug.id("step_mode")
 
-        var debuggerState: State = State.INACTIVE
+        val STEP_MODE_TAG = "step_mode"
 
-        // TODO: use CC or something probably
-        val debuggerStepMode
-            get(): StepMode = StepMode.entries[(System.currentTimeMillis() / 4000).toInt() % 4]
+        var currentState: State = State.INACTIVE
 
         fun getProperties() = mapOf(
-            STATE_PREDICATE to ClampedItemPropertyFunction { _, _, _, _ -> debuggerState.itemPredicate },
-            STEP_MODE_PREDICATE to ClampedItemPropertyFunction { _, _, _, _ -> debuggerStepMode.itemPredicate },
+            STATE_PREDICATE to ClampedItemPropertyFunction { _, _, _, _ -> currentState.itemPredicate },
+            STEP_MODE_PREDICATE to ClampedItemPropertyFunction { stack, _, _, _ ->
+                getStepMode(stack).itemPredicate
+            },
         )
+
+        @JvmStatic
+        fun handleShiftScroll(sender: ServerPlayer, hand: InteractionHand, stack: ItemStack, delta: Double) {
+            val newMode = rotateStepMode(stack, delta > 0)
+            val component = Component.translatable("hexdebug.tooltip.debugger.step_mode.${newMode.name.lowercase()}")
+            sender.displayClientMessage(component, true)
+        }
+
+        private fun rotateStepMode(stack: ItemStack, increase: Boolean): StepMode {
+            val idx = getStepModeIdx(stack) + (if (increase) 1 else -1)
+            return StepMode.entries.getWrapping(idx).also {
+                stack.putInt(STEP_MODE_TAG, it.ordinal)
+            }
+        }
+
+        private fun getStepMode(stack: ItemStack) = StepMode.entries.getWrapping(getStepModeIdx(stack))
+
+        private fun getStepModeIdx(stack: ItemStack) = stack.getInt(STEP_MODE_TAG)
     }
 
     enum class State {
@@ -96,9 +125,9 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
     }
 
     enum class StepMode {
+        CONTINUE,
+        OVER,
         IN,
         OUT,
-        OVER,
-        CONTINUE,
     }
 }

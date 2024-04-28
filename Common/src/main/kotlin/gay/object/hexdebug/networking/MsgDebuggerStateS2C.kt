@@ -18,7 +18,7 @@ data class MsgDebuggerStateS2C(private val debuggerState: ItemDebugger.State) {
     fun apply(supplier: Supplier<PacketContext>) = supplier.get().also { ctx ->
         ctx.queue {
             HexDebug.LOGGER.debug("Client received packet: {}", this)
-            ItemDebugger.debuggerState = debuggerState
+            ItemDebugger.currentState = debuggerState
         }
     }
 }

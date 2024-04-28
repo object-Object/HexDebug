@@ -3,6 +3,7 @@ package gay.`object`.hexdebug.utils
 import net.minecraft.world.InteractionHand
 import java.util.concurrent.CompletableFuture
 import kotlin.enums.enumEntries
+import kotlin.math.ceil
 
 // futures
 
@@ -32,5 +33,9 @@ val InteractionHand.otherHand get() = when (this) {
     InteractionHand.OFF_HAND -> InteractionHand.MAIN_HAND
 }
 
+// ceil the denominator to a power of 2 so we don't have issues with eg. 1/3
 @OptIn(ExperimentalStdlibApi::class)
-inline val <reified T : Enum<T>> T.itemPredicate get() = (ordinal.toFloat() / enumEntries<T>().lastIndex)
+inline val <reified T : Enum<T>> T.itemPredicate get() =
+    ordinal.toFloat() / (ceil(enumEntries<T>().lastIndex.toFloat() / 2f) * 2f)
+
+inline fun <reified T> List<T>.getWrapping(idx: Int) = this[idx.mod(size)]

@@ -175,7 +175,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         return futureOf()
     }
 
-    override fun continue_(args: ContinueArguments): CompletableFuture<ContinueResponse> {
+    override fun continue_(args: ContinueArguments?): CompletableFuture<ContinueResponse> {
         handleDebuggerStep(getDebugger().executeUntilStopped())
         return futureOf()
     }

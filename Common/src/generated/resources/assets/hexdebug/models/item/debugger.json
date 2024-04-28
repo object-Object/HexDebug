@@ -2,83 +2,83 @@
   "parent": "minecraft:item/generated",
   "overrides": [
     {
-      "model": "hexdebug:item/debugger/in/inactive",
-      "predicate": {
-        "hexdebug:step_mode": 0.0
-      }
-    },
-    {
-      "model": "hexdebug:item/debugger/in/waiting_for_client",
-      "predicate": {
-        "hexdebug:state": 0.5,
-        "hexdebug:step_mode": 0.0
-      }
-    },
-    {
-      "model": "hexdebug:item/debugger/in/active",
-      "predicate": {
-        "hexdebug:state": 1.0,
-        "hexdebug:step_mode": 0.0
-      }
-    },
-    {
-      "model": "hexdebug:item/debugger/out/inactive",
-      "predicate": {
-        "hexdebug:step_mode": 0.33333334
-      }
-    },
-    {
-      "model": "hexdebug:item/debugger/out/waiting_for_client",
-      "predicate": {
-        "hexdebug:state": 0.5,
-        "hexdebug:step_mode": 0.33333334
-      }
-    },
-    {
-      "model": "hexdebug:item/debugger/out/active",
-      "predicate": {
-        "hexdebug:state": 1.0,
-        "hexdebug:step_mode": 0.33333334
-      }
-    },
-    {
-      "model": "hexdebug:item/debugger/over/inactive",
-      "predicate": {
-        "hexdebug:step_mode": 0.6666667
-      }
-    },
-    {
-      "model": "hexdebug:item/debugger/over/waiting_for_client",
-      "predicate": {
-        "hexdebug:state": 0.5,
-        "hexdebug:step_mode": 0.6666667
-      }
-    },
-    {
-      "model": "hexdebug:item/debugger/over/active",
-      "predicate": {
-        "hexdebug:state": 1.0,
-        "hexdebug:step_mode": 0.6666667
-      }
-    },
-    {
       "model": "hexdebug:item/debugger/continue/inactive",
       "predicate": {
-        "hexdebug:step_mode": 1.0
+        "hexdebug:step_mode": 0.0
       }
     },
     {
       "model": "hexdebug:item/debugger/continue/waiting_for_client",
       "predicate": {
         "hexdebug:state": 0.5,
-        "hexdebug:step_mode": 1.0
+        "hexdebug:step_mode": 0.0
       }
     },
     {
       "model": "hexdebug:item/debugger/continue/active",
       "predicate": {
         "hexdebug:state": 1.0,
-        "hexdebug:step_mode": 1.0
+        "hexdebug:step_mode": 0.0
+      }
+    },
+    {
+      "model": "hexdebug:item/debugger/over/inactive",
+      "predicate": {
+        "hexdebug:step_mode": 0.25
+      }
+    },
+    {
+      "model": "hexdebug:item/debugger/over/waiting_for_client",
+      "predicate": {
+        "hexdebug:state": 0.5,
+        "hexdebug:step_mode": 0.25
+      }
+    },
+    {
+      "model": "hexdebug:item/debugger/over/active",
+      "predicate": {
+        "hexdebug:state": 1.0,
+        "hexdebug:step_mode": 0.25
+      }
+    },
+    {
+      "model": "hexdebug:item/debugger/in/inactive",
+      "predicate": {
+        "hexdebug:step_mode": 0.5
+      }
+    },
+    {
+      "model": "hexdebug:item/debugger/in/waiting_for_client",
+      "predicate": {
+        "hexdebug:state": 0.5,
+        "hexdebug:step_mode": 0.5
+      }
+    },
+    {
+      "model": "hexdebug:item/debugger/in/active",
+      "predicate": {
+        "hexdebug:state": 1.0,
+        "hexdebug:step_mode": 0.5
+      }
+    },
+    {
+      "model": "hexdebug:item/debugger/out/inactive",
+      "predicate": {
+        "hexdebug:step_mode": 0.75
+      }
+    },
+    {
+      "model": "hexdebug:item/debugger/out/waiting_for_client",
+      "predicate": {
+        "hexdebug:state": 0.5,
+        "hexdebug:step_mode": 0.75
+      }
+    },
+    {
+      "model": "hexdebug:item/debugger/out/active",
+      "predicate": {
+        "hexdebug:state": 1.0,
+        "hexdebug:step_mode": 0.75
       }
     }
   ],

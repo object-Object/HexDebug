@@ -3,19 +3,21 @@
     debugger: "Debugger",
   },
 
-  "text.hexdebug": {
-    no_client: "Waiting for debug client to connect...",
-    connected: "Debug client connected!",
-  },
-
-  "text.autoconfig.hexdebug": {
-    title: "HexDebug Config",
-    category: {
-      client: "Client",
+  text: {
+    hexdebug: {
+      no_client: "Waiting for debug client to connect...",
+      connected: "Debug client connected!",
     },
-    option: {
-      client: {
-        debugPort: "Debug Port",
+
+    "autoconfig.hexdebug": {
+      title: "HexDebug Config",
+      category: {
+        client: "Client",
+      },
+      option: {
+        client: {
+          debugPort: "Debug Port",
+        },
       },
     },
   },
@@ -32,6 +34,17 @@
   },
 
   hexdebug: {
+    tooltip: {
+      debugger: {
+        step_mode: {
+          over: "Step Over",
+          in: "Step In",
+          out: "Step Out",
+          continue: "Continue",
+        },
+      },
+    },
+
     category: {
       items: {
         entry: {

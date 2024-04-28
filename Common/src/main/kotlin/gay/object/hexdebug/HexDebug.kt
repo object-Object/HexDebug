@@ -19,7 +19,7 @@ object HexDebug {
         LOGGER.info("HexDebug <3 HexBug")
         HexDebugConfig.init()
         HexDebugItems.init()
-        HexDebugActions.init()
+        HexDebugActions.init() // TODO: forge >:(
         HexDebugNetworking.init()
         DebugAdapterManager.init()
     }
