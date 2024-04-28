@@ -9,10 +9,10 @@ import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import java.util.function.Supplier
 
-@Suppress("SameParameterValue")
 abstract class HexDebugRegistry<T>(private val getRegistrar: (RegistrarManager) -> Registrar<T>) {
     constructor(key: ResourceKey<Registry<T>>) : this({ it.get(key) })
 
+    @Suppress("DEPRECATION")
     constructor(registry: Registry<T>) : this({ it.get(registry) })
 
     private val lazyValues = mutableListOf<Lazy<RegistrySupplier<T>>>()
