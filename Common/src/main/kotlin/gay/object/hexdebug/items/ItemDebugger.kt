@@ -48,12 +48,16 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
             // step the ongoing debug session
             debugAdapter.apply {
                 when (getStepMode(stack)) {
+                    StepMode.CONTINUE -> continue_(null)
+                    StepMode.OVER -> next(null)
                     StepMode.IN -> stepIn(null)
                     StepMode.OUT -> stepOut(null)
-                    StepMode.OVER -> next(null)
-                    StepMode.CONTINUE -> continue_(null)
+                    StepMode.STOP -> terminate()
                 }
             }
+        } else if (debugAdapter.isWaitingForClient && getStepMode(stack) == StepMode.STOP) {
+            // cancel the queued session
+            debugAdapter.terminate()
         } else {
             // start a new debug session
             val instrs = if (hasHex(stack)) {
@@ -102,7 +106,10 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         @JvmStatic
         fun handleShiftScroll(sender: ServerPlayer, hand: InteractionHand, stack: ItemStack, delta: Double) {
             val newMode = rotateStepMode(stack, delta > 0)
-            val component = Component.translatable("hexdebug.tooltip.debugger.step_mode.${newMode.name.lowercase()}")
+            val component = Component.translatable(
+                "hexdebug.tooltip.debugger.step_mode",
+                Component.translatable("hexdebug.tooltip.debugger.step_mode.${newMode.name.lowercase()}"),
+            )
             sender.displayClientMessage(component, true)
         }
 
@@ -129,5 +136,6 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         OVER,
         IN,
         OUT,
+        STOP,
     }
 }

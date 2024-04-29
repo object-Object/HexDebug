@@ -34,7 +34,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             field = value
             val debuggerState = when (value) {
                 is Debugging -> ItemDebugger.State.ACTIVE
-                is NotDebugging -> if (state.castArgs != null) {
+                is NotDebugging -> if (isWaitingForClient) {
                     ItemDebugger.State.WAITING_FOR_CLIENT
                 } else {
                     ItemDebugger.State.INACTIVE
@@ -49,6 +49,8 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     val isDebugging get() = state is Debugging
 
+    val isWaitingForClient get() = (state as? NotDebugging)?.castArgs != null
+
     fun cast(args: CastArgs) {
         if (state is Debugging) {
             terminate()
@@ -59,8 +61,9 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         }
     }
 
+    // TODO: should this maybe have a different name? see the terminate request
     fun terminate(notifyClient: Boolean = true, restart: Boolean = false) {
-        if (notifyClient) {
+        if (notifyClient && state is Debugging) {
             remoteProxy.exited(ExitedEventArguments().also { it.exitCode = 0 })
             remoteProxy.terminated(TerminatedEventArguments())
         }

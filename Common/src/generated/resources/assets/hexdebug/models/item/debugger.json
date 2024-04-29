@@ -80,6 +80,26 @@
         "hexdebug:state": 1.0,
         "hexdebug:step_mode": 0.75
       }
+    },
+    {
+      "model": "hexdebug:item/debugger/stop/inactive",
+      "predicate": {
+        "hexdebug:step_mode": 1.0
+      }
+    },
+    {
+      "model": "hexdebug:item/debugger/stop/waiting_for_client",
+      "predicate": {
+        "hexdebug:state": 0.5,
+        "hexdebug:step_mode": 1.0
+      }
+    },
+    {
+      "model": "hexdebug:item/debugger/stop/active",
+      "predicate": {
+        "hexdebug:state": 1.0,
+        "hexdebug:step_mode": 1.0
+      }
     }
   ],
   "textures": {

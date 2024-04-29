@@ -37,10 +37,12 @@
     tooltip: {
       debugger: {
         step_mode: {
+          "": "Mode: %s",
+          continue: "Continue",
           over: "Step Over",
           in: "Step In",
           out: "Step Out",
-          continue: "Continue",
+          stop: "Stop"
         },
       },
     },
