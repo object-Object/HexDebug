@@ -17,7 +17,7 @@ public class MixinMsgShiftScrollC2S {
         if (delta != 0) {
             var stack = sender.getItemInHand(hand);
             var item = stack.getItem();
-            if (item == HexDebugItems.getDEBUGGER().get()) {
+            if (item == HexDebugItems.DEBUGGER.getValue()) {
                 ItemDebugger.handleShiftScroll(sender, hand, stack, delta);
             }
         }

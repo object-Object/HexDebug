@@ -1,3 +1,5 @@
+import hexdebug.libs
+
 plugins {
     id("hexdebug.conventions.platform")
 }
@@ -52,11 +54,18 @@ dependencies {
     implementation(libs.kotlin.forge)
 
     modRuntimeOnly(libs.hexcasting.forge) { isTransitive = false }
-
     modImplementation(libs.paucal.forge)
     modImplementation(libs.patchouli.forge)
+    modImplementation(libs.caelus)
 
     modApi(libs.clothConfig.forge)
+
+    // GOD I HATE FORGE
+    forgeRuntimeLibrary(libs.bundles.lsp4j)
+    forgeRuntimeLibrary(libs.ktor.network) { isTransitive = false }
+//        exclude(group = "org.jetbrains.kotlin")
+//        exclude(group = "org.jetbrains.kotlinx")
+//    }
 }
 
 tasks {

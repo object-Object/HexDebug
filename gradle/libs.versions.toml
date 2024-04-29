@@ -3,7 +3,7 @@ java = "17" # must be an integer
 
 kotlin = "1.9.22"
 kotlin-fabric = "1.10.18+kotlin.1.9.22"
-kotlin-forge = "4.10.0"
+kotlin-forge = "4.9.0"
 
 # Minecraft
 
@@ -35,6 +35,7 @@ mixinExtras = "0.1.1"
 trinkets = "3.7.0"
 clothConfig = "11.1.106"
 modMenu = "7.1.0"
+caelus = "3.1.0+1.20"
 
 # other non-Minecraft dependencies
 
@@ -53,7 +54,7 @@ asm = ["asm", "asm-analysis", "asm-commons", "asm-tree", "asm-util"]
 lsp4j = ["lsp4j", "lsp4j-debug"]
 
 [libraries]
-kotlin-stdlib = { module="org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
+kotlin-stdlib = { module="org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref="kotlin" }
 kotlin-fabric = { module="net.fabricmc:fabric-language-kotlin", version.ref="kotlin-fabric" }
 kotlin-forge  = { module="thedarkcolour:kotlinforforge", version.ref="kotlin-forge" }
 
@@ -86,6 +87,7 @@ serializationHooks = { module="io.github.tropheusj:serialization-hooks", version
 mixinExtras        = { module="com.github.LlamaLad7:MixinExtras", version.ref="mixinExtras" }
 trinkets           = { module="dev.emi:trinkets", version.ref="trinkets" }
 modMenu            = { module="com.terraformersmc:modmenu", version.ref="modMenu" }
+caelus             = { module="top.theillusivec4.caelus:caelus-forge", version.ref="caelus" }
 
 clothConfig-common = { module="me.shedaniel.cloth:cloth-config", version.ref="clothConfig" }
 clothConfig-fabric = { module="me.shedaniel.cloth:cloth-config-fabric", version.ref="clothConfig" }

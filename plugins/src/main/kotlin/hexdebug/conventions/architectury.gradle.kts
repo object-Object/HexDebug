@@ -52,8 +52,12 @@ dependencies {
 
     implementation(libs.kotlin.stdlib)
     implementation(libs.findbugs.jsr305)
+
     implementation(libs.bundles.lsp4j)
+    include(libs.bundles.lsp4j)
+
     implementation(libs.ktor.network)
+    include(libs.ktor.network)
 }
 
 sourceSets {

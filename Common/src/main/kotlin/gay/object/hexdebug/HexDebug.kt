@@ -19,9 +19,11 @@ object HexDebug {
     fun init() {
         LOGGER.info("HexDebug <3 HexBug")
         HexDebugConfig.init()
-        HexDebugItems.init()
-        HexDebugActions.init() // TODO: forge >:(
-        HexDebugContinuationTypes.init()
+        initRegistries(
+            HexDebugItems,
+            HexDebugActions,
+            HexDebugContinuationTypes,
+        )
         HexDebugNetworking.init()
         DebugAdapterManager.init()
     }
