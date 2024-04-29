@@ -5,6 +5,7 @@ import org.eclipse.lsp4j.debug.Source
 data class IotaMetadata(
     val source: Source,
     val line: Int,
+    val column: Int? = null,
 ) {
     var needsReload = false
 
@@ -19,5 +20,5 @@ data class IotaMetadata(
 
     fun indent(width: Int) = " ".repeat(width * (parenCount ?: 0))
 
-    override fun toString() = "${source.name}:$line"
+    override fun toString() = "${source.name}:$line" + if (column != null) ":$column" else ""
 }

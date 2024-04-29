@@ -16,8 +16,8 @@ object HexDebugActions : HexDebugRegistry<ActionRegistryEntry>(HexActions.REGIST
 
     val IS_DEBUGGING by make("const/debugging", HexDir.EAST, "qqqqqewaa", OpIsDebugging)
 
-    val BREAKPOINT_BEFORE by make("breakpoint/before", HexDir.SOUTH_WEST, "awqdeew", OpBreakpoint(OpBreakpoint.Type.BEFORE))
-    val BREAKPOINT_AFTER by make("breakpoint/after", HexDir.EAST, "wqqaewd", OpBreakpoint(OpBreakpoint.Type.AFTER))
+    val BREAKPOINT_BEFORE by make("breakpoint/before", HexDir.SOUTH_WEST, "awqdeew", OpBreakpoint(true))
+    val BREAKPOINT_AFTER by make("breakpoint/after", HexDir.EAST, "wqqaewd", OpBreakpoint(false))
 
     private fun make(
         name: String,

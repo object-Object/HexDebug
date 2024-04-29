@@ -7,11 +7,12 @@ import at.petrak.hexcasting.api.casting.eval.vm.ContinuationFrame
 import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.NullIota
+import at.petrak.hexcasting.api.utils.NBTBuilder
 import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerLevel
 
-object FrameBreakpoint : ContinuationFrame {
+data class FrameBreakpoint(val stopBefore: Boolean) : ContinuationFrame {
     override fun breakDownwards(stack: List<Iota>) = false to stack
 
     override fun evaluate(continuation: SpellContinuation, level: ServerLevel, harness: CastingVM) = CastResult(
@@ -23,14 +24,20 @@ object FrameBreakpoint : ContinuationFrame {
         HexEvalSounds.NOTHING,
     )
 
-    override fun serializeToNBT() = CompoundTag()
-
     override fun size() = 0
 
-    @JvmField
-    val TYPE: ContinuationFrame.Type<FrameBreakpoint> = object : ContinuationFrame.Type<FrameBreakpoint> {
-        override fun deserializeFromNBT(tag: CompoundTag, world: ServerLevel) = FrameBreakpoint
+    override val type = TYPE
+
+    override fun serializeToNBT() = NBTBuilder {
+        "stopBefore" %= stopBefore
     }
 
-    override val type = TYPE
+    companion object {
+        @JvmField
+        val TYPE = object : ContinuationFrame.Type<FrameBreakpoint> {
+            override fun deserializeFromNBT(tag: CompoundTag, world: ServerLevel) = FrameBreakpoint(
+                tag.getBoolean("stopBefore"),
+            )
+        }
+    }
 }
