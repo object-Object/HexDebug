@@ -1,6 +1,5 @@
 package hexdebug.conventions
 
-import gradle.kotlin.dsl.accessors._7240c06933e5a2db9c96bafe5c54e888.sourceSets
 import hexdebug.hexdebugProperties
 
 // plugin config

@@ -1,7 +1,5 @@
 package hexdebug.conventions
 
-import gradle.kotlin.dsl.accessors._6658e65164901546bb7440bcefa138c2.main
-import gradle.kotlin.dsl.accessors._6658e65164901546bb7440bcefa138c2.sourceSets
 import hexdebug.hexdebugProperties
 import hexdebug.libs
 
