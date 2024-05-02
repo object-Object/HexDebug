@@ -28,6 +28,8 @@ jobs:
           java-version: 17
       - uses: gradle/actions/setup-gradle@v3
 
+      - run: echo "${{ (github.head_ref || github.ref_name) }}"
+
       - name: Build mod
         run: ./gradlew build
 
