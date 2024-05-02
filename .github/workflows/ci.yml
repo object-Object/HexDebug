@@ -28,8 +28,6 @@ jobs:
           java-version: 17
       - uses: gradle/actions/setup-gradle@v3
 
-      - run: echo "${{ (github.head_ref || github.ref_name) }}"
-
       - name: Build mod
         run: ./gradlew build
 
@@ -58,7 +56,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
       python-version: 3.11
-      deploy-pages: ${{ (github.head_ref || github.ref_name) == 'refs/heads/main' }}
+      deploy-pages: ${{ (github.head_ref || github.ref_name) == 'main' }}
       release: |-
         ${{
           github.event_name != 'push' && inputs.release
