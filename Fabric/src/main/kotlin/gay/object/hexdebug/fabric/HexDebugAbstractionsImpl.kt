@@ -6,6 +6,6 @@ import gay.`object`.hexdebug.registry.HexDebugRegistrar
 import net.minecraft.core.Registry
 
 fun <T : Any> initRegistry(registrar: HexDebugRegistrar<T>) {
-    val registry = registrar.registry.value
+    val registry = registrar.registry
     registrar.init { id, value -> Registry.register(registry, id, value) }
 }
