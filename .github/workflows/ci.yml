@@ -40,11 +40,16 @@ jobs:
           git add --intent-to-add .
           git diff --name-only --exit-code -- ":!:*/src/generated/resources/.cache/*"
 
+      - name: Prepare build artifact
+        run: |
+          mkdir dist
+          cp {Common,Fabric,Forge}/build/libs/*.jar dist
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: mod-build
-          path: "**/build/libs/*.jar"
+          path: dist/
           if-no-files-found: error
 
   build-docs:
