@@ -1,3 +1,5 @@
+import hexdebug.libs
+
 plugins {
     id("hexdebug.conventions.platform")
 }
@@ -37,7 +39,8 @@ repositories {
 dependencies {
     modApi(libs.fabric.api)
     modImplementation(libs.fabric.loader)
-    modRuntimeOnly(libs.kotlin.fabric)
+
+    modImplementation(libs.kotlin.fabric)
 
     modApi(libs.architectury.fabric) {
         // Fix for the "two fabric loaders" loading crash
@@ -48,25 +51,25 @@ dependencies {
         // If not excluded here, calls a nonexistent method and crashes the dev client
         exclude(module = "phosphor")
     }
-
     modImplementation(libs.paucal.fabric)
     modImplementation(libs.patchouli.fabric)
-
     modImplementation(libs.cardinalComponents)
-
     modImplementation(libs.serializationHooks)
-    include(libs.serializationHooks)
-
-    implementation(libs.mixinExtras)
-    include(libs.mixinExtras)
-
     modImplementation(libs.trinkets)
+    implementation(libs.mixinExtras)
 
     modApi(libs.clothConfig.fabric) {
         exclude(group = "net.fabricmc.fabric-debugger")
     }
-
     modApi(libs.modMenu)
+
+    implementation(libs.bundles.lsp4j)
+    implementation(libs.ktor.network)
+
+    include(libs.serializationHooks)
+    include(libs.mixinExtras)
+    include(libs.bundles.lsp4j)
+    include(libs.ktor.network)
 }
 
 publishMods {

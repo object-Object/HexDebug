@@ -1,7 +1,6 @@
 package hexdebug.conventions
 
 import hexdebug.hexdebugProperties
-import hexdebug.libs
 
 plugins {
     id("hexdebug.utils.properties")
@@ -36,12 +35,9 @@ repositories {
     }
 }
 
-dependencies {
-    implementation(libs.kotlin.stdlib)
-    implementation(kotlin("reflect"))
-
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-}
+//dependencies {
+//    testImplementation("org.jetbrains.kotlin:kotlin-test")
+//}
 
 group = hexdebugProperties.mavenGroup
 version = hexdebugProperties.modVersion
@@ -83,9 +79,9 @@ tasks {
         exclude(".cache")
     }
 
-    test {
-        useJUnitPlatform()
-    }
+//    test {
+//        useJUnitPlatform()
+//    }
 
     processTestResources {
         exclude(".cache")

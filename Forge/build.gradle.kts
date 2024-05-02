@@ -1,7 +1,8 @@
-import hexdebug.libs
+import hexdebug.utils.kotlinForgeRuntimeLibrary
 
 plugins {
     id("hexdebug.conventions.platform")
+    id("hexdebug.utils.kotlin-forge-runtime-library")
 }
 
 architectury {
@@ -48,24 +49,26 @@ hexdebugModDependencies {
 
 dependencies {
     forge(libs.forge)
-
     modApi(libs.architectury.forge)
 
     implementation(libs.kotlin.forge)
 
-    modRuntimeOnly(libs.hexcasting.forge) { isTransitive = false }
+    modImplementation(libs.hexcasting.forge) { isTransitive = false }
     modImplementation(libs.paucal.forge)
     modImplementation(libs.patchouli.forge)
     modImplementation(libs.caelus)
 
     modApi(libs.clothConfig.forge)
 
+    implementation(libs.bundles.lsp4j)
+    implementation(libs.bundles.ktor)
+
+    include(libs.bundles.lsp4j)
+    include(libs.bundles.ktor)
+
     // GOD I HATE FORGE
     forgeRuntimeLibrary(libs.bundles.lsp4j)
-    forgeRuntimeLibrary(libs.ktor.network) { isTransitive = false }
-//        exclude(group = "org.jetbrains.kotlin")
-//        exclude(group = "org.jetbrains.kotlinx")
-//    }
+    kotlinForgeRuntimeLibrary(libs.bundles.ktor)
 }
 
 tasks {

@@ -62,6 +62,7 @@ sourceSets {
 }
 
 tasks {
+    // TODO: is this still necessary?
     processResources {
         from(project(":Common").file("src/main/resources")) {
             include("data/*/patchouli_books/")
