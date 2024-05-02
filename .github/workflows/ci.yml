@@ -33,7 +33,7 @@ jobs:
 
       # literally no idea why the mkdir is needed, but the workflow fails without it :/
       - name: Check if datagen needs to be run
-        timeout-minutes: 5
+        timeout-minutes: 3
         run: |
           mkdir -p /home/runner/.gradle/caches/fabric-loom/assets
           ./gradlew runAllDatagen
