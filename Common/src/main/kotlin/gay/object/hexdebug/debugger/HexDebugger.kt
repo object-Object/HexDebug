@@ -16,7 +16,7 @@ import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import gay.`object`.hexdebug.adapter.CastArgs
 import gay.`object`.hexdebug.adapter.LaunchArgs
-import gay.`object`.hexdebug.casting.eval.DebugCastEnv
+import gay.`object`.hexdebug.casting.eval.IDebugCastEnv
 import gay.`object`.hexdebug.casting.eval.FrameBreakpoint
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
@@ -42,7 +42,7 @@ class HexDebugger(
     ) : this(initArgs, launchArgs, CastingVM.empty(castArgs.env), castArgs.world, castArgs.onExecute, castArgs.iotas)
 
     init {
-        if (vm.env !is DebugCastEnv) {
+        if (vm.env !is IDebugCastEnv) {
             throw IllegalArgumentException("HexDebugger requires env to implement DebugCastEnv, but got ${vm.env}")
         }
     }
