@@ -5,10 +5,14 @@
   advancement: "hexcasting:root",
   pages: [
     {
+      type: "patchouli:text",
+      text: "hexdebug.category.items.entry.debugging.page.1",
+    },
+    {
       type: "patchouli:spotlight",
       item: "hexdebug:debugger",
       anchor: "debugger",
-      text: "hexdebug.category.items.entry.debugging.page.1",
+      text: "hexdebug.category.items.entry.debugging.page.thwack",
     },
   ],
 }
