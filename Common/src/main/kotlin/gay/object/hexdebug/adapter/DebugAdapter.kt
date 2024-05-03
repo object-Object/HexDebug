@@ -24,11 +24,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.ResponseError
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode
 import java.util.concurrent.CompletableFuture
 
-class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
-    val launcher = DebugProxyServerLauncher.createLauncher(this, ::messageWrapper, ::exceptionHandler)
-
-    private val remoteProxy: IDebugProtocolClient get() = launcher.remoteProxy
-
+open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     private var state: DebugAdapterState = NotDebugging()
         set(value) {
             field = value
@@ -40,16 +36,22 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
                     ItemDebugger.State.INACTIVE
                 }
             }
-            HexDebugNetworking.sendToPlayer(player, MsgDebuggerStateS2C(debuggerState))
+            setDebuggerState(debuggerState)
         }
-
-    init {
-        HexDebugNetworking.sendToPlayer(player, MsgDebuggerStateS2C(ItemDebugger.State.INACTIVE))
-    }
 
     val isDebugging get() = state is Debugging
 
     val isWaitingForClient get() = (state as? NotDebugging)?.castArgs != null
+
+    open val launcher: IHexDebugLauncher by lazy {
+        DebugProxyServerLauncher.createLauncher(this, ::messageWrapper, ::exceptionHandler)
+    }
+
+    private val remoteProxy: IDebugProtocolClient get() = launcher.remoteProxy
+
+    protected open fun setDebuggerState(debuggerState: ItemDebugger.State) {
+        HexDebugNetworking.sendToPlayer(player, MsgDebuggerStateS2C(debuggerState))
+    }
 
     fun cast(args: CastArgs) {
         if (state is Debugging) {

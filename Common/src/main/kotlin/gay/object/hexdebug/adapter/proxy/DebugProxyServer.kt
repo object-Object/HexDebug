@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.adapter.proxy
 
 import gay.`object`.hexdebug.adapter.DebugAdapter
+import gay.`object`.hexdebug.adapter.IHexDebugLauncher
 import gay.`object`.hexdebug.networking.HexDebugNetworking
 import gay.`object`.hexdebug.networking.MsgDebugAdapterProxyS2C
 import net.minecraft.server.level.ServerPlayer
@@ -20,8 +21,8 @@ class DebugProxyServerLauncher(
     private val proxyProducer: DebugProxyServerProducer,
     private val remoteEndpoint: RemoteEndpoint,
     private val remoteProxy: IDebugProtocolClient,
-) : Launcher<IDebugProtocolClient> {
-    fun handleMessage(content: String) = proxyProducer.produce(content)
+) : IHexDebugLauncher {
+    override fun handleMessage(content: String) = proxyProducer.produce(content)
 
     override fun startListening() = throw AssertionError()
 
