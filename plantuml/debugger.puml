@@ -1,0 +1,63 @@
+@startuml
+
+hide empty description
+
+state State {
+    [*] --> INACTIVE
+
+    state INACTIVE: no icon
+    INACTIVE --> WAITING_FOR_CLIENT: right click with stored hex\t\lin debugger or offhand
+    INACTIVE --> WAITING_FOR_CAST: connect to VSCode
+
+    state WAITING_FOR_CLIENT: gray star
+    WAITING_FOR_CLIENT --> ACTIVE: connect to VSCode\t
+
+    state WAITING_FOR_CAST: no icon (for now)
+    WAITING_FOR_CAST --> ACTIVE: right click with stored hex\lin debugger or offhand
+
+    state ACTIVE: gold star
+    ACTIVE -up-> INACTIVE: reach end of hex\lOR cause mishap\lOR cancel debug session\lOR disconnect from VSCode
+}
+
+state StepMode {
+    [*] -> CONTINUE
+
+    state CONTINUE
+    CONTINUE -> OVER
+    CONTINUE -> STOP
+
+    state OVER
+    OVER -> IN
+    OVER -left-> CONTINUE
+
+    state IN
+    IN -> OUT
+    IN -left-> OVER
+
+    state OUT
+    OUT -> STOP
+    OUT -left-> IN
+
+    state STOP
+    STOP -left-> CONTINUE
+    STOP -left-> OUT
+}
+note right of StepMode
+    All state transitions are done
+    by shift-scrolling with the item.
+end note
+
+state PackagedHex {
+    [*] -> EMPTY
+
+    state EMPTY
+    EMPTY -> FULL: cast Create Debugger
+
+    state FULL
+    FULL -> EMPTY: \ncast Erase Item
+}
+
+State -[hidden]-> StepMode
+StepMode -[hidden]-> PackagedHex
+
+@enduml
