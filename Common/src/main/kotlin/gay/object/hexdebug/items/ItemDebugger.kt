@@ -15,6 +15,7 @@ import gay.`object`.hexdebug.casting.eval.DebugItemCastEnv
 import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.itemPredicate
 import gay.`object`.hexdebug.utils.otherHand
+import net.minecraft.client.player.LocalPlayer
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
@@ -97,7 +98,11 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         var currentState: State = State.INACTIVE
 
         fun getProperties() = mapOf(
-            STATE_PREDICATE to ClampedItemPropertyFunction { _, _, _, _ -> currentState.itemPredicate },
+            STATE_PREDICATE to ClampedItemPropertyFunction { _, _, entity, _ ->
+                // don't show the active icon for debuggers held by other players, on the ground, etc
+                val state = if (entity is LocalPlayer) currentState else State.INACTIVE
+                state.itemPredicate
+            },
             STEP_MODE_PREDICATE to ClampedItemPropertyFunction { stack, _, _, _ ->
                 getStepMode(stack).itemPredicate
             },
