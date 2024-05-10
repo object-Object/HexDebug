@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalStdlibApi::class)
+
 package gay.`object`.hexdebug.forge.datagen
 
 import gay.`object`.hexdebug.HexDebug
@@ -21,20 +23,20 @@ class HexDebugModelProvider(output: PackOutput, efh: ExistingFileHelper) : ItemM
         for (stepMode in ItemDebugger.StepMode.entries) {
             val stepModeName = stepMode.name.lowercase()
 
-            for (state in ItemDebugger.State.entries) {
+            for (state in ItemDebugger.DebugState.entries) {
                 val stateName = state.name.lowercase()
 
                 val model = getBuilder("$basePath/$stepModeName/$stateName")
                     .parent(baseModel)
-                    .texture("layer1", "$basePath/step_mode/$stepModeName")
+                    .texture("layer1", "$basePath/${ItemDebugger.STEP_MODE_PREDICATE.path}/$stepModeName")
 
                 val override = baseModel.override()
                     .model(model)
                     .predicate(ItemDebugger.STEP_MODE_PREDICATE, stepMode.itemPredicate)
 
-                if (state != ItemDebugger.State.INACTIVE) {
-                    model.texture("layer2", "$basePath/state/$stateName")
-                    override.predicate(ItemDebugger.STATE_PREDICATE, state.itemPredicate)
+                if (state != ItemDebugger.DebugState.NOT_DEBUGGING) {
+                    model.texture("layer2", "$basePath/${ItemDebugger.DEBUG_STATE_PREDICATE.path}/$stateName")
+                    override.predicate(ItemDebugger.DEBUG_STATE_PREDICATE, state.itemPredicate)
                 }
             }
         }

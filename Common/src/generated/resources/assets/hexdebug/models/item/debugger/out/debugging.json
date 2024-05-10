@@ -2,6 +2,6 @@
   "parent": "hexdebug:item/debugger",
   "textures": {
     "layer1": "hexdebug:item/debugger/step_mode/out",
-    "layer2": "hexdebug:item/debugger/state/waiting_for_client"
+    "layer2": "hexdebug:item/debugger/debug_state/debugging"
   }
 }

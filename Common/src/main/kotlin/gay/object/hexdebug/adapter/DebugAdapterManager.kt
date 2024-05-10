@@ -31,14 +31,14 @@ object DebugAdapterManager {
 
     private fun remove(player: ServerPlayer) {
         HexDebug.LOGGER.info("Removing debug adapter for {}", player.uuid)
-        get(player)?.terminate()
+        get(player)?.disconnectClient()
         debugAdapters.remove(player.uuid)
     }
 
     private fun removeAll() {
         HexDebug.LOGGER.info("Removing {} debug adapters", debugAdapters.size)
         for (debugAdapter in debugAdapters.values) {
-            debugAdapter.terminate()
+            debugAdapter.disconnectClient()
         }
         debugAdapters.clear()
     }

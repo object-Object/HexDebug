@@ -6,9 +6,9 @@ import gay.`object`.hexdebug.items.ItemDebugger
 import net.minecraft.network.FriendlyByteBuf
 import java.util.function.Supplier
 
-data class MsgDebuggerStateS2C(private val debuggerState: ItemDebugger.State) {
+data class MsgDebuggerStateS2C(private val debuggerState: ItemDebugger.DebugState) {
     constructor(buf: FriendlyByteBuf) : this(
-        buf.readEnum(ItemDebugger.State::class.java),
+        buf.readEnum(ItemDebugger.DebugState::class.java),
     )
 
     fun encode(buf: FriendlyByteBuf) {
@@ -18,7 +18,7 @@ data class MsgDebuggerStateS2C(private val debuggerState: ItemDebugger.State) {
     fun apply(supplier: Supplier<PacketContext>) = supplier.get().also { ctx ->
         ctx.queue {
             HexDebug.LOGGER.debug("Client received packet: {}", this)
-            ItemDebugger.currentState = debuggerState
+            ItemDebugger.debugState = debuggerState
         }
     }
 }

@@ -1,8 +1,7 @@
 package gay.`object`.hexdebug.adapter
 
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.adapter.DebugAdapterState.Debugging
-import gay.`object`.hexdebug.adapter.DebugAdapterState.NotDebugging
+import gay.`object`.hexdebug.adapter.DebugAdapterState.*
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyServerLauncher
 import gay.`object`.hexdebug.debugger.DebugStepResult
 import gay.`object`.hexdebug.debugger.RequestStepType
@@ -14,62 +13,54 @@ import gay.`object`.hexdebug.utils.paginate
 import gay.`object`.hexdebug.utils.toFuture
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import org.apache.commons.lang3.exception.ExceptionUtils
 import org.eclipse.lsp4j.debug.*
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer
-import org.eclipse.lsp4j.jsonrpc.RemoteEndpoint
-import org.eclipse.lsp4j.jsonrpc.messages.ResponseError
-import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode
 import java.util.concurrent.CompletableFuture
 
 open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
-    private var state: DebugAdapterState = NotDebugging()
+    private var state: DebugAdapterState = NotConnected
         set(value) {
             field = value
-            val debuggerState = when (value) {
-                is Debugging -> ItemDebugger.State.ACTIVE
-                is NotDebugging -> if (isWaitingForClient) {
-                    ItemDebugger.State.WAITING_FOR_CLIENT
-                } else {
-                    ItemDebugger.State.INACTIVE
-                }
-            }
-            setDebuggerState(debuggerState)
+            setDebuggerState(value)
         }
 
     val isDebugging get() = state is Debugging
 
-    val isWaitingForClient get() = (state as? NotDebugging)?.castArgs != null
+    val canStartDebugging get() = state is ReadyToDebug
+
+    private val debugger get() = (state as? Debugging)?.debugger
 
     open val launcher: IHexDebugLauncher by lazy {
-        DebugProxyServerLauncher.createLauncher(this, ::messageWrapper, ::exceptionHandler)
+        DebugProxyServerLauncher.createLauncher(this, ::messageWrapper)
     }
 
     private val remoteProxy: IDebugProtocolClient get() = launcher.remoteProxy
 
-    protected open fun setDebuggerState(debuggerState: ItemDebugger.State) {
+    private fun setDebuggerState(state: DebugAdapterState) = setDebuggerState(
+        when (state) {
+            is Debugging -> ItemDebugger.DebugState.DEBUGGING
+            else -> ItemDebugger.DebugState.NOT_DEBUGGING
+        }
+    )
+
+    protected open fun setDebuggerState(debuggerState: ItemDebugger.DebugState) {
         HexDebugNetworking.sendToPlayer(player, MsgDebuggerStateS2C(debuggerState))
     }
 
-    fun cast(args: CastArgs) {
-        if (state is Debugging) {
-            terminate()
-        }
-        setArgs { copy(castArgs = args) }
-        if (state is NotDebugging) {
-            player.displayClientMessage(Component.translatable("text.hexdebug.no_client"), true)
-        }
+    fun startDebugging(args: CastArgs): Boolean {
+        val state = state as? NotDebugging ?: return false
+        this.state = Debugging(state, args)
+        remoteProxy.initialized()
+        return true
     }
 
-    // TODO: should this maybe have a different name? see the terminate request
-    fun terminate(notifyClient: Boolean = true, restart: Boolean = false) {
-        if (notifyClient && state is Debugging) {
-            remoteProxy.exited(ExitedEventArguments().also { it.exitCode = 0 })
+    fun disconnectClient() {
+        if (state !is NotConnected) {
             remoteProxy.terminated(TerminatedEventArguments())
+            state = NotConnected
         }
-        state = NotDebugging(castArgs = if (restart) state.castArgs else null)
     }
 
     fun print(value: String, category: String = OutputEventArgumentsCategory.STDOUT) {
@@ -84,35 +75,9 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         consumer.consume(message)
     }
 
-    private fun exceptionHandler(e: Throwable): ResponseError {
-        val rootCause = ExceptionUtils.getRootCause(e) as? InvalidStateError
-            ?: return RemoteEndpoint.DEFAULT_EXCEPTION_HANDLER.apply(e)
-
-        val message = "Received message while in unexpected state: ${rootCause.state}"
-        HexDebug.LOGGER.error(message)
-
-        remoteProxy.output(OutputEventArguments().apply {
-            category = "important"
-            output = message
-        })
-
-        return ResponseError(ResponseErrorCode.UnknownErrorCode, message, e.stackTraceToString())
-    }
-
-    private fun setArgs(action: NotDebugging.() -> NotDebugging) = setArgs(state.assert(), action)
-
-    private fun setArgs(notDebugging: NotDebugging, action: NotDebugging.() -> NotDebugging) {
-        state = action.invoke(notDebugging).tryStartDebugging()
-        if (state is Debugging) {
-            remoteProxy.initialized()
-        }
-    }
-
-    private fun getDebugger() = state.assert<Debugging>().debugger
-
     private fun handleDebuggerStep(result: DebugStepResult?) {
         if (result == null) {
-            terminate()
+            terminate(null)
             return
         }
 
@@ -136,16 +101,18 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     // initialization
 
     override fun initialize(args: InitializeRequestArguments): CompletableFuture<Capabilities> {
-        setArgs { copy(initArgs = args) }
+        state = Initialized(args)
         return Capabilities().apply {
             supportsConfigurationDoneRequest = true
             supportsLoadedSourcesRequest = true
             supportsTerminateRequest = true
+            supportsRestartRequest = true
         }.toFuture()
     }
 
     override fun attach(args: MutableMap<String, Any>): CompletableFuture<Void> {
-        setArgs { copy(launchArgs = LaunchArgs(args)) }
+        val initArgs = state.initArgs ?: return futureOf()
+        state = NotDebugging(initArgs, LaunchArgs(args))
         player.displayClientMessage(Component.translatable("text.hexdebug.connected"), true)
         return futureOf()
     }
@@ -154,7 +121,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     override fun setBreakpoints(args: SetBreakpointsArguments): CompletableFuture<SetBreakpointsResponse> {
         return SetBreakpointsResponse().apply {
-            breakpoints = getDebugger().setBreakpoints(args.source.sourceReference, args.breakpoints).toTypedArray()
+            breakpoints = debugger?.setBreakpoints(args.source.sourceReference, args.breakpoints)?.toTypedArray() ?: arrayOf()
         }.toFuture()
     }
 
@@ -169,29 +136,29 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun configurationDone(args: ConfigurationDoneArguments?): CompletableFuture<Void> {
-        handleDebuggerStep(getDebugger().start())
+        handleDebuggerStep(debugger?.start())
         return futureOf()
     }
 
     // stepping
 
     override fun next(args: NextArguments?): CompletableFuture<Void> {
-        handleDebuggerStep(getDebugger().executeUntilStopped(RequestStepType.OVER))
+        handleDebuggerStep(debugger?.executeUntilStopped(RequestStepType.OVER))
         return futureOf()
     }
 
     override fun continue_(args: ContinueArguments?): CompletableFuture<ContinueResponse> {
-        handleDebuggerStep(getDebugger().executeUntilStopped())
+        handleDebuggerStep(debugger?.executeUntilStopped())
         return futureOf()
     }
 
     override fun stepIn(args: StepInArguments?): CompletableFuture<Void> {
-        handleDebuggerStep(getDebugger().executeOnce())
+        handleDebuggerStep(debugger?.executeOnce())
         return futureOf()
     }
 
     override fun stepOut(args: StepOutArguments?): CompletableFuture<Void> {
-        handleDebuggerStep(getDebugger().executeUntilStopped(RequestStepType.OUT))
+        handleDebuggerStep(debugger?.executeUntilStopped(RequestStepType.OUT))
         return futureOf()
     }
 
@@ -200,13 +167,35 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         return futureOf()
     }
 
-    override fun terminate(args: TerminateArguments?): CompletableFuture<Void> {
-        terminate(restart = args?.restart ?: false)
+    override fun restart(args: RestartArguments?): CompletableFuture<Void> {
+        val state = state
+        if (state is ReadyToDebug) {
+            this.state = NotDebugging(state)
+            state.restartArgs?.run(::startDebugging)
+        }
         return futureOf()
     }
 
-    override fun disconnect(args: DisconnectArguments): CompletableFuture<Void> {
-        terminate(notifyClient = false, restart = args.restart)
+    override fun terminate(args: TerminateArguments?): CompletableFuture<Void> {
+        val state = state
+        if (state is ReadyToDebug) {
+            this.state = NotDebugging(state)
+            remoteProxy.exited(ExitedEventArguments().also { it.exitCode = 0 })
+            if (state is Debugging) {
+                for (source in state.debugger.getSources()) {
+                    remoteProxy.loadedSource(LoadedSourceEventArguments().also {
+                        it.source = source
+                        it.reason = LoadedSourceEventArgumentsReason.REMOVED
+                    })
+                }
+            }
+            remoteProxy.invalidated(InvalidatedEventArguments())
+        }
+        return futureOf()
+    }
+
+    override fun disconnect(args: DisconnectArguments?): CompletableFuture<Void> {
+        state = NotConnected
         return futureOf()
     }
 
@@ -224,35 +213,31 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     override fun scopes(args: ScopesArguments): CompletableFuture<ScopesResponse> {
         return ScopesResponse().apply {
-            scopes = getDebugger().getScopes(args.frameId).toTypedArray()
+            scopes = debugger?.getScopes(args.frameId)?.toTypedArray() ?: arrayOf()
         }.toFuture()
     }
 
     override fun variables(args: VariablesArguments): CompletableFuture<VariablesResponse> {
         return VariablesResponse().apply {
-            variables = getDebugger().getVariables(args.variablesReference).paginate(args.start, args.count)
+            variables = debugger?.getVariables(args.variablesReference)?.paginate(args.start, args.count) ?: arrayOf()
         }.toFuture()
     }
 
     override fun stackTrace(args: StackTraceArguments): CompletableFuture<StackTraceResponse> {
         return StackTraceResponse().apply {
-            stackFrames = getDebugger().getStackFrames().paginate(args.startFrame, args.levels)
+            stackFrames = debugger?.getStackFrames()?.paginate(args.startFrame, args.levels) ?: arrayOf()
         }.toFuture()
     }
 
     override fun source(args: SourceArguments): CompletableFuture<SourceResponse> {
         return SourceResponse().apply {
-            content = getDebugger().getSourceContents(args.source.sourceReference)
+            content = debugger?.getSourceContents(args.source.sourceReference) ?: ""
         }.toFuture()
     }
 
     override fun loadedSources(args: LoadedSourcesArguments?): CompletableFuture<LoadedSourcesResponse> {
-        // apparently the client is allowed to send this request before init???
         return LoadedSourcesResponse().apply {
-            sources = when (val state = state) {
-                is Debugging -> state.debugger.getSources().toTypedArray()
-                else -> arrayOf()
-            }
+            sources = debugger?.getSources()?.toTypedArray() ?: arrayOf()
         }.toFuture()
     }
 }

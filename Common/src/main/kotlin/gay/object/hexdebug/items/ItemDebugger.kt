@@ -53,13 +53,11 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
                     StepMode.OVER -> next(null)
                     StepMode.IN -> stepIn(null)
                     StepMode.OUT -> stepOut(null)
-                    StepMode.STOP -> terminate()
+                    StepMode.RESTART -> restart(null)
+                    StepMode.STOP -> terminate(null)
                 }
             }
-        } else if (debugAdapter.isWaitingForClient && getStepMode(stack) == StepMode.STOP) {
-            // cancel the queued session
-            debugAdapter.terminate()
-        } else {
+        } else if (debugAdapter.canStartDebugging) {
             // start a new debug session
             val instrs = if (hasHex(stack)) {
                 getHex(stack, serverLevel) ?: return InteractionResultHolder.fail(stack)
@@ -79,7 +77,12 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
                     IXplatAbstractions.INSTANCE.sendPacketTracking(serverPlayer, packet)
                 }
             }
-            debugAdapter.cast(args)
+
+            if (!debugAdapter.startDebugging(args)) {
+                return noClient(player, stack)
+            }
+        } else {
+            return noClient(player, stack)
         }
 
         val stat = Stats.ITEM_USED[this]
@@ -89,18 +92,23 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         return InteractionResultHolder.consume(stack)
     }
 
+    private fun noClient(player: ServerPlayer, stack: ItemStack): InteractionResultHolder<ItemStack> {
+        player.displayClientMessage(Component.translatable("text.hexdebug.no_client"), true)
+        return InteractionResultHolder.fail(stack)
+    }
+
     companion object {
-        val STATE_PREDICATE = HexDebug.id("state")
+        val DEBUG_STATE_PREDICATE = HexDebug.id("debug_state")
         val STEP_MODE_PREDICATE = HexDebug.id("step_mode")
 
         val STEP_MODE_TAG = "step_mode"
 
-        var currentState: State = State.INACTIVE
+        var debugState: DebugState = DebugState.NOT_DEBUGGING
 
         fun getProperties() = mapOf(
-            STATE_PREDICATE to ClampedItemPropertyFunction { _, _, entity, _ ->
+            DEBUG_STATE_PREDICATE to ClampedItemPropertyFunction { _, _, entity, _ ->
                 // don't show the active icon for debuggers held by other players, on the ground, etc
-                val state = if (entity is LocalPlayer) currentState else State.INACTIVE
+                val state = if (entity is LocalPlayer) debugState else DebugState.NOT_DEBUGGING
                 state.itemPredicate
             },
             STEP_MODE_PREDICATE to ClampedItemPropertyFunction { stack, _, _, _ ->
@@ -130,10 +138,9 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         private fun getStepModeIdx(stack: ItemStack) = stack.getInt(STEP_MODE_TAG)
     }
 
-    enum class State {
-        INACTIVE,
-        WAITING_FOR_CLIENT,
-        ACTIVE,
+    enum class DebugState {
+        NOT_DEBUGGING,
+        DEBUGGING,
     }
 
     enum class StepMode {
@@ -141,6 +148,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         OVER,
         IN,
         OUT,
+        RESTART,
         STOP,
     }
 }

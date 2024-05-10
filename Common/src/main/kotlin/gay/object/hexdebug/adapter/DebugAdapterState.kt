@@ -2,40 +2,37 @@ package gay.`object`.hexdebug.adapter
 
 import gay.`object`.hexdebug.debugger.HexDebugger
 import org.eclipse.lsp4j.debug.InitializeRequestArguments
-import kotlin.reflect.KClass
-
-class InvalidStateError(val state: String) : AssertionError("Unexpected state: $state") {
-    constructor(state: DebugAdapterState) : this(state::class)
-
-    constructor(stateType: KClass<out DebugAdapterState>) : this(stateType.simpleName ?: "Unknown")
-}
-
-inline fun <reified T : DebugAdapterState> DebugAdapterState.assert(): T {
-    return this as? T ?: throw InvalidStateError(this)
-}
 
 sealed interface DebugAdapterState {
-    val castArgs: CastArgs?
+    val initArgs: InitializeRequestArguments? get() = null
+
+    data object NotConnected : DebugAdapterState
+
+    data class Initialized(override val initArgs: InitializeRequestArguments) : DebugAdapterState
+
+    sealed interface ReadyToDebug : DebugAdapterState {
+        override val initArgs: InitializeRequestArguments
+        val launchArgs: LaunchArgs
+        val restartArgs: CastArgs? get() = null
+    }
 
     data class NotDebugging(
-        val initArgs: InitializeRequestArguments? = null,
-        val launchArgs: LaunchArgs? = null,
-        override val castArgs: CastArgs? = null,
-    ) : DebugAdapterState {
-        fun tryStartDebugging(): DebugAdapterState {
-            return Debugging(
-                initArgs ?: return this,
-                launchArgs ?: return this,
-                castArgs ?: return this,
-            )
-        }
+        override val initArgs: InitializeRequestArguments,
+        override val launchArgs: LaunchArgs,
+        override val restartArgs: CastArgs? = null,
+    ) : ReadyToDebug {
+        constructor(state: ReadyToDebug) : this(state.initArgs, state.launchArgs, state.restartArgs)
     }
 
     data class Debugging(
-        val initArgs: InitializeRequestArguments,
-        val launchArgs: LaunchArgs,
-        override val castArgs: CastArgs,
-    ) : DebugAdapterState {
+        override val initArgs: InitializeRequestArguments,
+        override val launchArgs: LaunchArgs,
+        val castArgs: CastArgs,
+    ) : ReadyToDebug {
+        constructor(state: ReadyToDebug, castArgs: CastArgs) : this(state.initArgs, state.launchArgs, castArgs)
+
         val debugger = HexDebugger(initArgs, launchArgs, castArgs)
+
+        override val restartArgs get() = castArgs
     }
 }
