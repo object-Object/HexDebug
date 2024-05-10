@@ -63,10 +63,21 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         }
     }
 
-    fun print(value: String, category: String = OutputEventArgumentsCategory.STDOUT) {
+    fun print(
+        value: String,
+        category: String = OutputEventArgumentsCategory.STDOUT,
+        withSource: Boolean = true,
+    ) {
         remoteProxy.output(OutputEventArguments().also {
             it.category = category
             it.output = value
+            if (withSource) {
+                debugger?.lastEvaluatedMetadata?.also { meta ->
+                    it.source = meta.source
+                    it.line = meta.line
+                    if (meta.column != null) it.column = meta.column
+                }
+            }
         })
     }
 

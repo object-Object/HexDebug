@@ -16,8 +16,8 @@ import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import gay.`object`.hexdebug.adapter.CastArgs
 import gay.`object`.hexdebug.adapter.LaunchArgs
-import gay.`object`.hexdebug.casting.eval.IDebugCastEnv
 import gay.`object`.hexdebug.casting.eval.FrameBreakpoint
+import gay.`object`.hexdebug.casting.eval.IDebugCastEnv
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
 import net.minecraft.network.chat.Component
@@ -46,6 +46,9 @@ class HexDebugger(
             throw IllegalArgumentException("HexDebugger requires env to implement DebugCastEnv, but got ${vm.env}")
         }
     }
+
+    var lastEvaluatedMetadata: IotaMetadata? = null
+        private set
 
     private val variablesAllocator = VariablesAllocator()
     private val sourceAllocator = SourceAllocator(iotas.hashCode())
@@ -404,6 +407,8 @@ class HexDebugger(
 
             if (castResult.resolutionType == ResolvedPatternType.EVALUATED) {
                 onExecute?.invoke(castResult.cast)
+                // this should happen BEFORE vm.performSideEffects, since we use it when printing to the console
+                lastEvaluatedMetadata = iotaMetadata[castResult.cast]
             }
 
             val stepType = getStepType(castResult, continuation, newContinuation)
