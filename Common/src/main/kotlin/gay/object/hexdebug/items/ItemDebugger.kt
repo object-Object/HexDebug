@@ -12,6 +12,7 @@ import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.CastArgs
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.DebugItemCastEnv
+import gay.`object`.hexdebug.registry.HexDebugItems
 import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.itemPredicate
 import gay.`object`.hexdebug.utils.otherHand
@@ -24,6 +25,7 @@ import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 
@@ -117,7 +119,12 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         )
 
         @JvmStatic
-        fun handleShiftScroll(sender: ServerPlayer, hand: InteractionHand, stack: ItemStack, delta: Double) {
+        fun isShiftScrollable(item: Item): Boolean {
+            return item === HexDebugItems.DEBUGGER.value && debugState == DebugState.DEBUGGING
+        }
+
+        @JvmStatic
+        fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double) {
             val newMode = rotateStepMode(stack, delta > 0)
             val component = Component.translatable(
                 "hexdebug.tooltip.debugger.step_mode",
