@@ -212,7 +212,8 @@ class HexDebugger(
             ).filterNotNull()
 
             is FrameBreakpoint -> sequenceOf(
-                toVariable("IsFatal", frame.isFatal.toString())
+                toVariable("StopBefore", frame.stopBefore.toString()),
+                toVariable("IsFatal", frame.isFatal.toString()),
             )
 
             else -> if (sourceLine.isNotEmpty()) sequenceOf(
