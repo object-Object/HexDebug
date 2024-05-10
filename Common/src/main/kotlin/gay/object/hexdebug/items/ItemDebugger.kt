@@ -29,8 +29,6 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
-import net.minecraft.world.item.Tier
-import net.minecraft.world.item.crafting.Ingredient
 import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.Level
 
@@ -178,31 +176,4 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         RESTART,
         STOP,
     }
-}
-
-class DebuggerTier : Tier {
-    override fun getUses(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun getSpeed(): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun getAttackDamageBonus(): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun getLevel(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun getEnchantmentValue(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun getRepairIngredient(): Ingredient {
-        TODO("Not yet implemented")
-    }
-
 }
