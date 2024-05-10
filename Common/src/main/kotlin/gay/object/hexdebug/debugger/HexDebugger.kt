@@ -334,6 +334,10 @@ class HexDebugger(
             if (lastResult != null) result += lastResult
             lastResult = result
 
+            if (!result.success) {
+                return result
+            }
+
             if (isAtBreakpoint()) {
                 hitBreakpoint = true
             }
@@ -389,14 +393,19 @@ class HexDebugger(
 
         // Begin aggregating info
         val info = CastingVM.TempControllerInfo(earlyExit = false)
+        var lastResolutionType = ResolvedPatternType.UNRESOLVED
         while (continuation is NotDone && !info.earlyExit) {
             // Take the top of the continuation stack...
             val frame = continuation.frame
 
             // ...and execute it.
             val castResult = frame.evaluate(continuation.next, world, vm)
+
             val newImage = castResult.newData
             val newContinuation = castResult.continuation
+
+            // we use this when printing to the console, so this should happen BEFORE vm.env.postExecution (ie. for mishaps)
+            lastEvaluatedMetadata = iotaMetadata[castResult.cast]
 
             // Then write all pertinent data back to the harness for the next iteration.
             if (newImage != null) {
@@ -407,8 +416,6 @@ class HexDebugger(
 
             if (castResult.resolutionType == ResolvedPatternType.EVALUATED) {
                 onExecute?.invoke(castResult.cast)
-                // this should happen BEFORE vm.performSideEffects, since we use it when printing to the console
-                lastEvaluatedMetadata = iotaMetadata[castResult.cast]
             }
 
             val stepType = getStepType(castResult, continuation, newContinuation)
@@ -425,7 +432,7 @@ class HexDebugger(
             }
 
             continuation = newContinuation
-
+            lastResolutionType = castResult.resolutionType
             try {
                 vm.performSideEffects(info, castResult.sideEffects)
             } catch (e: Exception) {
@@ -442,6 +449,13 @@ class HexDebugger(
         }
 
         nextContinuation = continuation
+
+        if (!lastResolutionType.success) {
+            stepResult = stepResult.copy(
+                success = false,
+                reason = "exception",
+            )
+        }
 
         return when (continuation) {
             is NotDone -> stepResult
@@ -491,6 +505,7 @@ class HexDebugger(
         else -> stepResult
     }
 
+    @Suppress("CAST_NEVER_SUCCEEDS")
     private fun getStepType(
         castResult: CastResult,
         continuation: NotDone,
@@ -529,8 +544,9 @@ class HexDebugger(
             return DebugStepType.IN
         }
 
-        @Suppress("KotlinConstantConditions") val newImage = castResult.newData as IMixinCastingImage
-        return newImage.`hexDebug$getDebugStepType`()
+        return castResult.newData?.let {
+            (it as IMixinCastingImage).`hexDebug$getDebugStepType`()
+        }
     }
 
     private fun setIotaOverrides(

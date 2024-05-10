@@ -87,7 +87,8 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     private fun handleDebuggerStep(result: DebugStepResult?) {
-        if (result == null) {
+        // TODO: handle more betterly
+        if (result == null || !result.success) {
             terminate(null)
             return
         }

@@ -7,6 +7,7 @@ data class DebugStepResult(
     val reason: String,
     val type: DebugStepType? = null,
     val loadedSources: Map<Source, LoadedSourceReason> = mapOf(),
+    val success: Boolean = true,
 ) {
     operator fun plus(other: DebugStepResult) = copy(
         loadedSources = loadedSources + other.loadedSources,

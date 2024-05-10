@@ -12,7 +12,8 @@ interface IDebugCastEnv {
         caster: ServerPlayer,
         message: Component,
         category: String = OutputEventArgumentsCategory.STDOUT,
+        withSource: Boolean = true,
     ) {
-        DebugAdapterManager[caster]?.print(message.string + "\n", category)
+        DebugAdapterManager[caster]?.print(message.string + "\n", category, withSource)
     }
 }
