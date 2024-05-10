@@ -4,4 +4,5 @@ Hex Casting addon that runs a local debug server using DAP.
 
 ## TODOs
 
-* Allow pausing at mishaps like exceptions.
+* Make the debugger work as a weapon. (Thwack!)
+* Allow debug client to fetch sources after termination (ie. for exceptions). 

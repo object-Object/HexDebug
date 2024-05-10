@@ -12,7 +12,7 @@ import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerLevel
 
-data class FrameBreakpoint(val stopBefore: Boolean) : ContinuationFrame {
+data class FrameBreakpoint(val stopBefore: Boolean, val isFatal: Boolean = false) : ContinuationFrame {
     override fun breakDownwards(stack: List<Iota>) = false to stack
 
     override fun evaluate(continuation: SpellContinuation, level: ServerLevel, harness: CastingVM) = CastResult(
@@ -30,6 +30,7 @@ data class FrameBreakpoint(val stopBefore: Boolean) : ContinuationFrame {
 
     override fun serializeToNBT() = NBTBuilder {
         "stopBefore" %= stopBefore
+        "isFatal" %= isFatal
     }
 
     companion object {
@@ -37,7 +38,10 @@ data class FrameBreakpoint(val stopBefore: Boolean) : ContinuationFrame {
         val TYPE = object : ContinuationFrame.Type<FrameBreakpoint> {
             override fun deserializeFromNBT(tag: CompoundTag, world: ServerLevel) = FrameBreakpoint(
                 tag.getBoolean("stopBefore"),
+                tag.getBoolean("isFatal"),
             )
         }
+
+        fun fatal() = FrameBreakpoint(stopBefore = true, isFatal = true)
     }
 }

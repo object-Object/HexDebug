@@ -55,6 +55,7 @@ class HexDebugger(
     private val iotaMetadata = IdentityHashMap<Iota, IotaMetadata>()
     private val frameMetadata = IdentityHashMap<ContinuationFrame, () -> IotaMetadata?>()
     private val breakpoints = mutableMapOf<Int, MutableSet<Int>>() // source id -> line number
+    private val exceptionBreakpoints = mutableSetOf<ExceptionBreakpointType>()
 
     private val initialSource = registerNewSource(iotas)!!
 
@@ -210,6 +211,10 @@ class HexDebugger(
                 toVariable("Result", frame.acc),
             ).filterNotNull()
 
+            is FrameBreakpoint -> sequenceOf(
+                toVariable("IsFatal", frame.isFatal.toString())
+            )
+
             else -> if (sourceLine.isNotEmpty()) sequenceOf(
                 toVariable("Code", sourceLine),
             ) else null
@@ -295,6 +300,14 @@ class HexDebugger(
         }
     }
 
+    fun setExceptionBreakpoints(typeNames: Array<String>): List<Breakpoint> {
+        exceptionBreakpoints.clear()
+        return typeNames.map {
+            exceptionBreakpoints.add(ExceptionBreakpointType.valueOf(it))
+            Breakpoint().apply { isVerified = true }
+        }
+    }
+
     private fun indexToLineNumber(index: Int) = index + if (initArgs.linesStartAt1) 1 else 0
 
     private fun indexToColumn(index: Int) = index + if (initArgs.columnsStartAt1) 1 else 0
@@ -333,10 +346,6 @@ class HexDebugger(
             var result = executeOnce(exactlyOnce = true) ?: return null
             if (lastResult != null) result += lastResult
             lastResult = result
-
-            if (!result.success) {
-                return result
-            }
 
             if (isAtBreakpoint()) {
                 hitBreakpoint = true
@@ -393,16 +402,32 @@ class HexDebugger(
 
         // Begin aggregating info
         val info = CastingVM.TempControllerInfo(earlyExit = false)
-        var lastResolutionType = ResolvedPatternType.UNRESOLVED
         while (continuation is NotDone && !info.earlyExit) {
             // Take the top of the continuation stack...
             val frame = continuation.frame
+
+            // TODO: there's probably a less hacky way to do this
+            if (frame is FrameBreakpoint && frame.isFatal) {
+                continuation = Done
+                break
+            }
 
             // ...and execute it.
             val castResult = frame.evaluate(continuation.next, world, vm)
 
             val newImage = castResult.newData
-            val newContinuation = castResult.continuation
+
+            // if something went wrong, push a breakpoint or stop immediately
+            // and save the old image so we can see the stack BEFORE the mishap instead of after
+            // TODO: maybe implement a way to see the stack at each call frame instead?
+            val (newContinuation, preMishapImage) = if (castResult.resolutionType.success) {
+                Pair(castResult.continuation, null)
+            } else if (ExceptionBreakpointType.UNCAUGHT_MISHAPS in exceptionBreakpoints) {
+                stepResult = stepResult.copy(reason = "exception")
+                Pair(castResult.continuation.pushFrame(FrameBreakpoint.fatal()), vm.image)
+            } else {
+                Pair(Done, vm.image)
+            }
 
             // we use this when printing to the console, so this should happen BEFORE vm.env.postExecution (ie. for mishaps)
             lastEvaluatedMetadata = iotaMetadata[castResult.cast]
@@ -432,7 +457,7 @@ class HexDebugger(
             }
 
             continuation = newContinuation
-            lastResolutionType = castResult.resolutionType
+
             try {
                 vm.performSideEffects(info, castResult.sideEffects)
             } catch (e: Exception) {
@@ -443,19 +468,15 @@ class HexDebugger(
             }
             info.earlyExit = info.earlyExit || !castResult.resolutionType.success
 
+            // this needs to be after performSideEffects, since that's where mishaps mess with the stack
+            if (preMishapImage != null) vm.image = preMishapImage
+
             if (exactlyOnce || shouldStopAtFrame(continuation)) {
                 break
             }
         }
 
         nextContinuation = continuation
-
-        if (!lastResolutionType.success) {
-            stepResult = stepResult.copy(
-                success = false,
-                reason = "exception",
-            )
-        }
 
         return when (continuation) {
             is NotDone -> stepResult

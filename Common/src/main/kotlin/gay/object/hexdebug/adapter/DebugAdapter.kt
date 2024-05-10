@@ -4,6 +4,7 @@ import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterState.*
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyServerLauncher
 import gay.`object`.hexdebug.debugger.DebugStepResult
+import gay.`object`.hexdebug.debugger.ExceptionBreakpointType
 import gay.`object`.hexdebug.debugger.RequestStepType
 import gay.`object`.hexdebug.items.ItemDebugger
 import gay.`object`.hexdebug.networking.HexDebugNetworking
@@ -87,8 +88,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     private fun handleDebuggerStep(result: DebugStepResult?) {
-        // TODO: handle more betterly
-        if (result == null || !result.success) {
+        if (result == null) {
             terminate(null)
             return
         }
@@ -119,6 +119,13 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             supportsLoadedSourcesRequest = true
             supportsTerminateRequest = true
             supportsRestartRequest = true
+            exceptionBreakpointFilters = ExceptionBreakpointType.entries.map {
+                ExceptionBreakpointsFilter().apply {
+                    filter = it.name
+                    label = it.label
+                    default_ = it.isDefault
+                }
+            }.toTypedArray()
         }.toFuture()
     }
 
@@ -138,12 +145,8 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun setExceptionBreakpoints(args: SetExceptionBreakpointsArguments): CompletableFuture<SetExceptionBreakpointsResponse> {
-        // tell the client we didn't enable any of their breakpoints
-        val count = args.filters.size + (args.filterOptions?.size ?: 0) + (args.exceptionOptions?.size ?: 0)
-        val breakpoints = Array(count) { Breakpoint().apply { isVerified = false } }
-
         return SetExceptionBreakpointsResponse().apply {
-            this.breakpoints = breakpoints
+            breakpoints = debugger?.setExceptionBreakpoints(args.filters)?.toTypedArray() ?: arrayOf()
         }.toFuture()
     }
 
