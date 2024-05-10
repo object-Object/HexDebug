@@ -3,6 +3,8 @@
     debugger: "Debugger",
   },
 
+  "itemGroup.hexdebug": "HexDebug",
+
   text: {
     hexdebug: {
       no_client: "Debug client is not connected.",

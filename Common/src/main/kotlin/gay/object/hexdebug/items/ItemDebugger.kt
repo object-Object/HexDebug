@@ -27,6 +27,10 @@ import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Rarity
+import net.minecraft.world.item.Tier
+import net.minecraft.world.item.crafting.Ingredient
+import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.Level
 
 class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
@@ -35,6 +39,14 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
     override fun breakAfterDepletion() = false
 
     override fun cooldown() = HexConfig.common().artifactCooldown()
+
+    override fun isFoil(stack: ItemStack) = false
+
+    override fun getRarity(stack: ItemStack) = Rarity.RARE
+
+    override fun getDefaultInstance() = ItemStack(this).apply {
+        enchant(Enchantments.BANE_OF_ARTHROPODS, 1)
+    }
 
     override fun use(world: Level, player: Player, usedHand: InteractionHand): InteractionResultHolder<ItemStack> {
         val stack = player.getItemInHand(usedHand)
@@ -158,4 +170,31 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         RESTART,
         STOP,
     }
+}
+
+class DebuggerTier : Tier {
+    override fun getUses(): Int {
+        TODO("Not yet implemented")
+    }
+
+    override fun getSpeed(): Float {
+        TODO("Not yet implemented")
+    }
+
+    override fun getAttackDamageBonus(): Float {
+        TODO("Not yet implemented")
+    }
+
+    override fun getLevel(): Int {
+        TODO("Not yet implemented")
+    }
+
+    override fun getEnchantmentValue(): Int {
+        TODO("Not yet implemented")
+    }
+
+    override fun getRepairIngredient(): Ingredient {
+        TODO("Not yet implemented")
+    }
+
 }
