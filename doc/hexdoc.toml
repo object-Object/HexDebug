@@ -23,7 +23,7 @@ missing = [
 ]
 
 [template]
-icon = "icon.png"
+icon = "{^_common.src}/main/resources/icon.png"
 include = [
     "hexdebug",
     "hexcasting",
