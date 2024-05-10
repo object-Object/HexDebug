@@ -9,6 +9,7 @@
     hexdebug: {
       no_client: "Debug client is not connected.",
       connected: "Debug client connected!",
+      thwack: "Thwack!",
     },
 
     "autoconfig.hexdebug": {

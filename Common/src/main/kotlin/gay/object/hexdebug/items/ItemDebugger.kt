@@ -24,6 +24,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -104,6 +105,13 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
 
         serverPlayer.cooldowns.addCooldown(this, this.cooldown())
         return InteractionResultHolder.consume(stack)
+    }
+
+    override fun hurtEnemy(stack: ItemStack, target: LivingEntity, attacker: LivingEntity): Boolean {
+        if (stack.hoverName.string == "Thwacker" && attacker is ServerPlayer) {
+            attacker.displayClientMessage(Component.translatable("text.hexdebug.thwack"), true)
+        }
+        return super.hurtEnemy(stack, target, attacker)
     }
 
     private fun noClient(player: ServerPlayer, stack: ItemStack): InteractionResultHolder<ItemStack> {
