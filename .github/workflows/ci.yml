@@ -64,7 +64,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
       python-version: 3.11
-      deploy-pages: |
+      deploy-pages: |-
         ${{
           (github.head_ref || github.ref_name) == 'main'
           || inputs.publish-docs == 'true'
