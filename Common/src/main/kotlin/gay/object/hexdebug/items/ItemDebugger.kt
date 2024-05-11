@@ -43,7 +43,14 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
 
     override fun getRarity(stack: ItemStack) = Rarity.RARE
 
-    override fun getDefaultInstance() = ItemStack(this).apply {
+    override fun getDefaultInstance() = applyDefaults(ItemStack(this))
+
+    // TODO: this doesn't give the advancement until after it's taken out of the table
+    override fun onCraftedBy(stack: ItemStack, level: Level, player: Player) {
+        applyDefaults(stack)
+    }
+
+    private fun applyDefaults(stack: ItemStack) = stack.apply {
         enchant(Enchantments.BANE_OF_ARTHROPODS, 1)
     }
 

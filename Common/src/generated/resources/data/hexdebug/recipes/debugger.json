@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "hexcasting:artifact"
+    },
+    "C": {
+      "item": "hexcasting:charged_amethyst"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "pattern": [
+    " CC",
+    " AC",
+    "G  "
+  ],
+  "result": {
+    "item": "hexdebug:debugger"
+  },
+  "show_notification": true
+}

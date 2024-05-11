@@ -2,8 +2,9 @@ package gay.`object`.hexdebug.forge
 
 import dev.architectury.platform.forge.EventBuses
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.forge.datagen.HexDebugModelProvider
-import net.minecraft.data.DataProvider
+import gay.`object`.hexdebug.forge.datagen.HexDebugModels
+import gay.`object`.hexdebug.forge.datagen.HexDebugRecipes
+import net.minecraft.data.DataProvider.Factory
 import net.minecraftforge.data.event.GatherDataEvent
 import net.minecraftforge.fml.common.Mod
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
@@ -24,11 +25,10 @@ class HexDebugForge {
     }
 
     private fun gatherData(event: GatherDataEvent) {
-        val gen = event.generator
         val efh = event.existingFileHelper
-        gen.addProvider(
-            event.includeClient(),
-            DataProvider.Factory { HexDebugModelProvider(it, efh) },
-        )
+        event.generator.apply {
+            addProvider(event.includeClient(), Factory { HexDebugModels(it, efh) })
+            addProvider(event.includeServer(), Factory { HexDebugRecipes(it) })
+        }
     }
 }

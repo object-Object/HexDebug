@@ -9,8 +9,8 @@
       text: "hexdebug.category.items.entry.debugging.page.1",
     },
     {
-      type: "patchouli:spotlight",
-      item: "hexdebug:debugger",
+      type: "patchouli:crafting",
+      recipe: "hexdebug:debugger",
       anchor: "debugger",
       text: "hexdebug.category.items.entry.debugging.page.thwack",
     },
