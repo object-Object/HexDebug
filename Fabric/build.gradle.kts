@@ -8,14 +8,8 @@ architectury {
     fabric()
 }
 
-hexdebugArchitectury {
-    platform = "fabric"
-    mavenPublication("mavenFabric")
-}
-
 hexdebugPlatform {
-    developmentConfiguration("developmentFabric")
-    shadowCommonConfiguration("transformProductionFabric")
+    platform("fabric", "quilt")
 }
 
 hexdebugModDependencies {
@@ -73,8 +67,6 @@ dependencies {
 }
 
 publishMods {
-    modLoaders.addAll("fabric", "quilt")
-
     // Uncomment your desired platform(s)
 //    curseforge {
 //        accessToken = project.curseforgeApiToken

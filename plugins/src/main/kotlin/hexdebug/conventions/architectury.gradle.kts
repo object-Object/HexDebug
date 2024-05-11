@@ -6,18 +6,8 @@ import hexdebug.libs
 // plugin config
 
 abstract class HexDebugArchitecturyExtension(private val project: Project) : IHexDebugArchitecturyExtension {
-    override val artifactId = project.provider {
-        project.hexdebugProperties.getArtifactId(platform.get())
-    }
-
-    fun mavenPublication(name: String) = project.run {
-        publishing {
-            publications {
-                register<MavenPublication>(name) {
-                    artifactId = this@HexDebugArchitecturyExtension.artifactId.get()
-                }
-            }
-        }
+    override fun platform(platform: String) = project.run {
+        base.archivesName = "${hexdebugProperties.modId}-$platform"
     }
 }
 
@@ -57,11 +47,5 @@ sourceSets {
         resources {
             srcDir(file("src/generated/resources"))
         }
-    }
-}
-
-publishing {
-    repositories {
-
     }
 }

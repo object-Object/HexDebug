@@ -33,14 +33,8 @@ loom {
     }
 }
 
-hexdebugArchitectury {
-    platform = "forge"
-    mavenPublication("mavenForge")
-}
-
 hexdebugPlatform {
-    developmentConfiguration("developmentForge")
-    shadowCommonConfiguration("transformProductionForge")
+    platform("forge")
 }
 
 hexdebugModDependencies {
@@ -78,8 +72,6 @@ tasks {
 }
 
 publishMods {
-    modLoaders.add("forge")
-
 //    curseforge {
 //        accessToken = project.curseforgeApiToken
 //        projectId = project.curseforgeId

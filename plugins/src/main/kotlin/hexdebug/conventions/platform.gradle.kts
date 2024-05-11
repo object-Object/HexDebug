@@ -1,19 +1,42 @@
 package hexdebug.conventions
 
+import hexdebug.hexdebugProperties
+
 // plugin config
 
 abstract class HexDebugPlatformExtension(private val project: Project) {
-    fun developmentConfiguration(name: String) = project.run {
+    abstract val developmentConfiguration: Property<String>
+    abstract val shadowCommonConfiguration: Property<String>
+
+    private val hexdebugArchitectury by lazy {
+        project.extensions.getByType<IHexDebugArchitecturyExtension>()
+    }
+
+    fun platform(platform: String, vararg extraModLoaders: String) = project.run {
+        // "inheritance"
+        hexdebugArchitectury.platform(platform)
+
+        platform.replaceFirstChar(Char::uppercase).also {
+            developmentConfiguration.convention("development$it")
+            shadowCommonConfiguration.convention("transformProduction$it")
+        }
+
         configurations {
-            named(name) {
+            named(developmentConfiguration.get()) {
                 extendsFrom(get("common"))
             }
         }
-    }
 
-    fun shadowCommonConfiguration(configuration: String) = project.run {
         dependencies {
-            "shadowCommon"(project(":Common", configuration)) { isTransitive = false }
+            "shadowCommon"(project(":Common", shadowCommonConfiguration.get())) { isTransitive = false }
+        }
+
+        publishMods {
+            modLoaders.addAll(platform, *extraModLoaders)
+            displayName = modLoaders.map { values ->
+                val loaders = values.joinToString(", ") { it.replaceFirstChar(Char::uppercase) }
+                "v${project.version} [$loaders]"
+            }
         }
     }
 }
@@ -29,8 +52,6 @@ plugins {
     id("com.github.johnrengelman.shadow")
     id("me.modmuss50.mod-publish-plugin")
 }
-
-val hexdebugArchitectury = extensions.getByType<IHexDebugArchitecturyExtension>()
 
 architectury {
     platformSetupLoomIde()
@@ -60,7 +81,6 @@ sourceSets {
 }
 
 tasks {
-    // TODO: is this still necessary?
     processResources {
         from(project(":Common").file("src/main/resources")) {
             include("data/*/patchouli_books/")
@@ -99,44 +119,23 @@ components {
 }
 
 publishMods {
-    file = tasks.remapJar.flatMap { it.archiveFile }
-    additionalFiles.from(tasks.kotlinSourcesJar.flatMap { it.archiveFile })
-    changelog = "" // TODO
-    type = ALPHA
+    dryRun = providers.environmentVariable("CI").orElse("").map { it.isBlank() }
 
-    displayName = hexdebugArchitectury.platform.map { platform ->
-        "HexDebug ${project.version} [$platform]"
+    type = ALPHA
+    changelog = hexdebugProperties.getLatestChangelog()
+    file = tasks.remapJar.flatMap { it.archiveFile }
+
+    curseforge {
+        projectId = hexdebugProperties.curseforgeId
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN").orElse("")
+
+        minecraftVersions.add(hexdebugProperties.minecraftVersion)
     }
 
-//    curseforge {
-//        accessToken = project.curseforgeApiToken
-//        projectId = project.curseforgeID
-//        minecraftVersions.add(minecraftVersion)
-//
-//        requires {
-//            slug = "architectury-debugger"
-//        }
-//        requires {
-//            slug = "kotlin-for-forge"
-//        }
-//        requires {
-//            slug = "hexcasting"
-//        }
-//    }
-//
-//    modrinth {
-//        accessToken = project.modrinthApiToken
-//        projectId = project.modrinthID
-//        minecraftVersions.add(minecraftVersion)
-//
-//        requires {
-//            slug = "architectury-debugger"
-//        }
-//        requires {
-//            slug = "kotlin-for-forge"
-//        }
-//        requires {
-//            slug = "hex-casting"
-//        }
-//    }
+    modrinth {
+        projectId = hexdebugProperties.modrinthId
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN").orElse("")
+
+        minecraftVersions.add(hexdebugProperties.minecraftVersion)
+    }
 }

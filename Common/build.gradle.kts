@@ -7,8 +7,7 @@ architectury {
 }
 
 hexdebugArchitectury {
-    platform = "common"
-    mavenPublication("mavenCommon")
+    platform("common")
 }
 
 dependencies {
