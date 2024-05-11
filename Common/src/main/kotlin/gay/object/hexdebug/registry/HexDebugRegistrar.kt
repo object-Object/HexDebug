@@ -28,14 +28,14 @@ abstract class HexDebugRegistrar<T : Any>(
         }
     }
 
-    fun register(name: String, getValue: () -> T) = register(HexDebug.id(name), getValue)
+    fun <U : T> register(name: String, getValue: () -> U): Entry<U> = register(HexDebug.id(name), getValue)
 
-    fun register(id: ResourceLocation, getValue: () -> T) = register(id, lazy {
+    fun <U : T> register(id: ResourceLocation, getValue: () -> U): Entry<U> = register(id, lazy {
         if (!isInitialized) throw IllegalStateException("$this has not been initialized!")
         getValue()
     })
 
-    fun register(id: ResourceLocation, lazyValue: Lazy<T>) = Entry(id, lazyValue).also {
+    fun <U : T> register(id: ResourceLocation, lazyValue: Lazy<U>): Entry<U> = Entry(id, lazyValue).also {
         if (mutableEntries.putIfAbsent(id, lazyValue) != null) {
             throw IllegalArgumentException("Duplicate id: $id")
         }

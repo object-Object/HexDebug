@@ -5,7 +5,7 @@
             "request": "attach",
             "name": "HexDebug: Attach",
             "port": 4444,
-            // "stopOnEntry": true,
+            "stopOnEntry": false,
             // "stopOnExit": true,
             // "skipNonEvalFrames": true,
             // "indentWidth": 4,
