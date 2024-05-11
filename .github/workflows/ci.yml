@@ -66,10 +66,10 @@ jobs:
       python-version: 3.11
       deploy-pages: |-
         ${{
-          (github.head_ref || github.ref_name) == 'main'
-          || inputs.publish-docs == 'true'
+          inputs.publish-docs == 'true'
+          || (github.head_ref || github.ref_name) == 'main'
         }}
-      release: ${{ inputs.publish-docs }}
+      release: ${{ inputs.publish-docs == 'true' }}
 
   publish-mod:
     runs-on: ubuntu-latest
