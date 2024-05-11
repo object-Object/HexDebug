@@ -23,5 +23,12 @@
       anchor: "hexdebug:breakpoint/after",
       text: "hexdebug.category.patterns.entry.debugging.page.breakpoint/after",
     },
+    {
+      type: "hexcasting:pattern",
+      op_id: "hexdebug:craft/debugger",
+      anchor: "hexdebug:craft/debugger",
+      input: "entity, [pattern]",
+      text: "hexdebug.category.patterns.entry.debugging.page.craft/debugger",
+    }
   ],
 }
