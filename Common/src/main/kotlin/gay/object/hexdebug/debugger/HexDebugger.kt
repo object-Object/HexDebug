@@ -374,16 +374,11 @@ class HexDebugger(
                 isEscaping = result.type == DebugStepType.ESCAPE
             }
 
-            shouldStop = shouldStop || when (stepType) {
-                RequestStepType.OVER -> if (isEscaping) {
-                    result.type != DebugStepType.ESCAPE
-                } else {
-                    stepDepth <= 0
-                }
-
-                RequestStepType.OUT -> {
-                    stepDepth < 0
-                }
+            shouldStop = shouldStop || if (isEscaping) {
+                result.type != DebugStepType.ESCAPE
+            } else when (stepType) {
+                RequestStepType.OVER ->  stepDepth <= 0
+                RequestStepType.OUT -> stepDepth < 0
             }
 
             if (shouldStop && shouldStopAtFrame(nextContinuation)) {
@@ -639,5 +634,6 @@ val SpellContinuation.next get() = (this as? NotDone)?.next
 val ContinuationFrame.name get() = this::class.simpleName ?: "Unknown"
 
 enum class RequestStepType {
-    OVER, OUT,
+    OVER,
+    OUT,
 }
