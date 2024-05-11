@@ -39,8 +39,10 @@ repositories {
 //    testImplementation("org.jetbrains.kotlin:kotlin-test")
 //}
 
-group = hexdebugProperties.mavenGroup
-version = hexdebugProperties.modVersion
+hexdebugProperties.also {
+    group = it.mavenGroup
+    version = "${it.modVersion}+${it.minecraftVersion}"
+}
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(hexdebugProperties.javaVersion)

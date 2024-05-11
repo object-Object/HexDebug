@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "hatchling",
-    "hatch-gradle-version>=0.9.6",
+    "hatch-gradle-version>=0.9.8",
 ]
 build-backend = "hatchling.build"
 
@@ -29,10 +29,11 @@ scheme = "gradle"
 source = "gradle-properties"
 py-path = "doc/src/hexdoc_hexdebug/__version__.py"
 key = "modVersion"
+gradle-version-regex = { regex='^(.+?)(-.+)?$', repl='\1.{minecraftVersion}\2' }
 
 [tool.hatch.metadata.hooks.version-catalog]
 dependencies = [
-    "hexdoc>=1!0.1.0a13",
+    "hexdoc>=1!0.1.0a16",
     { package="hexdoc-hexcasting", op="~=", py-version="1.0", key="hexcasting" },
 ]
 

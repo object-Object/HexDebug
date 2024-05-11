@@ -1,7 +1,5 @@
 package hexdebug.conventions
 
-import hexdebug.hexdebugProperties
-
 // plugin config
 
 abstract class HexDebugPlatformExtension(private val project: Project) {
@@ -107,9 +105,8 @@ publishMods {
     type = ALPHA
 
     displayName = hexdebugArchitectury.platform.map { platform ->
-        "HexDebug ${hexdebugProperties.modVersion} [$platform]"
+        "HexDebug ${project.version} [$platform]"
     }
-    version = hexdebugProperties.modVersion
 
 //    curseforge {
 //        accessToken = project.curseforgeApiToken
