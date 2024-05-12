@@ -30,7 +30,7 @@ jobs:
     steps:
       - run: |
           echo "${{ github.event_name }}"
-          echo "${{ inputs }}"
+          echo "${{ toJson(inputs) }}"
 
   build-mod:
     needs: setup
