@@ -124,10 +124,6 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         return InteractionResultHolder.fail(stack)
     }
 
-    fun isShiftScrollable(): Boolean {
-        return debugState == DebugState.DEBUGGING
-    }
-
     fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double) {
         val newMode = rotateStepMode(stack, delta > 0)
         val component = Component.translatable(
@@ -165,6 +161,11 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         val HIDE_ICONS_PREDICATE = HexDebug.id("hide_icons")
 
         var debugState: DebugState = DebugState.NOT_DEBUGGING
+
+        @JvmStatic
+        fun isDebugging(): Boolean {
+            return debugState == DebugState.DEBUGGING
+        }
 
         fun getProperties(item: ItemDebugger) = mapOf(
             DEBUG_STATE_PREDICATE to ClampedItemPropertyFunction { _, _, entity, _ ->

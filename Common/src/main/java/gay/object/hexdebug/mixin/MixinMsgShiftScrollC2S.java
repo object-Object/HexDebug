@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+// server side
 @Mixin(MsgShiftScrollC2S.class)
 public class MixinMsgShiftScrollC2S {
     @Inject(method = "handleForHand", at = @At("HEAD"))
@@ -16,7 +17,7 @@ public class MixinMsgShiftScrollC2S {
         if (delta != 0) {
             var stack = sender.getItemInHand(hand);
             var item = stack.getItem();
-            if (item instanceof ItemDebugger debugger && debugger.isShiftScrollable()) {
+            if (item instanceof ItemDebugger debugger) {
                 debugger.handleShiftScroll(sender, stack, delta);
             }
         }

@@ -1,3 +1,5 @@
+import hexdebug.libs
+
 plugins {
     id("hexdebug.conventions.architectury")
 }
@@ -25,7 +27,7 @@ dependencies {
 
     modImplementation(libs.clothConfig.common)
 
-//    implementation(libs.findbugs.jsr305)
+    implementation(libs.mixinExtras)
 
     implementation(libs.bundles.lsp4j)
     implementation(libs.ktor.network)
