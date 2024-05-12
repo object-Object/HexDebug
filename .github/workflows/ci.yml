@@ -27,6 +27,10 @@ jobs:
     outputs:
       publish-mod:  ${{ github.event_name == 'workflow_dispatch' && inputs.publish-mod == 'true' }}
       publish-docs: ${{ github.event_name == 'workflow_dispatch' && inputs.publish-docs == 'true' }}
+    steps:
+      - run: |
+          echo "${{ github.event_name }}"
+          echo "${{ inputs }}"
 
   build-mod:
     needs: setup
