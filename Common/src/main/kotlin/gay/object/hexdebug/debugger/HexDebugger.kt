@@ -54,7 +54,7 @@ class HexDebugger(
     private val sourceAllocator = SourceAllocator(iotas.hashCode())
     private val iotaMetadata = IdentityHashMap<Iota, IotaMetadata>()
     private val frameMetadata = IdentityHashMap<ContinuationFrame, () -> IotaMetadata?>()
-    private val breakpoints = mutableMapOf<Int, MutableSet<Int>>() // source id -> line number
+    private val breakpoints = mutableMapOf<Int, MutableMap<Int, SourceBreakpointMode>>() // source id -> line number
     private val exceptionBreakpoints = mutableSetOf<ExceptionBreakpointType>()
 
     private val initialSource = registerNewSource(iotas)!!
@@ -285,11 +285,13 @@ class HexDebugger(
     // TODO: there's probably a bug here somewhere - shouldn't we be using the metadata?
     fun setBreakpoints(sourceReference: Int, sourceBreakpoints: Array<SourceBreakpoint>): List<Breakpoint> {
         val (source, iotas) = sourceAllocator[sourceReference]
-        val breakpointLines = breakpoints.getOrPut(sourceReference, ::mutableSetOf).apply { clear() }
+        val breakpointLines = breakpoints.getOrPut(sourceReference, ::mutableMapOf).apply { clear() }
         return sourceBreakpoints.map {
             Breakpoint().apply {
                 if (it.line <= indexToLineNumber(iotas.lastIndex)) {
-                    breakpointLines.add(it.line)
+                    breakpointLines[it.line] = it.mode
+                        ?.let(SourceBreakpointMode::valueOf)
+                        ?: SourceBreakpointMode.EVALUATED
                     isVerified = true
                     this.source = source
                     line = it.line
@@ -320,9 +322,17 @@ class HexDebugger(
             else -> null
         } ?: return false
 
-        return iotaMetadata[nextIota]
-            ?.let { breakpoints[it.source.sourceReference]?.contains(it.line) }
-            ?: false
+        val breakpointMode = iotaMetadata[nextIota]
+            ?.let { breakpoints[it.source.sourceReference]?.get(it.line) }
+            ?: return false
+
+        val escapeNext = vm.image.escapeNext || vm.image.parenCount > 0
+
+        return when (breakpointMode) {
+            SourceBreakpointMode.EVALUATED -> !escapeNext
+            SourceBreakpointMode.ESCAPED -> escapeNext
+            SourceBreakpointMode.ALL -> true
+        }
     }
 
     fun start(): DebugStepResult? {

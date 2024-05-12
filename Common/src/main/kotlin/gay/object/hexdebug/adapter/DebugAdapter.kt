@@ -6,6 +6,7 @@ import gay.`object`.hexdebug.adapter.proxy.DebugProxyServerLauncher
 import gay.`object`.hexdebug.debugger.DebugStepResult
 import gay.`object`.hexdebug.debugger.ExceptionBreakpointType
 import gay.`object`.hexdebug.debugger.RequestStepType
+import gay.`object`.hexdebug.debugger.SourceBreakpointMode
 import gay.`object`.hexdebug.items.ItemDebugger
 import gay.`object`.hexdebug.networking.HexDebugNetworking
 import gay.`object`.hexdebug.networking.MsgDebuggerStateS2C
@@ -124,6 +125,14 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
                     filter = it.name
                     label = it.label
                     default_ = it.isDefault
+                }
+            }.toTypedArray()
+            breakpointModes = SourceBreakpointMode.entries.map {
+                BreakpointMode().apply {
+                    mode = it.name
+                    label = it.label
+                    description = it.description
+                    appliesTo = arrayOf(BreakpointModeApplicability.SOURCE)
                 }
             }.toTypedArray()
         }.toFuture()

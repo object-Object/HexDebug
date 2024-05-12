@@ -12,13 +12,14 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = uri("https://jitpack.io") }
     maven { url = uri("https://squiddev.cc/maven") }
     maven { url = uri("https://maven.terraformersmc.com") }
     maven { url = uri("https://maven.terraformersmc.com/releases") }
     maven { url = uri("https://maven.shedaniel.me") }
     maven { url = uri("https://maven.blamejared.com") }
-    maven { url = uri("https://maven.jamieswhiteshirt.com/libs-release") }
+//    maven { url = uri("https://maven.jamieswhiteshirt.com/libs-release") } // breaks all snapshot dependencies??
     maven { url = uri("https://mvn.devos.one/snapshots") }
     maven { url = uri("https://maven.ladysnake.org/releases") }
     maven { url = uri("https://thedarkcolour.github.io/KotlinForForge") }

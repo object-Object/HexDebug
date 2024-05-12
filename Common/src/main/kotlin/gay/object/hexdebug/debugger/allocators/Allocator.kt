@@ -13,6 +13,7 @@ open class Allocator<T> : Iterable<T> {
         return toReference(values.lastIndex)
     }
 
+    // TODO: should probably remove this (eg. out of bounds when newly connected with existing breakpoints)
     open operator fun get(reference: Int): T {
         return values[toIndex(reference)]
     }
