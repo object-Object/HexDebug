@@ -25,12 +25,19 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
+      is-main-branch: |-
+        ${{
+          github.event_name != 'pull_request' && contains(
+            fromJson('["main"]'),
+            (github.head_ref || github.ref_name)
+          )
+        }}
+      branch-name:  ${{ github.head_ref || github.ref_name }}
       publish-mod:  ${{ github.event_name == 'workflow_dispatch' && inputs.publish-mod == 'true' }}
       publish-docs: ${{ github.event_name == 'workflow_dispatch' && inputs.publish-docs == 'true' }}
     steps:
-      - run: |
-          echo "${{ github.event_name }}"
-          echo "${{ toJson(inputs) }}"
+      - run: 'echo "event_name: ${{ github.event_name }}"'
+      - run: 'echo "inputs: ${{ toJson(inputs) }}"'
 
   build-mod:
     needs: setup
@@ -77,11 +84,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
       python-version: 3.11
-      deploy-pages: |-
-        ${{
-          needs.setup.outputs.publish-docs == 'true'
-          || (github.head_ref || github.ref_name) == 'main'
-        }}
+      deploy-pages: ${{ needs.setup.outputs.publish-docs == 'true' || needs.setup.outputs.is-main-branch == 'true' }}
       release: ${{ needs.setup.outputs.publish-docs == 'true' }}
 
   publish-mod:
