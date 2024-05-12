@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.adapter
 
 import gay.`object`.hexdebug.debugger.HexDebugger
+import gay.`object`.hexdebug.debugger.CastArgs
 import org.eclipse.lsp4j.debug.InitializeRequestArguments
 
 sealed interface DebugAdapterState {

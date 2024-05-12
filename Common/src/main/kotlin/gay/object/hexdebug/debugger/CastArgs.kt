@@ -1,4 +1,4 @@
-package gay.`object`.hexdebug.adapter
+package gay.`object`.hexdebug.debugger
 
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import at.petrak.hexcasting.api.casting.iota.Iota

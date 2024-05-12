@@ -18,10 +18,3 @@ data class DebugStepResult(
         return copy(loadedSources = loadedSources + sources)
     }
 }
-
-enum class DebugStepType {
-    IN,
-    OUT,
-    JUMP,
-    ESCAPE,
-}
