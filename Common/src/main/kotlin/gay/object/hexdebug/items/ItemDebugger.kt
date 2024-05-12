@@ -3,7 +3,9 @@ package gay.`object`.hexdebug.items
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.mod.HexConfig
+import at.petrak.hexcasting.api.utils.getBoolean
 import at.petrak.hexcasting.api.utils.getInt
+import at.petrak.hexcasting.api.utils.putBoolean
 import at.petrak.hexcasting.api.utils.putInt
 import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import at.petrak.hexcasting.common.msgs.MsgNewSpiralPatternsS2C
@@ -12,7 +14,6 @@ import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.CastArgs
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.DebugItemCastEnv
-import gay.`object`.hexdebug.registry.HexDebugItems
 import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.itemPredicate
 import gay.`object`.hexdebug.utils.otherHand
@@ -26,7 +27,6 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.enchantment.Enchantments
@@ -124,50 +124,64 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         return InteractionResultHolder.fail(stack)
     }
 
+    fun isShiftScrollable(): Boolean {
+        return debugState == DebugState.DEBUGGING
+    }
+
+    fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double) {
+        val newMode = rotateStepMode(stack, delta > 0)
+        val component = Component.translatable(
+            "hexdebug.tooltip.debugger.step_mode",
+            Component.translatable("hexdebug.tooltip.debugger.step_mode.${newMode.name.lowercase()}"),
+        )
+        sender.displayClientMessage(component, true)
+    }
+
+    private fun rotateStepMode(stack: ItemStack, increase: Boolean): StepMode {
+        val idx = getStepModeIdx(stack) + (if (increase) 1 else -1)
+        return StepMode.entries.getWrapping(idx).also {
+            stack.putInt(STEP_MODE_TAG, it.ordinal)
+        }
+    }
+
+    private fun getStepMode(stack: ItemStack) = StepMode.entries.getWrapping(getStepModeIdx(stack))
+
+    private fun getStepModeIdx(stack: ItemStack) = stack.getInt(STEP_MODE_TAG)
+
+    val noIconsInstance get() = ItemStack(this).also { setHideIcons(it, true) }
+
+    @Suppress("SameParameterValue")
+    private fun setHideIcons(stack: ItemStack, value: Boolean) = stack.putBoolean(HIDE_ICONS_TAG, value)
+
+    private fun getHideIcons(stack: ItemStack) = stack.getBoolean(HIDE_ICONS_TAG)
+
     companion object {
+        private const val STEP_MODE_TAG = "step_mode"
+        private const val HIDE_ICONS_TAG = "hide_icons"
+
         val DEBUG_STATE_PREDICATE = HexDebug.id("debug_state")
         val STEP_MODE_PREDICATE = HexDebug.id("step_mode")
-
-        val STEP_MODE_TAG = "step_mode"
+        val HAS_HEX_PREDICATE = HexDebug.id("has_hex")
+        val HIDE_ICONS_PREDICATE = HexDebug.id("hide_icons")
 
         var debugState: DebugState = DebugState.NOT_DEBUGGING
 
-        fun getProperties() = mapOf(
+        fun getProperties(item: ItemDebugger) = mapOf(
             DEBUG_STATE_PREDICATE to ClampedItemPropertyFunction { _, _, entity, _ ->
                 // don't show the active icon for debuggers held by other players, on the ground, etc
                 val state = if (entity is LocalPlayer) debugState else DebugState.NOT_DEBUGGING
                 state.itemPredicate
             },
             STEP_MODE_PREDICATE to ClampedItemPropertyFunction { stack, _, _, _ ->
-                getStepMode(stack).itemPredicate
+                item.getStepMode(stack).itemPredicate
+            },
+            HAS_HEX_PREDICATE to ClampedItemPropertyFunction { stack, _, _, _ ->
+                if (item.hasHex(stack)) 1f else 0f
+            },
+            HIDE_ICONS_PREDICATE to ClampedItemPropertyFunction { stack, _, _, _ ->
+                if (item.getHideIcons(stack)) 1f else 0f
             },
         )
-
-        @JvmStatic
-        fun isShiftScrollable(item: Item): Boolean {
-            return item === HexDebugItems.DEBUGGER.value && debugState == DebugState.DEBUGGING
-        }
-
-        @JvmStatic
-        fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double) {
-            val newMode = rotateStepMode(stack, delta > 0)
-            val component = Component.translatable(
-                "hexdebug.tooltip.debugger.step_mode",
-                Component.translatable("hexdebug.tooltip.debugger.step_mode.${newMode.name.lowercase()}"),
-            )
-            sender.displayClientMessage(component, true)
-        }
-
-        private fun rotateStepMode(stack: ItemStack, increase: Boolean): StepMode {
-            val idx = getStepModeIdx(stack) + (if (increase) 1 else -1)
-            return StepMode.entries.getWrapping(idx).also {
-                stack.putInt(STEP_MODE_TAG, it.ordinal)
-            }
-        }
-
-        private fun getStepMode(stack: ItemStack) = StepMode.entries.getWrapping(getStepModeIdx(stack))
-
-        private fun getStepModeIdx(stack: ItemStack) = stack.getInt(STEP_MODE_TAG)
     }
 
     enum class DebugState {

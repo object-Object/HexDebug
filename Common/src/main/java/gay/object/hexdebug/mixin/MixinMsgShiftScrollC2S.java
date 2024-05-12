@@ -16,8 +16,8 @@ public class MixinMsgShiftScrollC2S {
         if (delta != 0) {
             var stack = sender.getItemInHand(hand);
             var item = stack.getItem();
-            if (ItemDebugger.isShiftScrollable(item)) {
-                ItemDebugger.handleShiftScroll(sender, stack, delta);
+            if (item instanceof ItemDebugger debugger && debugger.isShiftScrollable()) {
+                debugger.handleShiftScroll(sender, stack, delta);
             }
         }
     }

@@ -29,7 +29,7 @@ object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistr
 
     private fun registerItemProperties() {
         // TODO: add more OOP brainrot
-        for ((id, function) in ItemDebugger.getProperties()) {
+        for ((id, function) in ItemDebugger.getProperties(DEBUGGER.value)) {
             ItemPropertiesRegistry.register(DEBUGGER.value, id, function)
         }
     }

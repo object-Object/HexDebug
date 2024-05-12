@@ -69,6 +69,12 @@ tasks {
     shadowJar {
         exclude("fabric.mod.json")
     }
+
+    named("runCommonDatagen") {
+        doFirst {
+            project(":Common").delete("src/generated/resources")
+        }
+    }
 }
 
 publishMods {

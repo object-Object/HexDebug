@@ -2,6 +2,8 @@
 
 Hex Casting addon that runs a local debug server using DAP.
 
+All textures are made by [SamsTheNerd](https://modrinth.com/user/SamsTheNerd)!
+
 ## TODOs
 
 * Allow debug client to fetch sources after termination (ie. for exceptions).

@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class MixinShiftScrollListener {
     @Inject(method = "IsScrollableItem", at = @At("RETURN"), cancellable = true)
     private static void hexdebug$IsScrollableItem(Item item, CallbackInfoReturnable<Boolean> cir) {
-        if (ItemDebugger.isShiftScrollable(item)) {
+        if (item instanceof ItemDebugger debugger && debugger.isShiftScrollable()) {
             cir.setReturnValue(true);
         }
     }

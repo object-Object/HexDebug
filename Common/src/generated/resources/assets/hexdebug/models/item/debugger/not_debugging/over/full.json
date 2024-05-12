@@ -1,0 +1,7 @@
+{
+  "parent": "hexdebug:item/debugger",
+  "textures": {
+    "layer1": "hexdebug:item/debugger/step_mode/not_debugging/over",
+    "layer2": "hexdebug:item/debugger/has_hex/full"
+  }
+}
