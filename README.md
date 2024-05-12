@@ -7,3 +7,4 @@ Hex Casting addon that runs a local debug server using DAP.
 * Allow debug client to fetch sources after termination (ie. for exceptions).
 * Hide step mode icon in creative mode tab.
 * Add a cool sound effect!
+* Implement the Splicing Table.
