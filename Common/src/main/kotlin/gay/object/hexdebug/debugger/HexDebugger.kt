@@ -269,7 +269,7 @@ class HexDebugger(
 
     fun getSources() = sourceAllocator.map { it.first }
 
-    fun getSourceContents(reference: Int) = getSourceContents(sourceAllocator[reference].second)
+    fun getSourceContents(reference: Int): String? = sourceAllocator[reference]?.second?.let(::getSourceContents)
 
     private fun getSourceContents(iotas: Iterable<Iota>): String {
         return iotas.joinToString("\n") {
@@ -283,20 +283,23 @@ class HexDebugger(
     // TODO: gross.
     // TODO: there's probably a bug here somewhere - shouldn't we be using the metadata?
     fun setBreakpoints(sourceReference: Int, sourceBreakpoints: Array<SourceBreakpoint>): List<Breakpoint> {
-        val (source, iotas) = sourceAllocator[sourceReference]
+        val (source, iotas) = sourceAllocator[sourceReference] ?: (null to null)
         val breakpointLines = breakpoints.getOrPut(sourceReference, ::mutableMapOf).apply { clear() }
         return sourceBreakpoints.map {
             Breakpoint().apply {
-                if (it.line <= indexToLineNumber(iotas.lastIndex)) {
+                if (source == null || iotas == null) {
+                    isVerified = false
+                    message = "Unknown source"
+                } else if (it.line > indexToLineNumber(iotas.lastIndex)) {
+                    isVerified = false
+                    message = "Line number out of range"
+                } else {
                     breakpointLines[it.line] = it.mode
                         ?.let(SourceBreakpointMode::valueOf)
                         ?: SourceBreakpointMode.EVALUATED
                     isVerified = true
                     this.source = source
                     line = it.line
-                } else {
-                    isVerified = false
-                    message = "Line number out of range"
                 }
             }
         }
