@@ -1,0 +1,85 @@
+{
+  "item.hexdebug": {
+    debugger: "调试杖",
+  },
+
+  "itemGroup.hexdebug": "咒术调试",
+
+  text: {
+    hexdebug: {
+      no_client: "调试客户端未连接。",
+      connected: "调试客户端已连接！",
+      thwack: "哐当！",
+    },
+
+    "autoconfig.hexdebug": {
+      title: "咒术调试配置",
+      category: {
+        client: "客户端",
+      },
+      option: {
+        client: {
+          debugPort: "调试端口",
+        },
+      },
+    },
+  },
+
+  "hexcasting.action": {
+    "hexdebug:": {
+      "const/debugging": "调试杖之精思",
+      "breakpoint/": {
+        before: "在前方添加断点",
+        after: "在后方添加断点"
+      },
+      "craft/debugger": "制作调试杖",
+    },
+    "book.hexdebug:": {},
+  },
+
+  hexdebug: {
+    tooltip: {
+      debugger: {
+        step_mode: {
+          "": "模式：%s",
+          continue: "继续",
+          over: "逐过程",
+          in: "单步调试",
+          out: "单步跳出",
+          restart: "重启",
+          stop: "停止"
+        },
+      },
+    },
+
+    category: {
+      items: {
+        entry: {
+          debugging: {
+            "": "调试物品",
+            page: {
+              "1": "部分文献中有些不太明确的描述，称古代人会使用一件奇怪的物品协助他们发现复杂$(hex)咒术/$中的问题。我应已成功复刻出了它，定名为$(item)调试杖/$。$(br2)它的工作方式与$(l:items/hexcasting)$(item)造物/$类似。不过，它还能从副手中的物品（比如$(l:items/focus)$(item)核心/$）里直接施放$(hex)咒术/$。$(br2)$(item)调试杖/$自身没有太大用处，有些可惜；它似乎需要某种$(l:https://marketplace.visualstudio.com/items?itemName=object-Object.hex-casting)外部工具/$才能正常运作。",
+              thwack: "$(italic)哐当！/$",
+            },
+          },
+        },
+      },
+
+      patterns: {
+        entry: {
+          debugging: {
+            "": "调试",
+            page: {
+              "const/debugging": "若栈由$(l:items/debugging#debugger)$(item)调试杖/$执行，则返回 $(thing)True/$；否则返回 $(thing)False/$。",
+              "breakpoint/": {
+                before: "在运行此图案前，暂停$(l:items/debugging#debugger)$(item)调试杖/$。",
+                after: "在运行此图案后，也即在运行下一图案之前，暂停$(l:items/debugging#debugger)$(item)调试杖/$。",
+              },
+              "craft/debugger": "制作一支能施放$(hex)咒术/$的$(l:items/debugging#debugger)$(item)调试杖/$。这个图案和我之前用过的$(l:patterns/spells/hexcasting)某些图案/$有些相似。$(br2)消耗大约 10 个$(l:items/amethyst)$(item)充能紫水晶/$。",
+            },
+          },
+        },
+      },
+    },
+  },
+}
