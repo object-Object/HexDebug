@@ -287,19 +287,21 @@ class HexDebugger(
         val breakpointLines = breakpoints.getOrPut(sourceReference, ::mutableMapOf).apply { clear() }
         return sourceBreakpoints.map {
             Breakpoint().apply {
+                isVerified = false
                 if (source == null || iotas == null) {
-                    isVerified = false
                     message = "Unknown source"
+                    reason = BreakpointNotVerifiedReason.PENDING  // TODO: send Breakpoint event later
                 } else if (it.line > indexToLineNumber(iotas.lastIndex)) {
-                    isVerified = false
                     message = "Line number out of range"
+                    reason = BreakpointNotVerifiedReason.FAILED
                 } else {
-                    breakpointLines[it.line] = it.mode
-                        ?.let(SourceBreakpointMode::valueOf)
-                        ?: SourceBreakpointMode.EVALUATED
                     isVerified = true
                     this.source = source
                     line = it.line
+
+                    breakpointLines[it.line] = it.mode
+                        ?.let(SourceBreakpointMode::valueOf)
+                        ?: SourceBreakpointMode.EVALUATED
                 }
             }
         }

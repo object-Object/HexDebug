@@ -16,6 +16,7 @@ import org.eclipse.lsp4j.debug.*
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer
+import java.util.*
 import java.util.concurrent.CompletableFuture
 
 open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
@@ -108,6 +109,14 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         })
     }
 
+    private fun invalidateBreakpoints(n: Int) = Array(n) {
+        Breakpoint().apply {
+            isVerified = false
+            message = "Invalid"
+            reason = BreakpointNotVerifiedReason.FAILED
+        }
+    }
+
     // initialization
 
     override fun initialize(args: InitializeRequestArguments): CompletableFuture<Capabilities> {
@@ -146,17 +155,28 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     override fun setBreakpoints(args: SetBreakpointsArguments): CompletableFuture<SetBreakpointsResponse> {
         return SetBreakpointsResponse().apply {
-            breakpoints = debugger?.setBreakpoints(args.source.sourceReference, args.breakpoints)?.toTypedArray() ?: arrayOf()
+            // source prefixes generally invalidate when the server restarts
+            // so remove all breakpoints if we haven't seen this player before
+            breakpoints = if (player.uuid in knownPlayers) {
+                debugger?.setBreakpoints(args.source.sourceReference, args.breakpoints)?.toTypedArray() ?: arrayOf()
+            } else {
+                invalidateBreakpoints(args.breakpoints.size)
+            }
         }.toFuture()
     }
 
     override fun setExceptionBreakpoints(args: SetExceptionBreakpointsArguments): CompletableFuture<SetExceptionBreakpointsResponse> {
         return SetExceptionBreakpointsResponse().apply {
-            breakpoints = debugger?.setExceptionBreakpoints(args.filters)?.toTypedArray() ?: arrayOf()
+            breakpoints = if (player.uuid in knownPlayers) {
+                debugger?.setExceptionBreakpoints(args.filters)?.toTypedArray() ?: arrayOf()
+            } else {
+                invalidateBreakpoints(args.filters.size)
+            }
         }.toFuture()
     }
 
     override fun configurationDone(args: ConfigurationDoneArguments?): CompletableFuture<Void> {
+        knownPlayers.add(player.uuid)
         handleDebuggerStep(debugger?.start())
         return futureOf()
     }
@@ -260,5 +280,11 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         return LoadedSourcesResponse().apply {
             sources = debugger?.getSources()?.toTypedArray() ?: arrayOf()
         }.toFuture()
+    }
+
+    companion object {
+        // set of players that have connected since the server started
+        // this is used to invalidate old client-side debugger data if necessary
+        private val knownPlayers = mutableSetOf<UUID>()
     }
 }
