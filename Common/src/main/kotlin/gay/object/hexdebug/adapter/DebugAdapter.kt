@@ -181,11 +181,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     override fun setExceptionBreakpoints(args: SetExceptionBreakpointsArguments): CompletableFuture<SetExceptionBreakpointsResponse> {
         return SetExceptionBreakpointsResponse().apply {
-            breakpoints = if (player.uuid in knownPlayers) {
-                debugger?.setExceptionBreakpoints(args.filters)?.toTypedArray() ?: arrayOf()
-            } else {
-                invalidateBreakpoints(args.filters.size)
-            }
+            breakpoints = debugger?.setExceptionBreakpoints(args.filters)?.toTypedArray() ?: arrayOf()
         }.toFuture()
     }
 
