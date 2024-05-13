@@ -11,9 +11,9 @@ import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import at.petrak.hexcasting.common.msgs.MsgNewSpiralPatternsS2C
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.debugger.CastArgs
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.DebugItemCastEnv
+import gay.`object`.hexdebug.debugger.CastArgs
 import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.itemPredicate
 import gay.`object`.hexdebug.utils.otherHand
@@ -125,7 +125,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
     }
 
     fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double) {
-        val newMode = rotateStepMode(stack, delta > 0)
+        val newMode = rotateStepMode(stack, delta < 0)
         val component = Component.translatable(
             "hexdebug.tooltip.debugger.step_mode",
             Component.translatable("hexdebug.tooltip.debugger.step_mode.${newMode.name.lowercase()}"),
