@@ -122,7 +122,7 @@ class HexDebugger(
     fun getStackFrames(): Sequence<StackFrame> = callStack.mapIndexed { i, continuation ->
         StackFrame().apply {
             id = i + 1
-            name = "Frame $id (${continuation.frame.name})"
+            name = "[$id] ${continuation.frame.name}"
             getFirstIotaMetadata(continuation)?.also {
                 source = it.source
                 line = it.line
