@@ -5,9 +5,9 @@
             "request": "attach",
             "name": "HexDebug: Attach",
             "port": 4444,
-            "stopOnEntry": false,
+            "stopOnEntry": true,
             // "stopOnExit": true,
-            // "skipNonEvalFrames": true,
+            "skipNonEvalFrames": false,
             // "indentWidth": 4,
         }
     ]

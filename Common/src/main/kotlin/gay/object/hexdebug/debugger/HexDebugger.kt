@@ -52,7 +52,7 @@ class HexDebugger(
     private val variablesAllocator = VariablesAllocator()
     private val sourceAllocator = SourceAllocator(iotas.hashCode())
     private val iotaMetadata = IdentityHashMap<Iota, IotaMetadata>()
-    private val frameMetadata = IdentityHashMap<ContinuationFrame, () -> IotaMetadata?>()
+    private val frameMetadata = IdentityHashMap<SpellContinuation, () -> IotaMetadata?>()
     private val breakpoints = mutableMapOf<Int, MutableMap<Int, SourceBreakpointMode>>() // source id -> line number
     private val exceptionBreakpoints = mutableSetOf<ExceptionBreakpointType>()
 
@@ -77,11 +77,11 @@ class HexDebugger(
                         // +1 so it goes *after* the last character
                         indexToColumn(iotaToString(it, isSource = true).lastIndex + 1)
                     }
-                    val frame = FrameBreakpoint(stopBefore = true)
-                    frameMetadata[frame] = {
-                        lastIota?.let { iotaMetadata[it] }?.copy(column = column)
+                    pushFrame(FrameBreakpoint(stopBefore = true)).also { newCont ->
+                        frameMetadata[newCont] = {
+                            lastIota?.let { iotaMetadata[it] }?.copy(column = column)
+                        }
                     }
-                    pushFrame(frame)
                 } else this
             }
             .pushFrame(FrameEvaluate(SpellList.LList(0, iotas), false))
@@ -108,8 +108,8 @@ class HexDebugger(
         else -> null
     }
 
-    private fun getFirstIotaMetadata(frame: ContinuationFrame) =
-        frameMetadata[frame]?.invoke() ?: getIotas(frame)?.let { iotaMetadata[it.car] }
+    private fun getFirstIotaMetadata(continuation: NotDone) =
+        frameMetadata[continuation]?.invoke() ?: getIotas(continuation.frame)?.let { iotaMetadata[it.car] }
 
     // current continuation is last
     private fun getCallStack(current: SpellContinuation) = generateSequence(current as? NotDone) {
@@ -120,11 +120,10 @@ class HexDebugger(
     }.toList().asReversed()
 
     fun getStackFrames(): Sequence<StackFrame> = callStack.mapIndexed { i, continuation ->
-        val frame = continuation.frame
         StackFrame().apply {
             id = i + 1
-            name = "Frame $id (${frame.name})"
-            getFirstIotaMetadata(frame)?.also {
+            name = "Frame $id (${continuation.frame.name})"
+            getFirstIotaMetadata(continuation)?.also {
                 source = it.source
                 line = it.line
                 if (it.column != null) column = it.column
@@ -159,8 +158,8 @@ class HexDebugger(
             },
         )
 
-        val frame = getContinuationFrame(frameId)
-        getFrameVariables(frame)?.also {
+        val continuation = getContinuation(frameId)
+        getFrameVariables(continuation)?.also {
             scopes += Scope().apply {
                 name = "Frame"
                 variablesReference = variablesAllocator.add(it)
@@ -185,7 +184,7 @@ class HexDebugger(
                     Variable().apply {
                         name = "Frame"
                         value = continuation.frame.name
-                        getFrameVariables(continuation.frame)?.let {
+                        getFrameVariables(continuation)?.let {
                             variablesReference = variablesAllocator.add(it)
                         }
                     },
@@ -195,9 +194,9 @@ class HexDebugger(
         }
     }
 
-    private fun getFrameVariables(frame: ContinuationFrame): Sequence<Variable>? {
-        val sourceLine = getFirstIotaMetadata(frame)?.toString() ?: ""
-        return when (frame) {
+    private fun getFrameVariables(continuation: NotDone): Sequence<Variable>? {
+        val sourceLine = getFirstIotaMetadata(continuation)?.toString() ?: ""
+        return when (val frame = continuation.frame) {
             is FrameEvaluate -> sequenceOf(
                 toVariable("Code", frame.list, sourceLine),
                 toVariable("IsMetacasting", frame.isMetacasting.toString()),
@@ -278,7 +277,7 @@ class HexDebugger(
         }
     }
 
-    private fun getContinuationFrame(frameId: Int) = callStack.elementAt(frameId - 1).frame
+    private fun getContinuation(frameId: Int) = callStack.elementAt(frameId - 1)
 
     // TODO: gross.
     // TODO: there's probably a bug here somewhere - shouldn't we be using the metadata?
@@ -455,7 +454,7 @@ class HexDebugger(
 
             val stepType = getStepType(castResult, continuation, newContinuation)
             if (newContinuation is NotDone) {
-                setIotaOverrides(castResult, frame, newContinuation, stepType)
+                setIotaOverrides(castResult, continuation, newContinuation, stepType)
 
                 // ensure all of the iotas to be evaluated in the next frame are mapped to a source
                 registerNewSource(newContinuation.frame)?.also {
@@ -582,20 +581,31 @@ class HexDebugger(
 
     private fun setIotaOverrides(
         castResult: CastResult,
-        frame: ContinuationFrame,
+        continuation: NotDone,
         newContinuation: NotDone,
         stepType: DebugStepType?,
     ) {
-        val newFrame = newContinuation.frame
-        val newNextFrame = newContinuation.next.frame
         if (stepType == DebugStepType.IN) {
-            if (newFrame !is FrameEvaluate) {
-                frameMetadata[newFrame] = { iotaMetadata[castResult.cast] }
-            } else if (newNextFrame != null && newNextFrame !is FrameEvaluate) {
-                frameMetadata[newNextFrame] = { iotaMetadata[castResult.cast] }
+            for (cont in listOf(newContinuation, newContinuation.next)) {
+                if (cont !in frameMetadata && cont is NotDone && cont.frame !is FrameEvaluate) {
+                    frameMetadata[cont] = { iotaMetadata[castResult.cast] }
+                    break
+                }
             }
-        } else if (frame is FrameForEach && newNextFrame != null && newNextFrame is FrameForEach) {
-            frameMetadata[newNextFrame] = frameMetadata[frame]
+        } else {
+            val frame = continuation.frame
+            val newFrame = newContinuation.frame
+            val nextFrame = newContinuation.next.frame
+            if (
+                frame is FrameForEach
+                && newFrame is FrameEvaluate
+                && nextFrame is FrameForEach
+                && frame.code === newFrame.list
+                && frame.code === nextFrame.code
+            ) {
+                // carry over thoth metadata between iterations
+                frameMetadata[newContinuation.next] = frameMetadata[continuation]
+            }
         }
     }
 
