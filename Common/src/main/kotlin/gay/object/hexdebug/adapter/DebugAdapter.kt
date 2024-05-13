@@ -16,8 +16,13 @@ import org.eclipse.lsp4j.debug.*
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer
+import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
+import org.eclipse.lsp4j.jsonrpc.messages.ResponseError
+import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode
+import java.lang.reflect.InvocationTargetException
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
 
 open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     private var state: DebugAdapterState = NotConnected
@@ -33,7 +38,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     private val debugger get() = (state as? Debugging)?.debugger
 
     open val launcher: IHexDebugLauncher by lazy {
-        DebugProxyServerLauncher.createLauncher(this, ::messageWrapper)
+        DebugProxyServerLauncher.createLauncher(this, ::messageWrapper, ::exceptionHandler)
     }
 
     private val remoteProxy: IDebugProtocolClient get() = launcher.remoteProxy
@@ -84,6 +89,15 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     private fun messageWrapper(consumer: MessageConsumer) = MessageConsumer { message ->
         HexDebug.LOGGER.debug(message)
         consumer.consume(message)
+    }
+
+    private fun exceptionHandler(e: Throwable): ResponseError {
+        HexDebug.LOGGER.error(e)
+        return (e as? ResponseErrorException)?.responseError
+            ?: e.takeIf { it is CompletionException || it is InvocationTargetException }
+                ?.run { cause as? ResponseErrorException }
+                ?.responseError
+            ?: ResponseError(ResponseErrorCode.InternalError, e.toString(), e.stackTraceToString())
     }
 
     private fun handleDebuggerStep(result: DebugStepResult?) {
