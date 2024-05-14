@@ -92,7 +92,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     private fun exceptionHandler(e: Throwable): ResponseError {
-        HexDebug.LOGGER.error(e)
+        HexDebug.LOGGER.error(e.stackTraceToString())
         return (e as? ResponseErrorException)?.responseError
             ?: e.takeIf { it is CompletionException || it is InvocationTargetException }
                 ?.run { cause as? ResponseErrorException }
