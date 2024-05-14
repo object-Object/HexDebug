@@ -81,12 +81,6 @@ sourceSets {
 }
 
 tasks {
-    processResources {
-        from(project(":Common").file("src/main/resources")) {
-            include("data/*/patchouli_books/")
-        }
-    }
-
     shadowJar {
         exclude("architectury.common.json")
         configurations = listOf(project.configurations["shadowCommon"])
