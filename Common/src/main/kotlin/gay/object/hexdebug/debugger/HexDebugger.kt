@@ -14,11 +14,13 @@ import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.mishaps.Mishap
 import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
+import at.petrak.hexcasting.common.casting.actions.eval.OpEval
 import gay.`object`.hexdebug.adapter.LaunchArgs
 import gay.`object`.hexdebug.casting.eval.FrameBreakpoint
 import gay.`object`.hexdebug.casting.eval.IDebugCastEnv
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
+import gay.`object`.hexdebug.utils.ceilToPow
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import org.eclipse.lsp4j.debug.*
@@ -40,19 +42,18 @@ class HexDebugger(
         castArgs: CastArgs,
     ) : this(initArgs, launchArgs, CastingVM.empty(castArgs.env), castArgs.world, castArgs.onExecute, castArgs.iotas)
 
-    init {
-        if (vm.env !is IDebugCastEnv) {
-            throw IllegalArgumentException("HexDebugger requires env to implement DebugCastEnv, but got ${vm.env}")
-        }
-    }
+    val debugCastEnv = vm.env as IDebugCastEnv
 
     var lastEvaluatedMetadata: IotaMetadata? = null
         private set
 
     private val variablesAllocator = VariablesAllocator()
     private val sourceAllocator = SourceAllocator(iotas.hashCode())
+
     private val iotaMetadata = IdentityHashMap<Iota, IotaMetadata>()
-    private val frameMetadata = IdentityHashMap<SpellContinuation, () -> IotaMetadata?>()
+    private val frameInvocationMetadata = IdentityHashMap<SpellContinuation, () -> IotaMetadata?>()
+    private val virtualFrames = IdentityHashMap<SpellContinuation, MutableList<StackFrame>>()
+
     private val breakpoints = mutableMapOf<Int, MutableMap<Int, SourceBreakpointMode>>() // source id -> line number
     private val exceptionBreakpoints = mutableSetOf<ExceptionBreakpointType>()
 
@@ -78,7 +79,7 @@ class HexDebugger(
                         indexToColumn(iotaToString(it, isSource = true).lastIndex + 1)
                     }
                     pushFrame(FrameBreakpoint(stopBefore = true)).also { newCont ->
-                        frameMetadata[newCont] = {
+                        frameInvocationMetadata[newCont] = {
                             lastIota?.let { iotaMetadata[it] }?.copy(column = column)
                         }
                     }
@@ -108,8 +109,15 @@ class HexDebugger(
         else -> null
     }
 
-    private fun getFirstIotaMetadata(continuation: NotDone) =
-        frameMetadata[continuation]?.invoke() ?: getIotas(continuation.frame)?.let { iotaMetadata[it.car] }
+    private fun getFirstIotaMetadata(continuation: NotDone): IotaMetadata? =
+        // for FrameEvaluate, show the next iota to be evaluated (if any)
+        (continuation.frame as? FrameEvaluate)?.let(::getFirstIotaMetadata)
+        // for everything else, show the caller if we have it
+        ?: frameInvocationMetadata[continuation]?.invoke()
+        // otherwise show the first contained iota
+        ?: getFirstIotaMetadata(continuation.frame)
+
+    private fun getFirstIotaMetadata(frame: ContinuationFrame) = getIotas(frame)?.let { iotaMetadata[it.car] }
 
     // current continuation is last
     private fun getCallStack(current: SpellContinuation) = generateSequence(current as? NotDone) {
@@ -119,17 +127,24 @@ class HexDebugger(
         }
     }.toList().asReversed()
 
-    fun getStackFrames(): Sequence<StackFrame> = callStack.mapIndexed { i, continuation ->
-        StackFrame().apply {
-            id = i + 1
-            name = "[$id] ${continuation.frame.name}"
-            getFirstIotaMetadata(continuation)?.also {
-                source = it.source
-                line = it.line
-                if (it.column != null) column = it.column
-            }
-        }
-    }.asReversed().asSequence()
+    fun getStackFrames(): Sequence<StackFrame> {
+        var frameId = 1
+        var virtualFrameId = (callStack.size + 1).ceilToPow(10)
+        return callStack.flatMap { continuation ->
+            listOf(
+                StackFrame().apply {
+                    id = frameId++
+                    name = "[$id] ${continuation.frame.name}"
+                    setSourceAndPosition(getFirstIotaMetadata(continuation))
+                }
+            ) + virtualFrames[continuation]?.map {
+                it.apply {
+                    id = virtualFrameId++
+                    presentationHint = StackFramePresentationHint.SUBTLE
+                }
+            }.orEmpty()
+        }.asReversed().asSequence()
+    }
 
     fun getScopes(frameId: Int): List<Scope> {
         val scopes = mutableListOf(
@@ -158,11 +173,13 @@ class HexDebugger(
             },
         )
 
-        val continuation = getContinuation(frameId)
-        getFrameVariables(continuation)?.also {
-            scopes += Scope().apply {
-                name = "Frame"
-                variablesReference = variablesAllocator.add(it)
+        // virtual frames are given ids past the end of the call stack; just ignore them here
+        getContinuation(frameId)?.also { continuation ->
+            getFrameVariables(continuation)?.also {
+                scopes += Scope().apply {
+                    name = "Frame"
+                    variablesReference = variablesAllocator.add(it)
+                }
             }
         }
 
@@ -277,7 +294,7 @@ class HexDebugger(
         }
     }
 
-    private fun getContinuation(frameId: Int) = callStack.elementAt(frameId - 1)
+    private fun getContinuation(frameId: Int) = callStack.elementAtOrNull(frameId - 1)
 
     // TODO: gross.
     // TODO: there's probably a bug here somewhere - shouldn't we be using the metadata?
@@ -412,6 +429,8 @@ class HexDebugger(
         // Begin aggregating info
         val info = CastingVM.TempControllerInfo(earlyExit = false)
         while (continuation is NotDone && !info.earlyExit) {
+            debugCastEnv.reset()
+
             // Take the top of the continuation stack...
             val frame = continuation.frame
 
@@ -460,6 +479,20 @@ class HexDebugger(
                 registerNewSource(newContinuation.frame)?.also {
                     stepResult = stepResult.withLoadedSource(it, LoadedSourceReason.NEW)
                 }
+
+                // insert a virtual FrameFinishEval if OpEval didn't (ie. if we did a TCO)
+                if (launchArgs.showTailCallFrames && debugCastEnv.lastEvaluatedAction is OpEval) {
+                    val invokeMeta = iotaMetadata[castResult.cast]
+                    val nextInvokeMeta = frameInvocationMetadata[newContinuation.next]?.invoke()
+                    if (invokeMeta != null && invokeMeta != nextInvokeMeta) {
+                        virtualFrames.getOrPut(continuation.next) { mutableListOf() }.add(
+                            StackFrame().apply {
+                                name = "FrameFinishEval"
+                                setSourceAndPosition(invokeMeta)
+                            }
+                        )
+                    }
+                }
             }
             if (stepType != null) {
                 stepResult = stepResult.copy(type = stepType)
@@ -484,6 +517,9 @@ class HexDebugger(
                 break
             }
         }
+
+        // never show virtual frames above the top of the call stack
+        virtualFrames[continuation]?.clear()
 
         nextContinuation = continuation
 
@@ -574,9 +610,7 @@ class HexDebugger(
             return DebugStepType.IN
         }
 
-        return castResult.newData?.let {
-            (it as IMixinCastingImage).`hexDebug$getDebugStepType`()
-        }
+        return debugCastEnv.lastDebugStepType
     }
 
     private fun setIotaOverrides(
@@ -585,28 +619,33 @@ class HexDebugger(
         newContinuation: NotDone,
         stepType: DebugStepType?,
     ) {
+        val nextContinuation = newContinuation.next
+        val frame = continuation.frame
+        val newFrame = newContinuation.frame
+        val nextFrame = nextContinuation.frame
+
         if (stepType == DebugStepType.IN) {
-            for (cont in listOf(newContinuation, newContinuation.next)) {
-                if (cont !in frameMetadata && cont is NotDone && cont.frame !is FrameEvaluate) {
-                    frameMetadata[cont] = { iotaMetadata[castResult.cast] }
-                    break
-                }
+            trySetIotaOverride(newContinuation, castResult)
+            if (nextFrame !is FrameEvaluate) {
+                trySetIotaOverride(nextContinuation, castResult)
             }
-        } else {
-            val frame = continuation.frame
-            val newFrame = newContinuation.frame
-            val nextFrame = newContinuation.next.frame
-            if (
-                frame is FrameForEach
-                && newFrame is FrameEvaluate
-                && nextFrame is FrameForEach
-                && frame.code === newFrame.list
-                && frame.code === nextFrame.code
-            ) {
-                // carry over thoth metadata between iterations
-                frameMetadata[newContinuation.next] = frameMetadata[continuation]
-            }
+        } else if (
+            frame is FrameForEach
+            && newFrame is FrameEvaluate
+            && nextFrame is FrameForEach
+            && frame.code === newFrame.list
+            && frame.code === nextFrame.code
+        ) {
+            // carry over thoth metadata between iterations
+            frameInvocationMetadata[nextContinuation] = frameInvocationMetadata[continuation]
         }
+    }
+
+    private fun trySetIotaOverride(continuation: SpellContinuation, castResult: CastResult): Boolean {
+        return if (continuation !in frameInvocationMetadata && continuation is NotDone) {
+            frameInvocationMetadata[continuation] = { iotaMetadata[castResult.cast] }
+            true
+        } else false
     }
 
     private fun iotaToString(iota: Iota, isSource: Boolean = false): String = when (iota) {

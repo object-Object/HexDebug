@@ -1,7 +1,9 @@
 package gay.`object`.hexdebug.casting.eval
 
+import at.petrak.hexcasting.api.casting.castables.Action
 import at.petrak.hexcasting.api.casting.eval.env.PackagedItemCastEnv
 import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect
+import gay.`object`.hexdebug.debugger.DebugStepType
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
@@ -11,6 +13,9 @@ class DebugItemCastEnv(
     caster: ServerPlayer,
     castingHand: InteractionHand,
 ) : PackagedItemCastEnv(caster, castingHand), IDebugCastEnv {
+    override var lastEvaluatedAction: Action? = null
+    override var lastDebugStepType: DebugStepType? = null
+
     override fun printMessage(message: Component) {
         super.printMessage(message)
         printDebugMessage(caster, message)

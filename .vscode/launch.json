@@ -7,7 +7,7 @@
             "port": 4444,
             "stopOnEntry": true,
             // "stopOnExit": true,
-            "skipNonEvalFrames": false,
+            // "skipNonEvalFrames": false,
             // "indentWidth": 4,
         }
     ]

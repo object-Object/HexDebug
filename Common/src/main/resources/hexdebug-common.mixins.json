@@ -6,7 +6,6 @@
   "client": [
   ],
   "mixins": [
-    "MixinCastingImage",
     "MixinMsgShiftScrollC2S",
     "MixinOpEval",
     "MixinShiftScrollListener"

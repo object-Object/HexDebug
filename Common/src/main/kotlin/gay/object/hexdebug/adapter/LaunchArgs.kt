@@ -5,4 +5,5 @@ class LaunchArgs(data: Map<String, Any>) {
     val stopOnExit: Boolean by data.withDefault { false }
     val skipNonEvalFrames: Boolean by data.withDefault { true }
     val indentWidth: Int by data.withDefault { 4 }
+    val showTailCallFrames: Boolean by data.withDefault { true }
 }

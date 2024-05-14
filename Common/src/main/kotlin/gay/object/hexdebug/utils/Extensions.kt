@@ -4,6 +4,8 @@ import net.minecraft.world.InteractionHand
 import java.util.concurrent.CompletableFuture
 import kotlin.enums.enumEntries
 import kotlin.math.ceil
+import kotlin.math.log
+import kotlin.math.pow
 
 // futures
 
@@ -39,3 +41,9 @@ inline val <reified T : Enum<T>> T.itemPredicate get() =
     ordinal.toFloat() / (ceil(enumEntries<T>().lastIndex.toFloat() / 2f) * 2f)
 
 inline fun <reified T> List<T>.getWrapping(idx: Int) = this[idx.mod(size)]
+
+/** Rounds `this` up to the next power of `base`. */
+fun Number.ceilToPow(base: Number): Int = toDouble().ceilToPow(base.toDouble())
+
+// https://stackoverflow.com/q/19870067
+private fun Double.ceilToPow(base: Double): Int = base.pow(ceil(log(this, base))).toInt()
