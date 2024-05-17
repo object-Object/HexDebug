@@ -2,6 +2,7 @@ package hexdebug.conventions
 
 import hexdebug.hexdebugProperties
 import hexdebug.libs
+import kotlin.io.path.div
 
 // plugin config
 
@@ -46,6 +47,23 @@ sourceSets {
         }
         resources {
             srcDir(file("src/generated/resources"))
+        }
+    }
+}
+
+tasks {
+    register<Copy>("exportPrerelease") {
+        dependsOn(remapJar)
+        from(remapJar.flatMap { it.archiveFile })
+        into(rootDir.toPath() / "dist")
+
+        // TODO: this should really use jenkins' build number, if/when we move there
+        val sha = providers.environmentVariable("GITHUB_SHA").map { it.take(10) }
+        rename { filename ->
+            if (sha.isPresent) {
+                val base = filename.removeSuffix(".jar")
+                "$base-$sha.jar"
+            } else filename
         }
     }
 }
