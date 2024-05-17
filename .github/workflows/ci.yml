@@ -114,8 +114,6 @@ jobs:
           CURSEFORGE_TOKEN:
           MODRINTH_TOKEN:
           GITHUB_TOKEN:
-          GITHUB_REPO: ${{ github.repository }}
-          GITHUB_SHA: ${{ github.sha }}
         run: ./gradlew publishMods
 
       - name: Upload mod publish artifact

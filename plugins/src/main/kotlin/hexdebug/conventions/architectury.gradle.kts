@@ -62,7 +62,7 @@ tasks {
         rename { filename ->
             if (sha.isPresent) {
                 val base = filename.removeSuffix(".jar")
-                "$base-$sha.jar"
+                "$base-${sha.get()}.jar"
             } else filename
         }
     }

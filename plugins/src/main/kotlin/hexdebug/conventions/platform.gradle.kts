@@ -137,7 +137,7 @@ publishMods {
 
     github {
         accessToken = envOrEmpty("GITHUB_TOKEN")
-        repository = envOrEmpty("GITHUB_REPO")
+        repository = envOrEmpty("GITHUB_REPOSITORY")
         commitish = envOrEmpty("GITHUB_SHA")
         tagName = "v${project.version}"
     }
