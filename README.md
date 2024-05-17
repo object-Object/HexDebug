@@ -1,8 +1,14 @@
 # HexDebug
 
+[![powered by hexdoc](https://img.shields.io/endpoint?url=https://hexxy.media/api/v0/badge/hexdoc?label=1)](https://github.com/hexdoc-dev/hexdoc)
+
 Hex Casting addon that runs a local debug server using DAP.
 
-All textures are made by [SamsTheNerd](https://modrinth.com/user/SamsTheNerd)!
+## Attribution
+
+* Textures: SamsTheNerd! ([GitHub](https://github.com/SamsTheNerd), [Modrinth](https://modrinth.com/user/SamsTheNerd))
+* Translations:
+  * `zh_cn`: ChuijkYahus ([GitHub](https://github.com/ChuijkYahus))
 
 ## TODOs
 
