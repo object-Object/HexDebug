@@ -33,11 +33,11 @@ jobs:
           )
         }}
       branch-name:  ${{ github.head_ref || github.ref_name }}
-      publish-mod:  ${{ github.event_name == 'workflow_dispatch' && inputs.publish-mod == 'true' }}
-      publish-docs: ${{ github.event_name == 'workflow_dispatch' && inputs.publish-docs == 'true' }}
+      publish-mod:  ${{ github.event_name == 'workflow_dispatch' && inputs.publish-mod }}
+      publish-docs: ${{ github.event_name == 'workflow_dispatch' && inputs.publish-docs }}
     steps:
-      - run: 'echo "event_name: ${{ github.event_name }}"'
-      - run: 'echo "inputs: ${{ toJson(inputs) }}"'
+      - name: Print message so the workflow isn't invalid
+        run: 'echo "HexDebug <3 HexBug"'
 
   build-mod:
     needs: setup
@@ -91,7 +91,10 @@ jobs:
       release: ${{ needs.setup.outputs.publish-docs == 'true' }}
 
   publish-mod:
-    needs: [setup, build-mod, build-docs]
+    needs:
+      - setup
+      - build-mod
+      - build-docs
     if: needs.setup.outputs.publish-mod == 'true'
     runs-on: ubuntu-latest
     # environment:
@@ -125,7 +128,10 @@ jobs:
           if-no-files-found: error
 
   publish-docs:
-    needs: [setup, build-mod, build-docs]
+    needs:
+      - setup
+      - build-mod
+      - build-docs
     if: needs.setup.outputs.publish-docs == 'true'
     runs-on: ubuntu-latest
     environment:
