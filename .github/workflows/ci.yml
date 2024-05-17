@@ -62,16 +62,23 @@ jobs:
           git add --intent-to-add .
           git diff --name-only --exit-code -- ":!:*/src/generated/resources/.cache/*"
 
-      - name: Prepare build artifact
+      - name: Prepare prerelease artifact
         run: |
           mkdir dist
           cp {Common,Fabric,Forge}/build/libs/*.jar dist
+
+      - name: Upload prerelease artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mod-prerelease
+          path: dist/
+          if-no-files-found: error
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: mod-build
-          path: dist/
+          path: '*/build'
           if-no-files-found: error
 
   build-docs:
@@ -91,15 +98,34 @@ jobs:
     needs: [setup, build-mod, build-docs]
     if: needs.setup.outputs.publish-mod == 'true'
     runs-on: ubuntu-latest
-    environment:
-      name: curseforge-modrinth
+    # environment:
+    #   name: curseforge-modrinth
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v3
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
         with:
           name: mod-build
-          path: dist
-      # TODO: implement
+
+      - name: Publish mod
+        env:
+          DRY_RUN: 1
+          CURSEFORGE_TOKEN:
+          MODRINTH_TOKEN:
+        run: ./gradlew publishMods
+      
+      - name: Upload mod publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mod-publish
+          path: '*/build/publishMods'
+          if-no-files-found: error
 
   publish-docs:
     needs: [setup, build-mod, build-docs]

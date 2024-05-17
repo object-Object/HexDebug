@@ -113,7 +113,12 @@ components {
 }
 
 publishMods {
-    dryRun = providers.environmentVariable("CI").orElse("").map { it.isBlank() }
+    dryRun = providers.zip(
+        providers.environmentVariable("CI").orElse(""),
+        providers.environmentVariable("DRY_RUN").orElse(""),
+    ) { ci, dryRun ->
+        ci.isBlank() || dryRun.isNotBlank()
+    }
 
     type = ALPHA
     changelog = hexdebugProperties.getLatestChangelog()
