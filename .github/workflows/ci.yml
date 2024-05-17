@@ -5,15 +5,6 @@ on:
     branches: "*"
   pull_request:
   workflow_dispatch:
-    inputs:
-      publish-mod:
-        description: Publish the mod
-        type: boolean
-        default: false
-      publish-docs:
-        description: Publish the web book
-        type: boolean
-        default: false
 
 env:
   PYPI_PACKAGE: hexdoc-hexdebug
@@ -32,9 +23,6 @@ jobs:
             (github.head_ref || github.ref_name)
           )
         }}
-      branch-name:  ${{ github.head_ref || github.ref_name }}
-      publish-mod:  ${{ github.event_name == 'workflow_dispatch' && inputs.publish-mod }}
-      publish-docs: ${{ github.event_name == 'workflow_dispatch' && inputs.publish-docs }}
     steps:
       - name: Print message so the workflow isn't invalid
         run: 'echo "HexDebug <3 HexBug"'
@@ -69,14 +57,6 @@ jobs:
           path: dist/
           if-no-files-found: error
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: mod-build
-          path: '*/build'
-          if-no-files-found: error
-          retention-days: 7
-
   build-docs:
     needs: setup
     uses: hexdoc-dev/hexdoc/.github/workflows/hexdoc.yml@v1!0.1.dev
@@ -87,64 +67,5 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
       python-version: 3.11
-      deploy-pages: ${{ needs.setup.outputs.publish-docs == 'true' || needs.setup.outputs.is-main-branch == 'true' }}
-      release: ${{ needs.setup.outputs.publish-docs == 'true' }}
-
-  publish-mod:
-    needs:
-      - setup
-      - build-mod
-      - build-docs
-    if: needs.setup.outputs.publish-mod == 'true'
-    runs-on: ubuntu-latest
-    # environment:
-    #   name: curseforge-modrinth
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-      - uses: gradle/actions/setup-gradle@v3
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: mod-build
-
-      - name: Publish mod
-        env:
-          DRY_RUN: 1
-          CURSEFORGE_TOKEN:
-          MODRINTH_TOKEN:
-          GITHUB_TOKEN:
-        run: ./gradlew publishMods
-
-      - name: Upload mod publish artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: mod-publish
-          path: '*/build/publishMods'
-          if-no-files-found: error
-
-  publish-docs:
-    needs:
-      - setup
-      - build-mod
-      - build-docs
-    if: needs.setup.outputs.publish-docs == 'true'
-    runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/${{ env.PYPI_PACKAGE }}
-    permissions:
-      id-token: write
-    steps:
-      # hexdoc workflow uses v3, so we can't use v4 here
-      - uses: actions/download-artifact@v3
-        with:
-          name: hexdoc-build
-          path: dist
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      deploy-pages: ${{ needs.setup.outputs.is-main-branch == 'true' }}
+      release: false
