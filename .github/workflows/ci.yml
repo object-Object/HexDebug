@@ -6,9 +6,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-env:
-  PYPI_PACKAGE: hexdoc-hexdebug
-
 permissions:
   contents: read
 

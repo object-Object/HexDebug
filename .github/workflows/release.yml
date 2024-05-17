@@ -1,4 +1,4 @@
-name: Run CI/CD pipeline
+name: Release
 
 on:
   workflow_dispatch:
