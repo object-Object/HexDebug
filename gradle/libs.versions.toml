@@ -43,7 +43,7 @@ findbugs-jsr305 = "3.0.2" # for @Nonnull
 asm = "9.5"
 dotenv = "2.0.0" # for template.env debugger keys
 shadow = "7.1.2"
-modPublish = "0.3.0"
+modPublish = "0.5.1"
 pkpcpbp = "0.1.0-pre-87"
 
 lsp4j = "0.22.0"

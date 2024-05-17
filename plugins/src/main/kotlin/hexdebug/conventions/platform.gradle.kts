@@ -112,29 +112,33 @@ components {
     }
 }
 
+fun envOrEmpty(name: String) = providers.environmentVariable(name).orElse("")
+
 publishMods {
-    dryRun = providers.zip(
-        providers.environmentVariable("CI").orElse(""),
-        providers.environmentVariable("DRY_RUN").orElse(""),
-    ) { ci, dryRun ->
+    dryRun = providers.zip(envOrEmpty("CI"), envOrEmpty("DRY_RUN")) { ci, dryRun ->
         ci.isBlank() || dryRun.isNotBlank()
     }
 
-    type = ALPHA
+    type = BETA
     changelog = hexdebugProperties.getLatestChangelog()
     file = tasks.remapJar.flatMap { it.archiveFile }
 
     curseforge {
+        accessToken = envOrEmpty("CURSEFORGE_TOKEN")
         projectId = hexdebugProperties.curseforgeId
-        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN").orElse("")
-
         minecraftVersions.add(hexdebugProperties.minecraftVersion)
     }
 
     modrinth {
+        accessToken = envOrEmpty("MODRINTH_TOKEN")
         projectId = hexdebugProperties.modrinthId
-        accessToken = providers.environmentVariable("MODRINTH_TOKEN").orElse("")
-
         minecraftVersions.add(hexdebugProperties.minecraftVersion)
+    }
+
+    github {
+        accessToken = envOrEmpty("GITHUB_TOKEN")
+        repository = envOrEmpty("GITHUB_REPO")
+        commitish = envOrEmpty("GITHUB_SHA")
+        tagName = "v${project.version}"
     }
 }
