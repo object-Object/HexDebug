@@ -75,6 +75,7 @@ jobs:
           name: mod-build
           path: '*/build'
           if-no-files-found: error
+          retention-days: 7
 
   build-docs:
     needs: setup
