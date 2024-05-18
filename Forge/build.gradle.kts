@@ -62,7 +62,6 @@ dependencies {
     modImplementation(libs.hexcasting.forge) { isTransitive = false }
     modImplementation(libs.paucal.forge)
     modImplementation(libs.patchouli.forge)
-    modImplementation(libs.caelus)
 
     modApi(libs.clothConfig.forge)
 
