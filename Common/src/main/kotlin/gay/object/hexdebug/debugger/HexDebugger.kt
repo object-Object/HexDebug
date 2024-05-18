@@ -113,7 +113,7 @@ class HexDebugger(
     }
 
     private fun getIotas(frame: ContinuationFrame) = when (frame) {
-        is FrameEvaluate -> frame.list
+        is FrameEvaluate -> if (frame.isFrameBreakpoint) null else frame.list
         is FrameForEach -> frame.code
         else -> null
     }
@@ -457,7 +457,7 @@ class HexDebugger(
             }
 
             // TODO: scuffed
-            val cast = if (frame is FrameEvaluate && frame.list.nonEmpty) {
+            val cast = if (frame is FrameEvaluate && !frame.isFrameBreakpoint && frame.list.nonEmpty) {
                 frame.list.car
             } else NullIota()
 
@@ -549,14 +549,14 @@ class HexDebugger(
 
     // directly copied from CastingHarness
     private fun getPatternForFrame(frame: ContinuationFrame): HexPattern? {
-        if (frame !is FrameEvaluate) return null
+        if (frame !is FrameEvaluate || frame.isFrameBreakpoint) return null
 
         return (frame.list.car as? PatternIota)?.pattern
     }
 
     // directly copied from CastingHarness
     private fun getOperatorForFrame(frame: ContinuationFrame, world: ServerLevel): Action? {
-        if (frame !is FrameEvaluate) return null
+        if (frame !is FrameEvaluate || frame.isFrameBreakpoint) return null
 
         return getOperatorForPattern(frame.list.car, world)
     }
@@ -653,12 +653,13 @@ class HexDebugger(
 
         if (stepType == DebugStepType.IN) {
             trySetIotaOverride(newContinuation, cast)
-            if (nextFrame !is FrameEvaluate) {
+            if (nextFrame !is FrameEvaluate || nextFrame.isFrameBreakpoint) {
                 trySetIotaOverride(nextContinuation, cast)
             }
         } else if (
             frame is FrameForEach
             && newFrame is FrameEvaluate
+            && !newFrame.isFrameBreakpoint
             && nextFrame is FrameForEach
             && frame.code === newFrame.list
             && frame.code === nextFrame.code
