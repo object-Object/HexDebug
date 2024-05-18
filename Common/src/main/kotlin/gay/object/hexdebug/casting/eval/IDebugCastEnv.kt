@@ -1,6 +1,6 @@
 package gay.`object`.hexdebug.casting.eval
 
-import at.petrak.hexcasting.api.casting.castables.Action
+import at.petrak.hexcasting.api.spell.Action
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.debugger.DebugStepType
 import net.minecraft.network.chat.Component

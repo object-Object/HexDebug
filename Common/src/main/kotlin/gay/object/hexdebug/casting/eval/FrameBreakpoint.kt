@@ -1,47 +1,29 @@
+@file:Suppress("CAST_NEVER_SUCCEEDS")
+
 package gay.`object`.hexdebug.casting.eval
 
-import at.petrak.hexcasting.api.casting.eval.CastResult
-import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
-import at.petrak.hexcasting.api.casting.eval.vm.CastingVM
-import at.petrak.hexcasting.api.casting.eval.vm.ContinuationFrame
-import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation
-import at.petrak.hexcasting.api.casting.iota.Iota
-import at.petrak.hexcasting.api.casting.iota.NullIota
-import at.petrak.hexcasting.api.utils.NBTBuilder
-import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.server.level.ServerLevel
+import at.petrak.hexcasting.api.spell.SpellList
+import at.petrak.hexcasting.api.spell.casting.eval.FrameEvaluate
 
-data class FrameBreakpoint(val stopBefore: Boolean, val isFatal: Boolean = false) : ContinuationFrame {
-    override fun breakDownwards(stack: List<Iota>) = false to stack
+// ContinuationFrame is sealed in this version, so we need to smuggle data on a FrameEvaluate instead
+@Suppress("PropertyName")
+interface IMixinFrameEvaluate {
+    var `isFrameBreakpoint$hexdebug`: Boolean
+    var `stopBefore$hexdebug`: Boolean
+    var `isFatal$hexdebug`: Boolean
+}
 
-    override fun evaluate(continuation: SpellContinuation, level: ServerLevel, harness: CastingVM) = CastResult(
-        NullIota(),
-        continuation,
-        null,
-        listOf(),
-        ResolvedPatternType.EVALUATED,
-        HexEvalSounds.NOTHING,
-    )
+fun newFrameBreakpointFatal() = newFrameBreakpoint(stopBefore = true, isFatal = true)
 
-    override fun size() = 0
-
-    override val type = TYPE
-
-    override fun serializeToNBT() = NBTBuilder {
-        "stopBefore" %= stopBefore
-        "isFatal" %= isFatal
-    }
-
-    companion object {
-        @JvmField
-        val TYPE = object : ContinuationFrame.Type<FrameBreakpoint> {
-            override fun deserializeFromNBT(tag: CompoundTag, world: ServerLevel) = FrameBreakpoint(
-                tag.getBoolean("stopBefore"),
-                tag.getBoolean("isFatal"),
-            )
-        }
-
-        fun fatal() = FrameBreakpoint(stopBefore = true, isFatal = true)
+fun newFrameBreakpoint(stopBefore: Boolean, isFatal: Boolean = false): FrameEvaluate {
+    return FrameEvaluate(SpellList.LList(listOf()), false).also {
+        it as IMixinFrameEvaluate
+        it.`isFrameBreakpoint$hexdebug` = true
+        it.`stopBefore$hexdebug` = stopBefore
+        it.`isFatal$hexdebug` = isFatal
     }
 }
+
+val FrameEvaluate.isFrameBreakpoint get() = (this as IMixinFrameEvaluate).`isFrameBreakpoint$hexdebug`
+val FrameEvaluate.stopBefore get() = (this as IMixinFrameEvaluate).`stopBefore$hexdebug`
+val FrameEvaluate.isFatal get() = (this as IMixinFrameEvaluate).`isFatal$hexdebug`
