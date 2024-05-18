@@ -4,11 +4,11 @@
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
+    "MixinShiftScrollListener"
   ],
   "mixins": [
     "MixinMsgShiftScrollC2S",
-    "MixinOpEval",
-    "MixinShiftScrollListener"
+    "MixinOpEval"
   ],
   "injectors": {
     "defaultRequire": 1
