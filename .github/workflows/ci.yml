@@ -16,7 +16,7 @@ jobs:
       is-main-branch: |-
         ${{
           github.event_name != 'pull_request' && contains(
-            fromJson('["main"]'),
+            fromJson('["main", "1.19"]'),
             (github.head_ref || github.ref_name)
           )
         }}
