@@ -4,7 +4,7 @@
 
 [CurseForge](https://curseforge.com/minecraft/mc-mods/hexdebug) | [Modrinth](https://modrinth.com/mod/hexdebug)
 
-[Hex Casting](https://github.com/FallingColors/HexMod) addon that runs a debug server using the [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol).
+A [Hex Casting](https://github.com/FallingColors/HexMod) addon that runs a debug server using the [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol), allowing you to use real debugging tools like VSCode to find bugs in your hexes.
 
 [![YouTube video thumbnail: HexDebug Mod Showcase](http://img.youtube.com/vi/FEsmrYoNV0A/0.jpg)](http://www.youtube.com/watch?v=FEsmrYoNV0A "HexDebug Mod Showcase")
 
