@@ -1,5 +1,5 @@
 modid = "hexdebug"
-book = "hexcasting:thehexbook"
+book = "hexdebug:hexdebook"
 default_lang = "en_us"
 default_branch = "main"
 

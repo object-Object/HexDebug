@@ -28,6 +28,5 @@
     "recipes": [
       "hexdebug:debugger"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

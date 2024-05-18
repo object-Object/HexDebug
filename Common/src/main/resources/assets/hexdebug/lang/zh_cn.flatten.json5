@@ -25,7 +25,7 @@
     },
   },
 
-  "hexcasting.action": {
+  "hexcasting.spell": {
     "hexdebug:": {
       "const/debugging": "调试杖之精思",
       "breakpoint/": {

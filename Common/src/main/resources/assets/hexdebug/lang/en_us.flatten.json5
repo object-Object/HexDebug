@@ -25,7 +25,7 @@
     },
   },
 
-  "hexcasting.action": {
+  "hexcasting.spell": {
     "hexdebug:": {
       "const/debugging": "Debugger's Reflection",
       "breakpoint/": {

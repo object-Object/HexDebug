@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "equipment",
   "key": {
     "A": {
       "item": "hexcasting:artifact"
@@ -19,6 +18,5 @@
   ],
   "result": {
     "item": "hexdebug:debugger"
-  },
-  "show_notification": true
+  }
 }

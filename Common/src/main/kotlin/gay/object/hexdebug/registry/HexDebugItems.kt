@@ -26,6 +26,7 @@ object HexDebugItems : HexDebugRegistrar<Item>(Registry.ITEM_REGISTRY, { Registr
         if (Platform.getEnv() == EnvType.CLIENT) {
             registerItemProperties()
         }
+        HexDebugActions.init()
     }
 
     private fun registerItemProperties() {
