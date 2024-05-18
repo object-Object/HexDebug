@@ -7,7 +7,7 @@ import org.eclipse.lsp4j.debug.InitializeRequestArguments
 sealed interface DebugAdapterState {
     val initArgs: InitializeRequestArguments? get() = null
 
-    data object NotConnected : DebugAdapterState
+    object NotConnected : DebugAdapterState
 
     data class Initialized(override val initArgs: InitializeRequestArguments) : DebugAdapterState
 

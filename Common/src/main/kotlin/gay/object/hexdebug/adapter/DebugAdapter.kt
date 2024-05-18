@@ -140,14 +140,14 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             supportsLoadedSourcesRequest = true
             supportsTerminateRequest = true
             supportsRestartRequest = true
-            exceptionBreakpointFilters = ExceptionBreakpointType.entries.map {
+            exceptionBreakpointFilters = ExceptionBreakpointType.values().map {
                 ExceptionBreakpointsFilter().apply {
                     filter = it.name
                     label = it.label
                     default_ = it.isDefault
                 }
             }.toTypedArray()
-            breakpointModes = SourceBreakpointMode.entries.map {
+            breakpointModes = SourceBreakpointMode.values().map {
                 BreakpointMode().apply {
                     mode = it.name
                     label = it.label
