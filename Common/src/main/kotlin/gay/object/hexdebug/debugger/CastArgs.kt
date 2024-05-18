@@ -1,12 +1,12 @@
 package gay.`object`.hexdebug.debugger
 
-import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
-import at.petrak.hexcasting.api.casting.iota.Iota
+import at.petrak.hexcasting.api.spell.casting.CastingContext
+import at.petrak.hexcasting.api.spell.iota.Iota
 import net.minecraft.server.level.ServerLevel
 
 data class CastArgs(
     val iotas: List<Iota>,
-    val env: CastingEnvironment,
+    val env: CastingContext,
     val world: ServerLevel,
     val onExecute: ((Iota) -> Unit)? = null
 )

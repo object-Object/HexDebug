@@ -7,6 +7,7 @@
     "MixinShiftScrollListener"
   ],
   "mixins": [
+    "MixinCastingContext",
     "MixinFrameEvaluate",
     "MixinMsgShiftScrollC2S",
     "MixinOpEval"

@@ -7,18 +7,19 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory
 
-interface IDebugCastEnv {
-    val isDebugging get() = true
+@Suppress("PropertyName", "FunctionName")
+interface IMixinCastingContext {
+    var `isDebugging$hexdebug`: Boolean
 
-    var lastEvaluatedAction: Action?
-    var lastDebugStepType: DebugStepType?
+    var `lastEvaluatedAction$hexdebug`: Action?
+    var `lastDebugStepType$hexdebug`: DebugStepType?
 
-    fun reset() {
-        lastEvaluatedAction = null
-        lastDebugStepType = null
+    fun `reset$hexdebug`() {
+        `lastEvaluatedAction$hexdebug` = null
+        `lastDebugStepType$hexdebug` = null
     }
 
-    fun printDebugMessage(
+    fun `printDebugMessage$hexdebug`(
         caster: ServerPlayer,
         message: Component,
         category: String = OutputEventArgumentsCategory.STDOUT,

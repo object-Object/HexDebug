@@ -45,7 +45,8 @@ class HexDebugger(
         castArgs: CastArgs,
     ) : this(initArgs, launchArgs, CastingHarness(castArgs.env), castArgs.world, castArgs.onExecute, castArgs.iotas)
 
-    val debugCastEnv = vm.ctx as IDebugCastEnv
+    @Suppress("CAST_NEVER_SUCCEEDS")
+    val debugCastEnv = vm.ctx as IMixinCastingContext
 
     var lastEvaluatedMetadata: IotaMetadata? = null
         private set
@@ -401,7 +402,7 @@ class HexDebugger(
         val info = CastingHarness.TempControllerInfo(earlyExit = false)
         var sound = HexEvalSounds.NOTHING
         while (continuation is NotDone && !info.earlyExit) {
-            debugCastEnv.reset()
+            debugCastEnv.`reset$hexdebug`()
 
             // Take the top of the continuation stack...
             val frame = continuation.frame
@@ -478,7 +479,7 @@ class HexDebugger(
                 }
 
                 // insert a virtual FrameFinishEval if OpEval didn't (ie. if we did a TCO)
-                if (launchArgs.showTailCallFrames && debugCastEnv.lastEvaluatedAction is OpEval) {
+                if (launchArgs.showTailCallFrames && debugCastEnv.`lastEvaluatedAction$hexdebug` is OpEval) {
                     val invokeMeta = iotaMetadata[cast]
                     val nextInvokeMeta = frameInvocationMetadata[newContinuation.next]?.invoke()
                     if (invokeMeta != null && invokeMeta != nextInvokeMeta) {
@@ -631,7 +632,7 @@ class HexDebugger(
             return DebugStepType.IN
         }
 
-        return debugCastEnv.lastDebugStepType
+        return debugCastEnv.`lastDebugStepType$hexdebug`
     }
 
     private fun setIotaOverrides(
