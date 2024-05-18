@@ -7,24 +7,23 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory
 
-@Suppress("PropertyName", "FunctionName")
+@Suppress("PropertyName")
 interface IMixinCastingContext {
     var `isDebugging$hexdebug`: Boolean
-
     var `lastEvaluatedAction$hexdebug`: Action?
     var `lastDebugStepType$hexdebug`: DebugStepType?
+}
 
-    fun `reset$hexdebug`() {
-        `lastEvaluatedAction$hexdebug` = null
-        `lastDebugStepType$hexdebug` = null
-    }
+fun IMixinCastingContext.reset() {
+    `lastEvaluatedAction$hexdebug` = null
+    `lastDebugStepType$hexdebug` = null
+}
 
-    fun `printDebugMessage$hexdebug`(
-        caster: ServerPlayer,
-        message: Component,
-        category: String = OutputEventArgumentsCategory.STDOUT,
-        withSource: Boolean = true,
-    ) {
-        DebugAdapterManager[caster]?.print(message.string + "\n", category, withSource)
-    }
+fun printDebugMessage(
+    caster: ServerPlayer,
+    message: Component,
+    category: String = OutputEventArgumentsCategory.STDOUT,
+    withSource: Boolean = true,
+) {
+    DebugAdapterManager[caster]?.print(message.string + "\n", category, withSource)
 }

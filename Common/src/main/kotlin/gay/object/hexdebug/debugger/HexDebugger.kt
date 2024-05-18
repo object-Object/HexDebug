@@ -402,7 +402,7 @@ class HexDebugger(
         val info = CastingHarness.TempControllerInfo(earlyExit = false)
         var sound = HexEvalSounds.NOTHING
         while (continuation is NotDone && !info.earlyExit) {
-            debugCastEnv.`reset$hexdebug`()
+            debugCastEnv.reset()
 
             // Take the top of the continuation stack...
             val frame = continuation.frame
