@@ -55,12 +55,13 @@ jobs:
       - name: Publish mod
         env:
           DRY_RUN: ${{ inputs.dry-run && 'true' || '' }}
-          CURSEFORGE_TOKEN:
-          MODRINTH_TOKEN:
-          GITHUB_TOKEN:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew publishMods
 
-      - name: Upload mod publish artifact
+      - name: Upload dry run artifact
+        if: inputs.dry-run
         uses: actions/upload-artifact@v4
         with:
           name: mod-publish
