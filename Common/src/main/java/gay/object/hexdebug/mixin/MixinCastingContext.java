@@ -75,16 +75,4 @@ public abstract class MixinCastingContext implements IMixinCastingContext {
     public void setLastDebugStepType$hexdebug(@Nullable DebugStepType lastDebugStepType) {
         lastDebugStepType$hexdebug = lastDebugStepType;
     }
-
-    // TODO: are these necessary?
-
-    @Override
-    public void printDebugMessage$hexdebug(@NotNull ServerPlayer caster, @NotNull Component message, @NotNull String category, boolean withSource) {
-        IMixinCastingContext.super.printDebugMessage$hexdebug(caster, message, category, withSource);
-    }
-
-    @Override
-    public void reset$hexdebug() {
-        IMixinCastingContext.super.reset$hexdebug();
-    }
 }

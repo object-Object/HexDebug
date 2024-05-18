@@ -27,7 +27,7 @@ public class MixinFrameEvaluate implements IMixinFrameEvaluate {
     @Unique
     private boolean isFatal$hexdebug = false;
 
-    @Inject(method = "breakDownwards", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "breakDownwards", at = @At("HEAD"), cancellable = true, remap = false)
     private void breakDownwardsFrameBreakpoint$hexdebug(
         List<Iota> stack,
         CallbackInfoReturnable<Pair<Boolean, List<Iota>>> cir

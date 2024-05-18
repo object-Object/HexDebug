@@ -8,13 +8,13 @@ import gay.`object`.hexdebug.items.ItemDebugger.DebugState
 import gay.`object`.hexdebug.items.ItemDebugger.StepMode
 import gay.`object`.hexdebug.registry.HexDebugItems
 import gay.`object`.hexdebug.utils.itemPredicate
-import net.minecraft.data.PackOutput
+import net.minecraft.data.DataGenerator
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.client.model.generators.ItemModelProvider
 import net.minecraftforge.client.model.generators.ModelBuilder
 import net.minecraftforge.common.data.ExistingFileHelper
 
-class HexDebugModels(output: PackOutput, efh: ExistingFileHelper) : ItemModelProvider(output, HexDebug.MODID, efh) {
+class HexDebugModels(gen: DataGenerator, efh: ExistingFileHelper) : ItemModelProvider(gen, HexDebug.MODID, efh) {
     override fun registerModels() {
         debugger(HexDebugItems.DEBUGGER.id)
     }
@@ -23,10 +23,10 @@ class HexDebugModels(output: PackOutput, efh: ExistingFileHelper) : ItemModelPro
         val baseModel = basicItem(item)
         val basePath = baseModel.location.path
 
-        for (debugState in DebugState.entries) {
+        for (debugState in DebugState.values()) {
             val debugStateName = debugState.name.lowercase()
 
-            for (stepMode in StepMode.entries) {
+            for (stepMode in StepMode.values()) {
                 val stepModeName = stepMode.name.lowercase()
 
                 for ((hasHex, hasHexName) in mapOf(0f to "empty", 1f to "full")) {
@@ -41,8 +41,8 @@ class HexDebugModels(output: PackOutput, efh: ExistingFileHelper) : ItemModelPro
 
                     baseModel.override()
                         .model(model)
-                        .predicate(ItemDebugger.DEBUG_STATE_PREDICATE, debugState.itemPredicate)
-                        .predicate(ItemDebugger.STEP_MODE_PREDICATE, stepMode.itemPredicate)
+                        .predicate(ItemDebugger.DEBUG_STATE_PREDICATE, debugState.itemPredicate(DebugState.values()))
+                        .predicate(ItemDebugger.STEP_MODE_PREDICATE, stepMode.itemPredicate(StepMode.values()))
                         .predicate(ItemDebugger.HAS_HEX_PREDICATE, hasHex)
                 }
             }

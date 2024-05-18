@@ -2,7 +2,6 @@ package gay.`object`.hexdebug.utils
 
 import net.minecraft.world.InteractionHand
 import java.util.concurrent.CompletableFuture
-import kotlin.enums.enumEntries
 import kotlin.math.ceil
 import kotlin.math.log
 import kotlin.math.pow
@@ -36,11 +35,10 @@ val InteractionHand.otherHand get() = when (this) {
 }
 
 // ceil the denominator to a power of 2 so we don't have issues with eg. 1/3
-@OptIn(ExperimentalStdlibApi::class)
-inline val <reified T : Enum<T>> T.itemPredicate get() =
-    ordinal.toFloat() / (ceil(enumEntries<T>().lastIndex.toFloat() / 2f) * 2f)
+inline fun <reified T : Enum<T>> T.itemPredicate(entries: Array<T>) =
+    ordinal.toFloat() / (ceil(entries.lastIndex.toFloat() / 2f) * 2f)
 
-inline fun <reified T> List<T>.getWrapping(idx: Int) = this[idx.mod(size)]
+inline fun <reified T> Array<T>.getWrapping(idx: Int) = this[idx.mod(size)]
 
 /** Rounds `this` up to the next power of `base`. */
 fun Number.ceilToPow(base: Number): Int = toDouble().ceilToPow(base.toDouble())

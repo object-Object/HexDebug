@@ -34,10 +34,6 @@ hexdebugModDependencies {
     requires("modmenu")
 }
 
-repositories {
-    flatDir { dir("libs") }
-}
-
 dependencies {
     modApi(libs.fabric.api)
     modImplementation(libs.fabric.loader)
@@ -52,17 +48,19 @@ dependencies {
     modImplementation(libs.hexcasting.fabric) {
         // If not excluded here, calls a nonexistent method and crashes the dev client
         exclude(module = "phosphor")
+        exclude(module = "pehkui")
     }
     modImplementation(libs.paucal.fabric)
     modImplementation(libs.patchouli.fabric)
     modImplementation(libs.cardinalComponents)
     modImplementation(libs.serializationHooks)
+    modImplementation(libs.entityReach)
     modImplementation(libs.trinkets)
 
     implementation(libs.mixinExtras)
 
     modApi(libs.clothConfig.fabric) {
-        exclude(group = "net.fabricmc.fabric-debugger")
+        exclude(group = "net.fabricmc.fabric-api")
     }
     modApi(libs.modMenu)
 
@@ -70,6 +68,7 @@ dependencies {
     implementation(libs.ktor.network)
 
     include(libs.serializationHooks)
+    include(libs.entityReach)
     include(libs.mixinExtras)
     include(libs.bundles.lsp4j)
     include(libs.bundles.ktor)

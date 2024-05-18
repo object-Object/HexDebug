@@ -1,18 +1,15 @@
 package gay.`object`.hexdebug.items
 
-import at.petrak.hexcasting.api.casting.iota.ListIota
-import at.petrak.hexcasting.api.casting.iota.PatternIota
-import at.petrak.hexcasting.api.mod.HexConfig
+import at.petrak.hexcasting.api.spell.casting.CastingContext
+import at.petrak.hexcasting.api.spell.iota.ListIota
 import at.petrak.hexcasting.api.utils.getBoolean
 import at.petrak.hexcasting.api.utils.getInt
 import at.petrak.hexcasting.api.utils.putBoolean
 import at.petrak.hexcasting.api.utils.putInt
 import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
-import at.petrak.hexcasting.common.msgs.MsgNewSpiralPatternsS2C
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
-import gay.`object`.hexdebug.casting.eval.DebugItemCastEnv
 import gay.`object`.hexdebug.debugger.CastArgs
 import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.itemPredicate
@@ -36,8 +33,6 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
     override fun canDrawMediaFromInventory(stack: ItemStack?) = true
 
     override fun breakAfterDepletion() = false
-
-    override fun cooldown() = HexConfig.common().artifactCooldown()
 
     override fun isFoil(stack: ItemStack) = false
 
@@ -89,14 +84,8 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
                 }
             } ?: return InteractionResultHolder.fail(stack)
 
-            val ctx = DebugItemCastEnv(serverPlayer, usedHand)
-            val args = CastArgs(instrs, ctx, serverLevel) {
-                if (it is PatternIota) {
-                    val packet = MsgNewSpiralPatternsS2C(serverPlayer.uuid, listOf(it.pattern), 140)
-                    IXplatAbstractions.INSTANCE.sendPacketToPlayer(serverPlayer, packet)
-                    IXplatAbstractions.INSTANCE.sendPacketTracking(serverPlayer, packet)
-                }
-            }
+            val ctx = CastingContext(serverPlayer, usedHand, CastingContext.CastSource.PACKAGED_HEX)
+            val args = CastArgs(instrs, ctx, serverLevel) {}
 
             if (!debugAdapter.startDebugging(args)) {
                 return noClient(player, stack)
@@ -108,7 +97,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         val stat = Stats.ITEM_USED[this]
         player.awardStat(stat)
 
-        serverPlayer.cooldowns.addCooldown(this, this.cooldown())
+        serverPlayer.cooldowns.addCooldown(this, 5)
         return InteractionResultHolder.consume(stack)
     }
 
@@ -135,12 +124,12 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
 
     private fun rotateStepMode(stack: ItemStack, increase: Boolean): StepMode {
         val idx = getStepModeIdx(stack) + (if (increase) 1 else -1)
-        return StepMode.entries.getWrapping(idx).also {
+        return StepMode.values().getWrapping(idx).also {
             stack.putInt(STEP_MODE_TAG, it.ordinal)
         }
     }
 
-    private fun getStepMode(stack: ItemStack) = StepMode.entries.getWrapping(getStepModeIdx(stack))
+    private fun getStepMode(stack: ItemStack) = StepMode.values().getWrapping(getStepModeIdx(stack))
 
     private fun getStepModeIdx(stack: ItemStack) = stack.getInt(STEP_MODE_TAG)
 
@@ -171,10 +160,10 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
             DEBUG_STATE_PREDICATE to ClampedItemPropertyFunction { _, _, entity, _ ->
                 // don't show the active icon for debuggers held by other players, on the ground, etc
                 val state = if (entity is LocalPlayer) debugState else DebugState.NOT_DEBUGGING
-                state.itemPredicate
+                state.itemPredicate(DebugState.values())
             },
             STEP_MODE_PREDICATE to ClampedItemPropertyFunction { stack, _, _, _ ->
-                item.getStepMode(stack).itemPredicate
+                item.getStepMode(stack).itemPredicate(StepMode.values())
             },
             HAS_HEX_PREDICATE to ClampedItemPropertyFunction { stack, _, _, _ ->
                 if (item.hasHex(stack)) 1f else 0f

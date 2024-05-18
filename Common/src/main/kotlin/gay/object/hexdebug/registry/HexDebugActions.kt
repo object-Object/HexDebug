@@ -14,6 +14,8 @@ import gay.`object`.hexdebug.casting.actions.OpIsDebugging
 import net.minecraft.resources.ResourceLocation
 
 object HexDebugActions {
+    private val patterns = mutableMapOf<ResourceLocation, Pair<HexPattern, () -> Action>>()
+
     val IS_DEBUGGING = make("const/debugging", HexDir.EAST, "qqqqqewaa", OpIsDebugging)
 
     val BREAKPOINT_BEFORE = make("breakpoint/before", HexDir.SOUTH_WEST, "awqdeew", OpBreakpoint(true))
@@ -23,10 +25,6 @@ object HexDebugActions {
     val CRAFT_DEBUGGER = make("craft/debugger", HexDir.SOUTH_WEST, "aaewwwwwaqwawqwadawqwwwawwwqwwwaw") {
         OpMakePackagedSpell(HexDebugItems.DEBUGGER.value as ItemPackagedHex, 10 * MediaConstants.CRYSTAL_UNIT)
     }
-
-    // registry stuff
-
-    private val patterns = mutableMapOf<ResourceLocation, Pair<HexPattern, () -> Action>>()
 
     private fun make(name: String, startDir: HexDir, signature: String, action: Action) =
         make(name, startDir, signature) { action }

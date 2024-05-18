@@ -14,8 +14,8 @@ architectury = "6.5.85"
 architectury-plugin = { require="[3.4, 3.5[" }
 architectury-loom = { require="[1.5, 1.6[" }
 
-fabric-loader = "0.14.21"
-fabric-api = "0.76.0+1.19.2"
+fabric-loader = "0.14.10"
+fabric-api = "0.64.0+1.19.2"
 
 forge = "1.19.2-43.2.11"
 forge-dependency = "43" # for mods.toml
@@ -30,6 +30,7 @@ patchouli-fabric = "1.19.2-77-FABRIC" # thanks vazkii
 
 cardinalComponents = "5.0.2"
 serializationHooks = "0.3.24"
+entityReach = "2.3.0"
 mixinExtras = "0.1.1"
 trinkets = "3.4.1"
 clothConfig = "8.2.88"
@@ -84,6 +85,7 @@ patchouli-forge  = { module="vazkii.patchouli:Patchouli", version.ref="patchouli
 
 cardinalComponents = { module="dev.onyxstudios.cardinal-components-api:cardinal-components-api", version.ref="cardinalComponents" }
 serializationHooks = { module="io.github.tropheusj:serialization-hooks", version.ref="serializationHooks" }
+entityReach        = { module="com.jamieswhiteshirt:reach-entity-attributes", version.ref="entityReach" }
 mixinExtras        = { module="com.github.LlamaLad7:MixinExtras", version.ref="mixinExtras" }
 trinkets           = { module="dev.emi:trinkets", version.ref="trinkets" }
 modMenu            = { module="com.terraformersmc:modmenu", version.ref="modMenu" }
