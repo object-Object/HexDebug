@@ -127,6 +127,8 @@ publishMods {
         accessToken = envOrEmpty("CURSEFORGE_TOKEN")
         projectId = hexdebugProperties.curseforgeId
         minecraftVersions.add(hexdebugProperties.minecraftVersion)
+        clientRequired = true
+        serverRequired = true
     }
 
     modrinth {

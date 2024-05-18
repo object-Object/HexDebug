@@ -34,6 +34,13 @@ ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.hexdebug]]
+modId = "cloth_config"
+mandatory = true
+versionRange = "[${versions.cloth_config},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.hexdebug]]
 modId = "hexcasting"
 mandatory = true
 versionRange = "[${versions.hexcasting},)"

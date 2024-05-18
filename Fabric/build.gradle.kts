@@ -15,15 +15,23 @@ hexdebugPlatform {
 hexdebugModDependencies {
     filesMatching.add("fabric.mod.json")
 
-    versions = versions.get().mapValues { (_, version) ->
-        version
-            .replace(",", " ")
-            .replace(Regex("""\s+"""), " ")
-            .replace(Regex("""\[(\S+)"""), ">=$1")
-            .replace(Regex("""(\S+)\]"""), "<=$1")
-            .replace(Regex("""\](\S+)"""), ">$1")
-            .replace(Regex("""(\S+)\["""), "<$1")
+    anyVersion = "*"
+    mapVersions {
+        replace(",", " ")
+        replace(Regex("""\s+"""), " ")
+        replace(Regex("""\[(\S+)"""), ">=$1")
+        replace(Regex("""(\S+)\]"""), "<=$1")
+        replace(Regex("""\](\S+)"""), ">$1")
+        replace(Regex("""(\S+)\["""), "<$1")
     }
+
+    requires("architectury-api")
+    requires("cloth-config")
+    requires(curseforge = "hexcasting", modrinth = "hex-casting")
+
+    requires("fabric-api")
+    requires("fabric-language-kotlin")
+    requires("modmenu")
 }
 
 repositories {
@@ -50,6 +58,7 @@ dependencies {
     modImplementation(libs.cardinalComponents)
     modImplementation(libs.serializationHooks)
     modImplementation(libs.trinkets)
+
     implementation(libs.mixinExtras)
 
     modApi(libs.clothConfig.fabric) {
@@ -64,45 +73,4 @@ dependencies {
     include(libs.mixinExtras)
     include(libs.bundles.lsp4j)
     include(libs.ktor.network)
-}
-
-publishMods {
-    // Uncomment your desired platform(s)
-//    curseforge {
-//        accessToken = project.curseforgeApiToken
-//        projectId = project.curseforgeID
-//        minecraftVersions.add(minecraftVersion)
-//
-//        requires{
-//            slug = "fabric-debugger"
-//        }
-//        requires {
-//            slug = "architectury-debugger"
-//        }
-//        requires {
-//            slug = "fabric-language-kotlin"
-//        }
-//        requires {
-//            slug = "hexcasting"
-//        }
-//    }
-//
-//    modrinth {
-//        accessToken = project.modrinthApiToken
-//        projectId = project.modrinthID
-//        minecraftVersions.add("1.19.2")
-//
-//        requires{
-//            slug = "fabric-debugger"
-//        }
-//        requires {
-//            slug = "architectury-debugger"
-//        }
-//        requires {
-//            slug = "fabric-language-kotlin"
-//        }
-//        requires {
-//            slug = "hex-casting"
-//        }
-//    }
 }

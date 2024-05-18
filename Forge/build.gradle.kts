@@ -39,6 +39,18 @@ hexdebugPlatform {
 
 hexdebugModDependencies {
     filesMatching.add("META-INF/mods.toml")
+
+    anyVersion = ""
+    mapVersions {
+        replace(Regex("""\](\S+)"""), "($1")
+        replace(Regex("""(\S+)\["""), "$1)")
+    }
+
+    requires("architectury-api")
+    requires("cloth-config")
+    requires(curseforge = "hexcasting", modrinth = "hex-casting")
+
+    requires("kotlin-for-forge")
 }
 
 dependencies {
@@ -54,9 +66,11 @@ dependencies {
 
     modApi(libs.clothConfig.forge)
 
+    implementation(libs.mixinExtras)
     implementation(libs.bundles.lsp4j)
     implementation(libs.bundles.ktor)
 
+    include(libs.mixinExtras)
     include(libs.bundles.lsp4j)
     include(libs.bundles.ktor)
 
