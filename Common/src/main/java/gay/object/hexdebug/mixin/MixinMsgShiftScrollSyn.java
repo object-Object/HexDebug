@@ -1,6 +1,6 @@
 package gay.object.hexdebug.mixin;
 
-import at.petrak.hexcasting.common.msgs.MsgShiftScrollC2S;
+import at.petrak.hexcasting.common.network.MsgShiftScrollSyn;
 import gay.object.hexdebug.items.ItemDebugger;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // server side
-@Mixin(MsgShiftScrollC2S.class)
-public class MixinMsgShiftScrollC2S {
+@Mixin(MsgShiftScrollSyn.class)
+public class MixinMsgShiftScrollSyn {
     @Inject(method = "handleForHand", at = @At("HEAD"))
     private void hexdebug$handleForHand(ServerPlayer sender, InteractionHand hand, double delta, CallbackInfo ci) {
         if (delta != 0) {

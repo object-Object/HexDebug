@@ -9,7 +9,7 @@
   "mixins": [
     "MixinCastingContext",
     "MixinFrameEvaluate",
-    "MixinMsgShiftScrollC2S",
+    "MixinMsgShiftScrollSyn",
     "MixinOpEval"
   ],
   "injectors": {
