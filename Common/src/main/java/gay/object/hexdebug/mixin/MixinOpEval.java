@@ -1,13 +1,13 @@
 package gay.object.hexdebug.mixin;
 
-import at.petrak.hexcasting.api.casting.castables.Action;
-import at.petrak.hexcasting.api.casting.eval.CastingEnvironment;
-import at.petrak.hexcasting.api.casting.eval.OperationResult;
-import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
-import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation;
-import at.petrak.hexcasting.api.casting.iota.Iota;
-import at.petrak.hexcasting.common.casting.actions.eval.OpEval;
-import gay.object.hexdebug.casting.eval.IDebugCastEnv;
+
+import at.petrak.hexcasting.api.spell.Action;
+import at.petrak.hexcasting.api.spell.OperationResult;
+import at.petrak.hexcasting.api.spell.casting.CastingContext;
+import at.petrak.hexcasting.api.spell.casting.eval.SpellContinuation;
+import at.petrak.hexcasting.api.spell.iota.Iota;
+import at.petrak.hexcasting.common.casting.operators.eval.OpEval;
+import gay.object.hexdebug.casting.eval.IMixinCastingContext;
 import gay.object.hexdebug.debugger.DebugStepType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,20 +16,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
+
 @Mixin(OpEval.class)
 public abstract class MixinOpEval implements Action {
-    @Inject(method = "exec", at = @At("RETURN"), remap = false)
+    @SuppressWarnings("UnreachableCode")
+    @Inject(method = "operate", at = @At("RETURN"), remap = false)
     private void setDebugStepType(
-            CastingEnvironment env,
-            CastingImage image,
-            SpellContinuation continuation,
-            List<Iota> newStack,
-            Iota iota,
-            CallbackInfoReturnable<OperationResult> cir
+        SpellContinuation continuation,
+        List<Iota> stack,
+        Iota ravenmind,
+        CastingContext ctx,
+        CallbackInfoReturnable<OperationResult> cir
     ) {
-        if (env instanceof IDebugCastEnv debugCastEnv) {
-            debugCastEnv.setLastEvaluatedAction(this);
-            debugCastEnv.setLastDebugStepType(DebugStepType.IN);
+        var debugCastEnv = (IMixinCastingContext) (Object) ctx;
+        if (debugCastEnv != null) {
+            debugCastEnv.setLastEvaluatedAction$hexdebug(this);
+            debugCastEnv.setLastDebugStepType$hexdebug(DebugStepType.IN);
         }
     }
 }
