@@ -70,12 +70,12 @@
           debugging: {
             "": "Debugging",
             page: {
-              "const/debugging": "Adds $(thing)True/$ to the top of the stack if executed by a $(l:items/debugging#debugger)$(item)Debugger/$, or $(thing)False/$ otherwise.",
+              "const/debugging": "Adds $(thing)True/$ to the top of the stack if executed by a $(l:hexdebug:items/debugging#debugger)$(item)Debugger/$, or $(thing)False/$ otherwise.",
               "breakpoint/": {
-                before: "Pauses the $(l:items/debugging#debugger)$(item)Debugger/$ before executing this pattern.",
-                after: "Pauses the $(l:items/debugging#debugger)$(item)Debugger/$ after executing this pattern (ie. before executing the next pattern).",
+                before: "Pauses the $(l:hexdebug:items/debugging#debugger)$(item)Debugger/$ before executing this pattern.",
+                after: "Pauses the $(l:hexdebug:items/debugging#debugger)$(item)Debugger/$ after executing this pattern (ie. before executing the next pattern).",
               },
-              "craft/debugger": "Creates a $(l:items/debugging#debugger)$(item)Debugger/$ that casts a _Hex, similar to $(l:patterns/spells/hexcasting)certain other patterns/$ I've used in the past.$(br2)Costs about ten $(l:items/amethyst)$(item)Charged Amethyst/$.",
+              "craft/debugger": "Creates a $(l:hexdebug:items/debugging#debugger)$(item)Debugger/$ that casts a _Hex, similar to $(l:patterns/spells/hexcasting)certain other patterns/$ I've used in the past.$(br2)Costs about ten $(l:items/amethyst)$(item)Charged Amethyst/$.",
             },
           },
         },
