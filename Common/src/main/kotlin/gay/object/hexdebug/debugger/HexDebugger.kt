@@ -6,6 +6,7 @@ import at.petrak.hexcasting.api.spell.SpellList
 import at.petrak.hexcasting.api.spell.casting.CastingHarness
 import at.petrak.hexcasting.api.spell.casting.CastingHarness.CastResult
 import at.petrak.hexcasting.api.spell.casting.ResolvedPatternType
+import at.petrak.hexcasting.api.spell.casting.SpecialPatterns
 import at.petrak.hexcasting.api.spell.casting.eval.*
 import at.petrak.hexcasting.api.spell.casting.eval.SpellContinuation.Done
 import at.petrak.hexcasting.api.spell.casting.eval.SpellContinuation.NotDone
@@ -23,6 +24,7 @@ import gay.`object`.hexdebug.casting.eval.*
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
 import gay.`object`.hexdebug.utils.ceilToPow
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.level.gameevent.GameEvent
@@ -671,11 +673,7 @@ class HexDebugger(
     }
 
     private fun iotaToString(iota: Iota, isSource: Boolean = false): String = when (iota) {
-        is PatternIota -> try {
-            PatternRegistry.matchPattern(iota.pattern, vm.ctx.world).displayName
-        } catch (e: MishapInvalidPattern) {
-            PatternNameHelper.representationForPattern(iota.pattern)
-        }.string
+        is PatternIota -> patternToString(iota.pattern, isSource).string
 
         else -> {
             val result = when (iota) {
@@ -688,6 +686,21 @@ class HexDebugger(
             } else {
                 result
             }
+        }
+    }
+
+    private fun patternToString(pattern: HexPattern, isSource: Boolean = false): Component {
+        if (isSource) {
+            when (pattern) {
+                SpecialPatterns.INTROSPECTION -> return Component.literal("{")
+                SpecialPatterns.RETROSPECTION -> return Component.literal("}")
+                else -> {}
+            }
+        }
+        return try {
+            PatternRegistry.matchPattern(pattern, vm.ctx.world).displayName
+        } catch (e: MishapInvalidPattern) {
+            PatternNameHelper.representationForPattern(pattern)
         }
     }
 }
