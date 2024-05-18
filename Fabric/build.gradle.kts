@@ -89,3 +89,10 @@ publishMods {
         additionalFiles.from(project(":Common").tasks.remapJar.get().archiveFile)
     }
 }
+
+tasks {
+    named("publishGithub") {
+        dependsOn(project(":Common").tasks.remapJar)
+        dependsOn(project(":Forge").tasks.remapJar)
+    }
+}
