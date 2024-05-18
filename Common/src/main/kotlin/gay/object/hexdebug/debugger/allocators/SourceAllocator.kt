@@ -1,6 +1,6 @@
 package gay.`object`.hexdebug.debugger.allocators
 
-import at.petrak.hexcasting.api.casting.iota.Iota
+import at.petrak.hexcasting.api.spell.iota.Iota
 import gay.`object`.hexdebug.utils.nextHexString
 import org.eclipse.lsp4j.debug.Source
 import kotlin.random.Random

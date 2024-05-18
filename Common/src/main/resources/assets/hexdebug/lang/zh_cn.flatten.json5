@@ -3,7 +3,7 @@
     debugger: "调试杖",
   },
 
-  "itemGroup.hexdebug": "咒术调试",
+  "itemGroup.hexdebug.hexdebug": "咒术调试",
 
   text: {
     hexdebug: {

@@ -3,7 +3,7 @@
     debugger: "Debugger",
   },
 
-  "itemGroup.hexdebug": "HexDebug",
+  "itemGroup.hexdebug.hexdebug": "HexDebug",
 
   text: {
     hexdebug: {

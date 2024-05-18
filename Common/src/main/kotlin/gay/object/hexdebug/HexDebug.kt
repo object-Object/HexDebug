@@ -4,8 +4,6 @@ import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.networking.HexDebugNetworking
 import gay.`object`.hexdebug.registry.HexDebugActions
-import gay.`object`.hexdebug.registry.HexDebugContinuationTypes
-import gay.`object`.hexdebug.registry.HexDebugCreativeTabs
 import gay.`object`.hexdebug.registry.HexDebugItems
 import net.minecraft.resources.ResourceLocation
 import org.apache.logging.log4j.LogManager
@@ -22,10 +20,8 @@ object HexDebug {
         HexDebugConfig.init()
         initRegistries(
             HexDebugItems,
-            HexDebugCreativeTabs,
-            HexDebugActions,
-            HexDebugContinuationTypes,
         )
+        HexDebugActions.init()
         HexDebugNetworking.init()
         DebugAdapterManager.init()
     }
