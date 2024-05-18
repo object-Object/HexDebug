@@ -72,5 +72,5 @@ dependencies {
     include(libs.serializationHooks)
     include(libs.mixinExtras)
     include(libs.bundles.lsp4j)
-    include(libs.ktor.network)
+    include(libs.bundles.ktor)
 }
