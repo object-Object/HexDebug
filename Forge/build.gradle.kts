@@ -91,36 +91,9 @@ tasks {
     }
 }
 
-publishMods {
-//    curseforge {
-//        accessToken = project.curseforgeApiToken
-//        projectId = project.curseforgeId
-//        minecraftVersions.add(minecraftVersion)
-//
-//        requires {
-//            slug = "architectury-debugger"
-//        }
-//        requires {
-//            slug = "kotlin-for-forge"
-//        }
-//        requires {
-//            slug = "hexcasting"
-//        }
-//    }
-//
-//    modrinth {
-//        accessToken = project.modrinthApiToken
-//        projectId = project.modrinthId
-//        minecraftVersions.add("1.19.2")
-//
-//        requires {
-//            slug = "architectury-debugger"
-//        }
-//        requires {
-//            slug = "kotlin-for-forge"
-//        }
-//        requires {
-//            slug = "hex-casting"
-//        }
-//    }
+// SO SO SO SCUFFED.
+val publishFile = publishMods.file.get().asFile
+project(":Fabric").publishMods.github {
+    additionalFiles.from(publishFile)
 }
+

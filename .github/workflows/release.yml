@@ -62,6 +62,15 @@ jobs:
       - name: Build mod
         run: ./gradlew build
 
+      # do this first so we fail if we've already published this version
+      # because CurseForge and Modrinth apparently don't care!
+      - name: Publish to GitHub
+        if: inputs.publish-github
+        env:
+          DRY_RUN: ${{ inputs.dry-run && 'true' || '' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew publishGithub
+
       - name: Publish to CurseForge
         if: inputs.publish-curseforge
         env:
@@ -75,13 +84,6 @@ jobs:
           DRY_RUN: ${{ inputs.dry-run && 'true' || '' }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
         run: ./gradlew publishModrinth
-
-      - name: Publish to GitHub
-        if: inputs.publish-github
-        env:
-          DRY_RUN: ${{ inputs.dry-run && 'true' || '' }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew publishGithub
 
       - name: Upload dry run artifact
         if: inputs.dry-run

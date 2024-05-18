@@ -112,7 +112,7 @@ components {
     }
 }
 
-fun envOrEmpty(name: String) = providers.environmentVariable(name).orElse("")
+fun Project.envOrEmpty(name: String) = this.providers.environmentVariable(name).orElse("")
 
 publishMods {
     dryRun = providers.zip(envOrEmpty("CI"), envOrEmpty("DRY_RUN")) { ci, dryRun ->
@@ -135,12 +135,5 @@ publishMods {
         accessToken = envOrEmpty("MODRINTH_TOKEN")
         projectId = hexdebugProperties.modrinthId
         minecraftVersions.add(hexdebugProperties.minecraftVersion)
-    }
-
-    github {
-        accessToken = envOrEmpty("GITHUB_TOKEN")
-        repository = envOrEmpty("GITHUB_REPOSITORY")
-        commitish = envOrEmpty("GITHUB_SHA")
-        tagName = "v${project.version}"
     }
 }

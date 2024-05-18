@@ -74,3 +74,19 @@ dependencies {
     include(libs.bundles.lsp4j)
     include(libs.bundles.ktor)
 }
+
+// this fails if we do it for all projects, since the tag already exists :/
+// see https://github.com/modmuss50/mod-publish-plugin/issues/3
+publishMods {
+    github {
+        accessToken = providers.environmentVariable("GITHUB_TOKEN").orElse("")
+        repository = providers.environmentVariable("GITHUB_REPOSITORY").orElse("")
+        commitish = providers.environmentVariable("GITHUB_SHA").orElse("")
+
+        type = STABLE
+        displayName = "v${project.version}"
+        tagName = "v${project.version}"
+
+        additionalFiles.from(project(":Common").tasks.remapJar.get().archiveFile)
+    }
+}
