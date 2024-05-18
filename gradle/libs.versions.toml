@@ -46,8 +46,7 @@ shadow = "7.1.2"
 modPublish = "0.5.1"
 pkpcpbp = "0.1.0-pre-87"
 
-lsp4j = "0.22.0"
-lsp4j-debug = "0.23.0-20240503.170110-12"
+lsp4j = "0.23.0"
 ktor = "2.3.10"
 
 [bundles]
@@ -105,7 +104,7 @@ asm-tree     = { module="org.ow2.asm:asm-tree", version.ref="asm" }
 asm-util     = { module="org.ow2.asm:asm-util", version.ref="asm" }
 
 lsp4j               = { module="org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref="lsp4j" }
-lsp4j-debug         = { module="org.eclipse.lsp4j:org.eclipse.lsp4j.debug", version.ref="lsp4j-debug" }
+lsp4j-debug         = { module="org.eclipse.lsp4j:org.eclipse.lsp4j.debug", version.ref="lsp4j" }
 lsp4j-jsonrpc       = { module="org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc", version.ref="lsp4j" }
 lsp4j-jsonrpc-debug = { module="org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc.debug", version.ref="lsp4j" }
 
