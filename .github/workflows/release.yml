@@ -3,8 +3,16 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      publish-mod:
-        description: Publish the mod
+      publish-curseforge:
+        description: Publish to CurseForge
+        type: boolean
+        default: false
+      publish-modrinth:
+        description: Publish to Modrinth
+        type: boolean
+        default: false
+      publish-github:
+        description: Publish to GitHub
         type: boolean
         default: false
       publish-docs:
@@ -12,7 +20,7 @@ on:
         type: boolean
         default: false
       dry-run:
-        description: Dry run
+        description: Perform a dry run
         type: boolean
         default: false
 
@@ -37,7 +45,7 @@ jobs:
 
   publish-mod:
     needs: build-docs
-    if: inputs.publish-mod
+    if: inputs.publish-curseforge || inputs.publish-modrinth || inputs.publish-github
     runs-on: ubuntu-latest
     environment:
       name: curseforge-modrinth
@@ -54,13 +62,26 @@ jobs:
       - name: Build mod
         run: ./gradlew build
 
-      - name: Publish mod
+      - name: Publish to CurseForge
+        if: inputs.publish-curseforge
         env:
           DRY_RUN: ${{ inputs.dry-run && 'true' || '' }}
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: ./gradlew publishCurseforge
+
+      - name: Publish to Modrinth
+        if: inputs.publish-modrinth
+        env:
+          DRY_RUN: ${{ inputs.dry-run && 'true' || '' }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: ./gradlew publishModrinth
+
+      - name: Publish to GitHub
+        if: inputs.publish-github
+        env:
+          DRY_RUN: ${{ inputs.dry-run && 'true' || '' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew publishMods
+        run: ./gradlew publishGithub
 
       - name: Upload dry run artifact
         if: inputs.dry-run
