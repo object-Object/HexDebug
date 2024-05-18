@@ -22,12 +22,3 @@ A [Hex Casting](https://github.com/FallingColors/HexMod) addon that runs a debug
 * Textures: SamsTheNerd! ([GitHub](https://github.com/SamsTheNerd), [Modrinth](https://modrinth.com/user/SamsTheNerd))
 * Translations:
   * `zh_cn`: ChuijkYahus ([GitHub](https://github.com/ChuijkYahus))
-
-## TODOs
-
-* Allow debug client to fetch sources after termination (ie. for exceptions).
-* Add a cool sound effect!
-* Implement the Splicing Table.
-* Add configs:
-  * Disable opening local port
-  * Disable smart shift-scroll for debugger when not debugging
