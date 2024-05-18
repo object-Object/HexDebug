@@ -25,18 +25,18 @@ object DebugAdapterManager {
     }
 
     private fun add(player: ServerPlayer) {
-        HexDebug.LOGGER.info("Adding debug adapter for {}", player.uuid)
+        HexDebug.LOGGER.debug("Adding debug adapter for {}", player.uuid)
         debugAdapters[player.uuid] = DebugAdapter(player)
     }
 
     private fun remove(player: ServerPlayer) {
-        HexDebug.LOGGER.info("Removing debug adapter for {}", player.uuid)
+        HexDebug.LOGGER.debug("Removing debug adapter for {}", player.uuid)
         get(player)?.disconnectClient()
         debugAdapters.remove(player.uuid)
     }
 
     private fun removeAll() {
-        HexDebug.LOGGER.info("Removing {} debug adapters", debugAdapters.size)
+        HexDebug.LOGGER.debug("Removing {} debug adapters", debugAdapters.size)
         for (debugAdapter in debugAdapters.values) {
             debugAdapter.disconnectClient()
         }
