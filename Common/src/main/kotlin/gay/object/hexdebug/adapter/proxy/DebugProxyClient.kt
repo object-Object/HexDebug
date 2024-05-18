@@ -80,10 +80,10 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
 
         private fun stop() {
             if (thread == null) return
-            HexDebug.LOGGER.info("Stopping DebugAdapterProxyClient")
+            HexDebug.LOGGER.debug("Stopping DebugAdapterProxyClient")
             wrapperJob?.cancel()
             thread?.join()
-            HexDebug.LOGGER.info("Stopped DebugAdapterProxyClient")
+            HexDebug.LOGGER.debug("Stopped DebugAdapterProxyClient")
         }
 
         private suspend fun runServerWrapper() {
