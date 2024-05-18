@@ -8,9 +8,11 @@
   ],
   "mixins": [
     "MixinCastingContext",
+    "MixinDoMishap",
     "MixinFrameEvaluate",
     "MixinMsgShiftScrollSyn",
-    "MixinOpEval"
+    "MixinOpEval",
+    "MixinOpPrintSpell"
   ],
   "injectors": {
     "defaultRequire": 1

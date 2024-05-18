@@ -49,6 +49,9 @@ class HexDebugger(
 
     @Suppress("CAST_NEVER_SUCCEEDS")
     val debugCastEnv = vm.ctx as IMixinCastingContext
+    init {
+        debugCastEnv.`isDebugging$hexdebug` = true
+    }
 
     var lastEvaluatedMetadata: IotaMetadata? = null
         private set
