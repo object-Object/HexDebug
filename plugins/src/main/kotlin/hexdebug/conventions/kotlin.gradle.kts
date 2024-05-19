@@ -43,6 +43,9 @@ repositories {
 hexdebugProperties.also {
     group = it.mavenGroup
     version = "${it.modVersion}+${it.minecraftVersion}"
+    System.getenv("BUILD_NUMBER")?.let { build ->
+        version = "$version-pre-$build"
+    }
 }
 
 java {
