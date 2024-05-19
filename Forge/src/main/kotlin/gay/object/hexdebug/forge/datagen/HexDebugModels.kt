@@ -17,6 +17,7 @@ import net.minecraftforge.common.data.ExistingFileHelper
 class HexDebugModels(output: PackOutput, efh: ExistingFileHelper) : ItemModelProvider(output, HexDebug.MODID, efh) {
     override fun registerModels() {
         debugger(HexDebugItems.DEBUGGER.id)
+        basicItem(HexDebugItems.EVALUATOR.id)
     }
 
     private fun debugger(item: ResourceLocation) {

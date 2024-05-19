@@ -6,10 +6,10 @@
       "item": "hexcasting:charged_amethyst"
     },
     "L": {
-      "item": "minecraft:gold_ingot"
+      "item": "hexcasting:slate_block"
     },
     "U": {
-      "item": "hexcasting:artifact"
+      "item": "hexcasting:slate_block"
     }
   },
   "pattern": [
@@ -18,7 +18,7 @@
     "L  "
   ],
   "result": {
-    "item": "hexdebug:debugger"
+    "item": "hexdebug:evaluator"
   },
   "show_notification": true
 }

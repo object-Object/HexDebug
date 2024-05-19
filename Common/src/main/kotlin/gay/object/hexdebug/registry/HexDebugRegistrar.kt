@@ -28,20 +28,26 @@ abstract class HexDebugRegistrar<T : Any>(
         }
     }
 
-    fun <U : T> register(name: String, getValue: () -> U): Entry<U> = register(HexDebug.id(name), getValue)
+    fun <V : T> register(name: String, getValue: () -> V) = register(HexDebug.id(name), getValue)
 
-    fun <U : T> register(id: ResourceLocation, getValue: () -> U): Entry<U> = register(id, lazy {
+    fun <V : T> register(id: ResourceLocation, getValue: () -> V) = register(id, lazy {
         if (!isInitialized) throw IllegalStateException("$this has not been initialized!")
         getValue()
     })
 
-    fun <U : T> register(id: ResourceLocation, lazyValue: Lazy<U>): Entry<U> = Entry(id, lazyValue).also {
+    fun <V : T> register(id: ResourceLocation, lazyValue: Lazy<V>) = Entry(id, lazyValue, registryKey).also {
         if (mutableEntries.putIfAbsent(id, lazyValue) != null) {
             throw IllegalArgumentException("Duplicate id: $id")
         }
     }
 
-    data class Entry<T>(val id: ResourceLocation, private val lazyValue: Lazy<T>) {
+    data class Entry<T, V : T>(
+        val id: ResourceLocation,
+        private val lazyValue: Lazy<V>,
+        private val registryKey: ResourceKey<Registry<T>>,
+    ) {
+        val key = ResourceKey.create(registryKey, id)
+
         /** Do not access until the mod has been initialized! */
         val value by lazyValue
     }

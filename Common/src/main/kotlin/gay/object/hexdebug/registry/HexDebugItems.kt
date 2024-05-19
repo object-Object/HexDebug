@@ -3,6 +3,7 @@ package gay.`object`.hexdebug.registry
 import dev.architectury.platform.Platform
 import dev.architectury.registry.item.ItemPropertiesRegistry
 import gay.`object`.hexdebug.items.ItemDebugger
+import gay.`object`.hexdebug.items.ItemEvaluator
 import net.fabricmc.api.EnvType
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
@@ -13,6 +14,9 @@ import net.minecraft.world.item.Item.Properties
 object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistries.ITEM }) {
     @JvmField
     val DEBUGGER = register("debugger") { ItemDebugger(unstackable) }
+
+    @JvmField
+    val EVALUATOR = register("evaluator") { ItemEvaluator(unstackable) }
 
     // TODO: maybe we should have our own tab, but I'm gonna be lazy for now
     private val props get() = Properties()
