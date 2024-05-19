@@ -45,7 +45,7 @@ pipeline {
             parallel {
                 stage("Maven") {
                     steps {
-                        echo "Publishing to Maven: '${env.PUBLISH_MAVEN_RELEASE}'"
+                        sh "./gradlew publish"
                     }
                 }
                 stage("CurseForge") {
@@ -53,7 +53,7 @@ pipeline {
                         expression { return params.PUBLISH_CURSEFORGE }
                     }
                     steps {
-                        echo "Publishing to CurseForge"
+                        sh "./gradlew publishCurseforge"
                     }
                 }
                 stage("Modrinth") {
@@ -61,7 +61,7 @@ pipeline {
                         expression { return params.PUBLISH_MODRINTH }
                     }
                     steps {
-                        echo "Publishing to Modrinth"
+                        sh "./gradlew publishModrinth"
                     }
                 }
                 stage("GitHub") {
@@ -69,7 +69,7 @@ pipeline {
                         expression { return params.PUBLISH_GITHUB }
                     }
                     steps {
-                        echo "Publishing to GitHub"
+                        sh "./gradlew publishGithub"
                     }
                 }
             }

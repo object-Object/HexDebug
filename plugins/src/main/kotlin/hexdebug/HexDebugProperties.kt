@@ -12,8 +12,13 @@ open class HexDebugProperties(private val project: Project) {
     val curseforgeId: String by project
     val modrinthId: String by project
 
-    val javaVersion = project.libs.versions.java.get().toInt()
-    val minecraftVersion = project.libs.versions.minecraft.get()
+    private val versions get() = project.libs.versions
+
+    val javaVersion = versions.java.get().toInt()
+    val minecraftVersion = versions.minecraft.get()
+
+    val publishMavenRelease = System.getenv("PUBLISH_MAVEN_RELEASE") == "true"
+    val localMavenUrl = System.getenv("local_maven_url")?.let(project::uri)
 
     fun getLatestChangelog() = project.rootProject.file("CHANGELOG.md").useLines { lines ->
         lines.dropWhile { !it.startsWith(SECTION_HEADER_PREFIX) }

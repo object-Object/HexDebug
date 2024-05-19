@@ -8,7 +8,17 @@ import kotlin.io.path.div
 
 abstract class HexDebugArchitecturyExtension(private val project: Project) : IHexDebugArchitecturyExtension {
     override fun platform(platform: String) = project.run {
-        base.archivesName = "${hexdebugProperties.modId}-$platform"
+        val archivesName = "${hexdebugProperties.modId}-$platform"
+
+        base.archivesName = archivesName
+
+        publishing {
+            publications {
+                named<MavenPublication>("maven") {
+                    artifactId = archivesName
+                }
+            }
+        }
     }
 }
 
@@ -59,5 +69,20 @@ tasks {
 
     build {
         dependsOn(jenkinsArtifacts)
+    }
+}
+
+publishing {
+    repositories {
+        hexdebugProperties.localMavenUrl?.let {
+            maven {
+                url = it
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
     }
 }

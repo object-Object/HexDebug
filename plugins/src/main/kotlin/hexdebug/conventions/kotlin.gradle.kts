@@ -40,11 +40,11 @@ repositories {
 //    testImplementation("org.jetbrains.kotlin:kotlin-test")
 //}
 
-hexdebugProperties.also {
-    group = it.mavenGroup
-    version = "${it.modVersion}+${it.minecraftVersion}"
-    System.getenv("BUILD_NUMBER")?.let { build ->
-        version = "$version-pre-$build"
+hexdebugProperties.also { props ->
+    group = props.mavenGroup
+    version = "${props.modVersion}+${props.minecraftVersion}"
+    if (!props.publishMavenRelease) {
+        version = "$version-SNAPSHOT"
     }
 }
 
