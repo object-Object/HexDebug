@@ -8,20 +8,22 @@ import net.fabricmc.api.EnvType
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
 
 object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistries.ITEM }) {
     @JvmField
-    val DEBUGGER = register("debugger") { ItemDebugger(unstackable) }
+    val DEBUGGER = register("debugger") { ItemDebugger(unstackable.noTab()) }
 
     @JvmField
     val EVALUATOR = register("evaluator") { ItemEvaluator(unstackable) }
 
-    // TODO: maybe we should have our own tab, but I'm gonna be lazy for now
-    private val props get() = Properties()
+    private val props: Properties get() = Properties().`arch$tab`(HexDebugCreativeTabs.HEX_DEBUG.key)
 
     private val unstackable get() = props.stacksTo(1)
+
+    private fun Properties.noTab() = this.`arch$tab`(null as CreativeModeTab?)
 
     override fun init(registerer: (ResourceLocation, Item) -> Unit) {
         super.init(registerer)
