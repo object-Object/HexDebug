@@ -40,9 +40,12 @@ repositories {
 //    testImplementation("org.jetbrains.kotlin:kotlin-test")
 //}
 
-hexdebugProperties.also {
-    group = it.mavenGroup
-    version = "${it.modVersion}+${it.minecraftVersion}"
+hexdebugProperties.also { props ->
+    group = props.mavenGroup
+    version = "${props.modVersion}+${props.minecraftVersion}"
+    if (!props.publishMavenRelease) {
+        version = "$version-SNAPSHOT"
+    }
 }
 
 java {

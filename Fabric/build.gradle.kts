@@ -1,5 +1,3 @@
-import hexdebug.libs
-
 plugins {
     id("hexdebug.conventions.platform")
 }
@@ -45,33 +43,37 @@ dependencies {
         exclude(group = "net.fabricmc", module = "fabric-loader")
     }
 
-    modImplementation(libs.hexcasting.fabric) {
+    modApi(libs.hexcasting.fabric) {
         // If not excluded here, calls a nonexistent method and crashes the dev client
         exclude(module = "phosphor")
         exclude(module = "pehkui")
     }
-    modImplementation(libs.paucal.fabric)
-    modImplementation(libs.patchouli.fabric)
-    modImplementation(libs.cardinalComponents)
-    modImplementation(libs.serializationHooks)
-    modImplementation(libs.entityReach)
-    modImplementation(libs.trinkets)
+    modLocalRuntime(libs.paucal.fabric)
+    modLocalRuntime(libs.patchouli.fabric)
+    modLocalRuntime(libs.cardinalComponents)
+    modLocalRuntime(libs.serializationHooks)
+    modLocalRuntime(libs.entityReach)
+    modLocalRuntime(libs.trinkets)
 
-    implementation(libs.mixinExtras)
+    libs.mixinExtras.also {
+        localRuntime(it)
+        include(it)
+    }
 
     modApi(libs.clothConfig.fabric) {
         exclude(group = "net.fabricmc.fabric-api")
     }
-    modApi(libs.modMenu)
+    modImplementation(libs.modMenu)
 
-    implementation(libs.bundles.lsp4j)
-    implementation(libs.ktor.network)
+    libs.bundles.lsp4j.also {
+        api(it)
+        include(it)
+    }
 
-    include(libs.serializationHooks)
-    include(libs.entityReach)
-    include(libs.mixinExtras)
-    include(libs.bundles.lsp4j)
-    include(libs.bundles.ktor)
+    libs.ktor.network.also {
+        implementation(it)
+        include(it)
+    }
 }
 
 // this fails if we do it for all projects, since the tag already exists :/
