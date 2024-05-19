@@ -1,6 +1,7 @@
 {
   "item.hexdebug": {
     debugger: "Debugger",
+    evaluator: "Evaluator",
   },
 
   "itemGroup.hexdebug": "HexDebug",
