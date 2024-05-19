@@ -17,6 +17,37 @@ A [Hex Casting](https://github.com/FallingColors/HexMod) addon that runs a debug
 - **Breakpoints**: Set breakpoints on specific patterns, or use the Uncaught Mishaps option to pause the debugger when a mishap occurs and see what went wrong.
 - **Multiplayer**: Debug your hexes in multiplayer! The debug client connects to a port opened by the game client (configurable, defaults to 4444), and each player can have up to one active debugger instance at a time.
 
+## Maven
+
+Build artifacts are published to the [BlameJared repository](https://maven.blamejared.com/gay/object/hexdebug/) via [Jenkins](https://ci.blamejared.com/job/object-Object/job/HexDebug/).
+
+To depend on HexDebug, add something like this to your build script:
+
+```groovy
+repositories {
+    maven { url = uri("https://maven.blamejared.com") }
+}
+dependencies {
+    modImplementation("gay.object.hexdebug:hexdebug-$platform:$hexdebugVersion")
+}
+```
+
+Full examples:
+
+```groovy
+// released versions
+modImplementation("gay.object.hexdebug:hexdebug-common:0.1.2+1.20.1")
+modImplementation("gay.object.hexdebug:hexdebug-fabric:0.1.2+1.20.1")
+modImplementation("gay.object.hexdebug:hexdebug-forge:0.1.2+1.20.1")
+
+// bleeding edge builds
+modImplementation("gay.object.hexdebug:hexdebug-common:0.1.2+1.20.1-SNAPSHOT")
+modImplementation("gay.object.hexdebug:hexdebug-fabric:0.1.2+1.20.1-SNAPSHOT")
+modImplementation("gay.object.hexdebug:hexdebug-forge:0.1.2+1.20.1-SNAPSHOT")
+```
+
+Try to avoid using things outside of the `gay.object.hexdebug.api` package, since they may change at any time.
+
 ## Attribution
 
 * Textures: SamsTheNerd! ([GitHub](https://github.com/SamsTheNerd), [Modrinth](https://modrinth.com/user/SamsTheNerd))
