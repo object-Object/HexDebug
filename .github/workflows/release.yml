@@ -1,20 +1,10 @@
 name: Release
 
+# TODO: trigger this via Jenkins somehow?
+
 on:
   workflow_dispatch:
     inputs:
-      publish-curseforge:
-        description: Publish to CurseForge
-        type: boolean
-        default: false
-      publish-modrinth:
-        description: Publish to Modrinth
-        type: boolean
-        default: false
-      publish-github:
-        description: Publish to GitHub
-        type: boolean
-        default: false
       publish-docs:
         description: Publish the web book
         type: boolean
@@ -42,56 +32,6 @@ jobs:
       python-version: 3.11
       deploy-pages: ${{ inputs.publish-docs && !inputs.dry-run }}
       release: true
-
-  publish-mod:
-    needs: build-docs
-    if: inputs.publish-curseforge || inputs.publish-modrinth || inputs.publish-github
-    runs-on: ubuntu-latest
-    environment:
-      name: curseforge-modrinth
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-      - uses: gradle/actions/setup-gradle@v3
-
-      - name: Build mod
-        run: ./gradlew build
-
-      # do this first so we fail if we've already published this version
-      # because CurseForge and Modrinth apparently don't care!
-      - name: Publish to GitHub
-        if: inputs.publish-github
-        env:
-          DRY_RUN: ${{ inputs.dry-run && 'true' || '' }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew publishGithub
-
-      - name: Publish to CurseForge
-        if: inputs.publish-curseforge
-        env:
-          DRY_RUN: ${{ inputs.dry-run && 'true' || '' }}
-          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
-        run: ./gradlew publishCurseforge
-
-      - name: Publish to Modrinth
-        if: inputs.publish-modrinth
-        env:
-          DRY_RUN: ${{ inputs.dry-run && 'true' || '' }}
-          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-        run: ./gradlew publishModrinth
-
-      - name: Upload dry run artifact
-        if: inputs.dry-run
-        uses: actions/upload-artifact@v4
-        with:
-          name: mod-publish
-          path: '*/build/publishMods'
-          if-no-files-found: error
 
   publish-docs:
     needs: build-docs
