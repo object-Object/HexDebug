@@ -9,23 +9,23 @@ pipeline {
     parameters {
         booleanParam(
             name: "PUBLISH_MAVEN_RELEASE",
-            description: "Publish release to Maven",
-            defaultValue: false
+            description: "Publish release to Maven (default: publish snapshot)",
+            defaultValue: false,
         )
         booleanParam(
             name: "PUBLISH_CURSEFORGE",
             description: "Publish to CurseForge",
-            defaultValue: false
+            defaultValue: false,
         )
         booleanParam(
             name: "PUBLISH_MODRINTH",
             description: "Publish to Modrinth",
-            defaultValue: false
+            defaultValue: false,
         )
         booleanParam(
             name: "PUBLISH_GITHUB",
             description: "Publish to GitHub",
-            defaultValue: false
+            defaultValue: false,
         )
     }
     stages {
@@ -43,20 +43,9 @@ pipeline {
         stage("Publish") {
             failFast false
             parallel {
-                stage("Maven Release") {
-                    when {
-                        expression { return params.PUBLISH_MAVEN_RELEASE }
-                    }
+                stage("Maven") {
                     steps {
-                        echo "Publishing release to Maven"
-                    }
-                }
-                stage("Maven Snapshot") {
-                    when {
-                        expression { return !params.PUBLISH_MAVEN_RELEASE }
-                    }
-                    steps {
-                        echo "Publishing snapshot to Maven"
+                        echo "Publishing to Maven: '${env.PUBLISH_MAVEN_RELEASE}'"
                     }
                 }
                 stage("CurseForge") {
