@@ -59,24 +59,29 @@ dependencies {
 
     implementation(libs.kotlin.forge)
 
-    modImplementation(libs.hexcasting.forge) { isTransitive = false }
+    modApi(libs.hexcasting.forge) { isTransitive = false }
     modImplementation(libs.paucal.forge)
-    modImplementation(libs.patchouli.forge)
-    modImplementation(libs.caelus)
+    modLocalRuntime(libs.patchouli.forge)
+    modLocalRuntime(libs.caelus)
 
     modApi(libs.clothConfig.forge)
 
-    implementation(libs.mixinExtras)
-    implementation(libs.bundles.lsp4j)
-    implementation(libs.bundles.ktor)
+    libs.mixinExtras.also {
+        localRuntime(it)
+        include(it)
+    }
 
-    include(libs.mixinExtras)
-    include(libs.bundles.lsp4j)
-    include(libs.bundles.ktor)
+    libs.bundles.lsp4j.also {
+        api(it)
+        include(it)
+        forgeRuntimeLibrary(it)
+    }
 
-    // GOD I HATE FORGE
-    forgeRuntimeLibrary(libs.bundles.lsp4j)
-    kotlinForgeRuntimeLibrary(libs.bundles.ktor)
+    libs.bundles.ktor.also {
+        implementation(it)
+        include(it)
+        kotlinForgeRuntimeLibrary(it)
+    }
 }
 
 tasks {

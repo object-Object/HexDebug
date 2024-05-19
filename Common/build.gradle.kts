@@ -21,14 +21,13 @@ dependencies {
     modImplementation(libs.fabric.loader)
     modApi(libs.architectury)
 
-    modImplementation(libs.hexcasting.common)
-    modImplementation(libs.paucal.common)
-    modImplementation(libs.patchouli.xplat)
+    modApi(libs.hexcasting.common)
 
-    modImplementation(libs.clothConfig.common)
+    modApi(libs.clothConfig.common)
 
     implementation(libs.mixinExtras)
 
-    implementation(libs.bundles.lsp4j)
+    api(libs.bundles.lsp4j)
+
     implementation(libs.ktor.network)
 }
