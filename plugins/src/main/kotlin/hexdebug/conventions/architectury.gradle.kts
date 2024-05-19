@@ -52,18 +52,12 @@ sourceSets {
 }
 
 tasks {
-    register<Copy>("exportPrerelease") {
-        dependsOn(remapJar)
-        from(remapJar.flatMap { it.archiveFile })
-        into(rootDir.toPath() / "dist")
+    val jenkinsArtifacts = register<Copy>("jenkinsArtifacts") {
+        from(remapJar, remapSourcesJar, get("javadocJar"))
+        into(rootDir.toPath() / "build" / "jenkinsArtifacts")
+    }
 
-        // TODO: this should really use jenkins' build number, if/when we move there
-        val sha = providers.environmentVariable("GITHUB_SHA").map { it.take(10) }
-        rename { filename ->
-            if (sha.isPresent) {
-                val base = filename.removeSuffix(".jar")
-                "$base-${sha.get()}.jar"
-            } else filename
-        }
+    build {
+        dependsOn(jenkinsArtifacts)
     }
 }

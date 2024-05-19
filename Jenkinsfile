@@ -30,9 +30,7 @@ pipeline {
     }
     post {
         always {
-            archiveArtifacts "Common/build/libs/hexdebug*.jar"
-            archiveArtifacts "Fabric/build/libs/hexdebug*.jar"
-            archiveArtifacts "Forge/build/libs/hexdebug*.jar"
+            archiveArtifacts "build/jenkinsArtifacts/*"
         }
     }
 }
