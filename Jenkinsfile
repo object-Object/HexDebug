@@ -40,38 +40,33 @@ pipeline {
                 sh "./gradlew build"
             }
         }
-        stage("Publish") {
-            failFast false
-            parallel {
-                stage("Maven") {
-                    steps {
-                        sh "./gradlew publish"
-                    }
-                }
-                stage("CurseForge") {
-                    when {
-                        expression { return params.PUBLISH_CURSEFORGE }
-                    }
-                    steps {
-                        sh "./gradlew publishCurseforge"
-                    }
-                }
-                stage("Modrinth") {
-                    when {
-                        expression { return params.PUBLISH_MODRINTH }
-                    }
-                    steps {
-                        sh "./gradlew publishModrinth"
-                    }
-                }
-                stage("GitHub") {
-                    when {
-                        expression { return params.PUBLISH_GITHUB }
-                    }
-                    steps {
-                        sh "./gradlew publishGithub"
-                    }
-                }
+        stage("Publish: Maven") {
+            steps {
+                sh "./gradlew publish"
+            }
+        }
+        stage("Publish: GitHub") {
+            when {
+                expression { return params.PUBLISH_GITHUB }
+            }
+            steps {
+                sh "./gradlew publishGithub"
+            }
+        }
+        stage("Publish: CurseForge") {
+            when {
+                expression { return params.PUBLISH_CURSEFORGE }
+            }
+            steps {
+                sh "./gradlew publishCurseforge"
+            }
+        }
+        stage("Publish: Modrinth") {
+            when {
+                expression { return params.PUBLISH_MODRINTH }
+            }
+            steps {
+                sh "./gradlew publishModrinth"
             }
         }
     }
