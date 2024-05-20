@@ -67,7 +67,7 @@ class HexDebugModels(gen: DataGenerator, efh: ExistingFileHelper) : ItemModelPro
 
         val basePath = baseModel.location.path
 
-        for (evalState in EvalState.entries) {
+        for (evalState in EvalState.values()) {
             val evalStateName = evalState.name.lowercase()
 
             val model = getBuilder("$basePath/$evalStateName")
@@ -79,7 +79,7 @@ class HexDebugModels(gen: DataGenerator, efh: ExistingFileHelper) : ItemModelPro
 
             baseModel.override()
                 .model(model)
-                .predicate(ItemEvaluator.EVAL_STATE_PREDICATE, evalState.itemPredicate)
+                .predicate(ItemEvaluator.EVAL_STATE_PREDICATE, evalState.itemPredicate(EvalState.values()))
         }
     }
 }

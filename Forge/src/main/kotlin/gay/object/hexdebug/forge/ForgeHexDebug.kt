@@ -31,7 +31,7 @@ class HexDebugForge {
             val efh = existingFileHelper
             addProvider(includeClient()) { HexDebugModels(it, efh) }
             addProvider(includeServer()) { HexDebugRecipes(it) }
-            addProvider(includeServer()) { HexDebugItemTags(it, lookupProvider, efh) }
+            addProvider(includeServer()) { HexDebugItemTags(it, efh) }
         }
     }
 }

@@ -1,12 +1,12 @@
 package gay.`object`.hexdebug.adapter
 
-import at.petrak.hexcasting.api.casting.SpellList
-import at.petrak.hexcasting.api.casting.eval.ExecutionClientView
-import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
-import at.petrak.hexcasting.api.casting.iota.Iota
-import at.petrak.hexcasting.api.casting.iota.PatternIota
-import at.petrak.hexcasting.api.casting.math.HexPattern
-import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternS2C
+import at.petrak.hexcasting.api.spell.SpellList
+import at.petrak.hexcasting.api.spell.casting.ControllerInfo
+import at.petrak.hexcasting.api.spell.casting.ResolvedPatternType
+import at.petrak.hexcasting.api.spell.iota.Iota
+import at.petrak.hexcasting.api.spell.iota.PatternIota
+import at.petrak.hexcasting.api.spell.math.HexPattern
+import at.petrak.hexcasting.common.network.MsgNewSpellPatternAck
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterState.*
@@ -65,8 +65,8 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
         // close the debugger grid if we stopped debugging
         if (debuggerState == ItemDebugger.DebugState.NOT_DEBUGGING) {
-            val info = ExecutionClientView(true, ResolvedPatternType.EVALUATED, listOf(), null)
-            IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgNewSpellPatternS2C(info, -1))
+            val info = ControllerInfo(true, ResolvedPatternType.EVALUATED, listOf(), listOf(), null, 0)
+            IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgNewSpellPatternAck(info, -1))
         }
     }
 
@@ -141,9 +141,9 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             ?: ResponseError(ResponseErrorCode.InternalError, e.toString(), e.stackTraceToString())
     }
 
-    private fun handleDebuggerStep(result: DebugStepResult?): ExecutionClientView? {
+    private fun handleDebuggerStep(result: DebugStepResult?): ControllerInfo? {
         val view = debugger?.getClientView()?.also {
-            IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgNewSpellPatternS2C(it, -1))
+            IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgNewSpellPatternAck(it, -1))
         }
 
         if (result == null) {

@@ -1,9 +1,10 @@
 package gay.`object`.hexdebug.items
 
-import at.petrak.hexcasting.api.casting.ParticleSpray
 import at.petrak.hexcasting.common.items.ItemStaff
 import at.petrak.hexcasting.common.lib.HexSounds
-import at.petrak.hexcasting.common.msgs.*
+import at.petrak.hexcasting.common.network.MsgNewSpellPatternAck
+import at.petrak.hexcasting.common.network.MsgNewSpellPatternSyn
+import at.petrak.hexcasting.common.network.MsgOpenSpellGuiAck
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
@@ -17,7 +18,6 @@ import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
-import net.minecraft.world.phys.Vec3
 
 class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
     override fun use(world: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
@@ -25,7 +25,7 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
 
         if (world.isClientSide) {
             if (player.isShiftKeyDown) {
-                player.playSound(HexSounds.STAFF_RESET, 1f, 1f)
+                player.playSound(HexSounds.FAIL_PATTERN, 1f, 1f)
             }
             return InteractionResultHolder.success(itemStack)
         }
@@ -40,16 +40,12 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
 
         if (player.isShiftKeyDown) {
             debugAdapter.resetEvaluator()
-            MsgClearSpiralPatternsS2C(player.uuid).also {
-                IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, it)
-                IXplatAbstractions.INSTANCE.sendPacketTracking(player, it)
-            }
         }
 
         val patterns = debugger.evaluatorUIPatterns
-        val (stack, ravenmind) = debugger.vm.generateDescs()
+        val (stack, parenthesized, ravenmind) = debugger.vm.generateDescs()
         IXplatAbstractions.INSTANCE.sendPacketToPlayer(
-            player, MsgOpenSpellGuiS2C(hand, patterns, stack, ravenmind, 0)
+            player, MsgOpenSpellGuiAck(hand, patterns, stack, parenthesized, ravenmind, debugger.vm.parenCount)
         )
 
         player.awardStat(Stats.ITEM_USED[this])
@@ -66,16 +62,16 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
             EVAL_STATE_PREDICATE to ClampedItemPropertyFunction { _, _, entity, _ ->
                 // don't show the active icon for debuggers held by other players, on the ground, etc
                 val state = if (entity is LocalPlayer) evalState else EvalState.DEFAULT
-                state.itemPredicate
+                state.itemPredicate(EvalState.values())
             },
         )
 
         /**
-         * Copy of [StaffCastEnv.handleNewPatternOnServer][at.petrak.hexcasting.api.casting.eval.env.StaffCastEnv.handleNewPatternOnServer]
+         * Copy of [MsgNewSpellPatternSyn.handle][at.petrak.hexcasting.common.network.MsgNewSpellPatternSyn.handle]
          * for evaluating patterns in the active debugger, if any.
          */
         @JvmStatic
-        fun handleNewPatternOnServer(sender: ServerPlayer, msg: MsgNewSpellPatternC2S) {
+        fun handleNewPatternOnServer(sender: ServerPlayer, msg: MsgNewSpellPatternSyn) {
             val debugAdapter = DebugAdapterManager[sender]
             val debugger = debugAdapter?.debugger
             if (debugAdapter == null || debugger == null) {
@@ -91,21 +87,8 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
             }
 
             IXplatAbstractions.INSTANCE.sendPacketToPlayer(
-                sender, MsgNewSpellPatternS2C(clientInfo, msg.resolvedPatterns.size - 1)
+                sender, MsgNewSpellPatternAck(clientInfo, msg.resolvedPatterns.size - 1)
             )
-
-            val packet = if (clientInfo.isStackClear) {
-                MsgClearSpiralPatternsS2C(sender.uuid)
-            } else {
-                MsgNewSpiralPatternsS2C(sender.uuid, listOf(msg.pattern()), Integer.MAX_VALUE)
-            }
-            IXplatAbstractions.INSTANCE.sendPacketToPlayer(sender, packet)
-            IXplatAbstractions.INSTANCE.sendPacketTracking(sender, packet)
-
-            if (clientInfo.resolutionType.success) {
-                ParticleSpray(sender.position(), Vec3(0.0, 1.5, 0.0), 0.4, Math.PI / 3, 30)
-                    .sprayParticles(sender.serverLevel(), IXplatAbstractions.INSTANCE.getPigment(sender))
-            }
         }
     }
 

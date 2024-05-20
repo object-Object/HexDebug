@@ -3,10 +3,8 @@ package gay.`object`.hexdebug.debugger
 import at.petrak.hexcasting.api.PatternRegistry
 import at.petrak.hexcasting.api.spell.Action
 import at.petrak.hexcasting.api.spell.SpellList
-import at.petrak.hexcasting.api.spell.casting.CastingHarness
+import at.petrak.hexcasting.api.spell.casting.*
 import at.petrak.hexcasting.api.spell.casting.CastingHarness.CastResult
-import at.petrak.hexcasting.api.spell.casting.ResolvedPatternType
-import at.petrak.hexcasting.api.spell.casting.SpecialPatterns
 import at.petrak.hexcasting.api.spell.casting.eval.*
 import at.petrak.hexcasting.api.spell.casting.eval.SpellContinuation.Done
 import at.petrak.hexcasting.api.spell.casting.eval.SpellContinuation.NotDone
@@ -72,7 +70,7 @@ class HexDebugger(
 
     val evaluatorUIPatterns = mutableListOf<ResolvedPattern>()
 
-    private var evaluatorResetData: Pair<SpellContinuation, CastingImage>? = null
+    private var evaluatorResetData: Pair<SpellContinuation, FunctionalData>? = null
 
     private var lastResolutionType = ResolvedPatternType.UNRESOLVED
 
@@ -338,10 +336,10 @@ class HexDebugger(
         }
     }
 
-    fun getClientView(): ExecutionClientView {
-        val (stackDescs, ravenmind) = vm.generateDescs()
+    fun getClientView(): ControllerInfo {
+        val (stackDescs, parenthesized, ravenmind) = vm.generateDescs()
         val isStackClear = nextContinuation is Done // only close the window if we're done evaluating
-        return ExecutionClientView(isStackClear, lastResolutionType, stackDescs, ravenmind)
+        return ControllerInfo(isStackClear, lastResolutionType, stackDescs, parenthesized, ravenmind, vm.parenCount)
     }
 
     /**
@@ -350,7 +348,7 @@ class HexDebugger(
     internal fun evaluate(list: SpellList): DebugStepResult? {
         val startedEvaluating = evaluatorResetData == null
         if (startedEvaluating) {
-            evaluatorResetData = Pair(nextContinuation, vm.image)
+            evaluatorResetData = Pair(nextContinuation, vm.getFunctionalData())
         }
         nextContinuation = nextContinuation.pushFrame(FrameEvaluate(list, false))
         return executeOnce()?.copy(startedEvaluating = startedEvaluating)
@@ -362,7 +360,7 @@ class HexDebugger(
     internal fun resetEvaluator() {
         evaluatorResetData?.also { (continuation, image) ->
             nextContinuation = continuation
-            vm.image = image
+            vm.applyFunctionalData(image)
             evaluatorResetData = null
         }
         evaluatorUIPatterns.clear()

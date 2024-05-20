@@ -1,12 +1,12 @@
 package gay.object.hexdebug.mixin;
 
-import at.petrak.hexcasting.api.casting.eval.ResolvedPattern;
-import at.petrak.hexcasting.api.casting.eval.env.StaffCastEnv;
-import at.petrak.hexcasting.api.casting.math.HexCoord;
 import at.petrak.hexcasting.api.mod.HexStatistics;
-import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternC2S;
+import at.petrak.hexcasting.api.spell.casting.ResolvedPattern;
+import at.petrak.hexcasting.api.spell.math.HexCoord;
+import at.petrak.hexcasting.common.network.MsgNewSpellPatternSyn;
 import gay.object.hexdebug.items.ItemEvaluator;
 import gay.object.hexdebug.registry.HexDebugItems;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,14 +16,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashSet;
 import java.util.List;
 
-@Mixin(StaffCastEnv.class)
-public abstract class MixinStaffCastEnv {
-    @Inject(method = "handleNewPatternOnServer", at = @At("HEAD"), cancellable = true)
-    private static void handleNewEvaluatorPatternOnServer$hexdebug(
+@Mixin(MsgNewSpellPatternSyn.class)
+public abstract class MixinMsgNewSpellPatternSyn {
+    @SuppressWarnings("UnreachableCode")
+    @Inject(method = "handle", at = @At("HEAD"), cancellable = true)
+    private void handleNewEvaluatorPatternOnServer$hexdebug(
+        MinecraftServer server,
         ServerPlayer sender,
-        MsgNewSpellPatternC2S msg,
         CallbackInfo ci
     ) {
+        var msg = (MsgNewSpellPatternSyn) (Object) this;
+
         var item = sender.getItemInHand(msg.handUsed()).getItem();
         if (item != HexDebugItems.EVALUATOR.getValue()) return;
 
