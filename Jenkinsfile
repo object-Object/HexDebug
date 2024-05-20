@@ -52,7 +52,7 @@ pipeline {
             environment {
                 GITHUB_TOKEN = credentials("github-release-pat")
                 GITHUB_REPOSITORY = "object-Object/HexDebug"
-                GITHUB_SHA = env.GIT_COMMIT
+                GITHUB_SHA = "${env.GIT_COMMIT}"
             }
             steps {
                 sh "./gradlew publishGithub"
