@@ -41,6 +41,7 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
         var instance: DebugProxyClient? = null
             private set
 
+        private val enabled get() = HexDebugConfig.get().client.openDebugPort
         private val port get() = HexDebugConfig.get().client.debugPort
 
         private val executorService = Executors.newCachedThreadPool()
@@ -96,6 +97,9 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
         }
 
         private suspend fun runServer(selector: SelectorManager) {
+            if (!enabled) {
+                awaitCancellation()
+            }
             HexDebug.LOGGER.info("Listening for debug client on port {}...", port)
             aSocket(selector).tcp().bind(port = port).use { serverSocket ->
                 while (true) {

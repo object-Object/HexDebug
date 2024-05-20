@@ -5,6 +5,7 @@ import me.shedaniel.autoconfig.AutoConfig
 import me.shedaniel.autoconfig.ConfigData
 import me.shedaniel.autoconfig.annotation.Config
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Category
+import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.TransitiveObject
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer.GlobalData
@@ -37,6 +38,13 @@ object HexDebugConfig {
 
     @Config(name = "client")
     class Client : ConfigData {
+        @Tooltip
+        val openDebugPort: Boolean = true
+
+        @Tooltip
         val debugPort: Int = 4444
+
+        @Tooltip
+        val smartDebuggerSneakScroll: Boolean = true
     }
 }

@@ -20,7 +20,18 @@
       },
       option: {
         client: {
-          debugPort: "Debug Port",
+          openDebugPort: {
+            "": "Open Debug Port",
+            "@Tooltip": "Whether or not a port should be opened. If false, the Debugger effectively becomes useless.",
+          },
+          debugPort: {
+            "": "Debug Port",
+            "@Tooltip": "Port number (1024-65535) to open for the debug client (eg. VSCode) to connect to.",
+          },
+          smartDebuggerSneakScroll: {
+            "": "Smart Debugger Sneak-Scroll",
+            "@Tooltip": "If a hex is not currently being debugged and a Debugger is in your main hand, prefer shift-scrolling whatever item is in your offhand (eg. a spellbook).",
+          },
         },
       },
     },
