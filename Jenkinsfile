@@ -49,6 +49,11 @@ pipeline {
             when {
                 expression { return params.PUBLISH_GITHUB }
             }
+            environment {
+                GITHUB_TOKEN = credentials("github-release-pat")
+                GITHUB_REPOSITORY = "object-Object/HexDebug"
+                GITHUB_SHA = env.GIT_COMMIT
+            }
             steps {
                 sh "./gradlew publishGithub"
             }
@@ -57,6 +62,9 @@ pipeline {
             when {
                 expression { return params.PUBLISH_CURSEFORGE }
             }
+            environment {
+                CURSEFORGE_TOKEN = credentials("curseforge-token")
+            }
             steps {
                 sh "./gradlew publishCurseforge"
             }
@@ -64,6 +72,9 @@ pipeline {
         stage("Publish: Modrinth") {
             when {
                 expression { return params.PUBLISH_MODRINTH }
+            }
+            environment {
+                MODRINTH_TOKEN = credentials("modrinth-pat")
             }
             steps {
                 sh "./gradlew publishModrinth"
