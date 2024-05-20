@@ -72,7 +72,7 @@ dependencies {
         include(it)
     }
 
-    libs.ktor.network.also {
+    libs.bundles.ktor.also {
         implementation(it)
         include(it)
     }

@@ -29,5 +29,5 @@ dependencies {
 
     api(libs.bundles.lsp4j)
 
-    implementation(libs.ktor.network)
+    implementation(libs.bundles.ktor)
 }
