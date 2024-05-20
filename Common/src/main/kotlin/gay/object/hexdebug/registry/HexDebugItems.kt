@@ -11,13 +11,14 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.Rarity
 
 object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistries.ITEM }) {
     @JvmField
     val DEBUGGER = register("debugger") { ItemDebugger(unstackable.noTab()) }
 
     @JvmField
-    val EVALUATOR = register("evaluator") { ItemEvaluator(unstackable) }
+    val EVALUATOR = register("evaluator") { ItemEvaluator(unstackable.rarity(Rarity.RARE)) }
 
     private val props: Properties get() = Properties().`arch$tab`(HexDebugCreativeTabs.HEX_DEBUG.key)
 
