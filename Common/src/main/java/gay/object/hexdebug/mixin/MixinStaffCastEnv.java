@@ -28,10 +28,8 @@ public abstract class MixinStaffCastEnv {
     ) {
         var item = sender.getItemInHand(msg.handUsed()).getItem();
         if (item == HexDebugItems.EVALUATOR.getValue()) {
-            var success = ItemEvaluator.handleNewEvaluatorPatternOnServer(sender, msg);
-            if (success) {
-                ci.cancel();
-            }
+            ItemEvaluator.handleNewPatternOnServer(sender, msg);
+            ci.cancel();
         }
     }
 }

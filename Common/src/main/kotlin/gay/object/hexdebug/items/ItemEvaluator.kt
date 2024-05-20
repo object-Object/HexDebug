@@ -5,7 +5,11 @@ import at.petrak.hexcasting.common.items.ItemStaff
 import at.petrak.hexcasting.common.lib.HexSounds
 import at.petrak.hexcasting.common.msgs.*
 import at.petrak.hexcasting.xplat.IXplatAbstractions
+import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
+import gay.`object`.hexdebug.utils.itemPredicate
+import net.minecraft.client.player.LocalPlayer
+import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
@@ -54,21 +58,31 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
     }
 
     companion object {
+        val EVAL_STATE_PREDICATE = HexDebug.id("eval_state")
+
+        var evalState: EvalState = EvalState.DEFAULT
+
+        fun getProperties() = mapOf(
+            EVAL_STATE_PREDICATE to ClampedItemPropertyFunction { _, _, entity, _ ->
+                // don't show the active icon for debuggers held by other players, on the ground, etc
+                val state = if (entity is LocalPlayer) evalState else EvalState.DEFAULT
+                state.itemPredicate
+            },
+        )
+
         /**
          * Copy of [StaffCastEnv.handleNewPatternOnServer][at.petrak.hexcasting.api.casting.eval.env.StaffCastEnv.handleNewPatternOnServer]
          * for evaluating patterns in the active debugger, if any.
-         *
-         * Returns `true` if the pattern was handled successfully (ie. handleNewPatternOnServer should be cancelled).
          */
         @JvmStatic
-        fun handleNewEvaluatorPatternOnServer(sender: ServerPlayer, msg: MsgNewSpellPatternC2S): Boolean {
+        fun handleNewPatternOnServer(sender: ServerPlayer, msg: MsgNewSpellPatternC2S) {
             val debugAdapter = DebugAdapterManager[sender]
             val debugger = debugAdapter?.debugger
             if (debugAdapter == null || debugger == null) {
-                return false
+                return
             }
 
-            val clientInfo = debugAdapter.evaluate(msg.pattern) ?: return false
+            val clientInfo = debugAdapter.evaluate(msg.pattern) ?: return
 
             debugger.evaluatorUIPatterns.clear()
             if (!clientInfo.isStackClear) {
@@ -92,8 +106,11 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
                 ParticleSpray(sender.position(), Vec3(0.0, 1.5, 0.0), 0.4, Math.PI / 3, 30)
                     .sprayParticles(sender.serverLevel(), IXplatAbstractions.INSTANCE.getPigment(sender))
             }
-
-            return true
         }
+    }
+
+    enum class EvalState {
+        DEFAULT,
+        MODIFIED,
     }
 }

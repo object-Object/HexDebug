@@ -38,5 +38,8 @@ object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistr
         for ((id, function) in ItemDebugger.getProperties(DEBUGGER.value)) {
             ItemPropertiesRegistry.register(DEBUGGER.value, id, function)
         }
+        for ((id, function) in ItemEvaluator.getProperties()) {
+            ItemPropertiesRegistry.register(EVALUATOR.value, id, function)
+        }
     }
 }

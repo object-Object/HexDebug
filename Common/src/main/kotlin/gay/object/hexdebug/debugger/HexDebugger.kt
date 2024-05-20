@@ -360,7 +360,6 @@ class HexDebugger(
     }
 
     fun getClientView(): ExecutionClientView {
-        val image = vm.image
         val (stackDescs, ravenmind) = vm.generateDescs()
         val isStackClear = nextContinuation is Done // only close the window if we're done evaluating
         return ExecutionClientView(isStackClear, lastResolutionType, stackDescs, ravenmind)
@@ -370,11 +369,12 @@ class HexDebugger(
      * Use [DebugAdapter.evaluate][gay.object.hexdebug.adapter.DebugAdapter.evaluate] instead.
      */
     internal fun evaluate(list: SpellList): DebugStepResult? {
-        if (evaluatorResetData == null) {
+        val startedEvaluating = evaluatorResetData == null
+        if (startedEvaluating) {
             evaluatorResetData = Pair(nextContinuation, vm.image)
         }
         nextContinuation = nextContinuation.pushFrame(FrameEvaluate(list, false))
-        return executeOnce()
+        return executeOnce()?.copy(startedEvaluating = startedEvaluating)
     }
 
     /**
