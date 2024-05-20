@@ -6,7 +6,7 @@
   pages: [
     {
       type: "patchouli:text",
-      text: "hexdebug.category.items.entry.debugging.page.1",
+      text: "hexdebug.category.items.entry.debugging.page.debugger",
     },
     {
       type: "patchouli:crafting",
@@ -14,11 +14,15 @@
       anchor: "debugger",
       text: "hexdebug.category.items.entry.debugging.page.thwack",
     },
-    // TODO: actually document this
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.items.entry.debugging.page.evaluator",
+    },
     {
       type: "patchouli:crafting",
       recipe: "hexdebug:evaluator",
       anchor: "evaluator",
+      text: "hexdebug.category.items.entry.debugging.page.thwonk"
     },
   ],
 }
