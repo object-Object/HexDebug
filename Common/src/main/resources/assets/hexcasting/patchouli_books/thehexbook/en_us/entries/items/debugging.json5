@@ -14,5 +14,11 @@
       anchor: "debugger",
       text: "hexdebug.category.items.entry.debugging.page.thwack",
     },
+    // TODO: actually document this
+    {
+      type: "patchouli:crafting",
+      recipe: "hexdebug:evaluator",
+      anchor: "evaluator",
+    },
   ],
 }
