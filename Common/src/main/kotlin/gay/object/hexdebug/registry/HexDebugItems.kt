@@ -18,7 +18,7 @@ object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistr
     val DEBUGGER = register("debugger") { ItemDebugger(unstackable.noTab()) }
 
     @JvmField
-    val EVALUATOR = register("evaluator") { ItemEvaluator(unstackable.rarity(Rarity.RARE)) }
+    val EVALUATOR = register("evaluator") { ItemEvaluator(unstackable.rarity(Rarity.UNCOMMON)) }
 
     private val props: Properties get() = Properties().`arch$tab`(HexDebugCreativeTabs.HEX_DEBUG.key)
 
