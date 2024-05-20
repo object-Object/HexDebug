@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "minecraft:item/handheld_rod",
   "overrides": [
     {
       "model": "hexdebug:item/debugger/not_debugging/continue/empty",

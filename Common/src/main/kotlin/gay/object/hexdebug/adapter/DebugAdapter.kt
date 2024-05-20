@@ -1,12 +1,22 @@
 package gay.`object`.hexdebug.adapter
 
+import at.petrak.hexcasting.api.casting.SpellList
+import at.petrak.hexcasting.api.casting.eval.ExecutionClientView
+import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
+import at.petrak.hexcasting.api.casting.iota.Iota
+import at.petrak.hexcasting.api.casting.iota.PatternIota
+import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternS2C
+import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterState.*
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyServerLauncher
 import gay.`object`.hexdebug.debugger.*
 import gay.`object`.hexdebug.items.ItemDebugger
+import gay.`object`.hexdebug.items.ItemEvaluator
 import gay.`object`.hexdebug.networking.HexDebugNetworking
 import gay.`object`.hexdebug.networking.MsgDebuggerStateS2C
+import gay.`object`.hexdebug.networking.MsgEvaluatorStateS2C
 import gay.`object`.hexdebug.utils.futureOf
 import gay.`object`.hexdebug.utils.paginate
 import gay.`object`.hexdebug.utils.toFuture
@@ -35,7 +45,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     val canStartDebugging get() = state is ReadyToDebug
 
-    private val debugger get() = (state as? Debugging)?.debugger
+    val debugger get() = (state as? Debugging)?.debugger
 
     open val launcher: IHexDebugLauncher by lazy {
         DebugProxyServerLauncher.createLauncher(this, ::messageWrapper, ::exceptionHandler)
@@ -52,6 +62,16 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     protected open fun setDebuggerState(debuggerState: ItemDebugger.DebugState) {
         HexDebugNetworking.sendToPlayer(player, MsgDebuggerStateS2C(debuggerState))
+
+        // close the debugger grid if we stopped debugging
+        if (debuggerState == ItemDebugger.DebugState.NOT_DEBUGGING) {
+            val info = ExecutionClientView(true, ResolvedPatternType.EVALUATED, listOf(), null)
+            IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgNewSpellPatternS2C(info, -1))
+        }
+    }
+
+    protected open fun setEvaluatorState(evalState: ItemEvaluator.EvalState) {
+        HexDebugNetworking.sendToPlayer(player, MsgEvaluatorStateS2C(evalState))
     }
 
     fun startDebugging(args: CastArgs): Boolean {
@@ -64,6 +84,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     fun disconnectClient() {
         if (state !is NotConnected) {
             remoteProxy.terminated(TerminatedEventArguments())
+
             state = NotConnected
         }
     }
@@ -86,6 +107,26 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         })
     }
 
+    fun evaluate(pattern: HexPattern) = evaluate(PatternIota(pattern))
+
+    fun evaluate(iota: Iota) = evaluate(SpellList.LList(listOf(iota)))
+
+    fun evaluate(list: SpellList) = debugger?.let {
+        val result = it.evaluate(list)
+        if (result?.startedEvaluating == true) {
+            setEvaluatorState(ItemEvaluator.EvalState.MODIFIED)
+        }
+        handleDebuggerStep(result)
+    }
+
+    fun resetEvaluator() {
+        setEvaluatorState(ItemEvaluator.EvalState.DEFAULT)
+        debugger?.also {
+            it.resetEvaluator()
+            sendStoppedEvent("step")
+        }
+    }
+
     private fun messageWrapper(consumer: MessageConsumer) = MessageConsumer { message ->
         HexDebug.LOGGER.debug(message)
         consumer.consume(message)
@@ -100,10 +141,14 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             ?: ResponseError(ResponseErrorCode.InternalError, e.toString(), e.stackTraceToString())
     }
 
-    private fun handleDebuggerStep(result: DebugStepResult?) {
+    private fun handleDebuggerStep(result: DebugStepResult?): ExecutionClientView? {
+        val view = debugger?.getClientView()?.also {
+            IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgNewSpellPatternS2C(it, -1))
+        }
+
         if (result == null) {
             terminate(null)
-            return
+            return view
         }
 
         for ((source, reason) in result.loadedSources) {
@@ -114,6 +159,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         }
 
         sendStoppedEvent(result.reason)
+        return view
     }
 
     private fun sendStoppedEvent(reason: String) {

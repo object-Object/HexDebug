@@ -6,13 +6,23 @@
   pages: [
     {
       type: "patchouli:text",
-      text: "hexdebug.category.items.entry.debugging.page.1",
+      text: "hexdebug.category.items.entry.debugging.page.debugger",
     },
     {
       type: "patchouli:crafting",
       recipe: "hexdebug:debugger",
       anchor: "debugger",
       text: "hexdebug.category.items.entry.debugging.page.thwack",
+    },
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.items.entry.debugging.page.evaluator",
+    },
+    {
+      type: "patchouli:crafting",
+      recipe: "hexdebug:evaluator",
+      anchor: "evaluator",
+      text: "hexdebug.category.items.entry.debugging.page.thwonk"
     },
   ],
 }

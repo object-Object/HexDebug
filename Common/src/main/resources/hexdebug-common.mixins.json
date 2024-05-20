@@ -12,7 +12,8 @@
     "MixinFrameEvaluate",
     "MixinMsgShiftScrollSyn",
     "MixinOpEval",
-    "MixinOpPrintSpell"
+    "MixinOpPrintSpell",
+    "MixinStaffCastEnv"
   ],
   "injectors": {
     "defaultRequire": 1

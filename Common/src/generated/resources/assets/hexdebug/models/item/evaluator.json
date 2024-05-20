@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:item/handheld_rod",
+  "overrides": [
+    {
+      "model": "hexdebug:item/evaluator/default",
+      "predicate": {
+        "hexdebug:eval_state": 0.0
+      }
+    },
+    {
+      "model": "hexdebug:item/evaluator/modified",
+      "predicate": {
+        "hexdebug:eval_state": 0.5
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "hexdebug:item/evaluator"
+  }
+}
