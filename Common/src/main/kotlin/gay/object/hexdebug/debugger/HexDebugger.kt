@@ -3,9 +3,7 @@ package gay.`object`.hexdebug.debugger
 import at.petrak.hexcasting.api.HexAPI
 import at.petrak.hexcasting.api.casting.PatternShapeMatch
 import at.petrak.hexcasting.api.casting.SpellList
-import at.petrak.hexcasting.api.casting.eval.CastResult
-import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
-import at.petrak.hexcasting.api.casting.eval.SpecialPatterns
+import at.petrak.hexcasting.api.casting.eval.*
 import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect
 import at.petrak.hexcasting.api.casting.eval.vm.*
 import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation.Done
@@ -31,7 +29,7 @@ import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceR
 class HexDebugger(
     private val initArgs: InitializeRequestArguments,
     private val launchArgs: LaunchArgs,
-    private val vm: CastingVM,
+    val vm: CastingVM,
     private val world: ServerLevel,
     private val onExecute: ((Iota) -> Unit)? = null,
     iotas: List<Iota>,
@@ -42,10 +40,10 @@ class HexDebugger(
         castArgs: CastArgs,
     ) : this(initArgs, launchArgs, CastingVM.empty(castArgs.env), castArgs.world, castArgs.onExecute, castArgs.iotas)
 
-    val debugCastEnv = vm.env as IDebugCastEnv
-
     var lastEvaluatedMetadata: IotaMetadata? = null
         private set
+
+    private val debugCastEnv = vm.env as IDebugCastEnv
 
     private val variablesAllocator = VariablesAllocator()
     private val sourceAllocator = SourceAllocator(iotas.hashCode())
@@ -60,6 +58,12 @@ class HexDebugger(
     private val initialSource = registerNewSource(iotas)!!
 
     private var callStack = listOf<NotDone>()
+
+    val evaluatorUIPatterns = mutableListOf<ResolvedPattern>()
+
+    private var evaluatorResetData: Pair<SpellContinuation, CastingImage>? = null
+
+    private var lastResolutionType = ResolvedPatternType.UNRESOLVED
 
     // Initialize the continuation stack to a single top-level eval for all iotas.
     private var nextContinuation: SpellContinuation = Done
@@ -355,6 +359,36 @@ class HexDebugger(
         }
     }
 
+    fun getClientView(): ExecutionClientView {
+        val image = vm.image
+        val (stackDescs, ravenmind) = vm.generateDescs()
+        val isStackClear = nextContinuation is Done // only close the window if we're done evaluating
+        return ExecutionClientView(isStackClear, lastResolutionType, stackDescs, ravenmind)
+    }
+
+    /**
+     * Use [DebugAdapter.evaluate][gay.object.hexdebug.adapter.DebugAdapter.evaluate] instead.
+     */
+    internal fun evaluate(list: SpellList): DebugStepResult? {
+        if (evaluatorResetData == null) {
+            evaluatorResetData = Pair(nextContinuation, vm.image)
+        }
+        nextContinuation = nextContinuation.pushFrame(FrameEvaluate(list, false))
+        return executeOnce()
+    }
+
+    /**
+     * Use [DebugAdapter.resetEvaluator][gay.object.hexdebug.adapter.DebugAdapter.resetEvaluator] instead.
+     */
+    internal fun resetEvaluator() {
+        evaluatorResetData?.also { (continuation, image) ->
+            nextContinuation = continuation
+            vm.image = image
+            evaluatorResetData = null
+        }
+        evaluatorUIPatterns.clear()
+    }
+
     fun start(): DebugStepResult? {
         val loadedSources = mapOf(initialSource to LoadedSourceReason.NEW)
         return if (launchArgs.stopOnEntry) {
@@ -499,6 +533,7 @@ class HexDebugger(
             }
 
             continuation = newContinuation
+            lastResolutionType = castResult.resolutionType
 
             try {
                 vm.performSideEffects(info, castResult.sideEffects)
@@ -571,7 +606,6 @@ class HexDebugger(
         else -> stepResult
     }
 
-    @Suppress("CAST_NEVER_SUCCEEDS")
     private fun getStepType(
         castResult: CastResult,
         continuation: NotDone,
