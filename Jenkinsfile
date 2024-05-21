@@ -42,6 +42,13 @@ pipeline {
                 sh "./gradlew build"
             }
         }
+        stage("Check Datagen") {
+            steps {
+                sh "./gradlew runAllDatagen"
+                sh "git add --intent-to-add ."
+                sh "git diff --name-only --exit-code -- \":!:*/src/generated/resources/.cache/*\""
+            }
+        }
         stage("Publish") {
             when {
                 expression { env.BRANCH_NAME in RELEASE_BRANCHES }
