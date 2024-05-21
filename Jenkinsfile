@@ -1,6 +1,8 @@
 #!/usr/bin/env groovy
 // noinspection GroovyAssignabilityCheck
 
+RELEASE_BRANCHES = ["main", "1.19"]
+
 pipeline {
     agent any
     tools {
@@ -40,44 +42,51 @@ pipeline {
                 sh "./gradlew build"
             }
         }
-        stage("Publish: Maven") {
-            steps {
-                sh "./gradlew publish"
-            }
-        }
-        stage("Publish: GitHub") {
+        stage("Publish") {
             when {
-                expression { return params.PUBLISH_GITHUB }
+                expression { env.BRANCH_NAME in RELEASE_BRANCHES }
             }
-            environment {
-                GITHUB_TOKEN = credentials("github-release-pat")
-                GITHUB_REPOSITORY = "object-Object/HexDebug"
-                GITHUB_SHA = "${env.GIT_COMMIT}"
-            }
-            steps {
-                sh "./gradlew publishGithub"
-            }
-        }
-        stage("Publish: CurseForge") {
-            when {
-                expression { return params.PUBLISH_CURSEFORGE }
-            }
-            environment {
-                CURSEFORGE_TOKEN = credentials("curseforge-token")
-            }
-            steps {
-                sh "./gradlew publishCurseforge"
-            }
-        }
-        stage("Publish: Modrinth") {
-            when {
-                expression { return params.PUBLISH_MODRINTH }
-            }
-            environment {
-                MODRINTH_TOKEN = credentials("modrinth-pat")
-            }
-            steps {
-                sh "./gradlew publishModrinth"
+            stages {
+                stage("Publish: Maven") {
+                    steps {
+                        sh "./gradlew publish"
+                    }
+                }
+                stage("Publish: GitHub") {
+                    when {
+                        expression { params.PUBLISH_GITHUB }
+                    }
+                    environment {
+                        GITHUB_TOKEN = credentials("github-release-pat")
+                        GITHUB_REPOSITORY = "object-Object/HexDebug"
+                        GITHUB_SHA = "${env.GIT_COMMIT}"
+                    }
+                    steps {
+                        sh "./gradlew publishGithub"
+                    }
+                }
+                stage("Publish: CurseForge") {
+                    when {
+                        expression { params.PUBLISH_CURSEFORGE }
+                    }
+                    environment {
+                        CURSEFORGE_TOKEN = credentials("curseforge-token")
+                    }
+                    steps {
+                        sh "./gradlew publishCurseforge"
+                    }
+                }
+                stage("Publish: Modrinth") {
+                    when {
+                        expression { params.PUBLISH_MODRINTH }
+                    }
+                    environment {
+                        MODRINTH_TOKEN = credentials("modrinth-pat")
+                    }
+                    steps {
+                        sh "./gradlew publishModrinth"
+                    }
+                }
             }
         }
     }
