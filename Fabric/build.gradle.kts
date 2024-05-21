@@ -54,8 +54,6 @@ dependencies {
     modLocalRuntime(libs.serializationHooks)
     modLocalRuntime(libs.trinkets)
 
-    modApi(libs.hexal.fabric)
-
     libs.mixinExtras.also {
         localRuntime(it)
         include(it)
@@ -75,6 +73,14 @@ dependencies {
         implementation(it)
         include(it)
     }
+
+    libs.hexal.fabric.also {
+        modCompileOnly(it)
+        modLocalRuntime(it)
+    }
+    modLocalRuntime(libs.moreiotas.fabric)
+    modLocalRuntime(libs.geckolib.fabric)
+    localRuntime(libs.mclib)
 }
 
 // this fails if we do it for all projects, since the tag already exists :/

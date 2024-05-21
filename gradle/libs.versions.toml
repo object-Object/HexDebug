@@ -29,9 +29,6 @@ patchouli = "1.20.1-84"
 patchouli-fabric = "1.20.1-84-FABRIC" # thanks vazkii
 patchouli-forge = "1.20.1-84-FORGE"
 
-hexal = "0.3.0-2"
-hexal-dependency = "0.3.0-2"
-
 cardinalComponents = "5.2.1"
 serializationHooks = "0.4.99999"
 mixinExtras = "0.1.1"
@@ -39,6 +36,12 @@ trinkets = "3.7.0"
 clothConfig = "11.1.106"
 modMenu = "7.1.0"
 caelus = "3.1.0+1.20"
+
+hexal = "0.3.0-2"
+hexal-dependency = "0.3.0-2"
+moreiotas = "0.1.0-4"
+geckolib = "4.2.1"
+mclib = "20"
 
 # other non-Minecraft dependencies
 
@@ -83,10 +86,6 @@ paucal-common = { module="at.petra-k.paucal:paucal-common-1.20.1", version.ref="
 paucal-fabric = { module="at.petra-k.paucal:paucal-fabric-1.20.1", version.ref="paucal" }
 paucal-forge  = { module="at.petra-k.paucal:paucal-forge-1.20.1", version.ref="paucal" }
 
-hexal-common = { module="libs:hexal-common-1.20.1", version.ref="hexal" }
-hexal-fabric = { module="libs:hexal-fabric-1.20.1", version.ref="hexal" }
-hexal-forge  = { module="libs:hexal-forge-1.20.1", version.ref="hexal" }
-
 patchouli-xplat  = { module="vazkii.patchouli:Patchouli-xplat", version.ref="patchouli" }
 patchouli-fabric = { module="vazkii.patchouli:Patchouli", version.ref="patchouli-fabric" }
 patchouli-forge  = { module="vazkii.patchouli:Patchouli", version.ref="patchouli-forge" }
@@ -101,6 +100,18 @@ caelus             = { module="top.theillusivec4.caelus:caelus-forge", version.r
 clothConfig-common = { module="me.shedaniel.cloth:cloth-config", version.ref="clothConfig" }
 clothConfig-fabric = { module="me.shedaniel.cloth:cloth-config-fabric", version.ref="clothConfig" }
 clothConfig-forge  = { module="me.shedaniel.cloth:cloth-config-forge", version.ref="clothConfig" }
+
+hexal-common = { module="libs:hexal-common-1.20.1", version.ref="hexal" }
+hexal-fabric = { module="libs:hexal-fabric-1.20.1", version.ref="hexal" }
+hexal-forge  = { module="libs:hexal-forge-1.20.1", version.ref="hexal" }
+
+moreiotas-fabric = { module="libs:moreiotas-fabric-1.20.1", version.ref="moreiotas" }
+moreiotas-forge  = { module="libs:moreiotas-forge-1.20.1", version.ref="moreiotas" }
+
+geckolib-fabric = { module="software.bernie.geckolib:geckolib-fabric-1.20.1", version.ref="geckolib" }
+geckolib-forge  = { module="software.bernie.geckolib:geckolib-fabric-1.20.1", version.ref="geckolib" }
+
+mclib = { module="com.eliotlash.mclib:mclib", version.ref="mclib" }
 
 findbugs-jsr305 = { module="com.google.code.findbugs:jsr305", version.ref="findbugs-jsr305" }
 

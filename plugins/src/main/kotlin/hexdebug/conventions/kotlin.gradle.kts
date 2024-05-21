@@ -34,6 +34,13 @@ repositories {
             includeGroup("maven.modrinth")
         }
     }
+    maven {
+        url = uri("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
+        content {
+            includeGroupByRegex("""software\.bernie.*""")
+            includeGroup("com.eliotlash.mclib")
+        }
+    }
     exclusiveContent {
         forRepository {
             flatDir {

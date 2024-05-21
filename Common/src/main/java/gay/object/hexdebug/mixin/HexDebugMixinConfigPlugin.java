@@ -1,6 +1,5 @@
 package gay.object.hexdebug.mixin;
 
-import dev.architectury.platform.Platform;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -21,7 +20,12 @@ public class HexDebugMixinConfigPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (mixinClassName.startsWith("gay.object.hexdebug.mixin.hexal")) {
-            return Platform.isModLoaded("hexal");
+            try {
+                Class.forName("ram.talia.hexal.api.HexalAPI");
+                return true;
+            } catch (ClassNotFoundException e) {
+                return false;
+            }
         }
         return true;
     }

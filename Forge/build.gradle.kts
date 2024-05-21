@@ -65,8 +65,6 @@ dependencies {
     modLocalRuntime(libs.patchouli.forge)
     modLocalRuntime(libs.caelus)
 
-    modApi(libs.hexal.forge)
-
     modApi(libs.clothConfig.forge)
 
     libs.mixinExtras.also {
@@ -85,6 +83,14 @@ dependencies {
         include(it)
         kotlinForgeRuntimeLibrary(it)
     }
+
+    libs.hexal.forge.also {
+        modCompileOnly(it)
+        modLocalRuntime(it)
+    }
+    modLocalRuntime(libs.moreiotas.forge)
+    modLocalRuntime(libs.geckolib.forge)
+    localRuntime(libs.mclib)
 }
 
 tasks {
