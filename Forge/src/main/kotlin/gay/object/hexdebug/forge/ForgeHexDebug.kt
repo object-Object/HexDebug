@@ -17,7 +17,7 @@ import thedarkcolour.kotlinforforge.forge.MOD_BUS
  * something platform-specific.
  */
 @Mod(HexDebug.MODID)
-class HexDebugForge {
+class ForgeHexDebug {
     init {
         MOD_BUS.apply {
             EventBuses.registerModEventBus(HexDebug.MODID, this)
