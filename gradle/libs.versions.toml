@@ -109,7 +109,7 @@ moreiotas-fabric = { module="libs:moreiotas-fabric-1.20.1", version.ref="moreiot
 moreiotas-forge  = { module="libs:moreiotas-forge-1.20.1", version.ref="moreiotas" }
 
 geckolib-fabric = { module="software.bernie.geckolib:geckolib-fabric-1.20.1", version.ref="geckolib" }
-geckolib-forge  = { module="software.bernie.geckolib:geckolib-fabric-1.20.1", version.ref="geckolib" }
+geckolib-forge  = { module="software.bernie.geckolib:geckolib-forge-1.20.1", version.ref="geckolib" }
 
 mclib = { module="com.eliotlash.mclib:mclib", version.ref="mclib" }
 
