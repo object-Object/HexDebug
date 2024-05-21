@@ -4,7 +4,7 @@
     evaluator: "运行杖",
   },
 
-  "itemGroup.hexdebug": "咒术调试",
+  "itemGroup.hexdebug": "咒法调试",
 
   text: {
     hexdebug: {
@@ -14,7 +14,7 @@
     },
 
     "autoconfig.hexdebug": {
-      title: "咒术调试配置",
+      title: "咒法调试配置",
       category: {
         client: "客户端",
       },
