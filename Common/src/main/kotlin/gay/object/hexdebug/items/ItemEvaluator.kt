@@ -22,6 +22,7 @@ import net.minecraft.world.phys.Vec3
 class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
     override fun use(world: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
         val itemStack = player.getItemInHand(hand)
+        val failResult = InteractionResultHolder.fail(itemStack)
 
         if (world.isClientSide) {
             if (player.isShiftKeyDown) {
@@ -32,11 +33,7 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
 
         player as ServerPlayer
 
-        val debugAdapter = DebugAdapterManager[player]
-        val debugger = debugAdapter?.debugger
-        if (debugAdapter == null || debugger == null) {
-            return InteractionResultHolder.fail(itemStack)
-        }
+        val debugAdapter = DebugAdapterManager[player] ?: return failResult
 
         if (player.isShiftKeyDown) {
             debugAdapter.resetEvaluator()
@@ -46,8 +43,8 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
             }
         }
 
-        val patterns = debugger.evaluatorUIPatterns
-        val (stack, ravenmind) = debugger.vm.generateDescs()
+        val patterns = debugAdapter.evaluatorUIPatterns ?: return failResult
+        val (stack, ravenmind) = debugAdapter.generateDescs() ?: return failResult
         IXplatAbstractions.INSTANCE.sendPacketToPlayer(
             player, MsgOpenSpellGuiS2C(hand, patterns, stack, ravenmind, 0)
         )
@@ -76,18 +73,14 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
          */
         @JvmStatic
         fun handleNewPatternOnServer(sender: ServerPlayer, msg: MsgNewSpellPatternC2S) {
-            val debugAdapter = DebugAdapterManager[sender]
-            val debugger = debugAdapter?.debugger
-            if (debugAdapter == null || debugger == null) {
-                return
-            }
+            val debugAdapter = DebugAdapterManager[sender] ?: return
 
             val clientInfo = debugAdapter.evaluate(msg.pattern) ?: return
 
-            debugger.evaluatorUIPatterns.clear()
+            debugAdapter.evaluatorUIPatterns?.clear()
             if (!clientInfo.isStackClear) {
                 msg.resolvedPatterns.lastOrNull()?.type = clientInfo.resolutionType
-                debugger.evaluatorUIPatterns.addAll(msg.resolvedPatterns)
+                debugAdapter.evaluatorUIPatterns?.addAll(msg.resolvedPatterns)
             }
 
             IXplatAbstractions.INSTANCE.sendPacketToPlayer(

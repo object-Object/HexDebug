@@ -29,7 +29,7 @@ import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceR
 class HexDebugger(
     private val initArgs: InitializeRequestArguments,
     private val launchArgs: LaunchArgs,
-    val vm: CastingVM,
+    private val vm: CastingVM,
     private val world: ServerLevel,
     private val onExecute: ((Iota) -> Unit)? = null,
     iotas: List<Iota>,
@@ -130,6 +130,8 @@ class HexDebugger(
             is NotDone -> next
         }
     }.toList().asReversed()
+
+    fun generateDescs() = vm.generateDescs()
 
     fun getStackFrames(): Sequence<StackFrame> {
         var frameId = 1

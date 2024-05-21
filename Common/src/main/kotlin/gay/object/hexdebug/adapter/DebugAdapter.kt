@@ -45,7 +45,13 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     val canStartDebugging get() = state is ReadyToDebug
 
-    val debugger get() = (state as? Debugging)?.debugger
+    // this is protected so outside classes trying to affect the active debug session must go through the adapter
+    // which ensures the debug client is kept up-to-date
+    protected val debugger get() = (state as? Debugging)?.debugger
+
+    val evaluatorUIPatterns get() = debugger?.evaluatorUIPatterns
+
+    fun generateDescs() = debugger?.generateDescs()
 
     open val launcher: IHexDebugLauncher by lazy {
         DebugProxyServerLauncher.createLauncher(this, ::messageWrapper, ::exceptionHandler)
