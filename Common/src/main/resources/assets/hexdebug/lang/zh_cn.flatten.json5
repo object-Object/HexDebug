@@ -1,9 +1,10 @@
 {
   "item.hexdebug": {
     debugger: "调试杖",
+    evaluator: "运行杖",
   },
 
-  "itemGroup.hexdebug": "咒术调试",
+  "itemGroup.hexdebug": "咒法调试",
 
   text: {
     hexdebug: {
@@ -13,13 +14,24 @@
     },
 
     "autoconfig.hexdebug": {
-      title: "咒术调试配置",
+      title: "咒法调试配置",
       category: {
         client: "客户端",
       },
       option: {
         client: {
-          debugPort: "调试端口",
+          openDebugPort: {
+            "": "开放调试端口",
+            "@Tooltip": "是否开放端口。若设为false，调试杖会失去作用。",
+          },
+          debugPort: {
+            "": "调试端口",
+            "@Tooltip": "开放以连接至调试客户端（如VSCode）的端口号（1024-65535）。",
+          },
+          smartDebuggerSneakScroll: {
+            "": "调试杖智能潜行滚轮",
+            "@Tooltip": "若当前主手持有调试杖，且未在调试咒术，则优先处理副手中法术书一类物品的“潜行滚动滚轮”操作。",
+          },
         },
       },
     },
@@ -58,8 +70,14 @@
           debugging: {
             "": "调试物品",
             page: {
-              "1": "部分文献中有些不太明确的描述，称古代人会使用一件奇怪的物品协助他们发现复杂$(hex)咒术/$中的问题。我应已成功复刻出了它，定名为$(item)调试杖/$。$(br2)它的工作方式与$(l:items/hexcasting)$(item)造物/$类似。不过，它还能从副手中的物品（比如$(l:items/focus)$(item)核心/$）里直接施放$(hex)咒术/$。$(br2)$(item)调试杖/$自身没有太大用处，有些可惜；它似乎需要某种$(l:https://marketplace.visualstudio.com/items?itemName=object-Object.hex-casting)外部工具/$才能正常运作。",
+              debugger: "部分文献中有些不太明确的描述，称古代人会使用一件奇怪的物品协助他们发现复杂$(hex)咒术/$中的问题。我应已成功复刻出了它，定名为$(item)调试杖/$。$(br2)\
+                它的工作方式与$(l:items/hexcasting)$(item)造物/$类似。不过，它还能从副手中的物品（比如$(l:items/focus)$(item)核心/$）里直接施放$(hex)咒术/$。$(br2)\
+                有些可惜的是，$(item)调试杖/$自身没有太大用处；它似乎需要某种$(l:https://marketplace.visualstudio.com/items?itemName=object-Object.hex-casting)外部工具/$才能正常运作。",
               thwack: "$(italic)哐当！/$",
+              evaluator: "我又新制造了一种法杖——$(l:items/debugging#evaluator)$(item)运行杖/$，用以补充$(l:items/debugging#debugger)$(item)调试杖/$的功能。$(br2)\
+                调试$(hex)咒术/$时，此法杖绘制的图案会运行于$(l:items/debugging#debugger)$(item)调试杖/$当前的栈和$(l:patterns/readwrite#hexcasting:local)$(thing)渡鸦之思/$。$(br2)\
+                清空咒术网格后，$(l:items/debugging#debugger)$(item)调试杖/$似乎会回到$(l:items/debugging#evaluator)$(item)运行杖/$绘制首个图案前的状态。当然，这种操作无法撤回已造成实际影响的法术。",
+              thwonk: "$(italic)哐啷！/$"
             },
           },
         },
@@ -75,7 +93,8 @@
                 before: "在运行此图案前，暂停$(l:items/debugging#debugger)$(item)调试杖/$。",
                 after: "在运行此图案后，也即在运行下一图案之前，暂停$(l:items/debugging#debugger)$(item)调试杖/$。",
               },
-              "craft/debugger": "制作一支能施放$(hex)咒术/$的$(l:items/debugging#debugger)$(item)调试杖/$。这个图案和我之前用过的$(l:patterns/spells/hexcasting)某些图案/$有些相似。$(br2)消耗大约 10 个$(l:items/amethyst)$(item)充能紫水晶/$。",
+              "craft/debugger": "制作一支能施放$(hex)咒术/$的$(l:items/debugging#debugger)$(item)调试杖/$。这个图案和我之前用过的$(l:patterns/spells/hexcasting)某些图案/$有些相似。\
+                $(br2)消耗大约 10 个$(l:items/amethyst)$(item)充能紫水晶/$。",
             },
           },
         },
