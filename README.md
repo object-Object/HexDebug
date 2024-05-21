@@ -36,14 +36,14 @@ Full examples:
 
 ```groovy
 // released versions
-modImplementation("gay.object.hexdebug:hexdebug-common:0.1.2+1.20.1")
-modImplementation("gay.object.hexdebug:hexdebug-fabric:0.1.2+1.20.1")
-modImplementation("gay.object.hexdebug:hexdebug-forge:0.1.2+1.20.1")
+modImplementation("gay.object.hexdebug:hexdebug-common:0.2.0+1.20.1")
+modImplementation("gay.object.hexdebug:hexdebug-fabric:0.2.0+1.20.1")
+modImplementation("gay.object.hexdebug:hexdebug-forge:0.2.0+1.20.1")
 
 // bleeding edge builds
-modImplementation("gay.object.hexdebug:hexdebug-common:0.1.2+1.20.1-SNAPSHOT")
-modImplementation("gay.object.hexdebug:hexdebug-fabric:0.1.2+1.20.1-SNAPSHOT")
-modImplementation("gay.object.hexdebug:hexdebug-forge:0.1.2+1.20.1-SNAPSHOT")
+modImplementation("gay.object.hexdebug:hexdebug-common:0.2.0+1.20.1-SNAPSHOT")
+modImplementation("gay.object.hexdebug:hexdebug-fabric:0.2.0+1.20.1-SNAPSHOT")
+modImplementation("gay.object.hexdebug:hexdebug-forge:0.2.0+1.20.1-SNAPSHOT")
 ```
 
 Try to avoid using things outside of the `gay.object.hexdebug.api` package, since they may change at any time.
