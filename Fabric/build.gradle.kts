@@ -26,14 +26,11 @@ hexdebugModDependencies {
     requires("architectury-api")
     requires("cloth-config")
     requires(curseforge = "hexcasting", modrinth = "hex-casting")
+    optional("hexal")
 
     requires("fabric-api")
     requires("fabric-language-kotlin")
     requires("modmenu")
-}
-
-repositories {
-    flatDir { dir("libs") }
 }
 
 dependencies {
@@ -56,6 +53,8 @@ dependencies {
     modLocalRuntime(libs.cardinalComponents)
     modLocalRuntime(libs.serializationHooks)
     modLocalRuntime(libs.trinkets)
+
+    modApi(libs.hexal.fabric)
 
     libs.mixinExtras.also {
         localRuntime(it)

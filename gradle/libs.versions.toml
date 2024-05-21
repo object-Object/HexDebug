@@ -29,6 +29,9 @@ patchouli = "1.20.1-84"
 patchouli-fabric = "1.20.1-84-FABRIC" # thanks vazkii
 patchouli-forge = "1.20.1-84-FORGE"
 
+hexal = "0.3.0-2"
+hexal-dependency = "0.3.0-2"
+
 cardinalComponents = "5.2.1"
 serializationHooks = "0.4.99999"
 mixinExtras = "0.1.1"
@@ -80,12 +83,16 @@ paucal-common = { module="at.petra-k.paucal:paucal-common-1.20.1", version.ref="
 paucal-fabric = { module="at.petra-k.paucal:paucal-fabric-1.20.1", version.ref="paucal" }
 paucal-forge  = { module="at.petra-k.paucal:paucal-forge-1.20.1", version.ref="paucal" }
 
+hexal-common = { module="libs:hexal-common-1.20.1", version.ref="hexal" }
+hexal-fabric = { module="libs:hexal-fabric-1.20.1", version.ref="hexal" }
+hexal-forge  = { module="libs:hexal-forge-1.20.1", version.ref="hexal" }
+
 patchouli-xplat  = { module="vazkii.patchouli:Patchouli-xplat", version.ref="patchouli" }
 patchouli-fabric = { module="vazkii.patchouli:Patchouli", version.ref="patchouli-fabric" }
 patchouli-forge  = { module="vazkii.patchouli:Patchouli", version.ref="patchouli-forge" }
 
 cardinalComponents = { module="dev.onyxstudios.cardinal-components-api:cardinal-components-api", version.ref="cardinalComponents" }
-serializationHooks = { module="io.github.tropheusj:serialization-hooks", version.ref="serializationHooks" }
+serializationHooks = { module="libs:serialization-hooks", version.ref="serializationHooks" }
 mixinExtras        = { module="com.github.LlamaLad7:MixinExtras", version.ref="mixinExtras" }
 trinkets           = { module="dev.emi:trinkets", version.ref="trinkets" }
 modMenu            = { module="com.terraformersmc:modmenu", version.ref="modMenu" }

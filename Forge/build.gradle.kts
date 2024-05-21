@@ -49,6 +49,7 @@ hexdebugModDependencies {
     requires("architectury-api")
     requires("cloth-config")
     requires(curseforge = "hexcasting", modrinth = "hex-casting")
+    optional("hexal")
 
     requires("kotlin-for-forge")
 }
@@ -63,6 +64,8 @@ dependencies {
     modImplementation(libs.paucal.forge)
     modLocalRuntime(libs.patchouli.forge)
     modLocalRuntime(libs.caelus)
+
+    modApi(libs.hexal.forge)
 
     modApi(libs.clothConfig.forge)
 

@@ -23,6 +23,8 @@ dependencies {
 
     modApi(libs.hexcasting.common)
 
+    modApi(libs.hexal.common)
+
     modApi(libs.clothConfig.common)
 
     implementation(libs.mixinExtras)
