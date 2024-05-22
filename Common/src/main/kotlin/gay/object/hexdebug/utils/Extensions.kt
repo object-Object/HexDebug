@@ -1,5 +1,8 @@
 package gay.`object`.hexdebug.utils
 
+import at.petrak.hexcasting.api.casting.eval.vm.ContinuationFrame
+import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation
+import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation.NotDone
 import net.minecraft.world.InteractionHand
 import java.util.concurrent.CompletableFuture
 import kotlin.enums.enumEntries
@@ -47,3 +50,11 @@ fun Number.ceilToPow(base: Number): Int = toDouble().ceilToPow(base.toDouble())
 
 // https://stackoverflow.com/q/19870067
 private fun Double.ceilToPow(base: Double): Int = base.pow(ceil(log(this, base))).toInt()
+
+// SpellContinuation
+
+val SpellContinuation.frame get() = (this as? NotDone)?.frame
+
+val SpellContinuation.next get() = (this as? NotDone)?.next
+
+val ContinuationFrame.name get() = this::class.simpleName ?: "Unknown"

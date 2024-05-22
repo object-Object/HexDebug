@@ -19,6 +19,8 @@ import gay.`object`.hexdebug.casting.eval.IDebugCastEnv
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
 import gay.`object`.hexdebug.utils.ceilToPow
+import gay.`object`.hexdebug.utils.frame
+import gay.`object`.hexdebug.utils.name
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import org.eclipse.lsp4j.debug.*
@@ -724,15 +726,4 @@ class HexDebugger(
             }
         }
     }
-}
-
-val SpellContinuation.frame get() = (this as? NotDone)?.frame
-
-val SpellContinuation.next get() = (this as? NotDone)?.next
-
-val ContinuationFrame.name get() = this::class.simpleName ?: "Unknown"
-
-enum class RequestStepType {
-    OVER,
-    OUT,
 }

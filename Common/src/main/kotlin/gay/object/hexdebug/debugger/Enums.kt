@@ -7,6 +7,11 @@ enum class DebugStepType {
     ESCAPE,
 }
 
+enum class RequestStepType {
+    OVER,
+    OUT,
+}
+
 enum class SourceBreakpointMode {
     EVALUATED,
     ESCAPED,
