@@ -1,5 +1,13 @@
 package gay.`object`.hexdebug.debugger
 
+enum class StopReason(val value: String) {
+    STEP("step"),
+    BREAKPOINT("breakpoint"),
+    EXCEPTION("exception"),
+    ENTRY("entry"),
+    TERMINATED("terminated"),
+}
+
 enum class DebugStepType {
     IN,
     OUT,
@@ -7,32 +15,12 @@ enum class DebugStepType {
     ESCAPE,
 }
 
-enum class SourceBreakpointMode {
-    EVALUATED,
-    ESCAPED,
-    ALL;
-
-    val label get() = when (this) {
-        EVALUATED -> "Evaluated"
-        ESCAPED -> "Escaped"
-        ALL -> "All"
-    }
-
-    val description get() = when (this) {
-        EVALUATED -> "Stop if this iota would be evaluated. (default)"
-        ESCAPED -> "Stop if this iota would be escaped."
-        ALL -> "Always stop at this iota."
-    }
+enum class SourceBreakpointMode(val label: String, val description: String) {
+    EVALUATED("Evaluated", "Stop if this iota would be evaluated. (default)"),
+    ESCAPED("Escaped", "Stop if this iota would be escaped."),
+    ALL("All", "Always stop at this iota."),
 }
 
-enum class ExceptionBreakpointType {
-    UNCAUGHT_MISHAPS;
-
-    val label get() = when (this) {
-        UNCAUGHT_MISHAPS -> "Uncaught Mishaps"
-    }
-
-    val isDefault get() = when (this) {
-        UNCAUGHT_MISHAPS -> true
-    }
+enum class ExceptionBreakpointType(val label: String, val isDefault: Boolean) {
+    UNCAUGHT_MISHAPS("Uncaught Mishaps", true),
 }

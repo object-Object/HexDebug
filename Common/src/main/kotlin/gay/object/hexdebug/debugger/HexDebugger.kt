@@ -359,7 +359,7 @@ class HexDebugger(
         }
     }
 
-    fun getClientView(): ExecutionClientView {
+    private fun getClientView(vm: CastingVM): ExecutionClientView {
         val (stackDescs, ravenmind) = vm.generateDescs()
         val isStackClear = nextContinuation is Done // only close the window if we're done evaluating
         return ExecutionClientView(isStackClear, lastResolutionType, stackDescs, ravenmind)
@@ -368,13 +368,13 @@ class HexDebugger(
     /**
      * Use [DebugAdapter.evaluate][gay.object.hexdebug.adapter.DebugAdapter.evaluate] instead.
      */
-    internal fun evaluate(list: SpellList): DebugStepResult? {
+    internal fun evaluate(list: SpellList): DebugStepResult {
         val startedEvaluating = evaluatorResetData == null
         if (startedEvaluating) {
             evaluatorResetData = Pair(nextContinuation, vm.image)
         }
         nextContinuation = nextContinuation.pushFrame(FrameEvaluate(list, false))
-        return executeOnce()?.copy(startedEvaluating = startedEvaluating)
+        return executeOnce().copy(startedEvaluating = startedEvaluating)
     }
 
     /**
@@ -389,18 +389,17 @@ class HexDebugger(
         evaluatorUIPatterns.clear()
     }
 
-    fun start(): DebugStepResult? {
-        val loadedSources = mapOf(initialSource to LoadedSourceReason.NEW)
+    fun start(): DebugStepResult {
         return if (launchArgs.stopOnEntry) {
-            DebugStepResult("entry", loadedSources = loadedSources)
+            DebugStepResult(StopReason.ENTRY)
         } else if (isAtBreakpoint()) {
-            DebugStepResult("breakpoint", loadedSources = loadedSources)
+            DebugStepResult(StopReason.BREAKPOINT)
         } else {
-            executeUntilStopped()?.withLoadedSources(loadedSources)
-        }
+            executeUntilStopped()
+        }.withLoadedSource(initialSource, LoadedSourceReason.NEW)
     }
 
-    fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult? {
+    fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult {
         var lastResult: DebugStepResult? = null
         var isEscaping: Boolean? = null
         var stepDepth = 0
@@ -408,8 +407,10 @@ class HexDebugger(
         var hitBreakpoint = false
 
         while (true) {
-            var result = executeOnce(exactlyOnce = true) ?: return null
-            if (lastResult != null) result += lastResult
+            val result = executeOnce(exactlyOnce = true).let {
+                if (it.isDone) return it
+                lastResult?.plus(it) ?: it
+            }
             lastResult = result
 
             if (isAtBreakpoint()) {
@@ -417,7 +418,7 @@ class HexDebugger(
             }
 
             if (hitBreakpoint && shouldStopAtFrame(nextContinuation)) {
-                return result.copy(reason = "breakpoint")
+                return result.copy(reason = StopReason.BREAKPOINT)
             }
 
             // if stepType is null, we should ONLY stop on breakpoints
@@ -452,11 +453,11 @@ class HexDebugger(
     }
 
     // Copy of CastingVM.queueExecuteAndWrapIotas to allow stepping by one pattern at a time.
-    fun executeOnce(exactlyOnce: Boolean = false): DebugStepResult? {
-        var continuation = nextContinuation // bind locally so we can do smart casting
-        if (continuation !is NotDone) return null
+    fun executeOnce(exactlyOnce: Boolean = false): DebugStepResult {
+        var stepResult = DebugStepResult(StopReason.STEP)
 
-        var stepResult = DebugStepResult("step")
+        var continuation = nextContinuation // bind locally so we can do smart casting
+        if (continuation !is NotDone) return stepResult.done()
 
         variablesAllocator.clear()
 
@@ -485,7 +486,7 @@ class HexDebugger(
             val (newContinuation, preMishapImage) = if (castResult.resolutionType.success) {
                 Pair(castResult.continuation, null)
             } else if (ExceptionBreakpointType.UNCAUGHT_MISHAPS in exceptionBreakpoints) {
-                stepResult = stepResult.copy(reason = "exception")
+                stepResult = stepResult.copy(reason = StopReason.EXCEPTION)
                 Pair(castResult.continuation.pushFrame(FrameBreakpoint.fatal()), vm.image)
             } else {
                 Pair(Done, vm.image)
@@ -558,10 +559,10 @@ class HexDebugger(
 
         nextContinuation = continuation
 
-        return when (continuation) {
-            is NotDone -> stepResult
-            is Done -> null
+        if (continuation is Done) {
+            stepResult = stepResult.done()
         }
+        return stepResult.copy(clientInfo = getClientView(vm))
     }
 
     private fun shouldStopAtFrame(continuation: SpellContinuation) =

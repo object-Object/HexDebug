@@ -113,7 +113,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     fun evaluate(list: SpellList) = debugger?.let {
         val result = it.evaluate(list)
-        if (result?.startedEvaluating == true) {
+        if (result.startedEvaluating) {
             setEvaluatorState(ItemEvaluator.EvalState.MODIFIED)
         }
         handleDebuggerStep(result)
@@ -141,12 +141,12 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             ?: ResponseError(ResponseErrorCode.InternalError, e.toString(), e.stackTraceToString())
     }
 
-    private fun handleDebuggerStep(result: DebugStepResult?): ExecutionClientView? {
-        val view = debugger?.getClientView()?.also {
+    private fun handleDebuggerStep(result: DebugStepResult): ExecutionClientView? {
+        val view = result.clientInfo?.also {
             IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgNewSpellPatternS2C(it, -1))
         }
 
-        if (result == null) {
+        if (result.isDone) {
             terminate(null)
             return view
         }
@@ -158,7 +158,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             })
         }
 
-        sendStoppedEvent(result.reason)
+        sendStoppedEvent(result.reason.value)
         return view
     }
 
@@ -233,29 +233,29 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     override fun configurationDone(args: ConfigurationDoneArguments?): CompletableFuture<Void> {
         knownPlayers.add(player.uuid)
-        handleDebuggerStep(debugger?.start())
+        debugger?.start()?.also(::handleDebuggerStep)
         return futureOf()
     }
 
     // stepping
 
     override fun next(args: NextArguments?): CompletableFuture<Void> {
-        handleDebuggerStep(debugger?.executeUntilStopped(RequestStepType.OVER))
+        debugger?.executeUntilStopped(RequestStepType.OVER)?.also(::handleDebuggerStep)
         return futureOf()
     }
 
     override fun continue_(args: ContinueArguments?): CompletableFuture<ContinueResponse> {
-        handleDebuggerStep(debugger?.executeUntilStopped())
+        debugger?.executeUntilStopped()?.also(::handleDebuggerStep)
         return futureOf()
     }
 
     override fun stepIn(args: StepInArguments?): CompletableFuture<Void> {
-        handleDebuggerStep(debugger?.executeOnce())
+        debugger?.executeOnce()?.also(::handleDebuggerStep)
         return futureOf()
     }
 
     override fun stepOut(args: StepOutArguments?): CompletableFuture<Void> {
-        handleDebuggerStep(debugger?.executeUntilStopped(RequestStepType.OUT))
+        debugger?.executeUntilStopped(RequestStepType.OUT)?.also(::handleDebuggerStep)
         return futureOf()
     }
 
