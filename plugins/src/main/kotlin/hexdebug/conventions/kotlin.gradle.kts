@@ -83,6 +83,12 @@ tasks {
         }
     }
 
+    compileKotlin {
+        compilerOptions {
+            freeCompilerArgs.add("-Xjvm-default=all")
+        }
+    }
+
     jar {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }

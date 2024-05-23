@@ -11,6 +11,7 @@
     "MixinMsgShiftScrollC2S",
     "MixinOpEval",
     "MixinStaffCastEnv",
+    "hexal.MixinWispCastEnv",
     "hexal.MixinWispCastingManager"
   ],
   "injectors": {
