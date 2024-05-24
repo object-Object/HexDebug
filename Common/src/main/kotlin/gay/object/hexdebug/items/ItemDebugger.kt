@@ -1,14 +1,12 @@
 package gay.`object`.hexdebug.items
 
 import at.petrak.hexcasting.api.casting.iota.ListIota
-import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.mod.HexConfig
 import at.petrak.hexcasting.api.utils.getBoolean
 import at.petrak.hexcasting.api.utils.getInt
 import at.petrak.hexcasting.api.utils.putBoolean
 import at.petrak.hexcasting.api.utils.putInt
 import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
-import at.petrak.hexcasting.common.msgs.MsgNewSpiralPatternsS2C
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
@@ -90,13 +88,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
             } ?: return InteractionResultHolder.fail(stack)
 
             val ctx = DebugItemCastEnv(serverPlayer, usedHand)
-            val args = CastArgs(instrs, ctx, serverLevel) {
-                if (it is PatternIota) {
-                    val packet = MsgNewSpiralPatternsS2C(serverPlayer.uuid, listOf(it.pattern), 140)
-                    IXplatAbstractions.INSTANCE.sendPacketToPlayer(serverPlayer, packet)
-                    IXplatAbstractions.INSTANCE.sendPacketTracking(serverPlayer, packet)
-                }
-            }
+            val args = CastArgs(instrs, ctx, serverLevel)
 
             if (!debugAdapter.startDebugging(args)) {
                 return noClient(player, stack)

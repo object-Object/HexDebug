@@ -7,6 +7,7 @@ import at.petrak.hexcasting.common.msgs.*
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
+import gay.`object`.hexdebug.casting.eval.DebugStaffCastEnv
 import gay.`object`.hexdebug.utils.itemPredicate
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
@@ -47,7 +48,7 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
         }
 
         val patterns = debugger.evaluatorUIPatterns
-        val (stack, ravenmind) = debugger.vm.generateDescs()
+        val (stack, ravenmind) = debugger.generateDescs()
         IXplatAbstractions.INSTANCE.sendPacketToPlayer(
             player, MsgOpenSpellGuiS2C(hand, patterns, stack, ravenmind, 0)
         )
@@ -82,7 +83,8 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
                 return
             }
 
-            val clientInfo = debugAdapter.evaluate(msg.pattern) ?: return
+            val env = DebugStaffCastEnv(sender, msg.handUsed)
+            val clientInfo = debugAdapter.evaluate(env, msg.pattern) ?: return
 
             debugger.evaluatorUIPatterns.clear()
             if (!clientInfo.isStackClear) {

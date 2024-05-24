@@ -1,6 +1,9 @@
 package gay.`object`.hexdebug.casting.eval
 
 import at.petrak.hexcasting.api.casting.castables.Action
+import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
+import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect
+import at.petrak.hexcasting.api.casting.eval.vm.CastingVM
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.debugger.DebugStepType
 import net.minecraft.network.chat.Component
@@ -26,4 +29,12 @@ interface IDebugCastEnv {
     ) {
         DebugAdapterManager[caster]?.print(message.string + "\n", category, withSource)
     }
+
+    fun printDebugMishap(env: CastingEnvironment, caster: ServerPlayer, mishap: OperatorSideEffect.DoMishap) {
+        mishap.mishap.errorMessageWithName(env, mishap.errorCtx)?.also {
+            printDebugMessage(caster, it, OutputEventArgumentsCategory.STDERR)
+        }
+    }
 }
+
+val CastingVM.debugCastEnv get() = env as IDebugCastEnv
