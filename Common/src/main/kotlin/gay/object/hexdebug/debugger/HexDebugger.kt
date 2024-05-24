@@ -13,6 +13,7 @@ import at.petrak.hexcasting.api.casting.mishaps.Mishap
 import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import at.petrak.hexcasting.common.casting.actions.eval.OpEval
+import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
 import gay.`object`.hexdebug.adapter.LaunchArgs
 import gay.`object`.hexdebug.casting.eval.FrameBreakpoint
 import gay.`object`.hexdebug.casting.eval.IDebugCastEnv
@@ -67,7 +68,9 @@ class HexDebugger(
 
     val evaluatorUIPatterns = mutableListOf<ResolvedPattern>()
 
-    private var evaluatorResetData: Pair<SpellContinuation, CastingImage>? = null
+    private var evaluatorResetData: EvaluatorResetData? = null
+
+    private var isAtCaughtMishap = false
 
     private var lastResolutionType = ResolvedPatternType.UNRESOLVED
 
@@ -379,29 +382,43 @@ class HexDebugger(
      * Use [DebugAdapter.evaluate][gay.object.hexdebug.adapter.DebugAdapter.evaluate] instead.
      */
     internal fun evaluate(env: CastingEnvironment, list: SpellList): DebugStepResult {
+        val vm = getVM(env)
+
+        if (isAtCaughtMishap) {
+            // manually trigger the mishap sound
+            // TODO: this feels scuffed.
+            env.postExecution(
+                CastResult(NullIota(), nextContinuation, null, listOf(), lastResolutionType, HexEvalSounds.MISHAP)
+            )
+            return DebugStepResult(StopReason.EXCEPTION, clientInfo = getClientView(vm))
+        }
+
         val startedEvaluating = evaluatorResetData == null
         if (startedEvaluating) {
-            evaluatorResetData = Pair(nextContinuation, image)
+            evaluatorResetData = EvaluatorResetData(nextContinuation, image, lastResolutionType, isAtCaughtMishap)
         }
+
         nextContinuation = nextContinuation.pushFrame(FrameEvaluate(list, false))
-        return executeNextDebugStep(getVM(env)).copy(startedEvaluating = startedEvaluating)
+        return executeNextDebugStep(vm, doStaffMishaps = true).copy(startedEvaluating = startedEvaluating)
     }
 
     /**
      * Use [DebugAdapter.resetEvaluator][gay.object.hexdebug.adapter.DebugAdapter.resetEvaluator] instead.
      */
-    internal fun resetEvaluator() {
-        evaluatorResetData?.also { (continuation, image) ->
-            nextContinuation = continuation
-            this.image = image
-            evaluatorResetData = null
+    internal fun resetEvaluator() = (evaluatorResetData != null).also { _ ->
+        evaluatorResetData?.also {
+            nextContinuation = it.continuation
+            image = it.image
+            lastResolutionType = it.lastResolutionType
+            isAtCaughtMishap = it.isAtCaughtMishap
         }
+        evaluatorResetData = null
         evaluatorUIPatterns.clear()
     }
 
     fun start(): DebugStepResult {
         return if (launchArgs.stopOnEntry) {
-            DebugStepResult(StopReason.ENTRY)
+            DebugStepResult(StopReason.STARTED)
         } else if (isAtBreakpoint()) {
             DebugStepResult(StopReason.BREAKPOINT)
         } else {
@@ -418,11 +435,10 @@ class HexDebugger(
         var hitBreakpoint = false
 
         while (true) {
-            val result = executeNextDebugStep(vm, exactlyOnce = true).let {
-                if (it.isDone) return it
-                lastResult?.plus(it) ?: it
-            }
+            val result = executeNextDebugStep(vm, exactlyOnce = true).let { lastResult?.plus(it) ?: it }
             lastResult = result
+
+            if (result.reason.stopImmediately) return result
 
             if (isAtBreakpoint()) {
                 hitBreakpoint = true
@@ -466,7 +482,11 @@ class HexDebugger(
     fun executeOnce() = executeNextDebugStep(getVM())
 
     // Copy of CastingVM.queueExecuteAndWrapIotas to allow stepping by one pattern at a time.
-    private fun executeNextDebugStep(vm: CastingVM, exactlyOnce: Boolean = false): DebugStepResult {
+    private fun executeNextDebugStep(
+        vm: CastingVM,
+        exactlyOnce: Boolean = false,
+        doStaffMishaps: Boolean = false,
+    ): DebugStepResult {
         var stepResult = DebugStepResult(StopReason.STEP)
 
         var continuation = nextContinuation // bind locally so we can do smart casting
@@ -496,13 +516,14 @@ class HexDebugger(
             // if something went wrong, push a breakpoint or stop immediately
             // and save the old image so we can see the stack BEFORE the mishap instead of after
             // TODO: maybe implement a way to see the stack at each call frame instead?
-            val (newContinuation, preMishapImage) = if (castResult.resolutionType.success) {
+            val (newContinuation, preMishapImage) = if (castResult.resolutionType.success || doStaffMishaps) {
                 Pair(castResult.continuation, null)
             } else if (ExceptionBreakpointType.UNCAUGHT_MISHAPS in exceptionBreakpoints) {
+                isAtCaughtMishap = true
                 stepResult = stepResult.copy(reason = StopReason.EXCEPTION)
                 Pair(castResult.continuation.pushFrame(FrameBreakpoint.fatal()), vm.image)
             } else {
-                Pair(Done, vm.image)
+                Pair(Done, null)
             }
 
             // we use this when printing to the console, so this should happen BEFORE vm.env.postExecution (ie. for mishaps)
@@ -560,6 +581,7 @@ class HexDebugger(
             info.earlyExit = info.earlyExit || !castResult.resolutionType.success
 
             // this needs to be after performSideEffects, since that's where mishaps mess with the stack
+            // note: preMishapImage is only non-null if we actually encountered a mishap
             if (preMishapImage != null) vm.image = preMishapImage
 
             if (exactlyOnce || shouldStopAtFrame(continuation)) {
@@ -738,6 +760,13 @@ class HexDebugger(
             }
         }
     }
+
+    data class EvaluatorResetData(
+        val continuation: SpellContinuation,
+        val image: CastingImage,
+        val lastResolutionType: ResolvedPatternType,
+        val isAtCaughtMishap: Boolean,
+    )
 }
 
 val SpellContinuation.frame get() = (this as? NotDone)?.frame

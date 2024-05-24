@@ -122,8 +122,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     fun resetEvaluator() {
         setEvaluatorState(ItemEvaluator.EvalState.DEFAULT)
-        debugger?.also {
-            it.resetEvaluator()
+        if (debugger?.resetEvaluator() == true) {
             sendStoppedEvent("step")
         }
     }

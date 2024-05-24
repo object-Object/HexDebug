@@ -1,11 +1,11 @@
 package gay.`object`.hexdebug.debugger
 
-enum class StopReason(val value: String) {
-    STEP("step"),
-    BREAKPOINT("breakpoint"),
-    EXCEPTION("exception"),
-    ENTRY("entry"),
-    TERMINATED("terminated"),
+enum class StopReason(val value: String, val stopImmediately: Boolean) {
+    STEP("step", false),
+    BREAKPOINT("breakpoint", true),
+    EXCEPTION("exception", true),
+    STARTED("entry", true),
+    TERMINATED("terminated", true),
 }
 
 enum class DebugStepType {

@@ -26,7 +26,7 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
         val itemStack = player.getItemInHand(hand)
 
         if (world.isClientSide) {
-            if (player.isShiftKeyDown) {
+            if (player.isShiftKeyDown && evalState == EvalState.MODIFIED) {
                 player.playSound(HexSounds.STAFF_RESET, 1f, 1f)
             }
             return InteractionResultHolder.success(itemStack)
