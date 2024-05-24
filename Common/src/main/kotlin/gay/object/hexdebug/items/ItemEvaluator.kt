@@ -7,7 +7,7 @@ import at.petrak.hexcasting.common.msgs.*
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
-import gay.`object`.hexdebug.casting.eval.DebugStaffCastEnv
+import gay.`object`.hexdebug.casting.eval.EvaluatorCastEnv
 import gay.`object`.hexdebug.utils.itemPredicate
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
@@ -83,7 +83,7 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
                 return
             }
 
-            val env = DebugStaffCastEnv(sender, msg.handUsed)
+            val env = EvaluatorCastEnv(sender, msg.handUsed)
             val clientInfo = debugAdapter.evaluate(env, msg.pattern) ?: return
 
             debugger.evaluatorUIPatterns.clear()

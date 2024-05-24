@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 
-class DebugItemCastEnv(
+class DebuggerCastEnv(
     caster: ServerPlayer,
     castingHand: InteractionHand,
 ) : PackagedItemCastEnv(caster, castingHand), IDebugCastEnv {

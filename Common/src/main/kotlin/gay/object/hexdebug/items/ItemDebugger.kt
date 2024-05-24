@@ -10,7 +10,7 @@ import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
-import gay.`object`.hexdebug.casting.eval.DebugItemCastEnv
+import gay.`object`.hexdebug.casting.eval.DebuggerCastEnv
 import gay.`object`.hexdebug.debugger.CastArgs
 import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.itemPredicate
@@ -87,7 +87,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
                 }
             } ?: return InteractionResultHolder.fail(stack)
 
-            val ctx = DebugItemCastEnv(serverPlayer, usedHand)
+            val ctx = DebuggerCastEnv(serverPlayer, usedHand)
             val args = CastArgs(instrs, ctx, serverLevel)
 
             if (!debugAdapter.startDebugging(args)) {
