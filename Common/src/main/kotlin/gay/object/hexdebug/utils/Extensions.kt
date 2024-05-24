@@ -1,6 +1,9 @@
 package gay.`object`.hexdebug.utils
 
+import at.petrak.hexcasting.xplat.IXplatAbstractions
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.Item
 import java.util.concurrent.CompletableFuture
 import kotlin.enums.enumEntries
 import kotlin.math.ceil
@@ -34,6 +37,12 @@ val InteractionHand.otherHand get() = when (this) {
     InteractionHand.MAIN_HAND -> InteractionHand.OFF_HAND
     InteractionHand.OFF_HAND -> InteractionHand.MAIN_HAND
 }
+
+fun LivingEntity.getItemInHand(hand: InteractionHand, item: Item) =
+    getItemInHand(hand).takeIf { it.`is`(item) }
+
+fun LivingEntity.findMediaHolderInHand(hand: InteractionHand, item: Item) =
+    getItemInHand(hand, item)?.let(IXplatAbstractions.INSTANCE::findMediaHolder)
 
 // ceil the denominator to a power of 2 so we don't have issues with eg. 1/3
 @OptIn(ExperimentalStdlibApi::class)

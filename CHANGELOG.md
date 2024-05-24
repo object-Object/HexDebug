@@ -8,7 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Fixed
 
-- Fixed a bug where the Evaluator was unable to cast any spells requiring media.
+- The Evaluator was unable to cast any spells requiring media.
+- When debugging, spells requiring media would fail if a Debugger was not in the hand that the debug session was started with. 
 
 ## 0.2.0+1.20.1
 
