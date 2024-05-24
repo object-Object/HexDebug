@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [UNRELEASED]
 
+### Changed
+
+- A message is now displayed if attempting to use an Evaluator when not debugging, instead of silently failing. 
+
 ### Fixed
 
 - The Evaluator was unable to cast any spells requiring media.

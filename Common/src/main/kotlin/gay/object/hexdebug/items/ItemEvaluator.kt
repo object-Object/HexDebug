@@ -11,6 +11,7 @@ import gay.`object`.hexdebug.casting.eval.EvaluatorCastEnv
 import gay.`object`.hexdebug.utils.itemPredicate
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
@@ -36,6 +37,7 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
         val debugAdapter = DebugAdapterManager[player]
         val debugger = debugAdapter?.debugger
         if (debugAdapter == null || debugger == null) {
+            player.displayClientMessage(Component.translatable("text.hexdebug.no_session"), true)
             return InteractionResultHolder.fail(itemStack)
         }
 
