@@ -33,8 +33,8 @@ import kotlin.math.min
 import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceReason
 
 class HexDebugger(
-    private val initArgs: InitializeRequestArguments,
-    private val launchArgs: LaunchArgs,
+    var initArgs: InitializeRequestArguments,
+    var launchArgs: LaunchArgs,
     private val defaultEnv: CastingContext,
     private val world: ServerLevel,
     private val onExecute: ((Iota) -> Unit)? = null,
@@ -63,7 +63,8 @@ class HexDebugger(
     private val sourceAllocator = SourceAllocator(iotas.hashCode())
 
     private val iotaMetadata = IdentityHashMap<Iota, IotaMetadata>()
-    private val frameInvocationMetadata = IdentityHashMap<SpellContinuation, () -> IotaMetadata?>()
+    // FIXME: this is really terrible and gross and i don't like it
+    private val frameInvocationMetadata = IdentityHashMap<SpellContinuation, () -> Pair<Iota, IotaMetadata?>?>()
     private val virtualFrames = IdentityHashMap<SpellContinuation, MutableList<StackFrame>>()
 
     private val breakpoints = mutableMapOf<Int, MutableMap<Int, SourceBreakpointMode>>() // source id -> line number
@@ -94,13 +95,13 @@ class HexDebugger(
                 if (launchArgs.stopOnExit) {
                     // FIXME: scuffed as hell
                     val lastIota = iotas.lastOrNull()
-                    val column = lastIota?.let {
+                    val columnIndex = lastIota?.let {
                         // +1 so it goes *after* the last character
-                        indexToColumn(iotaToString(it, isSource = true).lastIndex + 1)
+                        iotaToString(it, isSource = true).lastIndex + 1
                     }
                     pushFrame(newFrameBreakpoint(stopBefore = true)).also { newCont ->
                         frameInvocationMetadata[newCont] = {
-                            lastIota?.let { iotaMetadata[it] }?.copy(column = column)
+                            lastIota?.let { it to iotaMetadata[it]?.copy(columnIndex = columnIndex) }
                         }
                     }
                 } else this
@@ -122,7 +123,7 @@ class HexDebugger(
 
         val source = sourceAllocator.add(unregisteredIotas)
         for ((index, iota) in unregisteredIotas.withIndex()) {
-            iotaMetadata[iota] = IotaMetadata(source, indexToLineNumber(index))
+            iotaMetadata[iota] = IotaMetadata(source, index)
         }
         return source
     }
@@ -133,7 +134,7 @@ class HexDebugger(
         else -> null
     }
 
-    private fun getFirstIotaMetadata(continuation: NotDone): IotaMetadata? =
+    private fun getFirstIotaMetadata(continuation: NotDone): Pair<Iota, IotaMetadata?>? =
         // for FrameEvaluate, show the next iota to be evaluated (if any)
         (continuation.frame as? FrameEvaluate)?.let(::getFirstIotaMetadata)
         // for everything else, show the caller if we have it
@@ -141,7 +142,7 @@ class HexDebugger(
         // otherwise show the first contained iota
         ?: getFirstIotaMetadata(continuation.frame)
 
-    private fun getFirstIotaMetadata(frame: ContinuationFrame) = getIotas(frame)?.let { iotaMetadata[it.car] }
+    private fun getFirstIotaMetadata(frame: ContinuationFrame) = getIotas(frame)?.let { it.car to iotaMetadata[it.car] }
 
     // current continuation is last
     private fun getCallStack(current: SpellContinuation) = generateSequence(current as? NotDone) {
@@ -151,6 +152,13 @@ class HexDebugger(
         }
     }.toList().asReversed()
 
+    /** (iota, index) */
+    fun getNextIotaToEvaluate(): Pair<String, Int>? {
+        val continuation = nextContinuation as? NotDone ?: return null
+        val (iota, meta) = getFirstIotaMetadata(continuation) ?: return null
+        return iotaToString(iota, isSource = false) to (meta?.lineIndex ?: -1)
+    }
+
     fun getStackFrames(): Sequence<StackFrame> {
         var frameId = 1
         var virtualFrameId = (callStack.size + 1).ceilToPow(10)
@@ -159,7 +167,7 @@ class HexDebugger(
                 StackFrame().apply {
                     id = frameId++
                     name = "[$id] ${continuation.frame.name}"
-                    setSourceAndPosition(getFirstIotaMetadata(continuation))
+                    setSourceAndPosition(initArgs, getFirstIotaMetadata(continuation)?.second)
                 }
             ) + virtualFrames[continuation]?.map {
                 it.apply {
@@ -296,7 +304,7 @@ class HexDebugger(
                 if (source == null || iotas == null) {
                     message = "Unknown source"
                     reason = BreakpointNotVerifiedReason.PENDING  // TODO: send Breakpoint event later
-                } else if (it.line > indexToLineNumber(iotas.lastIndex)) {
+                } else if (it.line > initArgs.indexToLine(iotas.lastIndex)) {
                     message = "Line number out of range"
                     reason = BreakpointNotVerifiedReason.FAILED
                 } else {
@@ -320,10 +328,6 @@ class HexDebugger(
         }
     }
 
-    private fun indexToLineNumber(index: Int) = index + if (initArgs.linesStartAt1) 1 else 0
-
-    private fun indexToColumn(index: Int) = index + if (initArgs.columnsStartAt1) 1 else 0
-
     private fun isAtBreakpoint(): Boolean {
         val nextIota = when (val frame = nextFrame) {
             is FrameEvaluate -> if (frame.isFrameBreakpoint) {
@@ -335,7 +339,7 @@ class HexDebugger(
         } ?: return false
 
         val breakpointMode = iotaMetadata[nextIota]
-            ?.let { breakpoints[it.source.sourceReference]?.get(it.line) }
+            ?.let { breakpoints[it.source.sourceReference]?.get(it.line(initArgs)) }
             ?: return false
 
         val escapeNext = image.escapeNext || image.parenCount > 0
@@ -554,12 +558,12 @@ class HexDebugger(
                 // insert a virtual FrameFinishEval if OpEval didn't (ie. if we did a TCO)
                 if (launchArgs.showTailCallFrames && vm.debugCastEnv.`lastEvaluatedAction$hexdebug` is OpEval) {
                     val invokeMeta = iotaMetadata[cast]
-                    val nextInvokeMeta = frameInvocationMetadata[newContinuation.next]?.invoke()
+                    val nextInvokeMeta = frameInvocationMetadata[newContinuation.next]?.invoke()?.second
                     if (invokeMeta != null && invokeMeta != nextInvokeMeta) {
                         virtualFrames.getOrPut(continuation.next) { mutableListOf() }.add(
                             StackFrame().apply {
                                 name = "FrameFinishEval"
-                                setSourceAndPosition(invokeMeta)
+                                setSourceAndPosition(initArgs, invokeMeta)
                             }
                         )
                     }
@@ -747,7 +751,7 @@ class HexDebugger(
 
     private fun trySetIotaOverride(continuation: SpellContinuation, cast: Iota): Boolean {
         return if (continuation !in frameInvocationMetadata && continuation is NotDone) {
-            frameInvocationMetadata[continuation] = { iotaMetadata[cast] }
+            frameInvocationMetadata[continuation] = { cast to iotaMetadata[cast] }
             true
         } else false
     }

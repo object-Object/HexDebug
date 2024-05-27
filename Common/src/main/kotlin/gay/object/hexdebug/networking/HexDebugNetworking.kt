@@ -2,17 +2,23 @@ package gay.`object`.hexdebug.networking
 
 import dev.architectury.networking.NetworkChannel
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.networking.msg.*
 import net.minecraft.server.level.ServerPlayer
 
 object HexDebugNetworking {
     private val CHANNEL = NetworkChannel.create(HexDebug.id("networking_channel"))
 
     fun init() {
-        // FIXME: gross.
-        CHANNEL.register(MsgDebugAdapterProxyC2S::class.java, MsgDebugAdapterProxyC2S::encode, ::MsgDebugAdapterProxyC2S, MsgDebugAdapterProxyC2S::apply)
-        CHANNEL.register(MsgDebugAdapterProxyS2C::class.java, MsgDebugAdapterProxyS2C::encode, ::MsgDebugAdapterProxyS2C, MsgDebugAdapterProxyS2C::apply)
-        CHANNEL.register(MsgDebuggerStateS2C::class.java, MsgDebuggerStateS2C::encode, ::MsgDebuggerStateS2C, MsgDebuggerStateS2C::apply)
-        CHANNEL.register(MsgEvaluatorStateS2C::class.java, MsgEvaluatorStateS2C::encode, ::MsgEvaluatorStateS2C, MsgEvaluatorStateS2C::apply)
+        val messages = listOf(
+            MsgDebugAdapterProxyC2S,
+            MsgDebugAdapterProxyS2C,
+            MsgDebuggerStateS2C,
+            MsgEvaluatorStateS2C,
+            MsgPrintDebuggerStatusS2C,
+        )
+        for (message in messages) {
+            message.register(CHANNEL)
+        }
     }
 
     fun <T> sendToServer(message: T) = CHANNEL.sendToServer(message)

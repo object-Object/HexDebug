@@ -1,12 +1,14 @@
 package gay.`object`.hexdebug.debugger
 
+import org.eclipse.lsp4j.debug.InitializeRequestArguments
+import org.eclipse.lsp4j.debug.OutputEventArguments
 import org.eclipse.lsp4j.debug.Source
 import org.eclipse.lsp4j.debug.StackFrame
 
 data class IotaMetadata(
     val source: Source,
-    val line: Int,
-    val column: Int? = null,
+    val lineIndex: Int,
+    val columnIndex: Int? = null,
 ) {
     var needsReload = false
 
@@ -21,12 +23,28 @@ data class IotaMetadata(
 
     fun indent(width: Int) = " ".repeat(width * (parenCount ?: 0))
 
-    override fun toString() = "${source.name}:$line" + if (column != null) ":$column" else ""
+    fun line(initArgs: InitializeRequestArguments) = initArgs.indexToLine(lineIndex)
+
+    fun column(initArgs: InitializeRequestArguments) = columnIndex?.let(initArgs::indexToColumn)
+
+    fun toString(initArgs: InitializeRequestArguments) =
+        listOfNotNull(source.name, line(initArgs), column(initArgs)).joinToString(":")
 }
 
-fun StackFrame.setSourceAndPosition(meta: IotaMetadata?) {
+fun StackFrame.setSourceAndPosition(initArgs: InitializeRequestArguments, meta: IotaMetadata?) {
     if (meta == null) return
     source = meta.source
-    line = meta.line
-    meta.column?.let { column = it }
+    line = meta.line(initArgs)
+    meta.column(initArgs)?.also { column = it }
 }
+
+fun OutputEventArguments.setSourceAndPosition(initArgs: InitializeRequestArguments, meta: IotaMetadata?) {
+    if (meta == null) return
+    source = meta.source
+    line = meta.line(initArgs)
+    meta.column(initArgs)?.also { column = it }
+}
+
+fun InitializeRequestArguments.indexToLine(index: Int) = index + if (linesStartAt1) 1 else 0
+
+fun InitializeRequestArguments.indexToColumn(index: Int) = index + if (columnsStartAt1) 1 else 0

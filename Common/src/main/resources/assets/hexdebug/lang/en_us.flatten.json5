@@ -8,10 +8,11 @@
 
   text: {
     hexdebug: {
-      no_client: "Debug client is not connected.",
       connected: "Debug client connected!",
-      no_session: "No debug session is running.",
+      no_session: "Debug session is not running.",
       thwack: "Thwack!",
+      // Next Iota: [{index}] {iota}
+      debugger_stopped: "Next Iota: [%d] %s",
     },
 
     "autoconfig.hexdebug": {
@@ -33,6 +34,18 @@
             "": "Smart Debugger Sneak-Scroll",
             "@Tooltip": "If a hex is not currently being debugged and a Debugger is in your main hand, prefer shift-scrolling whatever item is in your offhand (eg. a spellbook).",
           },
+          debuggerDisplayMode: {
+            "": "Debugger Display Mode",
+            "@Tooltip": "\
+              Changes when the Debugger should print the next iota to be evaluated.\n\
+                DISABLED: Never show Debugger status messages.\n\
+                NOT_CONNECTED: Only show Debugger status messages if a debug client is not connected.\n\
+                ENABLED: Always show Debugger status messages. (default)",
+          },
+          showDebugClientLineNumber: {
+            "": "Show Debug Client Line Number",
+            "@Tooltip": "If true, show the line number (usually 1-indexed) from the debug client (eg. VSCode) in Debugger status messages; otherwise, show the list index (0-indexed)."
+          }
         },
       },
     },

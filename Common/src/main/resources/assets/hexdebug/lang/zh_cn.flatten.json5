@@ -8,7 +8,6 @@
 
   text: {
     hexdebug: {
-      no_client: "调试客户端未连接。",
       connected: "调试客户端已连接！",
       thwack: "哐当！",
     },

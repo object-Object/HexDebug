@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Changed
 
+- The Debugger can now be used without VSCode being connected! The next evaluated iota is displayed above the hotbar each time the debugger stops (configurable).
 - A message is now displayed if attempting to use an Evaluator when not debugging, instead of silently failing.
 - Evaluators are now prevented from evaluating patterns after an Uncaught Mishap breakpoint is hit.
 
