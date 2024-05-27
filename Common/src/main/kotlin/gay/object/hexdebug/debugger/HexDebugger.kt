@@ -8,6 +8,7 @@ import at.petrak.hexcasting.api.spell.casting.CastingHarness.CastResult
 import at.petrak.hexcasting.api.spell.casting.eval.*
 import at.petrak.hexcasting.api.spell.casting.eval.SpellContinuation.Done
 import at.petrak.hexcasting.api.spell.casting.eval.SpellContinuation.NotDone
+import at.petrak.hexcasting.api.spell.casting.sideeffects.EvalSound
 import at.petrak.hexcasting.api.spell.casting.sideeffects.OperatorSideEffect
 import at.petrak.hexcasting.api.spell.iota.*
 import at.petrak.hexcasting.api.spell.math.HexDir
@@ -38,13 +39,13 @@ class HexDebugger(
     private val world: ServerLevel,
     private val onExecute: ((Iota) -> Unit)? = null,
     iotas: List<Iota>,
-    private var image: FunctionalData? = null,
+    private var image: FunctionalData = emptyFunctionalData(),
 ) {
     constructor(
         initArgs: InitializeRequestArguments,
         launchArgs: LaunchArgs,
         castArgs: CastArgs,
-        image: FunctionalData? = null,
+        image: FunctionalData = emptyFunctionalData(),
     ) : this(initArgs, launchArgs, castArgs.env, castArgs.world, castArgs.onExecute, castArgs.iotas, image)
 
     var lastEvaluatedMetadata: IotaMetadata? = null
@@ -52,7 +53,10 @@ class HexDebugger(
 
     // ensure we passed a debug cast env to help catch errors early
     init {
-        (defaultEnv as IMixinCastingContext).`isDebugging$hexdebug` = true
+        @Suppress("CAST_NEVER_SUCCEEDS")
+        if (!(defaultEnv as IMixinCastingContext).`isDebugging$hexdebug`) {
+            throw IllegalArgumentException("defaultEnv.isDebugging\$hexdebug must be true")
+        }
     }
 
     private val variablesAllocator = VariablesAllocator()
@@ -106,7 +110,9 @@ class HexDebugger(
 
     private val nextFrame get() = (nextContinuation as? NotDone)?.frame
 
-    private fun getVM(env: CastingEnvironment? = null) = CastingVM(image, env ?: defaultEnv)
+    private fun getVM(env: CastingContext? = null) = CastingHarness(env ?: defaultEnv).apply {
+        applyFunctionalData(image)
+    }
 
     private fun registerNewSource(frame: ContinuationFrame): Source? = getIotas(frame)?.let(::registerNewSource)
 
@@ -343,6 +349,8 @@ class HexDebugger(
 
     fun generateDescs() = getVM().generateDescs()
 
+    fun getClientView() = getClientView(getVM())
+
     private fun getClientView(vm: CastingHarness): ControllerInfo {
         val (stackDescs, parenthesized, ravenmind) = vm.generateDescs()
         val isStackClear = nextContinuation is Done // only close the window if we're done evaluating
@@ -352,15 +360,11 @@ class HexDebugger(
     /**
      * Use [DebugAdapter.evaluate][gay.object.hexdebug.adapter.DebugAdapter.evaluate] instead.
      */
-    internal fun evaluate(env: CastingEnvironment, list: SpellList): DebugStepResult {
+    internal fun evaluate(env: CastingContext, list: SpellList): DebugStepResult {
         val vm = getVM(env)
 
         if (isAtCaughtMishap) {
-            // manually trigger the mishap sound
-            // TODO: this feels scuffed.
-            env.postExecution(
-                CastResult(NullIota(), nextContinuation, null, listOf(), lastResolutionType, HexEvalSounds.MISHAP)
-            )
+            playSound(vm, HexEvalSounds.MISHAP)
             return DebugStepResult(StopReason.EXCEPTION, clientInfo = getClientView(vm))
         }
 
@@ -585,14 +589,7 @@ class HexDebugger(
             }
         }
 
-        sound.sound?.let {
-            vm.ctx.world.playSound(
-                null, vm.ctx.position.x, vm.ctx.position.y, vm.ctx.position.z, it,
-                SoundSource.PLAYERS, 1f, 1f
-            )
-            // TODO: is it worth mixing in to the immut map and making our own game event with blackjack and hookers
-            vm.ctx.world.gameEvent(vm.ctx.caster, GameEvent.ITEM_INTERACT_FINISH, vm.ctx.position)
-        }
+        playSound(vm, sound)
 
         // never show virtual frames above the top of the call stack
         virtualFrames[continuation]?.clear()
@@ -604,6 +601,17 @@ class HexDebugger(
             is Done -> stepResult.done()
             is NotDone -> stepResult
         }.copy(clientInfo = getClientView(vm))
+    }
+
+    private fun playSound(vm: CastingHarness, sound: EvalSound) {
+        sound.sound?.let {
+            vm.ctx.world.playSound(
+                null, vm.ctx.position.x, vm.ctx.position.y, vm.ctx.position.z, it,
+                SoundSource.PLAYERS, 1f, 1f
+            )
+            // TODO: is it worth mixing in to the immut map and making our own game event with blackjack and hookers
+            vm.ctx.world.gameEvent(vm.ctx.caster, GameEvent.ITEM_INTERACT_FINISH, vm.ctx.position)
+        }
     }
 
     // directly copied from CastingHarness
@@ -670,7 +678,7 @@ class HexDebugger(
     }
 
     private fun getStepType(
-        vm: CastingVM,
+        vm: CastingHarness,
         castResult: CastResult,
         continuation: NotDone,
         newContinuation: SpellContinuation,
@@ -793,3 +801,5 @@ enum class RequestStepType {
     OVER,
     OUT,
 }
+
+fun emptyFunctionalData() = FunctionalData(listOf(), 0, listOf(), false, null)

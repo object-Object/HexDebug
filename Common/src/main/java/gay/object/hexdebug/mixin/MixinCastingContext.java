@@ -2,6 +2,7 @@ package gay.object.hexdebug.mixin;
 
 import at.petrak.hexcasting.api.spell.Action;
 import at.petrak.hexcasting.api.spell.casting.CastingContext;
+import gay.object.hexdebug.casting.eval.DebugCastEnvType;
 import gay.object.hexdebug.casting.eval.IMixinCastingContext;
 import gay.object.hexdebug.debugger.DebugStepType;
 import net.minecraft.network.chat.Component;
@@ -39,6 +40,9 @@ public abstract class MixinCastingContext implements IMixinCastingContext {
     private boolean isDebugging$hexdebug = false;
     @Nullable
     @Unique
+    private DebugCastEnvType debugCastEnvType$hexdebug = null;
+    @Nullable
+    @Unique
     private Action lastEvaluatedAction$hexdebug = null;
     @Nullable
     @Unique
@@ -74,5 +78,16 @@ public abstract class MixinCastingContext implements IMixinCastingContext {
     @Override
     public void setLastDebugStepType$hexdebug(@Nullable DebugStepType lastDebugStepType) {
         lastDebugStepType$hexdebug = lastDebugStepType;
+    }
+
+    @Nullable
+    @Override
+    public DebugCastEnvType getDebugCastEnvType$hexdebug() {
+        return debugCastEnvType$hexdebug;
+    }
+
+    @Override
+    public void setDebugCastEnvType$hexdebug(@Nullable DebugCastEnvType debugCastEnvType) {
+        debugCastEnvType$hexdebug = debugCastEnvType;
     }
 }

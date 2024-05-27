@@ -108,11 +108,11 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         })
     }
 
-    fun evaluate(env: CastingEnvironment, pattern: HexPattern) = evaluate(env, PatternIota(pattern))
+    fun evaluate(env: CastingContext, pattern: HexPattern) = evaluate(env, PatternIota(pattern))
 
-    fun evaluate(env: CastingEnvironment, iota: Iota) = evaluate(env, SpellList.LList(listOf(iota)))
+    fun evaluate(env: CastingContext, iota: Iota) = evaluate(env, SpellList.LList(listOf(iota)))
 
-    fun evaluate(env: CastingEnvironment, list: SpellList) = debugger?.let {
+    fun evaluate(env: CastingContext, list: SpellList) = debugger?.let {
         val result = it.evaluate(env, list)
         if (result.startedEvaluating) {
             setEvaluatorState(ItemEvaluator.EvalState.MODIFIED)

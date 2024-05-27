@@ -1,6 +1,5 @@
 package gay.`object`.hexdebug.items
 
-import at.petrak.hexcasting.api.spell.casting.CastingContext
 import at.petrak.hexcasting.api.spell.iota.ListIota
 import at.petrak.hexcasting.api.utils.getBoolean
 import at.petrak.hexcasting.api.utils.getInt
@@ -10,6 +9,7 @@ import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
+import gay.`object`.hexdebug.casting.eval.newDebuggerCastEnv
 import gay.`object`.hexdebug.debugger.CastArgs
 import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.itemPredicate
@@ -92,7 +92,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
                 }
             } ?: return InteractionResultHolder.fail(stack)
 
-            val ctx = CastingContext(serverPlayer, usedHand, CastingContext.CastSource.PACKAGED_HEX)
+            val ctx = newDebuggerCastEnv(serverPlayer, usedHand)
             val args = CastArgs(instrs, ctx, serverLevel)
 
             if (!debugAdapter.startDebugging(args)) {

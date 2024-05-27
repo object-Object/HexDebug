@@ -8,7 +8,7 @@ import at.petrak.hexcasting.common.network.MsgOpenSpellGuiAck
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
-import gay.`object`.hexdebug.casting.eval.EvaluatorCastEnv
+import gay.`object`.hexdebug.casting.eval.newEvaluatorCastEnv
 import gay.`object`.hexdebug.utils.itemPredicate
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
@@ -46,9 +46,9 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
         }
 
         val patterns = debugger.evaluatorUIPatterns
-        val (stack, parenthesized, ravenmind) = debugger.generateDescs()
+        val view = debugger.getClientView()
         IXplatAbstractions.INSTANCE.sendPacketToPlayer(
-            player, MsgOpenSpellGuiAck(hand, patterns, stack, parenthesized, ravenmind, debugger.vm.parenCount)
+            player, MsgOpenSpellGuiAck(hand, patterns, view.stack, view.parenthesized, view.ravenmind, view.parenCount)
         )
 
         player.awardStat(Stats.ITEM_USED[this])
@@ -81,7 +81,7 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
                 return
             }
 
-            val env = EvaluatorCastEnv(sender, msg.handUsed)
+            val env = newEvaluatorCastEnv(sender, msg.handUsed)
             val clientInfo = debugAdapter.evaluate(env, msg.pattern) ?: return
 
             debugger.evaluatorUIPatterns.clear()

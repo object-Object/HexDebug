@@ -1,13 +1,13 @@
 package gay.`object`.hexdebug.debugger
 
-import at.petrak.hexcasting.api.casting.eval.ExecutionClientView
+import at.petrak.hexcasting.api.spell.casting.ControllerInfo
 import org.eclipse.lsp4j.debug.Source
 import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceReason
 
 data class DebugStepResult(
     val reason: StopReason,
     val type: DebugStepType? = null,
-    val clientInfo: ExecutionClientView? = null,
+    val clientInfo: ControllerInfo? = null,
     val loadedSources: Map<Source, LoadedSourceReason> = mapOf(),
     val startedEvaluating: Boolean = false,
 ) {

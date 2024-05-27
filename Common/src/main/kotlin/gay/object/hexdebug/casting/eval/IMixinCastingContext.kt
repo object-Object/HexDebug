@@ -1,15 +1,23 @@
+@file:Suppress("CAST_NEVER_SUCCEEDS")
+
 package gay.`object`.hexdebug.casting.eval
 
 import at.petrak.hexcasting.api.spell.Action
+import at.petrak.hexcasting.api.spell.casting.CastingContext
+import at.petrak.hexcasting.api.spell.casting.CastingContext.CastSource
+import at.petrak.hexcasting.api.spell.casting.CastingHarness
+import at.petrak.hexcasting.api.spell.casting.sideeffects.OperatorSideEffect
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.debugger.DebugStepType
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
 import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory
 
 @Suppress("PropertyName")
 interface IMixinCastingContext {
     var `isDebugging$hexdebug`: Boolean
+    var `debugCastEnvType$hexdebug`: DebugCastEnvType?
     var `lastEvaluatedAction$hexdebug`: Action?
     var `lastDebugStepType$hexdebug`: DebugStepType?
 }
@@ -19,23 +27,19 @@ fun IMixinCastingContext.reset() {
     `lastDebugStepType$hexdebug` = null
 }
 
-fun printDebugMessage(
-    caster: ServerPlayer,
-    message: Component,
-    category: String = OutputEventArgumentsCategory.STDOUT,
-    withSource: Boolean = true,
-) {
-    DebugAdapterManager[caster]?.print(message.string + "\n", category, withSource)
-}
-
-fun printDebugMishap(
-    env: CastingContext,
-    caster: ServerPlayer,
-    mishap: OperatorSideEffect.DoMishap,
-) {
-    mishap.mishap.errorMessageWithName(env, mishap.errorCtx)?.also {
-        printDebugMessage(caster, it, OutputEventArgumentsCategory.STDERR)
+fun newDebuggerCastEnv(caster: ServerPlayer, castingHand: InteractionHand): CastingContext {
+    return CastingContext(caster, castingHand, CastSource.PACKAGED_HEX).apply {
+        this as IMixinCastingContext
+        `isDebugging$hexdebug` = true
+        `debugCastEnvType$hexdebug` = DebugCastEnvType.DEBUGGER
     }
 }
 
-val CastingVM.debugCastEnv get() = ctx as IMixinCastingContext
+fun newEvaluatorCastEnv(caster: ServerPlayer, castingHand: InteractionHand): CastingContext {
+    return CastingContext(caster, castingHand, CastSource.STAFF).apply {
+        this as IMixinCastingContext
+        `isDebugging$hexdebug` = true
+        `debugCastEnvType$hexdebug` = DebugCastEnvType.EVALUATOR
+    }
+}
+

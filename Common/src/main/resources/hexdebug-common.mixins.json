@@ -10,10 +10,10 @@
     "MixinCastingContext",
     "MixinDoMishap",
     "MixinFrameEvaluate",
+    "MixinMsgNewSpellPatternSyn",
     "MixinMsgShiftScrollSyn",
     "MixinOpEval",
-    "MixinOpPrintSpell",
-    "MixinMsgNewSpellPatternSyn"
+    "MixinOpPrintSpell"
   ],
   "injectors": {
     "defaultRequire": 1

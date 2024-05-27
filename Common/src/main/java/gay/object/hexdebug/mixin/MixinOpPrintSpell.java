@@ -4,6 +4,7 @@ import at.petrak.hexcasting.api.spell.casting.CastingContext;
 import at.petrak.hexcasting.api.spell.iota.Iota;
 import gay.object.hexdebug.casting.eval.IMixinCastingContext;
 import gay.object.hexdebug.casting.eval.IMixinCastingContextKt;
+import gay.object.hexdebug.casting.eval.UtilsKt;
 import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,7 +25,7 @@ public class MixinOpPrintSpell {
         var msg = datum.display();
         var debugCastEnv = (IMixinCastingContext) (Object) ctx;
         if (debugCastEnv != null && debugCastEnv.isDebugging$hexdebug()) {
-            IMixinCastingContextKt.printDebugMessage(ctx.getCaster(), msg, OutputEventArgumentsCategory.STDOUT, true);
+            UtilsKt.printDebugMessage(ctx.getCaster(), msg, OutputEventArgumentsCategory.STDOUT, true);
         }
     }
 }
