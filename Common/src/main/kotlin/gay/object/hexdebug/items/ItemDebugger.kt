@@ -75,7 +75,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
                     StepMode.STOP -> terminate(null)
                 }
             }
-        } else if (debugAdapter.canStartDebugging) {
+        } else {
             // start a new debug session
             val instrs = if (hasHex(stack)) {
                 getHex(stack, serverLevel) ?: return InteractionResultHolder.fail(stack)
@@ -91,10 +91,9 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
             val args = CastArgs(instrs, ctx, serverLevel)
 
             if (!debugAdapter.startDebugging(args)) {
-                return noClient(player, stack)
+                // already debugging (how??)
+                return InteractionResultHolder.fail(stack)
             }
-        } else {
-            return noClient(player, stack)
         }
 
         val stat = Stats.ITEM_USED[this]
@@ -109,11 +108,6 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
             attacker.displayClientMessage(Component.translatable("text.hexdebug.thwack"), true)
         }
         return super.hurtEnemy(stack, target, attacker)
-    }
-
-    private fun noClient(player: ServerPlayer, stack: ItemStack): InteractionResultHolder<ItemStack> {
-        player.displayClientMessage(Component.translatable("text.hexdebug.no_client"), true)
-        return InteractionResultHolder.fail(stack)
     }
 
     fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double) {

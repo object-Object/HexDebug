@@ -29,8 +29,8 @@ import kotlin.math.min
 import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceReason
 
 class HexDebugger(
-    private val initArgs: InitializeRequestArguments,
-    private val launchArgs: LaunchArgs,
+    var initArgs: InitializeRequestArguments,
+    var launchArgs: LaunchArgs,
     private val defaultEnv: CastingEnvironment,
     private val world: ServerLevel,
     private val onExecute: ((Iota) -> Unit)? = null,
@@ -87,13 +87,13 @@ class HexDebugger(
                 if (launchArgs.stopOnExit) {
                     // FIXME: scuffed as hell
                     val lastIota = iotas.lastOrNull()
-                    val column = lastIota?.let {
+                    val columnIndex = lastIota?.let {
                         // +1 so it goes *after* the last character
-                        indexToColumn(iotaToString(it, isSource = true).lastIndex + 1)
+                        iotaToString(it, isSource = true).lastIndex + 1
                     }
                     pushFrame(FrameBreakpoint(stopBefore = true)).also { newCont ->
                         frameInvocationMetadata[newCont] = {
-                            lastIota?.let { iotaMetadata[it] }?.copy(column = column)
+                            lastIota?.let { iotaMetadata[it] }?.copy(columnIndex = columnIndex)
                         }
                     }
                 } else this
@@ -113,7 +113,7 @@ class HexDebugger(
 
         val source = sourceAllocator.add(unregisteredIotas)
         for ((index, iota) in unregisteredIotas.withIndex()) {
-            iotaMetadata[iota] = IotaMetadata(source, indexToLineNumber(index))
+            iotaMetadata[iota] = IotaMetadata(source, index)
         }
         return source
     }
@@ -150,7 +150,7 @@ class HexDebugger(
                 StackFrame().apply {
                     id = frameId++
                     name = "[$id] ${continuation.frame.name}"
-                    setSourceAndPosition(getFirstIotaMetadata(continuation))
+                    setSourceAndPosition(initArgs, getFirstIotaMetadata(continuation))
                 }
             ) + virtualFrames[continuation]?.map {
                 it.apply {
@@ -322,7 +322,7 @@ class HexDebugger(
                 if (source == null || iotas == null) {
                     message = "Unknown source"
                     reason = BreakpointNotVerifiedReason.PENDING  // TODO: send Breakpoint event later
-                } else if (it.line > indexToLineNumber(iotas.lastIndex)) {
+                } else if (it.line > initArgs.indexToLine(iotas.lastIndex)) {
                     message = "Line number out of range"
                     reason = BreakpointNotVerifiedReason.FAILED
                 } else {
@@ -346,10 +346,6 @@ class HexDebugger(
         }
     }
 
-    private fun indexToLineNumber(index: Int) = index + if (initArgs.linesStartAt1) 1 else 0
-
-    private fun indexToColumn(index: Int) = index + if (initArgs.columnsStartAt1) 1 else 0
-
     private fun isAtBreakpoint(): Boolean {
         val nextIota = when (val frame = nextFrame) {
             is FrameEvaluate -> getIotas(frame)?.car
@@ -358,7 +354,7 @@ class HexDebugger(
         } ?: return false
 
         val breakpointMode = iotaMetadata[nextIota]
-            ?.let { breakpoints[it.source.sourceReference]?.get(it.line) }
+            ?.let { breakpoints[it.source.sourceReference]?.get(it.line(initArgs)) }
             ?: return false
 
         val escapeNext = image.escapeNext || image.parenCount > 0
@@ -558,7 +554,7 @@ class HexDebugger(
                         virtualFrames.getOrPut(continuation.next) { mutableListOf() }.add(
                             StackFrame().apply {
                                 name = "FrameFinishEval"
-                                setSourceAndPosition(invokeMeta)
+                                setSourceAndPosition(initArgs, invokeMeta)
                             }
                         )
                     }
