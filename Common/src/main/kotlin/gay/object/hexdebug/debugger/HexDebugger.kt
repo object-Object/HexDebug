@@ -34,24 +34,25 @@ import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceR
 class HexDebugger(
     private val initArgs: InitializeRequestArguments,
     private val launchArgs: LaunchArgs,
-    val vm: CastingHarness,
+    private val defaultEnv: CastingContext,
     private val world: ServerLevel,
     private val onExecute: ((Iota) -> Unit)? = null,
     iotas: List<Iota>,
+    private var image: FunctionalData? = null,
 ) {
     constructor(
         initArgs: InitializeRequestArguments,
         launchArgs: LaunchArgs,
         castArgs: CastArgs,
-    ) : this(initArgs, launchArgs, CastingHarness(castArgs.env), castArgs.world, castArgs.onExecute, castArgs.iotas)
+        image: FunctionalData? = null,
+    ) : this(initArgs, launchArgs, castArgs.env, castArgs.world, castArgs.onExecute, castArgs.iotas, image)
 
     var lastEvaluatedMetadata: IotaMetadata? = null
         private set
 
-    @Suppress("CAST_NEVER_SUCCEEDS")
-    private val debugCastEnv = vm.ctx as IMixinCastingContext
+    // ensure we passed a debug cast env to help catch errors early
     init {
-        debugCastEnv.`isDebugging$hexdebug` = true
+        (defaultEnv as IMixinCastingContext).`isDebugging$hexdebug` = true
     }
 
     private val variablesAllocator = VariablesAllocator()
@@ -70,7 +71,9 @@ class HexDebugger(
 
     val evaluatorUIPatterns = mutableListOf<ResolvedPattern>()
 
-    private var evaluatorResetData: Pair<SpellContinuation, FunctionalData>? = null
+    private var evaluatorResetData: EvaluatorResetData? = null
+
+    private var isAtCaughtMishap = false
 
     private var lastResolutionType = ResolvedPatternType.UNRESOLVED
 
@@ -102,6 +105,8 @@ class HexDebugger(
     }
 
     private val nextFrame get() = (nextContinuation as? NotDone)?.frame
+
+    private fun getVM(env: CastingEnvironment? = null) = CastingVM(image, env ?: defaultEnv)
 
     private fun registerNewSource(frame: ContinuationFrame): Source? = getIotas(frame)?.let(::registerNewSource)
 
@@ -163,7 +168,7 @@ class HexDebugger(
         val scopes = mutableListOf(
             Scope().apply {
                 name = "Data"
-                variablesReference = vm.run {
+                variablesReference = image.run {
                     variablesAllocator.add(
                         toVariable("Stack", stack.asReversed()),
                         toVariable("Ravenmind", ravenmind ?: NullIota()),
@@ -172,7 +177,7 @@ class HexDebugger(
             },
             Scope().apply {
                 name = "State"
-                variablesReference = vm.run {
+                variablesReference = image.run {
                     val variables = mutableListOf(
                         toVariable("EscapeNext", escapeNext.toString()),
                         toVariable("ParenCount", parenCount.toString()),
@@ -327,7 +332,7 @@ class HexDebugger(
             ?.let { breakpoints[it.source.sourceReference]?.get(it.line) }
             ?: return false
 
-        val escapeNext = vm.escapeNext || vm.parenCount > 0
+        val escapeNext = image.escapeNext || image.parenCount > 0
 
         return when (breakpointMode) {
             SourceBreakpointMode.EVALUATED -> !escapeNext
@@ -336,7 +341,9 @@ class HexDebugger(
         }
     }
 
-    fun getClientView(): ControllerInfo {
+    fun generateDescs() = getVM().generateDescs()
+
+    private fun getClientView(vm: CastingHarness): ControllerInfo {
         val (stackDescs, parenthesized, ravenmind) = vm.generateDescs()
         val isStackClear = nextContinuation is Done // only close the window if we're done evaluating
         return ControllerInfo(isStackClear, lastResolutionType, stackDescs, parenthesized, ravenmind, vm.parenCount)
@@ -345,39 +352,53 @@ class HexDebugger(
     /**
      * Use [DebugAdapter.evaluate][gay.object.hexdebug.adapter.DebugAdapter.evaluate] instead.
      */
-    internal fun evaluate(list: SpellList): DebugStepResult? {
+    internal fun evaluate(env: CastingEnvironment, list: SpellList): DebugStepResult {
+        val vm = getVM(env)
+
+        if (isAtCaughtMishap) {
+            // manually trigger the mishap sound
+            // TODO: this feels scuffed.
+            env.postExecution(
+                CastResult(NullIota(), nextContinuation, null, listOf(), lastResolutionType, HexEvalSounds.MISHAP)
+            )
+            return DebugStepResult(StopReason.EXCEPTION, clientInfo = getClientView(vm))
+        }
+
         val startedEvaluating = evaluatorResetData == null
         if (startedEvaluating) {
-            evaluatorResetData = Pair(nextContinuation, vm.getFunctionalData())
+            evaluatorResetData = EvaluatorResetData(nextContinuation, image, lastResolutionType, isAtCaughtMishap)
         }
+
         nextContinuation = nextContinuation.pushFrame(FrameEvaluate(list, false))
-        return executeOnce()?.copy(startedEvaluating = startedEvaluating)
+        return executeNextDebugStep(vm, doStaffMishaps = true).copy(startedEvaluating = startedEvaluating)
     }
 
     /**
      * Use [DebugAdapter.resetEvaluator][gay.object.hexdebug.adapter.DebugAdapter.resetEvaluator] instead.
      */
-    internal fun resetEvaluator() {
-        evaluatorResetData?.also { (continuation, image) ->
-            nextContinuation = continuation
-            vm.applyFunctionalData(image)
-            evaluatorResetData = null
+    internal fun resetEvaluator() = (evaluatorResetData != null).also { _ ->
+        evaluatorResetData?.also {
+            nextContinuation = it.continuation
+            image = it.image
+            lastResolutionType = it.lastResolutionType
+            isAtCaughtMishap = it.isAtCaughtMishap
         }
+        evaluatorResetData = null
         evaluatorUIPatterns.clear()
     }
 
-    fun start(): DebugStepResult? {
-        val loadedSources = mapOf(initialSource to LoadedSourceReason.NEW)
+    fun start(): DebugStepResult {
         return if (launchArgs.stopOnEntry) {
-            DebugStepResult("entry", loadedSources = loadedSources)
+            DebugStepResult(StopReason.STARTED)
         } else if (isAtBreakpoint()) {
-            DebugStepResult("breakpoint", loadedSources = loadedSources)
+            DebugStepResult(StopReason.BREAKPOINT)
         } else {
-            executeUntilStopped()?.withLoadedSources(loadedSources)
-        }
+            executeUntilStopped()
+        }.withLoadedSource(initialSource, LoadedSourceReason.NEW)
     }
 
-    fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult? {
+    fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult {
+        val vm = getVM()
         var lastResult: DebugStepResult? = null
         var isEscaping: Boolean? = null
         var stepDepth = 0
@@ -385,16 +406,17 @@ class HexDebugger(
         var hitBreakpoint = false
 
         while (true) {
-            var result = executeOnce(exactlyOnce = true) ?: return null
-            if (lastResult != null) result += lastResult
+            val result = executeNextDebugStep(vm, exactlyOnce = true).let { lastResult?.plus(it) ?: it }
             lastResult = result
+
+            if (result.reason.stopImmediately) return result
 
             if (isAtBreakpoint()) {
                 hitBreakpoint = true
             }
 
             if (hitBreakpoint && shouldStopAtFrame(nextContinuation)) {
-                return result.copy(reason = "breakpoint")
+                return result.copy(reason = StopReason.BREAKPOINT)
             }
 
             // if stepType is null, we should ONLY stop on breakpoints
@@ -428,12 +450,18 @@ class HexDebugger(
         }
     }
 
-    // Copy of CastingHarness.queueExecuteAndWrapIotas to allow stepping by one pattern at a time.
-    fun executeOnce(exactlyOnce: Boolean = false): DebugStepResult? {
-        var continuation = nextContinuation // bind locally so we can do smart casting
-        if (continuation !is NotDone) return null
+    fun executeOnce() = executeNextDebugStep(getVM())
 
-        var stepResult = DebugStepResult("step")
+    // Copy of CastingHarness.queueExecuteAndWrapIotas to allow stepping by one pattern at a time.
+    private fun executeNextDebugStep(
+        vm: CastingHarness,
+        exactlyOnce: Boolean = false,
+        doStaffMishaps: Boolean = false,
+    ): DebugStepResult {
+        var stepResult = DebugStepResult(StopReason.STEP)
+
+        var continuation = nextContinuation // bind locally so we can do smart casting
+        if (continuation !is NotDone) return stepResult.done()
 
         variablesAllocator.clear()
 
@@ -441,7 +469,7 @@ class HexDebugger(
         val info = CastingHarness.TempControllerInfo(earlyExit = false)
         var sound = HexEvalSounds.NOTHING
         while (continuation is NotDone && !info.earlyExit) {
-            debugCastEnv.reset()
+            vm.debugCastEnv.reset()
 
             // Take the top of the continuation stack...
             val frame = continuation.frame
@@ -481,13 +509,14 @@ class HexDebugger(
             // if something went wrong, push a breakpoint or stop immediately
             // and save the old image so we can see the stack BEFORE the mishap instead of after
             // TODO: maybe implement a way to see the stack at each call frame instead?
-            val (newContinuation, preMishapImage) = if (castResult.resolutionType.success) {
+            val (newContinuation, preMishapImage) = if (castResult.resolutionType.success || doStaffMishaps) {
                 Pair(castResult.continuation, null)
             } else if (ExceptionBreakpointType.UNCAUGHT_MISHAPS in exceptionBreakpoints) {
-                stepResult = stepResult.copy(reason = "exception")
+                isAtCaughtMishap = true
+                stepResult = stepResult.copy(reason = StopReason.EXCEPTION)
                 Pair(castResult.continuation.pushFrame(newFrameBreakpointFatal()), vm.getFunctionalData())
             } else {
-                Pair(Done, vm.getFunctionalData())
+                Pair(Done, null)
             }
 
             // TODO: scuffed
@@ -508,7 +537,7 @@ class HexDebugger(
                 onExecute?.invoke(cast)
             }
 
-            val stepType = getStepType(castResult, continuation, newContinuation)
+            val stepType = getStepType(vm, castResult, continuation, newContinuation)
             if (newContinuation is NotDone) {
                 setIotaOverrides(cast, continuation, newContinuation, stepType)
 
@@ -518,7 +547,7 @@ class HexDebugger(
                 }
 
                 // insert a virtual FrameFinishEval if OpEval didn't (ie. if we did a TCO)
-                if (launchArgs.showTailCallFrames && debugCastEnv.`lastEvaluatedAction$hexdebug` is OpEval) {
+                if (launchArgs.showTailCallFrames && vm.debugCastEnv.`lastEvaluatedAction$hexdebug` is OpEval) {
                     val invokeMeta = iotaMetadata[cast]
                     val nextInvokeMeta = frameInvocationMetadata[newContinuation.next]?.invoke()
                     if (invokeMeta != null && invokeMeta != nextInvokeMeta) {
@@ -548,6 +577,7 @@ class HexDebugger(
 
             // this needs to be after performSideEffects, since that's where mishaps mess with the stack
             // (TODO: is that still true in 1.19?)
+            // note: preMishapImage is only non-null if we actually encountered a mishap
             if (preMishapImage != null) vm.applyFunctionalData(preMishapImage)
 
             if (exactlyOnce || shouldStopAtFrame(continuation)) {
@@ -568,11 +598,12 @@ class HexDebugger(
         virtualFrames[continuation]?.clear()
 
         nextContinuation = continuation
+        image = vm.getFunctionalData()
 
         return when (continuation) {
+            is Done -> stepResult.done()
             is NotDone -> stepResult
-            is Done -> null
-        }
+        }.copy(clientInfo = getClientView(vm))
     }
 
     // directly copied from CastingHarness
@@ -639,6 +670,7 @@ class HexDebugger(
     }
 
     private fun getStepType(
+        vm: CastingVM,
         castResult: CastResult,
         continuation: NotDone,
         newContinuation: SpellContinuation,
@@ -672,7 +704,7 @@ class HexDebugger(
             return DebugStepType.IN
         }
 
-        return debugCastEnv.`lastDebugStepType$hexdebug`
+        return vm.debugCastEnv.`lastDebugStepType$hexdebug`
     }
 
     private fun setIotaOverrides(
@@ -737,11 +769,18 @@ class HexDebugger(
             }
         }
         return try {
-            PatternRegistry.matchPattern(pattern, vm.ctx.world).displayName
+            PatternRegistry.matchPattern(pattern, defaultEnv.world).displayName
         } catch (e: MishapInvalidPattern) {
             PatternNameHelper.representationForPattern(pattern)
         }
     }
+
+    data class EvaluatorResetData(
+        val continuation: SpellContinuation,
+        val image: FunctionalData,
+        val lastResolutionType: ResolvedPatternType,
+        val isAtCaughtMishap: Boolean,
+    )
 }
 
 val SpellContinuation.frame get() = (this as? NotDone)?.frame

@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.adapter
 
 import at.petrak.hexcasting.api.spell.SpellList
+import at.petrak.hexcasting.api.spell.casting.CastingContext
 import at.petrak.hexcasting.api.spell.casting.ControllerInfo
 import at.petrak.hexcasting.api.spell.casting.ResolvedPatternType
 import at.petrak.hexcasting.api.spell.iota.Iota
@@ -107,13 +108,13 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         })
     }
 
-    fun evaluate(pattern: HexPattern) = evaluate(PatternIota(pattern))
+    fun evaluate(env: CastingEnvironment, pattern: HexPattern) = evaluate(env, PatternIota(pattern))
 
-    fun evaluate(iota: Iota) = evaluate(SpellList.LList(listOf(iota)))
+    fun evaluate(env: CastingEnvironment, iota: Iota) = evaluate(env, SpellList.LList(listOf(iota)))
 
-    fun evaluate(list: SpellList) = debugger?.let {
-        val result = it.evaluate(list)
-        if (result?.startedEvaluating == true) {
+    fun evaluate(env: CastingEnvironment, list: SpellList) = debugger?.let {
+        val result = it.evaluate(env, list)
+        if (result.startedEvaluating) {
             setEvaluatorState(ItemEvaluator.EvalState.MODIFIED)
         }
         handleDebuggerStep(result)
@@ -121,8 +122,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     fun resetEvaluator() {
         setEvaluatorState(ItemEvaluator.EvalState.DEFAULT)
-        debugger?.also {
-            it.resetEvaluator()
+        if (debugger?.resetEvaluator() == true) {
             sendStoppedEvent("step")
         }
     }
@@ -141,12 +141,12 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             ?: ResponseError(ResponseErrorCode.InternalError, e.toString(), e.stackTraceToString())
     }
 
-    private fun handleDebuggerStep(result: DebugStepResult?): ControllerInfo? {
-        val view = debugger?.getClientView()?.also {
+    private fun handleDebuggerStep(result: DebugStepResult): ControllerInfo? {
+        val view = result.clientInfo?.also {
             IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgNewSpellPatternAck(it, -1))
         }
 
-        if (result == null) {
+        if (result.isDone) {
             terminate(null)
             return view
         }
@@ -158,7 +158,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             })
         }
 
-        sendStoppedEvent(result.reason)
+        sendStoppedEvent(result.reason.value)
         return view
     }
 
@@ -233,29 +233,29 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     override fun configurationDone(args: ConfigurationDoneArguments?): CompletableFuture<Void> {
         knownPlayers.add(player.uuid)
-        handleDebuggerStep(debugger?.start())
+        debugger?.start()?.also(::handleDebuggerStep)
         return futureOf()
     }
 
     // stepping
 
     override fun next(args: NextArguments?): CompletableFuture<Void> {
-        handleDebuggerStep(debugger?.executeUntilStopped(RequestStepType.OVER))
+        debugger?.executeUntilStopped(RequestStepType.OVER)?.also(::handleDebuggerStep)
         return futureOf()
     }
 
     override fun continue_(args: ContinueArguments?): CompletableFuture<ContinueResponse> {
-        handleDebuggerStep(debugger?.executeUntilStopped())
+        debugger?.executeUntilStopped()?.also(::handleDebuggerStep)
         return futureOf()
     }
 
     override fun stepIn(args: StepInArguments?): CompletableFuture<Void> {
-        handleDebuggerStep(debugger?.executeOnce())
+        debugger?.executeOnce()?.also(::handleDebuggerStep)
         return futureOf()
     }
 
     override fun stepOut(args: StepOutArguments?): CompletableFuture<Void> {
-        handleDebuggerStep(debugger?.executeUntilStopped(RequestStepType.OUT))
+        debugger?.executeUntilStopped(RequestStepType.OUT)?.also(::handleDebuggerStep)
         return futureOf()
     }
 

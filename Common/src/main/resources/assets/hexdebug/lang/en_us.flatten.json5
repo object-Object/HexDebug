@@ -10,6 +10,7 @@
     hexdebug: {
       no_client: "Debug client is not connected.",
       connected: "Debug client connected!",
+      no_session: "No debug session is running.",
       thwack: "Thwack!",
     },
 

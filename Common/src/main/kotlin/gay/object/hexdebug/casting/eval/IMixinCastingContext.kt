@@ -27,3 +27,15 @@ fun printDebugMessage(
 ) {
     DebugAdapterManager[caster]?.print(message.string + "\n", category, withSource)
 }
+
+fun printDebugMishap(
+    env: CastingContext,
+    caster: ServerPlayer,
+    mishap: OperatorSideEffect.DoMishap,
+) {
+    mishap.mishap.errorMessageWithName(env, mishap.errorCtx)?.also {
+        printDebugMessage(caster, it, OutputEventArgumentsCategory.STDERR)
+    }
+}
+
+val CastingVM.debugCastEnv get() = ctx as IMixinCastingContext

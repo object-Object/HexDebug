@@ -8,9 +8,11 @@ import at.petrak.hexcasting.common.network.MsgOpenSpellGuiAck
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
+import gay.`object`.hexdebug.casting.eval.EvaluatorCastEnv
 import gay.`object`.hexdebug.utils.itemPredicate
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
@@ -24,7 +26,7 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
         val itemStack = player.getItemInHand(hand)
 
         if (world.isClientSide) {
-            if (player.isShiftKeyDown) {
+            if (player.isShiftKeyDown && evalState == EvalState.MODIFIED) {
                 player.playSound(HexSounds.FAIL_PATTERN, 1f, 1f)
             }
             return InteractionResultHolder.success(itemStack)
@@ -35,6 +37,7 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
         val debugAdapter = DebugAdapterManager[player]
         val debugger = debugAdapter?.debugger
         if (debugAdapter == null || debugger == null) {
+            player.displayClientMessage(Component.translatable("text.hexdebug.no_session"), true)
             return InteractionResultHolder.fail(itemStack)
         }
 
@@ -43,7 +46,7 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
         }
 
         val patterns = debugger.evaluatorUIPatterns
-        val (stack, parenthesized, ravenmind) = debugger.vm.generateDescs()
+        val (stack, parenthesized, ravenmind) = debugger.generateDescs()
         IXplatAbstractions.INSTANCE.sendPacketToPlayer(
             player, MsgOpenSpellGuiAck(hand, patterns, stack, parenthesized, ravenmind, debugger.vm.parenCount)
         )
@@ -78,7 +81,8 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
                 return
             }
 
-            val clientInfo = debugAdapter.evaluate(msg.pattern) ?: return
+            val env = EvaluatorCastEnv(sender, msg.handUsed)
+            val clientInfo = debugAdapter.evaluate(env, msg.pattern) ?: return
 
             debugger.evaluatorUIPatterns.clear()
             if (!clientInfo.isStackClear) {

@@ -93,7 +93,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
             } ?: return InteractionResultHolder.fail(stack)
 
             val ctx = CastingContext(serverPlayer, usedHand, CastingContext.CastSource.PACKAGED_HEX)
-            val args = CastArgs(instrs, ctx, serverLevel) {}
+            val args = CastArgs(instrs, ctx, serverLevel)
 
             if (!debugAdapter.startDebugging(args)) {
                 return noClient(player, stack)

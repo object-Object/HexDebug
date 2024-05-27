@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Pydantic's HISTORY.md](https://github.com/pydantic/pydantic/blob/main/HISTORY.md), and this project *mostly* adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED]
+
+### Changed
+
+- A message is now displayed if attempting to use an Evaluator when not debugging, instead of silently failing.
+- Evaluators are now prevented from evaluating patterns after an Uncaught Mishap breakpoint is hit.
+
+### Fixed
+
+- Evaluators were unable to cast any spells requiring media.
+- When debugging, spells requiring media would fail if a Debugger was not in the hand that the debug session was started with.
+- Evaluator mishaps were unintentionally caught by the Uncaught Mishaps option, and did not apply side effects to the stack.
+
 ## 0.2.0+1.19.2
 
 ### Added
