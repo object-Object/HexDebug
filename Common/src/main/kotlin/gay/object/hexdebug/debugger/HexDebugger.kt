@@ -56,7 +56,8 @@ class HexDebugger(
     private val sourceAllocator = SourceAllocator(iotas.hashCode())
 
     private val iotaMetadata = IdentityHashMap<Iota, IotaMetadata>()
-    private val frameInvocationMetadata = IdentityHashMap<SpellContinuation, () -> IotaMetadata?>()
+    // FIXME: this is really terrible and gross and i don't like it
+    private val frameInvocationMetadata = IdentityHashMap<SpellContinuation, () -> Pair<Iota, IotaMetadata?>?>()
     private val virtualFrames = IdentityHashMap<SpellContinuation, MutableList<StackFrame>>()
 
     private val breakpoints = mutableMapOf<Int, MutableMap<Int, SourceBreakpointMode>>() // source id -> line number
@@ -93,7 +94,7 @@ class HexDebugger(
                     }
                     pushFrame(FrameBreakpoint(stopBefore = true)).also { newCont ->
                         frameInvocationMetadata[newCont] = {
-                            lastIota?.let { iotaMetadata[it] }?.copy(columnIndex = columnIndex)
+                            lastIota?.let { it to iotaMetadata[it]?.copy(columnIndex = columnIndex) }
                         }
                     }
                 } else this
@@ -124,7 +125,7 @@ class HexDebugger(
         else -> null
     }
 
-    private fun getFirstIotaMetadata(continuation: NotDone): IotaMetadata? =
+    private fun getFirstIotaMetadata(continuation: NotDone): Pair<Iota, IotaMetadata?>? =
         // for FrameEvaluate, show the next iota to be evaluated (if any)
         (continuation.frame as? FrameEvaluate)?.let(::getFirstIotaMetadata)
         // for everything else, show the caller if we have it
@@ -132,7 +133,7 @@ class HexDebugger(
         // otherwise show the first contained iota
         ?: getFirstIotaMetadata(continuation.frame)
 
-    private fun getFirstIotaMetadata(frame: ContinuationFrame) = getIotas(frame)?.let { iotaMetadata[it.car] }
+    private fun getFirstIotaMetadata(frame: ContinuationFrame) = getIotas(frame)?.let { it.car to iotaMetadata[it.car] }
 
     // current continuation is last
     private fun getCallStack(current: SpellContinuation) = generateSequence(current as? NotDone) {
@@ -142,6 +143,13 @@ class HexDebugger(
         }
     }.toList().asReversed()
 
+    /** (iota, index) */
+    fun getNextIotaToEvaluate(): Pair<String, Int>? {
+        val continuation = nextContinuation as? NotDone ?: return null
+        val (iota, meta) = getFirstIotaMetadata(continuation) ?: return null
+        return iotaToString(iota, isSource = false) to (meta?.lineIndex ?: -1)
+    }
+
     fun getStackFrames(): Sequence<StackFrame> {
         var frameId = 1
         var virtualFrameId = (callStack.size + 1).ceilToPow(10)
@@ -150,7 +158,7 @@ class HexDebugger(
                 StackFrame().apply {
                     id = frameId++
                     name = "[$id] ${continuation.frame.name}"
-                    setSourceAndPosition(initArgs, getFirstIotaMetadata(continuation))
+                    setSourceAndPosition(initArgs, getFirstIotaMetadata(continuation)?.second)
                 }
             ) + virtualFrames[continuation]?.map {
                 it.apply {
@@ -549,7 +557,7 @@ class HexDebugger(
                 // insert a virtual FrameFinishEval if OpEval didn't (ie. if we did a TCO)
                 if (launchArgs.showTailCallFrames && vm.debugCastEnv.lastEvaluatedAction is OpEval) {
                     val invokeMeta = iotaMetadata[castResult.cast]
-                    val nextInvokeMeta = frameInvocationMetadata[newContinuation.next]?.invoke()
+                    val nextInvokeMeta = frameInvocationMetadata[newContinuation.next]?.invoke()?.second
                     if (invokeMeta != null && invokeMeta != nextInvokeMeta) {
                         virtualFrames.getOrPut(continuation.next) { mutableListOf() }.add(
                             StackFrame().apply {
@@ -712,7 +720,7 @@ class HexDebugger(
 
     private fun trySetIotaOverride(continuation: SpellContinuation, castResult: CastResult): Boolean {
         return if (continuation !in frameInvocationMetadata && continuation is NotDone) {
-            frameInvocationMetadata[continuation] = { iotaMetadata[castResult.cast] }
+            frameInvocationMetadata[continuation] = { castResult.cast to iotaMetadata[castResult.cast] }
             true
         } else false
     }

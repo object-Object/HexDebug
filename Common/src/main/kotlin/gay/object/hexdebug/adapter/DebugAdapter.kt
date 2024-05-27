@@ -19,6 +19,7 @@ import gay.`object`.hexdebug.items.ItemEvaluator
 import gay.`object`.hexdebug.networking.HexDebugNetworking
 import gay.`object`.hexdebug.networking.MsgDebuggerStateS2C
 import gay.`object`.hexdebug.networking.MsgEvaluatorStateS2C
+import gay.`object`.hexdebug.networking.MsgPrintDebuggerStatusS2C
 import gay.`object`.hexdebug.utils.futureOf
 import gay.`object`.hexdebug.utils.paginate
 import gay.`object`.hexdebug.utils.toFuture
@@ -74,11 +75,21 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         HexDebugNetworking.sendToPlayer(player, MsgEvaluatorStateS2C(evalState))
     }
 
+    protected open fun printDebuggerStatus(iota: String, index: Int) {
+        HexDebugNetworking.sendToPlayer(
+            player, MsgPrintDebuggerStatusS2C(
+                iota = iota,
+                index = index,
+                line = state.initArgs.indexToLine(index),
+                isConnected = state.isConnected,
+            )
+        )
+    }
+
     fun startDebugging(args: CastArgs): Boolean {
         if (state is Debugging) return false
-        state = Debugging(state, args).also {
-            handleDebuggerStep(it.debugger.start())
-        }
+        val state = Debugging(state, args).also { state = it }
+        handleDebuggerStep(state.debugger.start())
         return true
     }
 
@@ -155,6 +166,11 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         }
 
         sendStoppedEvent(result.reason)
+
+        debugger?.getNextIotaToEvaluate()?.also { (iota, index) ->
+            printDebuggerStatus(iota, index)
+        }
+
         return view
     }
 
@@ -201,7 +217,10 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun attach(args: MutableMap<String, Any>): CompletableFuture<Void> {
-        state.launchArgs = LaunchArgs(args)
+        state.apply {
+            isConnected = true
+            launchArgs = LaunchArgs(args)
+        }
         remoteProxy.initialized()
         player.displayClientMessage(Component.translatable("text.hexdebug.connected"), true)
         return futureOf()

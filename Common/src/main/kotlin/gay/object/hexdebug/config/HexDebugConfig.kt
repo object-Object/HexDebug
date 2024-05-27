@@ -46,5 +46,17 @@ object HexDebugConfig {
 
         @Tooltip
         val smartDebuggerSneakScroll: Boolean = true
+
+        @Tooltip
+        val debuggerDisplayMode: DebuggerDisplayMode = DebuggerDisplayMode.ENABLED
+
+        @Tooltip
+        val showDebugClientLineNumber: Boolean = false
     }
+}
+
+enum class DebuggerDisplayMode {
+    DISABLED,
+    NOT_CONNECTED,
+    ENABLED,
 }

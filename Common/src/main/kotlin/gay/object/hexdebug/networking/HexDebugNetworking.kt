@@ -13,6 +13,7 @@ object HexDebugNetworking {
         CHANNEL.register(MsgDebugAdapterProxyS2C::class.java, MsgDebugAdapterProxyS2C::encode, ::MsgDebugAdapterProxyS2C, MsgDebugAdapterProxyS2C::apply)
         CHANNEL.register(MsgDebuggerStateS2C::class.java, MsgDebuggerStateS2C::encode, ::MsgDebuggerStateS2C, MsgDebuggerStateS2C::apply)
         CHANNEL.register(MsgEvaluatorStateS2C::class.java, MsgEvaluatorStateS2C::encode, ::MsgEvaluatorStateS2C, MsgEvaluatorStateS2C::apply)
+        CHANNEL.register(MsgPrintDebuggerStatusS2C::class.java, MsgPrintDebuggerStatusS2C::encode, ::MsgPrintDebuggerStatusS2C, MsgPrintDebuggerStatusS2C::apply)
     }
 
     fun <T> sendToServer(message: T) = CHANNEL.sendToServer(message)

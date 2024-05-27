@@ -12,7 +12,7 @@ sealed interface DebugAdapterState {
 
     data class NotDebugging(
         override var isConnected: Boolean = false,
-        override var initArgs: InitializeRequestArguments = InitializeRequestArguments(),
+        override var initArgs: InitializeRequestArguments = defaultInitArgs(),
         override var launchArgs: LaunchArgs = LaunchArgs(),
         override val restartArgs: CastArgs? = null,
     ) : DebugAdapterState {
@@ -33,4 +33,9 @@ sealed interface DebugAdapterState {
         override var initArgs by debugger::initArgs
         override var launchArgs by debugger::launchArgs
     }
+}
+
+fun defaultInitArgs() = InitializeRequestArguments().apply {
+    linesStartAt1 = true
+    columnsStartAt1 = true
 }
