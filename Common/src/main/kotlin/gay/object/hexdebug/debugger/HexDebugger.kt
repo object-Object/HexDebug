@@ -435,7 +435,8 @@ class HexDebugger(
         var hitBreakpoint = false
 
         while (true) {
-            val result = executeNextDebugStep(vm, exactlyOnce = true).let { lastResult?.plus(it) ?: it }
+            var result = executeNextDebugStep(vm, exactlyOnce = true)
+            if (lastResult != null) result += lastResult
             lastResult = result
 
             if (result.reason.stopImmediately) return result
