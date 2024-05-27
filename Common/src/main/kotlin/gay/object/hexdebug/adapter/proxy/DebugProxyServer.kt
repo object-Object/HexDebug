@@ -2,8 +2,7 @@ package gay.`object`.hexdebug.adapter.proxy
 
 import gay.`object`.hexdebug.adapter.DebugAdapter
 import gay.`object`.hexdebug.adapter.IHexDebugLauncher
-import gay.`object`.hexdebug.networking.HexDebugNetworking
-import gay.`object`.hexdebug.networking.MsgDebugAdapterProxyS2C
+import gay.`object`.hexdebug.networking.msg.MsgDebugAdapterProxyS2C
 import net.minecraft.server.level.ServerPlayer
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient
 import org.eclipse.lsp4j.jsonrpc.*
@@ -106,7 +105,7 @@ class DebugProxyServerConsumer(
     override fun consume(message: Message) {
         try {
             val content = jsonHandler.serialize(message)
-            HexDebugNetworking.sendToPlayer(player, MsgDebugAdapterProxyS2C(content))
+            MsgDebugAdapterProxyS2C(content).sendToPlayer(player)
         } catch (exception: IOException) {
             throw JsonRpcException(exception)
         }

@@ -16,10 +16,9 @@ import gay.`object`.hexdebug.adapter.proxy.DebugProxyServerLauncher
 import gay.`object`.hexdebug.debugger.*
 import gay.`object`.hexdebug.items.ItemDebugger
 import gay.`object`.hexdebug.items.ItemEvaluator
-import gay.`object`.hexdebug.networking.HexDebugNetworking
-import gay.`object`.hexdebug.networking.MsgDebuggerStateS2C
-import gay.`object`.hexdebug.networking.MsgEvaluatorStateS2C
-import gay.`object`.hexdebug.networking.MsgPrintDebuggerStatusS2C
+import gay.`object`.hexdebug.networking.msg.MsgDebuggerStateS2C
+import gay.`object`.hexdebug.networking.msg.MsgEvaluatorStateS2C
+import gay.`object`.hexdebug.networking.msg.MsgPrintDebuggerStatusS2C
 import gay.`object`.hexdebug.utils.futureOf
 import gay.`object`.hexdebug.utils.paginate
 import gay.`object`.hexdebug.utils.toFuture
@@ -62,7 +61,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     )
 
     protected open fun setDebuggerState(debuggerState: ItemDebugger.DebugState) {
-        HexDebugNetworking.sendToPlayer(player, MsgDebuggerStateS2C(debuggerState))
+        MsgDebuggerStateS2C(debuggerState).sendToPlayer(player)
 
         // close the debugger grid if we stopped debugging
         if (debuggerState == ItemDebugger.DebugState.NOT_DEBUGGING) {
@@ -72,18 +71,16 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     protected open fun setEvaluatorState(evalState: ItemEvaluator.EvalState) {
-        HexDebugNetworking.sendToPlayer(player, MsgEvaluatorStateS2C(evalState))
+        MsgEvaluatorStateS2C(evalState).sendToPlayer(player)
     }
 
     protected open fun printDebuggerStatus(iota: String, index: Int) {
-        HexDebugNetworking.sendToPlayer(
-            player, MsgPrintDebuggerStatusS2C(
-                iota = iota,
-                index = index,
-                line = state.initArgs.indexToLine(index),
-                isConnected = state.isConnected,
-            )
-        )
+        MsgPrintDebuggerStatusS2C(
+            iota = iota,
+            index = index,
+            line = state.initArgs.indexToLine(index),
+            isConnected = state.isConnected,
+        ).sendToPlayer(player)
     }
 
     fun startDebugging(args: CastArgs): Boolean {
