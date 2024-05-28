@@ -33,10 +33,6 @@ loom {
     }
 }
 
-hexdebugPlatform {
-    platform("forge")
-}
-
 hexdebugModDependencies {
     filesMatching.add("META-INF/mods.toml")
 
@@ -95,10 +91,3 @@ tasks {
         }
     }
 }
-
-// SO SO SO SCUFFED.
-val publishFile = publishMods.file.get().asFile
-project(":Fabric").publishMods.github {
-    additionalFiles.from(publishFile)
-}
-

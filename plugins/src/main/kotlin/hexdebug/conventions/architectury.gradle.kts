@@ -4,28 +4,6 @@ import hexdebug.hexdebugProperties
 import hexdebug.libs
 import kotlin.io.path.div
 
-// plugin config
-
-abstract class HexDebugArchitecturyExtension(private val project: Project) : IHexDebugArchitecturyExtension {
-    override fun platform(platform: String) = project.run {
-        val archivesName = "${hexdebugProperties.modId}-$platform"
-
-        base.archivesName = archivesName
-
-        publishing {
-            publications {
-                named<MavenPublication>("maven") {
-                    artifactId = archivesName
-                }
-            }
-        }
-    }
-}
-
-val extension = extensions.create<HexDebugArchitecturyExtension>("hexdebugArchitectury")
-
-// build logic
-
 plugins {
     id("hexdebug.conventions.kotlin")
     id("hexdebug.utils.OTJFPOPKPCPBP")
@@ -33,6 +11,10 @@ plugins {
     `maven-publish`
     id("dev.architectury.loom")
 }
+
+val platform: String by project
+
+base.archivesName = "${hexdebugProperties.modId}-$platform"
 
 loom {
     silentMojangMappingsLicense()
@@ -82,6 +64,7 @@ publishing {
     }
     publications {
         create<MavenPublication>("maven") {
+            artifactId = base.archivesName.get()
             from(components["java"])
         }
     }

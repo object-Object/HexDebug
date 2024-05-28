@@ -8,10 +8,6 @@ architectury {
     common("fabric", "forge")
 }
 
-hexdebugArchitectury {
-    platform("common")
-}
-
 dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(kotlin("reflect"))
