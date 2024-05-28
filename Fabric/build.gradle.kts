@@ -29,7 +29,8 @@ hexdebugModDependencies {
 
     requires("fabric-api")
     requires("fabric-language-kotlin")
-    requires("modmenu")
+
+    optional("modmenu")
 }
 
 repositories {
