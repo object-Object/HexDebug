@@ -9,7 +9,10 @@
   text: {
     hexdebug: {
       connected: "调试客户端已连接！",
+      no_session: "调试会话未在运行。",
       thwack: "哐当！",
+      // Next Iota: [{index}] {iota}
+      debugger_stopped: "下一个Iota：[%d] %s",
     },
 
     "autoconfig.hexdebug": {
@@ -31,6 +34,18 @@
             "": "调试杖智能潜行滚轮",
             "@Tooltip": "若当前主手持有调试杖，且未在调试咒术，则优先处理副手中法术书一类物品的“潜行滚动滚轮”操作。",
           },
+          debuggerDisplayMode: {
+            "": "调试杖显示模式",
+            "@Tooltip": "\
+              更改调试杖打印下一需运行iota的时机。\n\
+                DISABLED：不显示调试杖状态消息。\n\
+                NOT_CONNECTED：只在调试客户端未连接时显示调试杖状态消息。\n\
+                ENABLED：一直显示调试杖状态信息。（默认）",
+          },
+          showDebugClientLineNumber: {
+            "": "显示调试客户端行号",
+            "@Tooltip": "若设为true，显示调试客户端（如VSCode）的行号，通常以1起始；否则显示列表索引下标，以0起始。"
+          }
         },
       },
     },
