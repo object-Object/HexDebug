@@ -88,17 +88,25 @@ publishMods {
         type = STABLE
         displayName = "v${project.version}"
         tagName = "v${project.version}"
-
-        additionalFiles.from(project(":Common").tasks.remapJar.get().archiveFile)
-        project(":Forge").afterEvaluate {
-            additionalFiles.from(tasks.remapJar.get().archiveFile)
-        }
     }
 }
 
 tasks {
     named("publishGithub") {
-        dependsOn(project(":Common").tasks.remapJar)
-        dependsOn(project(":Forge").tasks.remapJar)
+        dependsOn(
+            project(":Common").tasks.remapJar,
+            project(":Forge").tasks.remapJar,
+        )
+
+        // we need to do this here so that it waits until Forge is already configured
+        // otherwise tasks.remapJar doesn't exist yet
+        publishMods {
+            github {
+                additionalFiles.from(
+                    project(":Common").tasks.remapJar.get().archiveFile,
+                    project(":Forge").tasks.remapJar.get().archiveFile,
+                )
+            }
+        }
     }
 }
