@@ -28,11 +28,11 @@ abstract class HexDebugRegistrar<T : Any>(
         }
     }
 
-    fun <V : T> register(name: String, getValue: () -> V) = register(HexDebug.id(name), getValue)
+    fun <V : T> register(name: String, builder: () -> V) = register(HexDebug.id(name), builder)
 
-    fun <V : T> register(id: ResourceLocation, getValue: () -> V) = register(id, lazy {
+    fun <V : T> register(id: ResourceLocation, builder: () -> V) = register(id, lazy {
         if (!isInitialized) throw IllegalStateException("$this has not been initialized!")
-        getValue()
+        builder()
     })
 
     fun <V : T> register(id: ResourceLocation, lazyValue: Lazy<V>) = Entry(id, lazyValue, registryKey).also {
@@ -41,10 +41,10 @@ abstract class HexDebugRegistrar<T : Any>(
         }
     }
 
-    data class Entry<T, V : T>(
+    inner class Entry<V : T>(
         val id: ResourceLocation,
-        private val lazyValue: Lazy<V>,
-        private val registryKey: ResourceKey<Registry<T>>,
+        lazyValue: Lazy<V>,
+        registryKey: ResourceKey<Registry<T>>,
     ) {
         val key = ResourceKey.create(registryKey, id)
 

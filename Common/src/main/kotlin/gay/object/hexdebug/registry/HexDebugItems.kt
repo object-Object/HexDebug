@@ -20,7 +20,7 @@ object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistr
     @JvmField
     val EVALUATOR = register("evaluator") { ItemEvaluator(unstackable.rarity(Rarity.UNCOMMON)) }
 
-    private val props: Properties get() = Properties().`arch$tab`(HexDebugCreativeTabs.HEX_DEBUG.key)
+    val props: Properties get() = Properties().`arch$tab`(HexDebugCreativeTabs.HEX_DEBUG.key)
 
     private val unstackable get() = props.stacksTo(1)
 
