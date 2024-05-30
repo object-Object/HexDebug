@@ -16,4 +16,17 @@ interface ISplicingTable : Container {
         const val IOTA_HOLDER_INDEX = 0
         const val CLIPBOARD_INDEX = 1
     }
+
+    enum class Action {
+        NUDGE_LEFT,
+        NUDGE_RIGHT,
+        DUPLICATE,
+        DELETE,
+        UNDO,
+        CUT,
+        COPY,
+        PASTE,
+    }
+
+    data class Selection(val start: Int, val end: Int)
 }

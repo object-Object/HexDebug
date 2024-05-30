@@ -15,6 +15,7 @@ object HexDebugNetworking {
             MsgDebuggerStateS2C,
             MsgEvaluatorStateS2C,
             MsgPrintDebuggerStatusS2C,
+            MsgSplicingTableActionC2S,
         )
         for (message in messages) {
             message.register(CHANNEL)
