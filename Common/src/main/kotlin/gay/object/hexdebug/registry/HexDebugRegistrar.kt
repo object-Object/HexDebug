@@ -1,6 +1,8 @@
 package gay.`object`.hexdebug.registry
 
+import dev.architectury.platform.Platform
 import gay.`object`.hexdebug.HexDebug
+import net.fabricmc.api.EnvType
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
@@ -26,7 +28,12 @@ abstract class HexDebugRegistrar<T : Any>(
         for ((id, lazyValue) in entries) {
             registerer(id, lazyValue.value)
         }
+        if (Platform.getEnv() == EnvType.CLIENT) {
+            initClient()
+        }
     }
+
+    open fun initClient() {}
 
     fun <V : T> register(name: String, builder: () -> V) = register(HexDebug.id(name), builder)
 
