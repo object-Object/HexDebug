@@ -34,6 +34,14 @@ repositories {
             includeGroup("maven.modrinth")
         }
     }
+    exclusiveContent {
+        filter {
+            includeGroup("libs")
+        }
+        forRepository {
+            flatDir { dir(rootProject.file("libs")) }
+        }
+    }
 }
 
 //dependencies {

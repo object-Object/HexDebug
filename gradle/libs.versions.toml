@@ -85,7 +85,7 @@ patchouli-fabric = { module="vazkii.patchouli:Patchouli", version.ref="patchouli
 patchouli-forge  = { module="vazkii.patchouli:Patchouli", version.ref="patchouli-forge" }
 
 cardinalComponents = { module="dev.onyxstudios.cardinal-components-api:cardinal-components-api", version.ref="cardinalComponents" }
-serializationHooks = { module="io.github.tropheusj:serialization-hooks", version.ref="serializationHooks" }
+serializationHooks = { module="libs:serialization-hooks", version.ref="serializationHooks" }
 mixinExtras        = { module="com.github.LlamaLad7:MixinExtras", version.ref="mixinExtras" }
 trinkets           = { module="dev.emi:trinkets", version.ref="trinkets" }
 modMenu            = { module="com.terraformersmc:modmenu", version.ref="modMenu" }

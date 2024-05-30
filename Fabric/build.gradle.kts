@@ -29,10 +29,6 @@ hexdebugModDependencies {
     optional("modmenu")
 }
 
-repositories {
-    flatDir { dir("libs") }
-}
-
 dependencies {
     modApi(libs.fabric.api)
     modImplementation(libs.fabric.loader)
