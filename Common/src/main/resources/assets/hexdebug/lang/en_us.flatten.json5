@@ -4,6 +4,10 @@
     evaluator: "Evaluator",
   },
 
+  "block.hexdebug": {
+    splicing_table: "Splicing Table",
+  },
+
   "itemGroup.hexdebug": "HexDebug",
 
   text: {

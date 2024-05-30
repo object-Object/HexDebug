@@ -22,6 +22,7 @@ object HexDebug {
             HexDebugBlockEntities,
             HexDebugItems,
             HexDebugCreativeTabs,
+            HexDebugMenus,
             HexDebugActions,
             HexDebugContinuationTypes,
         )
