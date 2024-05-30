@@ -54,6 +54,7 @@
   "hexcasting.action": {
     "hexdebug:": {
       "const/debugging": "Debugger's Reflection",
+      "next_eval_index": "Debug Locator's Reflection", // TODO: this name kinda sucks tbh
       "breakpoint/": {
         before: "Set Breakpoint Before",
         after: "Set Breakpoint After"
@@ -102,7 +103,8 @@
           debugging: {
             "": "Debugging",
             page: {
-              "const/debugging": "Adds $(thing)True/$ to the top of the stack if executed by a $(l:items/debugging#debugger)$(item)Debugger/$, or $(thing)False/$ otherwise.",
+              "const/debugging": "Adds $(thing)True/$ to the top of the stack if executed by a $(l:items/debugging#debugger)$(item)Debugger/$ or $(l:items/debugging#evaluator)$(item)Evaluator/$, or $(thing)False/$ otherwise.",
+              "next_eval_index": "Adds the index of the next iota to be evaluated if executed by a $(l:items/debugging#debugger)$(item)Debugger/$ or $(l:items/debugging#evaluator)$(item)Evaluator/$, or $(l:casting/influences)$(thing)Null/$ otherwise.",
               "breakpoint/": {
                 before: "Pauses the $(l:items/debugging#debugger)$(item)Debugger/$ before executing this pattern.",
                 after: "Pauses the $(l:items/debugging#debugger)$(item)Debugger/$ after executing this pattern (ie. before executing the next pattern).",

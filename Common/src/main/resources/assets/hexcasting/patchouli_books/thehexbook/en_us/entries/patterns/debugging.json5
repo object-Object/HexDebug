@@ -13,6 +13,13 @@
     },
     {
       type: "hexcasting:pattern",
+      op_id: "hexdebug:next_eval_index",
+      anchor: "hexdebug:next_eval_index",
+      output: "int or null",
+      text: "hexdebug.category.patterns.entry.debugging.page.next_eval_index",
+    },
+    {
+      type: "hexcasting:pattern",
       op_id: "hexdebug:breakpoint/before",
       anchor: "hexdebug:breakpoint/before",
       text: "hexdebug.category.patterns.entry.debugging.page.breakpoint/before",
