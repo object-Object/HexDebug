@@ -8,10 +8,12 @@ interface ISplicingTable : Container {
     var iotaHolder: ItemStack
     var clipboard: ItemStack
 
-    fun iotaHolderDelegate() = ContainerSlotDelegate(0)
-    fun clipboardDelegate() = ContainerSlotDelegate(1)
+    fun iotaHolderDelegate() = ContainerSlotDelegate(IOTA_HOLDER_INDEX)
+    fun clipboardDelegate() = ContainerSlotDelegate(CLIPBOARD_INDEX)
 
     companion object {
         const val CONTAINER_SIZE = 2
+        const val IOTA_HOLDER_INDEX = 0
+        const val CLIPBOARD_INDEX = 1
     }
 }

@@ -14,6 +14,6 @@ class SplicingTableScreen(
     title: Component,
 ) : AbstractContainerScreen<SplicingTableMenu>(menu, inventory, title) {
     override fun renderBg(guiGraphics: GuiGraphics, partialTick: Float, mouseX: Int, mouseY: Int) {
-        TODO("Not yet implemented")
+
     }
 }
