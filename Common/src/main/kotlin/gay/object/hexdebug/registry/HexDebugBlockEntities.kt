@@ -1,7 +1,7 @@
 package gay.`object`.hexdebug.registry
 
 import at.petrak.hexcasting.xplat.IXplatAbstractions
-import gay.`object`.hexdebug.blocks.SplicingTableBlockEntity
+import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlockEntity
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries

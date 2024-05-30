@@ -1,21 +1,25 @@
-package gay.`object`.hexdebug.blocks
+package gay.`object`.hexdebug.blocks.splicing
 
 import gay.`object`.hexdebug.blocks.base.BaseContainer
-import gay.`object`.hexdebug.blocks.base.ContainerSlot
+import gay.`object`.hexdebug.gui.SplicingTableMenu
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
 import net.minecraft.world.ContainerHelper
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 
 class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     HexDebugBlockEntities.SPLICING_TABLE.value, pos, state
-), BaseContainer {
-    override val stacks = BaseContainer.withSize(2)
+), ISplicingTable, BaseContainer, MenuProvider {
+    override val stacks = BaseContainer.withSize(ISplicingTable.CONTAINER_SIZE)
 
-    private var iotaHolder by ContainerSlot(0)
-    private var clipboard by ContainerSlot(1)
+    override var iotaHolder by iotaHolderDelegate()
+    override var clipboard by clipboardDelegate()
 
     val analogOutputSignal get() = if (!iotaHolder.isEmpty) 15 else 0
 
@@ -28,4 +32,8 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         super.saveAdditional(tag)
         ContainerHelper.saveAllItems(tag, stacks)
     }
+
+    override fun createMenu(i: Int, inventory: Inventory, player: Player) = SplicingTableMenu(i, inventory, this)
+
+    override fun getDisplayName() = Component.translatable(blockState.block.descriptionId)
 }

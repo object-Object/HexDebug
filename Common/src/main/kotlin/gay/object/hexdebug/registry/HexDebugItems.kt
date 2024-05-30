@@ -3,6 +3,8 @@ package gay.`object`.hexdebug.registry
 import dev.architectury.registry.item.ItemPropertiesRegistry
 import gay.`object`.hexdebug.items.ItemDebugger
 import gay.`object`.hexdebug.items.ItemEvaluator
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.world.item.CreativeModeTab
@@ -23,6 +25,7 @@ object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistr
 
     private fun Properties.noTab() = this.`arch$tab`(null as CreativeModeTab?)
 
+    @Environment(EnvType.CLIENT)
     override fun initClient() {
         registerItemProperties()
     }

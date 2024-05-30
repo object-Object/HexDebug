@@ -1,6 +1,6 @@
 package gay.`object`.hexdebug.registry
 
-import gay.`object`.hexdebug.blocks.SplicingTableBlock
+import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlock
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.world.item.BlockItem

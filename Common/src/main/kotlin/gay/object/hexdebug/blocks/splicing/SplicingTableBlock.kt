@@ -1,4 +1,4 @@
-package gay.`object`.hexdebug.blocks
+package gay.`object`.hexdebug.blocks.splicing
 
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerPlayer
