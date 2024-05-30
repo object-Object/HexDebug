@@ -17,6 +17,8 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     private var iotaHolder by ContainerSlot(0)
     private var clipboard by ContainerSlot(1)
 
+    val analogOutputSignal get() = if (!iotaHolder.isEmpty) 15 else 0
+
     override fun load(tag: CompoundTag) {
         super.load(tag)
         ContainerHelper.loadAllItems(tag, stacks)

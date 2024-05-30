@@ -49,5 +49,10 @@ class SplicingTableBlock(properties: Properties) : BaseEntityBlock(properties) {
         super.onRemove(state, level, pos, newState, movedByPiston)
     }
 
+    override fun hasAnalogOutputSignal(state: BlockState) = true
+
+    override fun getAnalogOutputSignal(state: BlockState, level: Level, pos: BlockPos) =
+        getBlockEntity(level, pos)?.analogOutputSignal ?: 0
+
     private fun getBlockEntity(level: Level, pos: BlockPos) = level.getBlockEntity(pos) as? SplicingTableBlockEntity
 }
