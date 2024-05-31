@@ -8,6 +8,8 @@ import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 
+typealias RegistrarEntry<T> = HexDebugRegistrar<T>.Entry<out T>
+
 // scuffed.
 
 // use Any upper bound to forbid nullable types, because Registry.register needs that???

@@ -14,10 +14,9 @@ import net.minecraft.data.PackOutput
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.client.model.generators.ItemModelProvider
 import net.minecraftforge.client.model.generators.ModelBuilder
-import net.minecraftforge.client.model.generators.ModelFile
 import net.minecraftforge.common.data.ExistingFileHelper
 
-class HexDebugModels(output: PackOutput, efh: ExistingFileHelper) : ItemModelProvider(output, HexDebug.MODID, efh) {
+class HexDebugItemModels(output: PackOutput, efh: ExistingFileHelper) : ItemModelProvider(output, HexDebug.MODID, efh) {
     override fun registerModels() {
         debugger(HexDebugItems.DEBUGGER.id)
 
@@ -26,7 +25,7 @@ class HexDebugModels(output: PackOutput, efh: ExistingFileHelper) : ItemModelPro
 
     private fun debugger(item: ResourceLocation) {
         val baseModel = basicItem(item)
-            .parent(ModelFile.UncheckedModelFile("item/handheld_rod"))
+            .parent(getExistingFile(mcLoc("item/handheld_rod")))
 
         val basePath = baseModel.location.path
 
@@ -63,7 +62,7 @@ class HexDebugModels(output: PackOutput, efh: ExistingFileHelper) : ItemModelPro
 
     private fun evaluator(item: ResourceLocation) {
         val baseModel = basicItem(item)
-            .parent(ModelFile.UncheckedModelFile("item/handheld_rod"))
+            .parent(getExistingFile(mcLoc("item/handheld_rod")))
 
         val basePath = baseModel.location.path
 

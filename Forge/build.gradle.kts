@@ -27,6 +27,7 @@ loom {
                 "--output", project(":Common").file("src/generated/resources").absolutePath,
                 "--existing", file("src/main/resources").absolutePath,
                 "--existing", project(":Common").file("src/main/resources").absolutePath,
+                "--existing-mod", "hexcasting",
             )
             property("hexdebug.apply-datagen-mixin", "true")
         }

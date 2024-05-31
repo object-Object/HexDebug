@@ -2,8 +2,9 @@ package gay.`object`.hexdebug.forge
 
 import dev.architectury.platform.forge.EventBuses
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.forge.datagen.HexDebugBlockModels
+import gay.`object`.hexdebug.forge.datagen.HexDebugItemModels
 import gay.`object`.hexdebug.forge.datagen.HexDebugItemTags
-import gay.`object`.hexdebug.forge.datagen.HexDebugModels
 import gay.`object`.hexdebug.forge.datagen.HexDebugRecipes
 import net.minecraft.data.DataProvider
 import net.minecraft.data.DataProvider.Factory
@@ -30,7 +31,8 @@ class HexDebugForge {
     private fun gatherData(event: GatherDataEvent) {
         event.apply {
             val efh = existingFileHelper
-            addProvider(includeClient()) { HexDebugModels(it, efh) }
+            addProvider(includeClient()) { HexDebugBlockModels(it, efh) }
+            addProvider(includeClient()) { HexDebugItemModels(it, efh) }
             addProvider(includeServer()) { HexDebugRecipes(it) }
             addProvider(includeServer()) { HexDebugItemTags(it, lookupProvider, efh) }
         }
