@@ -1,7 +1,7 @@
 package gay.`object`.hexdebug.gui
 
 import gay.`object`.hexdebug.blocks.splicing.ISplicingTable.Action
-import gay.`object`.hexdebug.blocks.splicing.ISplicingTable.Selection
+import gay.`object`.hexdebug.blocks.splicing.Selection
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.client.gui.GuiGraphics
