@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.blocks.splicing
 
 import at.petrak.hexcasting.api.casting.iota.Iota
+import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.splicing.ISplicingTable.Action
 import gay.`object`.hexdebug.gui.SplicingTableMenu
@@ -44,6 +45,8 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     /** Called on the server. */
     override fun runAction(action: Action, selection: Selection?): Selection? {
+        HexDebug.LOGGER.info("Got action: $action") // FIXME: remove
+
         when (action) {
             Action.UNDO -> return applyUndoState(-1, selection)
             Action.REDO -> return applyUndoState(1, selection)
