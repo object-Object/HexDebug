@@ -7,12 +7,7 @@ import gay.`object`.hexdebug.networking.HexDebugMessageC2S
 import gay.`object`.hexdebug.networking.HexDebugMessageCompanionC2S
 import net.minecraft.network.FriendlyByteBuf
 
-data class MsgSplicingTableActionC2S(
-    val action: Action,
-    val selection: Selection,
-    val shift: Boolean,
-    val ctrl: Boolean,
-) : HexDebugMessageC2S {
+data class MsgSplicingTableActionC2S(val action: Action, val selection: Selection) : HexDebugMessageC2S {
     companion object : HexDebugMessageCompanionC2S<MsgSplicingTableActionC2S> {
         override val type = MsgSplicingTableActionC2S::class.java
 
@@ -22,8 +17,6 @@ data class MsgSplicingTableActionC2S(
                 start = buf.readInt(),
                 end = buf.readInt(),
             ),
-            shift = buf.readBoolean(),
-            ctrl = buf.readBoolean(),
         )
 
         override fun MsgSplicingTableActionC2S.encode(buf: FriendlyByteBuf) {
@@ -32,8 +25,6 @@ data class MsgSplicingTableActionC2S(
                 buf.writeInt(start)
                 buf.writeInt(end)
             }
-            buf.writeBoolean(shift)
-            buf.writeBoolean(ctrl)
         }
 
         override fun MsgSplicingTableActionC2S.applyOnServer(ctx: PacketContext) = ctx.queue {

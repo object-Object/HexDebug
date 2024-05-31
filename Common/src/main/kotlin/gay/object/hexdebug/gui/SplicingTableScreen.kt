@@ -1,5 +1,7 @@
 package gay.`object`.hexdebug.gui
 
+import gay.`object`.hexdebug.blocks.splicing.ISplicingTable.Action
+import gay.`object`.hexdebug.blocks.splicing.ISplicingTable.Selection
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.client.gui.GuiGraphics
@@ -14,6 +16,10 @@ class SplicingTableScreen(
     inventory: Inventory,
     title: Component,
 ) : AbstractContainerScreen<SplicingTableMenu>(menu, inventory, title) {
+    private val player = inventory.player
+
+    private var selection: Selection? = null
+
     override fun init() {
         super.init()
         titleLabelX = (imageWidth - font.width(title)) / 2
@@ -34,6 +40,10 @@ class SplicingTableScreen(
     // disable inventory label
     override fun renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
         guiGraphics.drawString(font, title, titleLabelX, titleLabelY, 4210752, false)
+    }
+
+    private fun Action.run() {
+        selection?.also { menu.table.runAction(this, it) }
     }
 
     companion object {

@@ -1,6 +1,8 @@
 package gay.`object`.hexdebug.blocks.splicing
 
 import gay.`object`.hexdebug.blocks.base.BaseContainer
+import gay.`object`.hexdebug.blocks.splicing.ISplicingTable.Action
+import gay.`object`.hexdebug.blocks.splicing.ISplicingTable.Selection
 import gay.`object`.hexdebug.gui.SplicingTableMenu
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import net.minecraft.core.BlockPos
@@ -36,4 +38,39 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     override fun createMenu(i: Int, inventory: Inventory, player: Player) = SplicingTableMenu(i, inventory, this)
 
     override fun getDisplayName() = Component.translatable(blockState.block.descriptionId)
+
+    override fun runAction(action: Action, selection: Selection) {
+        when (action) {
+            Action.NUDGE_LEFT -> {
+
+            }
+            Action.NUDGE_RIGHT -> {
+
+            }
+            Action.DUPLICATE -> {
+
+            }
+            Action.DELETE -> {
+
+            }
+            Action.UNDO -> {
+
+            }
+            Action.REDO -> {
+
+            }
+            Action.CUT -> {
+
+            }
+            Action.COPY -> {
+
+            }
+            Action.PASTE -> {
+
+            }
+            Action.PASTE_SPLAT -> {
+
+            }
+        }
+    }
 }

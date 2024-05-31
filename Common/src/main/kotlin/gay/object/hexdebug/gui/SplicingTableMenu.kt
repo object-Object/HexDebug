@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack
 class SplicingTableMenu(
     containerId: Int,
     private val inventory: Inventory,
-    private val table: ISplicingTable,
+    val table: ISplicingTable,
 ) : AbstractContainerMenu(HexDebugMenus.SPLICING_TABLE.value, containerId) {
     constructor(containerId: Int, inventory: Inventory) : this(containerId, inventory, ClientSplicingTable())
 

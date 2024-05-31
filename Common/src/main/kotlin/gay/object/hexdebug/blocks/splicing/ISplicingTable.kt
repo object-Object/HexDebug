@@ -11,6 +11,8 @@ interface ISplicingTable : Container {
     fun iotaHolderDelegate() = ContainerSlotDelegate(IOTA_HOLDER_INDEX)
     fun clipboardDelegate() = ContainerSlotDelegate(CLIPBOARD_INDEX)
 
+    fun runAction(action: Action, selection: Selection)
+
     companion object {
         const val CONTAINER_SIZE = 2
         const val IOTA_HOLDER_INDEX = 0
@@ -23,9 +25,11 @@ interface ISplicingTable : Container {
         DUPLICATE,
         DELETE,
         UNDO,
+        REDO,
         CUT,
         COPY,
         PASTE,
+        PASTE_SPLAT,
     }
 
     data class Selection(val start: Int, val end: Int)
