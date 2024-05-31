@@ -1,8 +1,8 @@
 package gay.`object`.hexdebug.blocks.splicing
 
+import at.petrak.hexcasting.api.casting.iota.Iota
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.splicing.ISplicingTable.Action
-import gay.`object`.hexdebug.blocks.splicing.ISplicingTable.Selection
 import gay.`object`.hexdebug.gui.SplicingTableMenu
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import net.minecraft.core.BlockPos
@@ -25,6 +25,9 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     val analogOutputSignal get() = if (!iotaHolder.isEmpty) 15 else 0
 
+    private val undoStack = mutableListOf<UndoState>()
+    private var undoIndex = -1
+
     override fun load(tag: CompoundTag) {
         super.load(tag)
         ContainerHelper.loadAllItems(tag, stacks)
@@ -40,39 +43,66 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     override fun getDisplayName() = Component.translatable(blockState.block.descriptionId)
 
     /** Called on the server. */
-    override fun runAction(action: Action, selection: Selection): Selection? {
+    override fun runAction(action: Action, selection: Selection?): Selection? {
         when (action) {
+            Action.UNDO -> return applyUndoState(-1, selection)
+            Action.REDO -> return applyUndoState(1, selection)
+            else -> {}
+        }
+
+        if (selection == null) return null
+
+        @Suppress("KotlinConstantConditions")
+        return when (action) {
             Action.NUDGE_LEFT -> {
 
+                selection.nudge(-1)
             }
             Action.NUDGE_RIGHT -> {
 
+                selection.nudge(1)
             }
             Action.DUPLICATE -> {
 
+                selection.expandRight(selection.size)
             }
             Action.DELETE -> {
 
-            }
-            Action.UNDO -> {
-
-            }
-            Action.REDO -> {
-
+                null
             }
             Action.CUT -> {
 
+                null
             }
             Action.COPY -> {
 
+                selection
             }
             Action.PASTE -> {
 
+                Selection.withSize(selection.end, 1)
             }
             Action.PASTE_SPLAT -> {
 
+                Selection.withSize(selection.end, 0) // FIXME: replace 0 with size of clipboard
             }
+            Action.UNDO, Action.REDO -> throw AssertionError("unreachable")
         }
-        return selection
     }
+
+    private fun applyUndoState(delta: Int, currentSelection: Selection?): Selection? {
+        val newIndex = undoIndex + delta
+        val state = undoStack.getOrNull(newIndex) ?: return currentSelection
+        undoIndex = newIndex
+        // FIXME: implement
+        return state.selection
+    }
+
+    private fun pushUndoState() {}
+
+    data class UndoState(
+        val list: List<Iota>,
+        val clipboard: List<Iota>?,
+        val selection: Selection?,
+    )
 }
