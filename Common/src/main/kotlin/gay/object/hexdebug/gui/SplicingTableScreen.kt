@@ -16,9 +16,9 @@ class SplicingTableScreen(
     inventory: Inventory,
     title: Component,
 ) : AbstractContainerScreen<SplicingTableMenu>(menu, inventory, title) {
-    private val player = inventory.player
+    var selection: Selection? = null
 
-    private var selection: Selection? = null
+    private val player = inventory.player
 
     override fun init() {
         super.init()

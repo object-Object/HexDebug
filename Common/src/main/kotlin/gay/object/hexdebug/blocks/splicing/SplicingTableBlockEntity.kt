@@ -39,7 +39,8 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     override fun getDisplayName() = Component.translatable(blockState.block.descriptionId)
 
-    override fun runAction(action: Action, selection: Selection) {
+    /** Called on the server. */
+    override fun runAction(action: Action, selection: Selection): Selection? {
         when (action) {
             Action.NUDGE_LEFT -> {
 
@@ -72,5 +73,6 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
             }
         }
+        return selection
     }
 }

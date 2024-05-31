@@ -11,7 +11,8 @@ interface ISplicingTable : Container {
     fun iotaHolderDelegate() = ContainerSlotDelegate(IOTA_HOLDER_INDEX)
     fun clipboardDelegate() = ContainerSlotDelegate(CLIPBOARD_INDEX)
 
-    fun runAction(action: Action, selection: Selection)
+    /** Runs the given action, and returns an updated selection (or null if the selection should be removed). */
+    fun runAction(action: Action, selection: Selection): Selection?
 
     companion object {
         const val CONTAINER_SIZE = 2
@@ -32,5 +33,10 @@ interface ISplicingTable : Container {
         PASTE_SPLAT,
     }
 
+    /**
+     * A selection range. `start` is inclusive, `end` is exclusive.
+     *
+     * Is considered an edge selection if `end` <= `start`.
+     */
     data class Selection(val start: Int, val end: Int)
 }
