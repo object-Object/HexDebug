@@ -102,6 +102,7 @@ class SplicingTableScreen(
 
     // button helpers
 
+    // FIXME: writing should not be dependent on reading
     private fun updateActiveButtons() {
         val data = data
         if (data.hasIotas) {

@@ -1,6 +1,10 @@
 package gay.`object`.hexdebug.blocks.splicing
 
 import at.petrak.hexcasting.api.casting.iota.Iota
+import at.petrak.hexcasting.api.casting.iota.IotaType
+import at.petrak.hexcasting.api.casting.iota.ListIota
+import at.petrak.hexcasting.api.casting.iota.NullIota
+import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerSlotDelegate
@@ -13,6 +17,7 @@ import gay.`object`.hexdebug.splicing.SplicingTableClientView
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Inventory
@@ -25,10 +30,10 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 ), ISplicingTable, BaseContainer, MenuProvider {
     override val stacks = BaseContainer.withSize(ISplicingTable.CONTAINER_SIZE)
 
-    var listHolder by ContainerSlotDelegate(ISplicingTable.LIST_INDEX)
-    var clipboardHolder by ContainerSlotDelegate(ISplicingTable.CLIPBOARD_INDEX)
+    private var listStack by ContainerSlotDelegate(ISplicingTable.LIST_INDEX)
+    private var clipboardStack by ContainerSlotDelegate(ISplicingTable.CLIPBOARD_INDEX)
 
-    val analogOutputSignal get() = if (!listHolder.isEmpty) 15 else 0
+    val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0
 
     private val undoStack = mutableListOf<UndoState>()
     private var undoIndex = -1
@@ -47,13 +52,23 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     override fun getDisplayName() = Component.translatable(blockState.block.descriptionId)
 
-    // FIXME: placeholder
-    override fun getClientView() = SplicingTableClientView(
-        iotas = List(18) { CompoundTag() },
-        clipboard = null,
-        isWritable = true,
-        isClipboardWritable = false,
-    )
+    override fun getClientView(): SplicingTableClientView? {
+        val level = level as? ServerLevel ?: return null
+
+        // FIXME: cache these
+        val listHolder = IXplatAbstractions.INSTANCE.findDataHolder(listStack)
+        val clipboardHolder = IXplatAbstractions.INSTANCE.findDataHolder(clipboardStack)
+
+        return SplicingTableClientView(
+            iotas = listHolder?.readIota(level)
+                ?.let { it as? ListIota }
+                ?.list
+                ?.map { IotaType.serialize(it) },
+            clipboard = clipboardHolder?.readIotaTag(),
+            isWritable = listHolder?.writeIota(ListIota(listOf()), true) ?: false,
+            isClipboardWritable = clipboardHolder?.writeIota(NullIota(), true) ?: false,
+        )
+    }
 
     /** Called on the server. */
     override fun runAction(action: Action, selection: Selection?): Selection? {
