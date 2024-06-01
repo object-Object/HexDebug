@@ -1,5 +1,6 @@
 package gay.`object`.hexdebug.gui
 
+import at.petrak.hexcasting.api.casting.iota.IotaType
 import gay.`object`.hexdebug.splicing.ISplicingTable.Action
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
@@ -105,14 +106,13 @@ class SplicingTableScreen(
 
     // button helpers
 
-    // FIXME: writing should not be dependent on reading
     private fun updateActiveButtons() {
         val data = data
         if (data.hasIotas) {
             setActive(iotasReadButtons, true)
             setActive(iotasWriteButtons, data.isWritable)
             setActive(clipboardReadButtons, data.hasClipboard)
-            setActive(clipboardWriteButtons, data.hasClipboard && data.isClipboardWritable)
+            setActive(clipboardWriteButtons, data.isClipboardWritable)
         } else {
             setActive(allButtons.asIterable(), false)
         }
@@ -131,9 +131,10 @@ class SplicingTableScreen(
                 arrayOf()
             }
             button.apply {
-                if (data.isInRange(index)) {
+                val iota = data.iotas?.getOrNull(index)
+                if (null != iota) {
                     message = Component.literal(index.toString()).withStyle(*formats)
-                    tooltip = Tooltip.create(Component.translatable(buttonKey("iota"), index))
+                    tooltip = Tooltip.create(IotaType.getDisplay(iota))
                 } else {
                     message = Component.empty()
                     tooltip = null
