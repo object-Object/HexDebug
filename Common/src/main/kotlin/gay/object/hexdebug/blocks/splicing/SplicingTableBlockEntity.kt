@@ -9,6 +9,7 @@ import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import gay.`object`.hexdebug.splicing.ISplicingTable
 import gay.`object`.hexdebug.splicing.ISplicingTable.Action
 import gay.`object`.hexdebug.splicing.Selection
+import gay.`object`.hexdebug.splicing.SplicingTableClientView
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
@@ -45,6 +46,14 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     override fun createMenu(i: Int, inventory: Inventory, player: Player) = SplicingTableMenu(i, inventory, this)
 
     override fun getDisplayName() = Component.translatable(blockState.block.descriptionId)
+
+    // FIXME: placeholder
+    override fun getClientView() = SplicingTableClientView(
+        iotas = List(18) { CompoundTag() },
+        clipboard = null,
+        isWritable = true,
+        isClipboardWritable = false,
+    )
 
     /** Called on the server. */
     override fun runAction(action: Action, selection: Selection?): Selection? {

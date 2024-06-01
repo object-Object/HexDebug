@@ -75,7 +75,6 @@ class SplicingTableScreen(
                 .size(4, 16)
                 .build()
         }
-        updateIotaButtons()
 
         iotasReadButtons += listOf(
             Button.builder(Component.literal("<")) { viewStartIndex-- }
@@ -97,6 +96,8 @@ class SplicingTableScreen(
         )
 
         allButtons.forEach(::addRenderableWidget)
+        updateIotaButtons()
+        updateActiveButtons()
     }
 
     // button helpers

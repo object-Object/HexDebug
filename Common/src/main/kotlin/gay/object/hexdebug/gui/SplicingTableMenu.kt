@@ -1,11 +1,14 @@
 package gay.`object`.hexdebug.gui
 
 import gay.`object`.hexdebug.blocks.splicing.ClientSplicingTableContainer
+import gay.`object`.hexdebug.networking.msg.MsgSplicingTableNewDataS2C
 import gay.`object`.hexdebug.registry.HexDebugMenus
 import gay.`object`.hexdebug.splicing.ISplicingTable
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.inventory.ContainerListener
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
 
@@ -16,8 +19,11 @@ class SplicingTableMenu(
 ) : AbstractContainerMenu(HexDebugMenus.SPLICING_TABLE.value, containerId) {
     constructor(containerId: Int, inventory: Inventory) : this(containerId, inventory, ClientSplicingTableContainer())
 
+    val player get() = inventory.player
+    val level get() = player.level()
+
     init {
-        table.startOpen(inventory.player)
+        table.startOpen(player)
 
         // FIXME: placeholder slot coordinates
 
@@ -35,6 +41,20 @@ class SplicingTableMenu(
         // player hotbar
         for (col in 0 until 9) {
             addSlot(Slot(inventory, col, 8 + col * 18, 142))
+        }
+
+        if (!level.isClientSide) {
+            val player = player as ServerPlayer
+            addSlotListener(object : ContainerListener {
+                override fun slotChanged(menu: AbstractContainerMenu, index: Int, stack: ItemStack) {
+                    // TODO: only send data for the slot that changed?
+                    if (index == ISplicingTable.LIST_INDEX || index == ISplicingTable.CLIPBOARD_INDEX) {
+                        table.getClientView()?.let { MsgSplicingTableNewDataS2C(it).sendToPlayer(player) }
+                    }
+                }
+
+                override fun dataChanged(menu: AbstractContainerMenu, index: Int, value: Int) {}
+            })
         }
     }
 

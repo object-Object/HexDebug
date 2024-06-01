@@ -10,6 +10,8 @@ import net.minecraft.world.SimpleContainer
 
 @Environment(EnvType.CLIENT)
 class ClientSplicingTableContainer : SimpleContainer(ISplicingTable.CONTAINER_SIZE), ISplicingTable {
+    override fun getClientView() = null
+
     /** Called on the client. */
     override fun runAction(action: Action, selection: Selection?) = selection.also {
         MsgSplicingTableActionC2S(action, it).sendToServer()

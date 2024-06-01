@@ -3,6 +3,8 @@ package gay.`object`.hexdebug.splicing
 import net.minecraft.world.Container
 
 interface ISplicingTable : Container {
+    fun getClientView(): SplicingTableClientView?
+
     /** Runs the given action, and returns an updated selection (or null if the selection should be removed). */
     fun runAction(action: Action, selection: Selection?): Selection?
 
