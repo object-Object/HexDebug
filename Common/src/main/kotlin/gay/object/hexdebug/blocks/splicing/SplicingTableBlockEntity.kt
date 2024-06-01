@@ -59,11 +59,11 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         return when (action) {
             Action.NUDGE_LEFT -> {
 
-                selection.nudge(-1)
+                selection.moveBy(-1)
             }
             Action.NUDGE_RIGHT -> {
 
-                selection.nudge(1)
+                selection.moveBy(1)
             }
             Action.DUPLICATE -> {
 
@@ -83,11 +83,11 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
             }
             Action.PASTE -> {
 
-                Selection.withSize(selection.end, 1)
+                Selection.withSize(selection.lastIndex + 1, 1)
             }
             Action.PASTE_SPLAT -> {
 
-                Selection.withSize(selection.end, 0) // FIXME: replace 0 with size of clipboard
+                Selection.withSize(selection.lastIndex + 1, 1) // FIXME: replace 1 with size of clipboard
             }
             Action.UNDO, Action.REDO -> throw AssertionError("unreachable")
         }
