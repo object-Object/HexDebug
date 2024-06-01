@@ -119,7 +119,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
             }
             Action.NUDGE_RIGHT -> {
                 if (selection.end < list.lastIndex) {
-                    list.add(selection.start - 1, list.removeAt(selection.end + 1))
+                    list.add(selection.start, list.removeAt(selection.end + 1))
                     writeList(listHolder, list)
                     selection.moveBy(1)
                 } else selection

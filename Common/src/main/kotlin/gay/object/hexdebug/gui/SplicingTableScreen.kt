@@ -40,14 +40,14 @@ class SplicingTableScreen(
     private val iotaButtons = mutableListOf<Button>()
     private val edgeButtons = mutableListOf<Button>()
 
-    private val iotasReadButtons = mutableListOf<Button>()
-    private val iotasWriteButtons = mutableListOf<Button>()
+    private val listReadButtons = mutableListOf<Button>()
+    private val listWriteButtons = mutableListOf<Button>()
     private val clipboardReadButtons = mutableListOf<Button>()
     private val clipboardWriteButtons = mutableListOf<Button>()
 
     private val allButtons = sequenceOf(
-        iotasReadButtons,
-        iotasWriteButtons,
+        listReadButtons,
+        listWriteButtons,
         clipboardReadButtons,
         clipboardWriteButtons,
     ).flatten()
@@ -67,6 +67,14 @@ class SplicingTableScreen(
         super.init()
         titleLabelX = (imageWidth - font.width(title)) / 2
 
+        allButtons.forEach(::removeWidget)
+        iotaButtons.clear()
+        edgeButtons.clear()
+        listReadButtons.clear()
+        listWriteButtons.clear()
+        clipboardReadButtons.clear()
+        clipboardWriteButtons.clear()
+
         iotaButtons += (0 until IOTA_BUTTONS).map { offset ->
             Button.builder(Component.empty()) { onSelectIota(viewStartIndex + offset) }
                 .pos(leftPos + 20 + offset * 26, topPos - 18)
@@ -80,7 +88,7 @@ class SplicingTableScreen(
                 .build()
         }
 
-        iotasReadButtons += listOf(
+        listReadButtons += listOf(
             Button.builder(Component.literal("<")) { viewStartIndex-- }
                 .tooltip(Tooltip.create(Component.translatable(buttonKey("view_left"))))
                 .pos(leftPos, topPos - 17)
@@ -93,9 +101,12 @@ class SplicingTableScreen(
                 .build(),
         ) + iotaButtons + edgeButtons
 
-        iotasWriteButtons += listOf(
+        listWriteButtons += listOf(
             actionButton(Action.NUDGE_LEFT)
-                .bounds(leftPos, topPos, 16, 16)
+                .bounds(leftPos, topPos, 32, 16)
+                .build(),
+            actionButton(Action.NUDGE_RIGHT)
+                .bounds(leftPos + 34, topPos, 32, 16)
                 .build(),
         )
 
@@ -109,8 +120,8 @@ class SplicingTableScreen(
     private fun updateActiveButtons() {
         val data = data
         if (data.hasIotas) {
-            setActive(iotasReadButtons, true)
-            setActive(iotasWriteButtons, data.isWritable)
+            setActive(listReadButtons, true)
+            setActive(listWriteButtons, data.isWritable)
             setActive(clipboardReadButtons, data.hasClipboard)
             setActive(clipboardWriteButtons, data.isClipboardWritable)
         } else {
