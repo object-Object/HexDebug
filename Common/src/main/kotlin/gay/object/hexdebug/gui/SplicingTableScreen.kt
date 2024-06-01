@@ -1,10 +1,11 @@
 package gay.`object`.hexdebug.gui
 
-import gay.`object`.hexdebug.HexDebug
+import at.petrak.hexcasting.api.casting.iota.NullIota
 import gay.`object`.hexdebug.blocks.splicing.ISplicingTable.Action
 import gay.`object`.hexdebug.blocks.splicing.Selection
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
+import net.minecraft.ChatFormatting
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Tooltip
@@ -20,6 +21,15 @@ class SplicingTableScreen(
     title: Component,
 ) : AbstractContainerScreen<SplicingTableMenu>(menu, inventory, title) {
     var selection: Selection? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                updateIotaButtons()
+            }
+        }
+
+    // FIXME: placeholder
+    private val iotaList = List(18) { NullIota() }
 
     private val player = inventory.player
 
@@ -37,13 +47,12 @@ class SplicingTableScreen(
         clipboardWriteButtons,
     ).flatten()
 
-    private var listIndex = 0
+    private var viewStartIndex = 0
         set(value) {
-            field = value
-            iotaButtons.forEachIndexed { index, button ->
-                val title = Component.translatable(buttonKey("iota"), value + index)
-                button.message = title
-                button.tooltip = Tooltip.create(title)
+            val clamped = value.coerceIn(0..iotaList.lastIndex - iotaButtons.size + 1)
+            if (field != clamped) {
+                field = clamped
+                updateIotaButtons()
             }
         }
 
@@ -51,24 +60,30 @@ class SplicingTableScreen(
         super.init()
         titleLabelX = (imageWidth - font.width(title)) / 2
 
-        iotaButtons += (0 until 9).map(::iotaButton)
+        iotaButtons += (0 until 9).map { index ->
+            Button.builder(Component.empty()) { onSelect(viewStartIndex + index) }
+                .pos(leftPos + 18 + index * 26, topPos - 18)
+                .size(24, 16)
+                .build()
+        }
+        updateIotaButtons()
 
         listReadButtons += listOf(
-            Button.builder(Component.literal("<")) { if (listIndex > 0) listIndex-- }
+            Button.builder(Component.literal("<")) { viewStartIndex-- }
                 .tooltip(Tooltip.create(Component.translatable(buttonKey("view_left"))))
-                .pos(leftPos, topPos)
+                .pos(leftPos, topPos - 18)
                 .size(16, 16)
                 .build(),
-            Button.builder(Component.literal(">")) { if (listIndex < 10) listIndex++ } // FIXME: upper bound
+            Button.builder(Component.literal(">")) { viewStartIndex++ }
                 .tooltip(Tooltip.create(Component.translatable(buttonKey("view_right"))))
-                .pos(leftPos + 18 + 9 * 26, topPos)
+                .pos(leftPos + 18 + iotaButtons.size * 26, topPos - 18)
                 .size(16, 16)
                 .build(),
         )
 
         listWriteButtons += listOf(
             actionButton(Action.NUDGE_LEFT)
-                .bounds(leftPos, topPos + 18, 16, 16)
+                .bounds(leftPos, topPos, 16, 16)
                 .build(),
         )
 
@@ -77,13 +92,25 @@ class SplicingTableScreen(
 
     // button helpers
 
-    private fun iotaButton(offset: Int) =
-        button(Component.translatable(buttonKey("iota"), offset)) {
-            HexDebug.LOGGER.info("Clicked iota $offset")
+    private fun updateIotaButtons() {
+        iotaButtons.forEachIndexed { index, button ->
+            val listIndex = viewStartIndex + index
+            val formats = if (isSelected(listIndex)) {
+                arrayOf(ChatFormatting.BOLD, ChatFormatting.UNDERLINE)
+            } else {
+                arrayOf()
+            }
+            button.apply {
+                if (listIndex in iotaList.indices) {
+                    message = Component.literal(listIndex.toString()).withStyle(*formats)
+                    tooltip = Tooltip.create(Component.translatable(buttonKey("iota"), listIndex))
+                } else {
+                    message = Component.empty()
+                    tooltip = null
+                }
+            }
         }
-            .pos(leftPos + 18 + offset * 26, topPos)
-            .size(24, 16)
-            .build()
+    }
 
     private fun actionButton(action: Action) =
         button(action.name.lowercase()) {
@@ -97,6 +124,25 @@ class SplicingTableScreen(
             .tooltip(Tooltip.create(message))
 
     private fun buttonKey(name: String) = "text.hexdebug.splicing_table.button.$name"
+
+    // GUI functionality
+
+    private fun isSelected(listIndex: Int) = selection?.let { listIndex in it.range } ?: false
+
+    private fun onSelect(listIndex: Int) {
+        if (listIndex !in iotaList.indices) return
+
+        val selection = selection
+        this.selection = if (selection != null && listIndex in selection.range) {
+            null
+        } else if (selection == null || selection.size > 1) {
+            Selection.withSize(listIndex, 1)
+        } else if (listIndex < selection.start) {
+            Selection.Range.of(listIndex, selection.start - 1 + selection.size)
+        } else {
+            selection.copy(end = listIndex)
+        }
+    }
 
     // rendering
 
