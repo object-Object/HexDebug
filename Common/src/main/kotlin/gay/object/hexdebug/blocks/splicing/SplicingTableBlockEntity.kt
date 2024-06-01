@@ -52,19 +52,25 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     override fun getDisplayName() = Component.translatable(blockState.block.descriptionId)
 
+    private fun getList(level: ServerLevel) =
+        IXplatAbstractions.INSTANCE.findDataHolder(listStack).let { holder ->
+            holder to holder?.let { it.readIota(level) as? ListIota }?.list
+        }
+
+    private fun getClipboard(level: ServerLevel) =
+        IXplatAbstractions.INSTANCE.findDataHolder(clipboardStack).let { holder ->
+            holder to holder?.readIota(level)
+        }
+
     override fun getClientView(): SplicingTableClientView? {
         val level = level as? ServerLevel ?: return null
 
-        // FIXME: cache these
-        val listHolder = IXplatAbstractions.INSTANCE.findDataHolder(listStack)
-        val clipboardHolder = IXplatAbstractions.INSTANCE.findDataHolder(clipboardStack)
+        val (listHolder, list) = getList(level)
+        val (clipboardHolder, clipboard) = getClipboard(level)
 
         return SplicingTableClientView(
-            iotas = listHolder?.readIota(level)
-                ?.let { it as? ListIota }
-                ?.list
-                ?.map { IotaType.serialize(it) },
-            clipboard = clipboardHolder?.readIotaTag(),
+            iotas = list?.map { IotaType.serialize(it) },
+            clipboard = clipboard?.let { IotaType.serialize(it) },
             isWritable = listHolder?.writeIota(ListIota(listOf()), true) ?: false,
             isClipboardWritable = clipboardHolder?.writeIota(NullIota(), true) ?: false,
         )

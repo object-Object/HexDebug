@@ -30,8 +30,8 @@ class SplicingTableScreen(
     var data = SplicingTableClientView.empty()
         set(value) {
             field = value
-            updateIotaButtons()
             updateActiveButtons()
+            updateIotaButtons()
         }
 
     private val player = inventory.player
@@ -53,7 +53,9 @@ class SplicingTableScreen(
 
     private var viewStartIndex = 0
         set(value) {
-            val clamped = value.coerceIn(0..data.lastIotaIndex - IOTA_BUTTONS + 1)
+            val clamped = if (data.iotas?.let { it.size > IOTA_BUTTONS } == true) {
+                value.coerceIn(0..data.lastIotaIndex - IOTA_BUTTONS + 1)
+            } else 0
             if (field != clamped) {
                 field = clamped
                 updateIotaButtons()
@@ -135,12 +137,18 @@ class SplicingTableScreen(
                 } else {
                     message = Component.empty()
                     tooltip = null
+                    active = false
                 }
             }
         }
         edgeButtons.forEachIndexed { offset, button ->
             val index = viewStartIndex + offset
-            button.setAlpha(if (isEdgeSelected(index)) 1f else 0.3f)
+            button.apply {
+                setAlpha(if (isEdgeSelected(index)) 1f else 0.3f)
+                if (!(data.isInRange(index) || data.isInRange(index - 1))) {
+                    active = false
+                }
+            }
         }
     }
 
@@ -183,7 +191,7 @@ class SplicingTableScreen(
     }
 
     private fun onSelectEdge(index: Int) {
-        if (!data.isInRange(index)) return
+        if (!(data.isInRange(index) || data.isInRange(index - 1))) return
 
         val selection = selection
         this.selection = if (isEdgeSelected(index)) {
