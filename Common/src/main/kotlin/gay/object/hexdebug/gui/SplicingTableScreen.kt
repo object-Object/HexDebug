@@ -34,6 +34,7 @@ class SplicingTableScreen(
     private val player = inventory.player
 
     private val iotaButtons = mutableListOf<Button>()
+    private val edgeButtons = mutableListOf<Button>()
     private val listReadButtons = mutableListOf<Button>()
     private val listWriteButtons = mutableListOf<Button>()
     private val clipboardReadButtons = mutableListOf<Button>()
@@ -41,6 +42,7 @@ class SplicingTableScreen(
 
     private val buttons = sequenceOf(
         iotaButtons,
+        edgeButtons,
         listReadButtons,
         listWriteButtons,
         clipboardReadButtons,
@@ -49,7 +51,7 @@ class SplicingTableScreen(
 
     private var viewStartIndex = 0
         set(value) {
-            val clamped = value.coerceIn(0..iotaList.lastIndex - iotaButtons.size + 1)
+            val clamped = value.coerceIn(0..iotaList.lastIndex - IOTA_BUTTONS + 1)
             if (field != clamped) {
                 field = clamped
                 updateIotaButtons()
@@ -60,10 +62,16 @@ class SplicingTableScreen(
         super.init()
         titleLabelX = (imageWidth - font.width(title)) / 2
 
-        iotaButtons += (0 until 9).map { index ->
-            Button.builder(Component.empty()) { onSelect(viewStartIndex + index) }
-                .pos(leftPos + 18 + index * 26, topPos - 18)
-                .size(24, 16)
+        iotaButtons += (0 until IOTA_BUTTONS).map { offset ->
+            Button.builder(Component.empty()) { onSelectIota(viewStartIndex + offset) }
+                .pos(leftPos + 20 + offset * 26, topPos - 18)
+                .size(22, 16)
+                .build()
+        }
+        edgeButtons += (0..IOTA_BUTTONS).map { offset ->
+            Button.builder(Component.empty()) { onSelectEdge(viewStartIndex + offset) }
+                .pos(leftPos + 16 + offset * 26, topPos - 18)
+                .size(4, 16)
                 .build()
         }
         updateIotaButtons()
@@ -71,15 +79,15 @@ class SplicingTableScreen(
         listReadButtons += listOf(
             Button.builder(Component.literal("<")) { viewStartIndex-- }
                 .tooltip(Tooltip.create(Component.translatable(buttonKey("view_left"))))
-                .pos(leftPos, topPos - 18)
-                .size(16, 16)
+                .pos(leftPos, topPos - 17)
+                .size(14, 14)
                 .build(),
             Button.builder(Component.literal(">")) { viewStartIndex++ }
                 .tooltip(Tooltip.create(Component.translatable(buttonKey("view_right"))))
-                .pos(leftPos + 18 + iotaButtons.size * 26, topPos - 18)
-                .size(16, 16)
+                .pos(leftPos + 25 + iotaButtons.size * 26, topPos - 17)
+                .size(14, 14)
                 .build(),
-        )
+        ) + iotaButtons + edgeButtons
 
         listWriteButtons += listOf(
             actionButton(Action.NUDGE_LEFT)
@@ -93,22 +101,26 @@ class SplicingTableScreen(
     // button helpers
 
     private fun updateIotaButtons() {
-        iotaButtons.forEachIndexed { index, button ->
-            val listIndex = viewStartIndex + index
-            val formats = if (isSelected(listIndex)) {
+        iotaButtons.forEachIndexed { offset, button ->
+            val index = viewStartIndex + offset
+            val formats = if (isIotaSelected(index)) {
                 arrayOf(ChatFormatting.BOLD, ChatFormatting.UNDERLINE)
             } else {
                 arrayOf()
             }
             button.apply {
-                if (listIndex in iotaList.indices) {
-                    message = Component.literal(listIndex.toString()).withStyle(*formats)
-                    tooltip = Tooltip.create(Component.translatable(buttonKey("iota"), listIndex))
+                if (index in iotaList.indices) {
+                    message = Component.literal(index.toString()).withStyle(*formats)
+                    tooltip = Tooltip.create(Component.translatable(buttonKey("iota"), index))
                 } else {
                     message = Component.empty()
                     tooltip = null
                 }
             }
+        }
+        edgeButtons.forEachIndexed { offset, button ->
+            val index = viewStartIndex + offset
+            button.setAlpha(if (isEdgeSelected(index)) 1f else 0.3f)
         }
     }
 
@@ -127,21 +139,30 @@ class SplicingTableScreen(
 
     // GUI functionality
 
-    private fun isSelected(listIndex: Int) = selection?.let { listIndex in it.range } ?: false
+    private fun isIotaSelected(index: Int) = selection?.let { index in it.range } ?: false
 
-    private fun onSelect(listIndex: Int) {
-        if (listIndex !in iotaList.indices) return
+    private fun isEdgeSelected(index: Int) = selection?.let { it.start == index && it.end == null } ?: false
+
+    // TODO: maybe this should work more like text selection in a text editor?
+    private fun onSelectIota(index: Int) {
+        if (index !in iotaList.indices) return
 
         val selection = selection
-        this.selection = if (selection != null && listIndex in selection.range) {
+        this.selection = if (selection != null && index in selection.range) {
             null
-        } else if (selection == null || selection.size > 1) {
-            Selection.withSize(listIndex, 1)
-        } else if (listIndex < selection.start) {
-            Selection.Range.of(listIndex, selection.start - 1 + selection.size)
+        } else if (selection == null || selection.size != 1) {
+            Selection.withSize(index, 1)
+        } else if (index < selection.start) {
+            Selection.range(index, selection.start)
         } else {
-            selection.copy(end = listIndex)
+            Selection.range(selection.start, index)
         }
+    }
+
+    private fun onSelectEdge(index: Int) {
+        if (index !in iotaList.indices) return
+
+        this.selection = if (isEdgeSelected(index)) null else Selection.edge(index)
     }
 
     // rendering
@@ -166,5 +187,7 @@ class SplicingTableScreen(
     companion object {
         // FIXME: placeholder
         val TEXTURE = ResourceLocation("textures/gui/container/dispenser.png")
+
+        const val IOTA_BUTTONS = 9
     }
 }

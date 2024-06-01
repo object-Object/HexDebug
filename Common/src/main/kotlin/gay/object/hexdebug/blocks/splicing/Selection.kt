@@ -1,48 +1,34 @@
 package gay.`object`.hexdebug.blocks.splicing
 
-import gay.`object`.hexdebug.blocks.splicing.Selection.Edge
 import net.minecraft.network.FriendlyByteBuf
-import kotlin.math.max
 
 /**
  * An inclusive selection range.
- *
- * Note: for [Edge], `end == start - 1`.
  */
-sealed class Selection private constructor(val start: Int, val end: Int) {
-    val lastIndex = max(start, end)
-    val size = max(0, end - start + 1)
-    val range = start..end
+class Selection private constructor(val start: Int, val end: Int?) {
+    private val isValid = start >= 0 && (end == null || end >= start)
 
-    abstract fun copy(start: Int, end: Int): Selection?
+    val isEdge = end == null
+    val isRange = !isEdge
 
-    fun copy(start: Int? = null, end: Int? = null) = copy(start ?: this.start, end ?: this.end)
+    val lastIndex = end ?: start
 
-    fun expandRight(extra: Int) = Range.of(start, end + extra)
+    val size = end?.let { it - start + 1 } ?: 0
 
-    fun moveBy(delta: Int) = copy(start + delta, end + delta)
+    val range = start..(end ?: -1)
 
-    class Edge private constructor(val index: Int) : Selection(index, index - 1) {
-        override fun copy(start: Int, end: Int) = of(start)
+    fun moveBy(delta: Int) = of(start + delta, end?.plus(delta))
 
-        companion object {
-            fun of(index: Int) = Edge(index).takeIf { index >= 0 }
-        }
-    }
-
-    class Range private constructor(start: Int, end: Int) : Selection(start, end) {
-        override fun copy(start: Int, end: Int) = of(start, end)
-
-        companion object {
-            @Suppress("ConvertTwoComparisonsToRangeCheck")
-            fun of(start: Int, end: Int) = Range(start, end).takeIf { start >= 0 && end >= start }
-        }
-    }
+    fun expandRight(extra: Int) = of(start, (end ?: (start - 1)) + extra)
 
     companion object {
-        fun withSize(start: Int, size: Int) = rangeOrEdge(start, start + size - 1)
+        fun withSize(start: Int, size: Int) = range(start, start + size - 1)
 
-        fun rangeOrEdge(start: Int, end: Int) = Range.of(start, end) ?: Edge.of(start)
+        fun range(start: Int, end: Int) = of(start, end)
+
+        fun edge(index: Int) = of(index, null)
+
+        fun of(start: Int, end: Int?) = Selection(start, end?.takeIf { it >= start }).takeIf { it.isValid }
     }
 }
 
@@ -56,7 +42,7 @@ fun FriendlyByteBuf.writeSelection(selection: Selection?) {
 
 /** Reads a [Selection] from the buffer. `null` is encoded as `Selection(-1, -1)`. */
 fun FriendlyByteBuf.readSelection(): Selection? {
-    return Selection.rangeOrEdge(
+    return Selection.of(
         start = readInt(),
         end = readInt(),
     )
