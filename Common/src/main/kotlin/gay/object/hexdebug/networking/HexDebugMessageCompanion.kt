@@ -24,8 +24,9 @@ interface HexDebugMessageCompanionC2S<T : HexDebugMessageC2S> : HexDebugMessageC
     fun T.applyOnServer(ctx: PacketContext)
 
     fun applyOnServer(msg: T, supplier: Supplier<PacketContext>) {
-        HexDebug.LOGGER.debug("Client received packet: {}", this)
-        msg.applyOnServer(supplier.get())
+        val ctx = supplier.get()
+        HexDebug.LOGGER.debug("Server received packet from {}: {}", ctx.player.name.string, this)
+        msg.applyOnServer(ctx)
     }
 
     override fun register(channel: NetworkChannel) {
@@ -37,9 +38,8 @@ interface HexDebugMessageCompanionS2C<T : HexDebugMessageS2C> : HexDebugMessageC
     fun T.applyOnClient(ctx: PacketContext)
 
     fun applyOnClient(msg: T, supplier: Supplier<PacketContext>) {
-        val ctx = supplier.get()
-        HexDebug.LOGGER.debug("Server received packet from {}: {}", ctx.player.name.string, this)
-        msg.applyOnClient(ctx)
+        HexDebug.LOGGER.debug("Client received packet: {}", this)
+        msg.applyOnClient(supplier.get())
     }
 
     override fun register(channel: NetworkChannel) {
