@@ -1,17 +1,20 @@
 package gay.`object`.hexdebug.blocks.splicing
 
+import at.petrak.hexcasting.api.addldata.ADIotaHolder
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.casting.iota.NullIota
 import at.petrak.hexcasting.xplat.IXplatAbstractions
-import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerSlotDelegate
 import gay.`object`.hexdebug.gui.SplicingTableMenu
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import gay.`object`.hexdebug.splicing.ISplicingTable
 import gay.`object`.hexdebug.splicing.ISplicingTable.Action
+import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.CLIPBOARD_INDEX
+import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.CONTAINER_SIZE
+import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.LIST_INDEX
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
 import net.minecraft.core.BlockPos
@@ -28,10 +31,10 @@ import net.minecraft.world.level.block.state.BlockState
 class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     HexDebugBlockEntities.SPLICING_TABLE.value, pos, state
 ), ISplicingTable, BaseContainer, MenuProvider {
-    override val stacks = BaseContainer.withSize(ISplicingTable.CONTAINER_SIZE)
+    override val stacks = BaseContainer.withSize(CONTAINER_SIZE)
 
-    private var listStack by ContainerSlotDelegate(ISplicingTable.LIST_INDEX)
-    private var clipboardStack by ContainerSlotDelegate(ISplicingTable.CLIPBOARD_INDEX)
+    private var listStack by ContainerSlotDelegate(LIST_INDEX)
+    private var clipboardStack by ContainerSlotDelegate(CLIPBOARD_INDEX)
 
     val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0
 
@@ -54,7 +57,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     private fun getList(level: ServerLevel) =
         IXplatAbstractions.INSTANCE.findDataHolder(listStack).let { holder ->
-            holder to holder?.let { it.readIota(level) as? ListIota }?.list
+            holder to holder?.let { it.readIota(level) as? ListIota }?.list?.toMutableList()
         }
 
     private fun getClipboard(level: ServerLevel) =
@@ -78,7 +81,9 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     /** Called on the server. */
     override fun runAction(action: Action, selection: Selection?): Selection? {
-        HexDebug.LOGGER.info("Got action: $action") // FIXME: remove
+        val level = level as? ServerLevel ?: return selection
+
+        val (listHolder, list) = getList(level)
 
         when (action) {
             Action.UNDO -> return applyUndoState(-1, selection)
@@ -87,16 +92,37 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         }
 
         if (selection == null) return null
+        if (listHolder == null || list == null) return selection
+
+        when (action) {
+            Action.PASTE -> {
+
+                return Selection.withSize(selection.lastIndex + 1, 1)
+            }
+            Action.PASTE_SPLAT -> {
+
+                return Selection.withSize(selection.lastIndex + 1, 1) // FIXME: replace 1 with size of clipboard
+            }
+            else -> {}
+        }
+
+        if (selection.end == null) return selection
 
         @Suppress("KotlinConstantConditions")
         return when (action) {
             Action.NUDGE_LEFT -> {
-
-                selection.moveBy(-1)
+                if (selection.start > 0) {
+                    list.add(selection.end, list.removeAt(selection.start - 1))
+                    writeList(listHolder, list)
+                    selection.moveBy(-1)
+                } else selection
             }
             Action.NUDGE_RIGHT -> {
-
-                selection.moveBy(1)
+                if (selection.end < list.lastIndex) {
+                    list.add(selection.start - 1, list.removeAt(selection.end + 1))
+                    writeList(listHolder, list)
+                    selection.moveBy(1)
+                } else selection
             }
             Action.DUPLICATE -> {
 
@@ -114,16 +140,14 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
                 selection
             }
-            Action.PASTE -> {
-
-                Selection.withSize(selection.lastIndex + 1, 1)
-            }
-            Action.PASTE_SPLAT -> {
-
-                Selection.withSize(selection.lastIndex + 1, 1) // FIXME: replace 1 with size of clipboard
-            }
-            Action.UNDO, Action.REDO -> throw AssertionError("unreachable")
+            Action.UNDO, Action.REDO, Action.PASTE, Action.PASTE_SPLAT -> throw AssertionError("unreachable")
         }
+    }
+
+    private fun isWritable(holder: ADIotaHolder?, iota: Iota) = holder?.writeIota(iota, true) ?: false
+
+    private fun writeList(holder: ADIotaHolder, list: List<Iota>) {
+        holder.writeIota(ListIota(list), false)
     }
 
     private fun applyUndoState(delta: Int, currentSelection: Selection?): Selection? {

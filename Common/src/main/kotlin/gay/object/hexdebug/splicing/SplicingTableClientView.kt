@@ -9,7 +9,7 @@ data class SplicingTableClientView(
     val isClipboardWritable: Boolean,
 ) {
     val hasIotas = iotas != null
-    val hasClipboard = null != clipboard
+    val hasClipboard = null != clipboard // thanks kotlin
 
     val lastIotaIndex = iotas?.lastIndex ?: -1
 
