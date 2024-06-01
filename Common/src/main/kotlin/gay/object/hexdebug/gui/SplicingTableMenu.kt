@@ -1,8 +1,8 @@
 package gay.`object`.hexdebug.gui
 
-import gay.`object`.hexdebug.blocks.splicing.ClientSplicingTable
-import gay.`object`.hexdebug.blocks.splicing.ISplicingTable
+import gay.`object`.hexdebug.blocks.splicing.ClientSplicingTableContainer
 import gay.`object`.hexdebug.registry.HexDebugMenus
+import gay.`object`.hexdebug.splicing.ISplicingTable
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
@@ -14,7 +14,7 @@ class SplicingTableMenu(
     private val inventory: Inventory,
     val table: ISplicingTable,
 ) : AbstractContainerMenu(HexDebugMenus.SPLICING_TABLE.value, containerId) {
-    constructor(containerId: Int, inventory: Inventory) : this(containerId, inventory, ClientSplicingTable())
+    constructor(containerId: Int, inventory: Inventory) : this(containerId, inventory, ClientSplicingTableContainer())
 
     init {
         table.startOpen(inventory.player)
@@ -22,7 +22,7 @@ class SplicingTableMenu(
         // FIXME: placeholder slot coordinates
 
         // table
-        addSlot(Slot(table, ISplicingTable.IOTA_HOLDER_INDEX, 80, 35))
+        addSlot(Slot(table, ISplicingTable.LIST_INDEX, 80, 35))
         addSlot(Slot(table, ISplicingTable.CLIPBOARD_INDEX, 26, 35))
 
         // player inventory

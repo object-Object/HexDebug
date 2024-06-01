@@ -3,9 +3,12 @@ package gay.`object`.hexdebug.blocks.splicing
 import at.petrak.hexcasting.api.casting.iota.Iota
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.blocks.base.BaseContainer
-import gay.`object`.hexdebug.blocks.splicing.ISplicingTable.Action
+import gay.`object`.hexdebug.blocks.base.ContainerSlotDelegate
 import gay.`object`.hexdebug.gui.SplicingTableMenu
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
+import gay.`object`.hexdebug.splicing.ISplicingTable
+import gay.`object`.hexdebug.splicing.ISplicingTable.Action
+import gay.`object`.hexdebug.splicing.Selection
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
@@ -21,10 +24,10 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 ), ISplicingTable, BaseContainer, MenuProvider {
     override val stacks = BaseContainer.withSize(ISplicingTable.CONTAINER_SIZE)
 
-    override var iotaHolder by iotaHolderDelegate()
-    override var clipboard by clipboardDelegate()
+    var listHolder by ContainerSlotDelegate(ISplicingTable.LIST_INDEX)
+    var clipboardHolder by ContainerSlotDelegate(ISplicingTable.CLIPBOARD_INDEX)
 
-    val analogOutputSignal get() = if (!iotaHolder.isEmpty) 15 else 0
+    val analogOutputSignal get() = if (!listHolder.isEmpty) 15 else 0
 
     private val undoStack = mutableListOf<UndoState>()
     private var undoIndex = -1

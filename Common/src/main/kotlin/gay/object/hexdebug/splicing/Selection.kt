@@ -1,4 +1,4 @@
-package gay.`object`.hexdebug.blocks.splicing
+package gay.`object`.hexdebug.splicing
 
 import net.minecraft.network.FriendlyByteBuf
 

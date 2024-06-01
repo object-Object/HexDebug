@@ -1,9 +1,9 @@
 package gay.`object`.hexdebug.networking.msg
 
 import dev.architectury.networking.NetworkManager.PacketContext
-import gay.`object`.hexdebug.blocks.splicing.Selection
-import gay.`object`.hexdebug.blocks.splicing.readSelection
-import gay.`object`.hexdebug.blocks.splicing.writeSelection
+import gay.`object`.hexdebug.splicing.Selection
+import gay.`object`.hexdebug.splicing.readSelection
+import gay.`object`.hexdebug.splicing.writeSelection
 import gay.`object`.hexdebug.gui.SplicingTableScreen
 import gay.`object`.hexdebug.networking.HexDebugMessageCompanionS2C
 import gay.`object`.hexdebug.networking.HexDebugMessageS2C

@@ -1,10 +1,10 @@
 package gay.`object`.hexdebug.networking.msg
 
 import dev.architectury.networking.NetworkManager.PacketContext
-import gay.`object`.hexdebug.blocks.splicing.ISplicingTable.Action
-import gay.`object`.hexdebug.blocks.splicing.Selection
-import gay.`object`.hexdebug.blocks.splicing.readSelection
-import gay.`object`.hexdebug.blocks.splicing.writeSelection
+import gay.`object`.hexdebug.splicing.ISplicingTable.Action
+import gay.`object`.hexdebug.splicing.Selection
+import gay.`object`.hexdebug.splicing.readSelection
+import gay.`object`.hexdebug.splicing.writeSelection
 import gay.`object`.hexdebug.gui.SplicingTableMenu
 import gay.`object`.hexdebug.networking.HexDebugMessageC2S
 import gay.`object`.hexdebug.networking.HexDebugMessageCompanionC2S
