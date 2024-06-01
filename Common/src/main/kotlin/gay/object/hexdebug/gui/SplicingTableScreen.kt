@@ -9,6 +9,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Tooltip
+import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
@@ -160,28 +161,44 @@ class SplicingTableScreen(
 
     private fun isIotaSelected(index: Int) = selection?.let { index in it.range } ?: false
 
+    private fun isOnlyIotaSelected(index: Int) = selection?.let { it.size == 1 && it.from == index } ?: false
+
     private fun isEdgeSelected(index: Int) = selection?.let { it.start == index && it.end == null } ?: false
 
-    // TODO: maybe this should work more like text selection in a text editor?
     private fun onSelectIota(index: Int) {
         if (!data.isInRange(index)) return
 
         val selection = selection
-        this.selection = if (selection != null && index in selection.range) {
+        this.selection = if (isOnlyIotaSelected(index)) {
             null
-        } else if (selection == null || selection.size != 1) {
-            Selection.withSize(index, 1)
-        } else if (index < selection.start) {
-            Selection.range(index, selection.start)
+        } else if (Screen.hasShiftDown() && selection != null) {
+            if (selection.isEdge && index < selection.from) {
+                Selection.of(selection.from - 1, index)
+            } else {
+                Selection.of(selection.from, index)
+            }
         } else {
-            Selection.range(selection.start, index)
+            Selection.withSize(index, 1)
         }
     }
 
     private fun onSelectEdge(index: Int) {
         if (!data.isInRange(index)) return
 
-        this.selection = if (isEdgeSelected(index)) null else Selection.edge(index)
+        val selection = selection
+        this.selection = if (isEdgeSelected(index)) {
+            null
+        } else if (Screen.hasShiftDown() && selection != null) {
+            if (selection.isEdge && index < selection.from) {
+                Selection.of(selection.from - 1, index)
+            } else if (index > selection.from) {
+                Selection.of(selection.from, index - 1)
+            } else {
+                Selection.of(selection.from, index)
+            }
+        } else {
+            Selection.edge(index)
+        }
     }
 
     // rendering

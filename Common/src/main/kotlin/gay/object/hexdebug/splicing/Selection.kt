@@ -1,11 +1,16 @@
 package gay.`object`.hexdebug.splicing
 
 import net.minecraft.network.FriendlyByteBuf
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * An inclusive selection range.
  */
-class Selection private constructor(val start: Int, val end: Int?) {
+class Selection private constructor(val from: Int, val to: Int?) {
+    val start = to?.let { min(from, it) } ?: from
+    val end = to?.let { max(from, it) }
+
     private val isValid = start >= 0 && (end == null || end >= start)
 
     val isEdge = end == null
@@ -22,28 +27,32 @@ class Selection private constructor(val start: Int, val end: Int?) {
     fun expandRight(extra: Int) = of(start, (end ?: (start - 1)) + extra)
 
     companion object {
-        fun withSize(start: Int, size: Int) = range(start, start + size - 1)
+        fun withSize(from: Int, size: Int) = range(from, from + size - 1)
 
-        fun range(start: Int, end: Int) = of(start, end)
+        fun range(from: Int, to: Int) = of(from, to)
 
         fun edge(index: Int) = of(index, null)
 
-        fun of(start: Int, end: Int?) = Selection(start, end?.takeIf { it >= start }).takeIf { it.isValid }
+        fun of(from: Int, to: Int?) = Selection(from, to).takeIf { it.isValid }
     }
 }
 
-/** Writes a [Selection] to the buffer. `null` is encoded as `Selection(-1, -1)`. */
+/** Writes an optional [Selection] to the buffer. */
 fun FriendlyByteBuf.writeSelection(selection: Selection?) {
-    selection.also {
-        writeInt(it?.start ?: -1)
-        writeInt(it?.end ?: -1)
+    writeNullable(selection) { buf, value ->
+        value.also {
+            buf.writeInt(it.from)
+            buf.writeNullable(it.to, FriendlyByteBuf::writeInt)
+        }
     }
 }
 
-/** Reads a [Selection] from the buffer. `null` is encoded as `Selection(-1, -1)`. */
+/** Reads an optional [Selection] from the buffer. */
 fun FriendlyByteBuf.readSelection(): Selection? {
-    return Selection.of(
-        start = readInt(),
-        end = readInt(),
-    )
+    return readNullable { buf ->
+        Selection.of(
+            from = buf.readInt(),
+            to = buf.readNullable(FriendlyByteBuf::readInt),
+        )
+    }
 }
