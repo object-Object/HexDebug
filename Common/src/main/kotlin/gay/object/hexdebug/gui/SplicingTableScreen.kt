@@ -1,8 +1,8 @@
 package gay.`object`.hexdebug.gui
 
 import at.petrak.hexcasting.api.casting.iota.IotaType
-import gay.`object`.hexdebug.splicing.SplicingTableAction
 import gay.`object`.hexdebug.splicing.Selection
+import gay.`object`.hexdebug.splicing.SplicingTableAction
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -25,17 +25,14 @@ class SplicingTableScreen(
     var selection: Selection? = null
         set(value) {
             field = value
-            updateIotaButtons()
+            updateButtons()
         }
 
     var data = SplicingTableClientView.empty()
         set(value) {
             field = value
-            updateActiveButtons()
-            updateIotaButtons()
+            updateButtons()
         }
-
-    private val player = inventory.player
 
     private val iotaButtons = mutableListOf<Button>()
     private val edgeButtons = mutableListOf<Button>()
@@ -44,12 +41,14 @@ class SplicingTableScreen(
     private val listWriteButtons = mutableListOf<Button>()
     private val clipboardReadButtons = mutableListOf<Button>()
     private val clipboardWriteButtons = mutableListOf<Button>()
+    private val actionButtons = mutableMapOf<SplicingTableAction, Button>()
 
     private val allButtons = sequenceOf(
         listReadButtons,
         listWriteButtons,
         clipboardReadButtons,
         clipboardWriteButtons,
+        actionButtons.values,
     ).flatten()
 
     private var viewStartIndex = 0
@@ -74,6 +73,7 @@ class SplicingTableScreen(
         listWriteButtons.clear()
         clipboardReadButtons.clear()
         clipboardWriteButtons.clear()
+        actionButtons.clear()
 
         iotaButtons += (0 until IOTA_BUTTONS).map { offset ->
             Button.builder(Component.empty()) { onSelectIota(viewStartIndex + offset) }
@@ -101,21 +101,26 @@ class SplicingTableScreen(
                 .build(),
         ) + iotaButtons + edgeButtons
 
-        listWriteButtons += listOf(
-            actionButton(SplicingTableAction.NUDGE_LEFT)
-                .bounds(leftPos, topPos, 32, 16)
-                .build(),
-            actionButton(SplicingTableAction.NUDGE_RIGHT)
-                .bounds(leftPos + 34, topPos, 32, 16)
-                .build(),
+        actionButtons += listOf(
+            actionButton(SplicingTableAction.NUDGE_LEFT) {
+                it.bounds(leftPos, topPos, 32, 16)
+            },
+            actionButton(SplicingTableAction.NUDGE_RIGHT) {
+                it.bounds(leftPos + 34, topPos, 32, 16)
+            }
         )
 
         allButtons.forEach(::addRenderableWidget)
-        updateIotaButtons()
-        updateActiveButtons()
+
+        updateButtons()
     }
 
-    // button helpers
+    // state sync
+
+    private fun updateButtons() {
+        updateActiveButtons()
+        updateIotaButtons()
+    }
 
     private fun updateActiveButtons() {
         val data = data
@@ -124,6 +129,9 @@ class SplicingTableScreen(
             setActive(listWriteButtons, data.isListWritable)
             setActive(clipboardReadButtons, data.isClipboardReadable)
             setActive(clipboardWriteButtons, data.isClipboardWritable)
+            for ((action, button) in actionButtons) {
+                button.active = action.value.test(data, selection)
+            }
         } else {
             setActive(allButtons.asIterable(), false)
         }
@@ -153,6 +161,7 @@ class SplicingTableScreen(
                 }
             }
         }
+
         edgeButtons.forEachIndexed { offset, button ->
             val index = viewStartIndex + offset
             button.apply {
@@ -164,10 +173,16 @@ class SplicingTableScreen(
         }
     }
 
-    private fun actionButton(action: SplicingTableAction) =
-        button(action.name.lowercase()) {
-            menu.table.runAction(action, selection)
-        }
+    // button factories
+
+    private fun actionButton(action: SplicingTableAction, fn: (Button.Builder) -> Button.Builder) = Pair(
+        action,
+        fn(
+            button(action.name.lowercase()) {
+                menu.table.runAction(action, selection)
+            }
+        ).build(),
+    )
 
     private fun button(name: String, onPress: Button.OnPress) = button(Component.translatable(buttonKey(name)), onPress)
 

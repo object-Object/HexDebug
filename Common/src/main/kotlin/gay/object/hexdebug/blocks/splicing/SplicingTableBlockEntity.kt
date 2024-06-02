@@ -1,22 +1,15 @@
 package gay.`object`.hexdebug.blocks.splicing
 
-import at.petrak.hexcasting.api.addldata.ADIotaHolder
-import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.IotaType
-import at.petrak.hexcasting.api.casting.iota.ListIota
-import at.petrak.hexcasting.api.casting.iota.NullIota
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerSlotDelegate
 import gay.`object`.hexdebug.gui.SplicingTableMenu
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
-import gay.`object`.hexdebug.splicing.ISplicingTable
+import gay.`object`.hexdebug.splicing.*
 import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.CLIPBOARD_INDEX
 import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.CONTAINER_SIZE
 import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.LIST_INDEX
-import gay.`object`.hexdebug.splicing.Selection
-import gay.`object`.hexdebug.splicing.SplicingTableAction
-import gay.`object`.hexdebug.splicing.SplicingTableClientView
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
@@ -38,8 +31,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0
 
-    private val undoStack = mutableListOf<UndoState>()
-    private var undoIndex = -1
+    private val undoStack = SplicingTableUndoStack()
 
     override fun load(tag: CompoundTag) {
         super.load(tag)
@@ -55,114 +47,28 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     override fun getDisplayName() = Component.translatable(blockState.block.descriptionId)
 
-    private fun getList(level: ServerLevel) =
-        IXplatAbstractions.INSTANCE.findDataHolder(listStack).let { holder ->
-            holder to holder?.let { it.readIota(level) as? ListIota }?.list?.toMutableList()
-        }
-
-    private fun getClipboard(level: ServerLevel) =
-        IXplatAbstractions.INSTANCE.findDataHolder(clipboardStack).let { holder ->
-            holder to holder?.readIota(level)
-        }
-
-    override fun getClientView(): SplicingTableClientView? {
-        val level = level as? ServerLevel ?: return null
-
-        val (listHolder, list) = getList(level)
-        val (clipboardHolder, clipboard) = getClipboard(level)
-
-        return SplicingTableClientView(
-            list = list?.map { IotaType.serialize(it) },
-            clipboard = clipboard?.let { IotaType.serialize(it) },
-            isListWritable = listHolder?.writeIota(ListIota(listOf()), true) ?: false,
-            isClipboardWritable = clipboardHolder?.writeIota(NullIota(), true) ?: false,
+    /** Only returns null if it fails to convert `this.level` to [ServerLevel]. */
+    private fun getData(selection: Selection?): SplicingTableData? {
+        return SplicingTableData(
+            level = level as? ServerLevel ?: return null,
+            undoStack = undoStack,
+            selection = selection,
+            listHolder = IXplatAbstractions.INSTANCE.findDataHolder(listStack),
+            clipboardHolder = IXplatAbstractions.INSTANCE.findDataHolder(clipboardStack),
         )
     }
 
-    /** Called on the server. */
+    override fun getClientView() = getData(null)?.run {
+        SplicingTableClientView(
+            list = list?.map { IotaType.serialize(it) },
+            clipboard = clipboard?.let { IotaType.serialize(it) },
+            isListWritable = listWriter != null,
+            isClipboardWritable = clipboardWriter != null,
+        )
+    }
+
     override fun runAction(action: SplicingTableAction, selection: Selection?): Selection? {
-        val level = level as? ServerLevel ?: return selection
-
-        val (listHolder, list) = getList(level)
-
-        when (action) {
-            SplicingTableAction.UNDO -> return applyUndoState(-1, selection)
-            SplicingTableAction.REDO -> return applyUndoState(1, selection)
-            else -> {}
-        }
-
-        if (selection == null) return null
-        if (listHolder == null || list == null) return selection
-
-        when (action) {
-            SplicingTableAction.PASTE -> {
-
-                return Selection.withSize(selection.lastIndex + 1, 1)
-            }
-            SplicingTableAction.PASTE_SPLAT -> {
-
-                return Selection.withSize(selection.lastIndex + 1, 1) // FIXME: replace 1 with size of clipboard
-            }
-            else -> {}
-        }
-
-        if (selection !is Selection.Range) return selection
-
-        @Suppress("KotlinConstantConditions")
-        return when (action) {
-            SplicingTableAction.NUDGE_LEFT -> {
-                if (selection.start > 0) {
-                    list.add(selection.end, list.removeAt(selection.start - 1))
-                    writeList(listHolder, list)
-                    selection.moveBy(-1)
-                } else selection
-            }
-            SplicingTableAction.NUDGE_RIGHT -> {
-                if (selection.end < list.lastIndex) {
-                    list.add(selection.start, list.removeAt(selection.end + 1))
-                    writeList(listHolder, list)
-                    selection.moveBy(1)
-                } else selection
-            }
-            SplicingTableAction.DUPLICATE -> {
-
-                selection.expandBy(selection.size)
-            }
-            SplicingTableAction.DELETE -> {
-
-                null
-            }
-            SplicingTableAction.CUT -> {
-
-                null
-            }
-            SplicingTableAction.COPY -> {
-
-                selection
-            }
-            SplicingTableAction.UNDO, SplicingTableAction.REDO, SplicingTableAction.PASTE, SplicingTableAction.PASTE_SPLAT -> throw AssertionError("unreachable")
-        }
+        val data = getData(selection) ?: return selection
+        return action.value.convertAndRun(data)
     }
-
-    private fun isWritable(holder: ADIotaHolder?, iota: Iota) = holder?.writeIota(iota, true) ?: false
-
-    private fun writeList(holder: ADIotaHolder, list: List<Iota>) {
-        holder.writeIota(ListIota(list), false)
-    }
-
-    private fun applyUndoState(delta: Int, currentSelection: Selection?): Selection? {
-        val newIndex = undoIndex + delta
-        val state = undoStack.getOrNull(newIndex) ?: return currentSelection
-        undoIndex = newIndex
-        // FIXME: implement
-        return state.selection
-    }
-
-    private fun pushUndoState() {}
-
-    data class UndoState(
-        val list: List<Iota>,
-        val clipboard: List<Iota>?,
-        val selection: Selection?,
-    )
 }

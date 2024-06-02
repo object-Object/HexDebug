@@ -84,5 +84,10 @@ enum class SplicingTableAction(val value: Value<*>) {
             convert = { converter.convertOrNull(this)?.takeIf(validate) },
             run = run,
         )
+
+        fun convertAndRun(data: SplicingTableData): Selection? {
+            val converted = convert(data) ?: return data.selection
+            return run(converted)
+        }
     }
 }
