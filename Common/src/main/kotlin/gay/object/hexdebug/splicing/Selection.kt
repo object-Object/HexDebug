@@ -19,19 +19,22 @@ sealed class Selection private constructor(val from: Int, open val to: Int?) {
 
     abstract operator fun contains(value: Number): Boolean
 
-    abstract fun expandBy(extra: Int): Selection?
+    abstract fun expandRight(extra: Int): Selection?
 
     fun moveBy(delta: Int) = of(start + delta, end?.plus(delta))
+
+    fun <T> subList(list: MutableList<T>) = list.subList(start, end ?: start)
+
+    fun <T> subList(list: List<T>) = list.subList(start, end ?: start)
 
     class Range private constructor(from: Int, override val to: Int) : Selection(from, to) {
         override val start = min(from, to)
         override val end = max(from, to)
 
         private val range = start..end
-
         override fun contains(value: Number) = value in range
 
-        override fun expandBy(extra: Int) = if (from <= to) {
+        override fun expandRight(extra: Int) = if (from <= to) {
             of(from, to + extra)
         } else {
             of(from + extra, to)
@@ -50,7 +53,7 @@ sealed class Selection private constructor(val from: Int, open val to: Int?) {
 
         override fun contains(value: Number) = false
 
-        override fun expandBy(extra: Int) = when {
+        override fun expandRight(extra: Int) = when {
             extra > 0 -> range(index, index + extra)
             extra < 0 -> range(index - 1, index + extra)
             else -> this

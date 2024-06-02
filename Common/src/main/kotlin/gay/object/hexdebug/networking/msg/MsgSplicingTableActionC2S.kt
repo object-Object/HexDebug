@@ -1,13 +1,13 @@
 package gay.`object`.hexdebug.networking.msg
 
 import dev.architectury.networking.NetworkManager.PacketContext
-import gay.`object`.hexdebug.splicing.SplicingTableAction
-import gay.`object`.hexdebug.splicing.Selection
-import gay.`object`.hexdebug.splicing.readSelection
-import gay.`object`.hexdebug.splicing.writeSelection
 import gay.`object`.hexdebug.gui.SplicingTableMenu
 import gay.`object`.hexdebug.networking.HexDebugMessageC2S
 import gay.`object`.hexdebug.networking.HexDebugMessageCompanionC2S
+import gay.`object`.hexdebug.splicing.Selection
+import gay.`object`.hexdebug.splicing.SplicingTableAction
+import gay.`object`.hexdebug.splicing.readSelection
+import gay.`object`.hexdebug.splicing.writeSelection
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.server.level.ServerPlayer
 
@@ -28,7 +28,7 @@ data class MsgSplicingTableActionC2S(val action: SplicingTableAction, val select
 
         override fun MsgSplicingTableActionC2S.applyOnServer(ctx: PacketContext) = ctx.queue {
             val menu = ctx.player.containerMenu as? SplicingTableMenu ?: return@queue
-            val newSelection = menu.table.runAction(action, selection)
+            val newSelection = menu.table.runAction(action, ctx.player as? ServerPlayer, selection)
             MsgSplicingTableNewSelectionS2C(newSelection).sendToPlayer(ctx.player as ServerPlayer)
         }
     }

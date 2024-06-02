@@ -7,6 +7,8 @@ data class SplicingTableClientView(
     val clipboard: CompoundTag?,
     val isListWritable: Boolean,
     val isClipboardWritable: Boolean,
+    val undoSize: Int,
+    val undoIndex: Int,
 ) {
     val isListReadable = list != null
     val isClipboardReadable = null != clipboard // thanks kotlin
@@ -21,6 +23,8 @@ data class SplicingTableClientView(
             clipboard = null,
             isListWritable = false,
             isClipboardWritable = false,
+            undoSize = 0,
+            undoIndex = -1,
         )
     }
 }

@@ -6,6 +6,8 @@ data class SplicingTableUndoStack(
     val stack: MutableList<Entry> = mutableListOf(),
     var index: Int = -1,
 ) {
+    val size get() = stack.size
+
     fun undo() = moveTo(index - 1)
 
     fun redo() = moveTo(index + 1)

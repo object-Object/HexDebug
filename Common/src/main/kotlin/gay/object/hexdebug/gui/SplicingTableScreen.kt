@@ -179,7 +179,7 @@ class SplicingTableScreen(
         action,
         fn(
             button(action.name.lowercase()) {
-                menu.table.runAction(action, selection)
+                menu.table.runAction(action, null, selection)
             }
         ).build(),
     )

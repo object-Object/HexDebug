@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Inventory
@@ -48,8 +49,9 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     override fun getDisplayName() = Component.translatable(blockState.block.descriptionId)
 
     /** Only returns null if it fails to convert `this.level` to [ServerLevel]. */
-    private fun getData(selection: Selection?): SplicingTableData? {
+    private fun getData(player: ServerPlayer?, selection: Selection?): SplicingTableData? {
         return SplicingTableData(
+            player = player,
             level = level as? ServerLevel ?: return null,
             undoStack = undoStack,
             selection = selection,
@@ -58,17 +60,19 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         )
     }
 
-    override fun getClientView() = getData(null)?.run {
+    override fun getClientView() = getData(null, null)?.run {
         SplicingTableClientView(
             list = list?.map { IotaType.serialize(it) },
             clipboard = clipboard?.let { IotaType.serialize(it) },
             isListWritable = listWriter != null,
             isClipboardWritable = clipboardWriter != null,
+            undoSize = undoStack.size,
+            undoIndex = undoStack.index,
         )
     }
 
-    override fun runAction(action: SplicingTableAction, selection: Selection?): Selection? {
-        val data = getData(selection) ?: return selection
+    override fun runAction(action: SplicingTableAction, player: ServerPlayer?, selection: Selection?): Selection? {
+        val data = getData(player, selection) ?: return selection
         return action.value.convertAndRun(data)
     }
 }
