@@ -1,7 +1,7 @@
 package gay.`object`.hexdebug.gui
 
 import at.petrak.hexcasting.api.casting.iota.IotaType
-import gay.`object`.hexdebug.splicing.ISplicingTable.Action
+import gay.`object`.hexdebug.splicing.SplicingTableAction
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
 import net.fabricmc.api.EnvType
@@ -54,8 +54,8 @@ class SplicingTableScreen(
 
     private var viewStartIndex = 0
         set(value) {
-            val clamped = if (data.iotas?.let { it.size > IOTA_BUTTONS } == true) {
-                value.coerceIn(0..data.lastIotaIndex - IOTA_BUTTONS + 1)
+            val clamped = if (data.list?.let { it.size > IOTA_BUTTONS } == true) {
+                value.coerceIn(0..data.lastIndex - IOTA_BUTTONS + 1)
             } else 0
             if (field != clamped) {
                 field = clamped
@@ -102,10 +102,10 @@ class SplicingTableScreen(
         ) + iotaButtons + edgeButtons
 
         listWriteButtons += listOf(
-            actionButton(Action.NUDGE_LEFT)
+            actionButton(SplicingTableAction.NUDGE_LEFT)
                 .bounds(leftPos, topPos, 32, 16)
                 .build(),
-            actionButton(Action.NUDGE_RIGHT)
+            actionButton(SplicingTableAction.NUDGE_RIGHT)
                 .bounds(leftPos + 34, topPos, 32, 16)
                 .build(),
         )
@@ -119,10 +119,10 @@ class SplicingTableScreen(
 
     private fun updateActiveButtons() {
         val data = data
-        if (data.hasIotas) {
+        if (data.isListReadable) {
             setActive(listReadButtons, true)
-            setActive(listWriteButtons, data.isWritable)
-            setActive(clipboardReadButtons, data.hasClipboard)
+            setActive(listWriteButtons, data.isListWritable)
+            setActive(clipboardReadButtons, data.isClipboardReadable)
             setActive(clipboardWriteButtons, data.isClipboardWritable)
         } else {
             setActive(allButtons.asIterable(), false)
@@ -142,7 +142,7 @@ class SplicingTableScreen(
                 arrayOf()
             }
             button.apply {
-                val iota = data.iotas?.getOrNull(index)
+                val iota = data.list?.getOrNull(index)
                 if (null != iota) {
                     message = Component.literal(index.toString()).withStyle(*formats)
                     tooltip = Tooltip.create(IotaType.getDisplay(iota))
@@ -164,7 +164,7 @@ class SplicingTableScreen(
         }
     }
 
-    private fun actionButton(action: Action) =
+    private fun actionButton(action: SplicingTableAction) =
         button(action.name.lowercase()) {
             menu.table.runAction(action, selection)
         }

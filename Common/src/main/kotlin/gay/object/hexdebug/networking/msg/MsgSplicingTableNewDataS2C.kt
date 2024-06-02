@@ -15,18 +15,18 @@ data class MsgSplicingTableNewDataS2C(val data: SplicingTableClientView) : HexDe
 
         override fun decode(buf: FriendlyByteBuf) = MsgSplicingTableNewDataS2C(
             data = SplicingTableClientView(
-                iotas = buf.readNullable { it.readList(FriendlyByteBuf::readNbt) }?.filterNotNull(),
+                list = buf.readNullable { it.readList(FriendlyByteBuf::readNbt) }?.filterNotNull(),
                 clipboard = buf.readNullable(FriendlyByteBuf::readNbt),
-                isWritable = buf.readBoolean(),
+                isListWritable = buf.readBoolean(),
                 isClipboardWritable = buf.readBoolean(),
             ),
         )
 
         override fun MsgSplicingTableNewDataS2C.encode(buf: FriendlyByteBuf) {
             data.apply {
-                buf.writeNullable(iotas) { buf, list -> buf.writeCollection(list, FriendlyByteBuf::writeNbt) }
+                buf.writeNullable(list) { buf, list -> buf.writeCollection(list, FriendlyByteBuf::writeNbt) }
                 buf.writeNullable(clipboard, FriendlyByteBuf::writeNbt)
-                buf.writeBoolean(isWritable)
+                buf.writeBoolean(isListWritable)
                 buf.writeBoolean(isClipboardWritable)
             }
         }

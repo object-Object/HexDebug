@@ -11,11 +11,11 @@ import gay.`object`.hexdebug.blocks.base.ContainerSlotDelegate
 import gay.`object`.hexdebug.gui.SplicingTableMenu
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import gay.`object`.hexdebug.splicing.ISplicingTable
-import gay.`object`.hexdebug.splicing.ISplicingTable.Action
 import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.CLIPBOARD_INDEX
 import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.CONTAINER_SIZE
 import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.LIST_INDEX
 import gay.`object`.hexdebug.splicing.Selection
+import gay.`object`.hexdebug.splicing.SplicingTableAction
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
@@ -72,22 +72,22 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         val (clipboardHolder, clipboard) = getClipboard(level)
 
         return SplicingTableClientView(
-            iotas = list?.map { IotaType.serialize(it) },
+            list = list?.map { IotaType.serialize(it) },
             clipboard = clipboard?.let { IotaType.serialize(it) },
-            isWritable = listHolder?.writeIota(ListIota(listOf()), true) ?: false,
+            isListWritable = listHolder?.writeIota(ListIota(listOf()), true) ?: false,
             isClipboardWritable = clipboardHolder?.writeIota(NullIota(), true) ?: false,
         )
     }
 
     /** Called on the server. */
-    override fun runAction(action: Action, selection: Selection?): Selection? {
+    override fun runAction(action: SplicingTableAction, selection: Selection?): Selection? {
         val level = level as? ServerLevel ?: return selection
 
         val (listHolder, list) = getList(level)
 
         when (action) {
-            Action.UNDO -> return applyUndoState(-1, selection)
-            Action.REDO -> return applyUndoState(1, selection)
+            SplicingTableAction.UNDO -> return applyUndoState(-1, selection)
+            SplicingTableAction.REDO -> return applyUndoState(1, selection)
             else -> {}
         }
 
@@ -95,11 +95,11 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         if (listHolder == null || list == null) return selection
 
         when (action) {
-            Action.PASTE -> {
+            SplicingTableAction.PASTE -> {
 
                 return Selection.withSize(selection.lastIndex + 1, 1)
             }
-            Action.PASTE_SPLAT -> {
+            SplicingTableAction.PASTE_SPLAT -> {
 
                 return Selection.withSize(selection.lastIndex + 1, 1) // FIXME: replace 1 with size of clipboard
             }
@@ -110,37 +110,37 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
         @Suppress("KotlinConstantConditions")
         return when (action) {
-            Action.NUDGE_LEFT -> {
+            SplicingTableAction.NUDGE_LEFT -> {
                 if (selection.start > 0) {
                     list.add(selection.end, list.removeAt(selection.start - 1))
                     writeList(listHolder, list)
                     selection.moveBy(-1)
                 } else selection
             }
-            Action.NUDGE_RIGHT -> {
+            SplicingTableAction.NUDGE_RIGHT -> {
                 if (selection.end < list.lastIndex) {
                     list.add(selection.start, list.removeAt(selection.end + 1))
                     writeList(listHolder, list)
                     selection.moveBy(1)
                 } else selection
             }
-            Action.DUPLICATE -> {
+            SplicingTableAction.DUPLICATE -> {
 
                 selection.expandBy(selection.size)
             }
-            Action.DELETE -> {
+            SplicingTableAction.DELETE -> {
 
                 null
             }
-            Action.CUT -> {
+            SplicingTableAction.CUT -> {
 
                 null
             }
-            Action.COPY -> {
+            SplicingTableAction.COPY -> {
 
                 selection
             }
-            Action.UNDO, Action.REDO, Action.PASTE, Action.PASTE_SPLAT -> throw AssertionError("unreachable")
+            SplicingTableAction.UNDO, SplicingTableAction.REDO, SplicingTableAction.PASTE, SplicingTableAction.PASTE_SPLAT -> throw AssertionError("unreachable")
         }
     }
 
