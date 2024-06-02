@@ -7,33 +7,68 @@ import kotlin.math.min
 /**
  * An inclusive selection range.
  */
-class Selection private constructor(val from: Int, val to: Int?) {
-    val start = to?.let { min(from, it) } ?: from
-    val end = to?.let { max(from, it) }
+sealed class Selection private constructor(val from: Int, open val to: Int?) {
+    abstract val start: Int
+    abstract val end: Int?
 
-    private val isValid = start >= 0 && (end == null || end >= start)
+    protected val isValid by lazy { start >= 0 && (end?.let { it >= start } ?: true) }
 
-    val isEdge = end == null
-    val isRange = !isEdge
+    val lastIndex by lazy { end ?: start }
 
-    val lastIndex = end ?: start
+    val size by lazy { end?.let { it - start + 1 } ?: 0 }
 
-    val size = end?.let { it - start + 1 } ?: 0
+    abstract operator fun contains(value: Number): Boolean
 
-    val range = start..(end ?: -1)
+    abstract fun expandBy(extra: Int): Selection?
 
     fun moveBy(delta: Int) = of(start + delta, end?.plus(delta))
 
-    fun expandRight(extra: Int) = of(start, (end ?: (start - 1)) + extra)
+    class Range private constructor(from: Int, override val to: Int) : Selection(from, to) {
+        override val start = min(from, to)
+        override val end = max(from, to)
+
+        private val range = start..end
+
+        override fun contains(value: Number) = value in range
+
+        override fun expandBy(extra: Int) = if (from <= to) {
+            of(from, to + extra)
+        } else {
+            of(from + extra, to)
+        }
+
+        companion object {
+            fun of(from: Int, to: Int) = Range(from, to).takeIf { it.isValid }
+        }
+    }
+
+    /** Note: index refers to the index of the cell to the right of this edge. */
+    class Edge private constructor(val index: Int) : Selection(index, null) {
+        override val to = null
+        override val start = index
+        override val end = null
+
+        override fun contains(value: Number) = false
+
+        override fun expandBy(extra: Int) = when {
+            extra > 0 -> range(index, index + extra)
+            extra < 0 -> range(index - 1, index + extra)
+            else -> this
+        }
+
+        companion object {
+            fun of(index: Int) = Edge(index).takeIf { it.isValid }
+        }
+    }
 
     companion object {
         fun withSize(from: Int, size: Int) = range(from, from + size - 1)
 
-        fun range(from: Int, to: Int) = of(from, to)
+        fun of(from: Int, to: Int?) = if (to != null) range(from, to) else edge(from)
 
-        fun edge(index: Int) = of(index, null)
+        fun range(from: Int, to: Int) = Range.of(from, to)
 
-        fun of(from: Int, to: Int?) = Selection(from, to).takeIf { it.isValid }
+        fun edge(index: Int) = Edge.of(index)
     }
 }
 

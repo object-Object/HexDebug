@@ -179,7 +179,7 @@ class SplicingTableScreen(
 
     // GUI functionality
 
-    private fun isIotaSelected(index: Int) = selection?.let { index in it.range } ?: false
+    private fun isIotaSelected(index: Int) = selection?.let { index in it } ?: false
 
     private fun isOnlyIotaSelected(index: Int) = selection?.let { it.size == 1 && it.from == index } ?: false
 
@@ -192,7 +192,7 @@ class SplicingTableScreen(
         this.selection = if (isOnlyIotaSelected(index)) {
             null
         } else if (Screen.hasShiftDown() && selection != null) {
-            if (selection.isEdge && index < selection.from) {
+            if (selection is Selection.Edge && index < selection.from) {
                 Selection.of(selection.from - 1, index)
             } else {
                 Selection.of(selection.from, index)
@@ -209,7 +209,7 @@ class SplicingTableScreen(
         this.selection = if (isEdgeSelected(index)) {
             null
         } else if (Screen.hasShiftDown() && selection != null) {
-            if (selection.isEdge && index < selection.from) {
+            if (selection is Selection.Edge && index < selection.from) {
                 Selection.of(selection.from - 1, index)
             } else if (index > selection.from) {
                 Selection.of(selection.from, index - 1)

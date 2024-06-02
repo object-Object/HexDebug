@@ -106,7 +106,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
             else -> {}
         }
 
-        if (selection.end == null) return selection
+        if (selection !is Selection.Range) return selection
 
         @Suppress("KotlinConstantConditions")
         return when (action) {
@@ -126,7 +126,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
             }
             Action.DUPLICATE -> {
 
-                selection.expandRight(selection.size)
+                selection.expandBy(selection.size)
             }
             Action.DELETE -> {
 
