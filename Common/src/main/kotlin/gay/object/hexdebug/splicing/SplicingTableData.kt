@@ -20,6 +20,7 @@ interface SplicingTableDataConverter<T : SplicingTableData> {
 
 open class SplicingTableData(
     val level: ServerLevel,
+    val undoStack: SplicingTableUndoStack,
     open val selection: Selection?,
     open val list: SpellList?,
     open val listWriter: ADIotaHolder?,
@@ -28,11 +29,13 @@ open class SplicingTableData(
 ) {
     constructor(
         level: ServerLevel,
+        undoStack: SplicingTableUndoStack,
         selection: Selection?,
         listHolder: ADIotaHolder?,
         clipboardHolder: ADIotaHolder?,
     ) : this(
         level,
+        undoStack,
         selection,
         list = listHolder?.let { it.readIota(level) as? ListIota }?.list,
         listWriter = listHolder?.takeIfWritable(),
@@ -54,12 +57,13 @@ open class SplicingTableData(
 
 open class ReadWriteList(
     level: ServerLevel,
+    undoStack: SplicingTableUndoStack,
     selection: Selection,
     override val list: SpellList,
     override val listWriter: ADIotaHolder,
     clipboard: Iota?,
     clipboardWriter: ADIotaHolder?,
-) : SplicingTableData(level, selection, list, listWriter, clipboard, clipboardWriter) {
+) : SplicingTableData(level, undoStack, selection, list, listWriter, clipboard, clipboardWriter) {
     companion object : SplicingTableDataConverter<ReadWriteList> {
         override fun test(view: SplicingTableClientView, selection: Selection?) =
             selection != null && view.run { isListReadable && isListWritable }
@@ -67,6 +71,7 @@ open class ReadWriteList(
         override fun convert(data: SplicingTableData) = data.run {
             ReadWriteList(
                 level,
+                undoStack,
                 selection!!,
                 list!!,
                 listWriter!!,
@@ -79,12 +84,13 @@ open class ReadWriteList(
 
 class ReadWriteListFromClipboard(
     level: ServerLevel,
+    undoStack: SplicingTableUndoStack,
     selection: Selection,
     list: SpellList,
     listWriter: ADIotaHolder,
     override val clipboard: Iota,
     clipboardWriter: ADIotaHolder?,
-) : ReadWriteList(level, selection, list, listWriter, clipboard, clipboardWriter) {
+) : ReadWriteList(level, undoStack, selection, list, listWriter, clipboard, clipboardWriter) {
     companion object : SplicingTableDataConverter<ReadWriteListFromClipboard> {
         override fun test(view: SplicingTableClientView, selection: Selection?) =
             selection != null && view.run { isListReadable && isListWritable && isClipboardReadable }
@@ -92,6 +98,7 @@ class ReadWriteListFromClipboard(
         override fun convert(data: SplicingTableData) = data.run {
             ReadWriteListFromClipboard(
                 level,
+                undoStack,
                 selection!!,
                 list!!,
                 listWriter!!,
@@ -104,12 +111,13 @@ class ReadWriteListFromClipboard(
 
 open class ReadWriteListRange(
     level: ServerLevel,
+    undoStack: SplicingTableUndoStack,
     override val selection: Selection.Range,
     list: SpellList,
     listWriter: ADIotaHolder,
     clipboard: Iota?,
     clipboardWriter: ADIotaHolder?,
-) : ReadWriteList(level, selection, list, listWriter, clipboard, clipboardWriter) {
+) : ReadWriteList(level, undoStack, selection, list, listWriter, clipboard, clipboardWriter) {
     companion object : SplicingTableDataConverter<ReadWriteListRange> {
         override fun test(view: SplicingTableClientView, selection: Selection?) =
             selection is Selection.Range && view.run { isListReadable && isListWritable }
@@ -117,6 +125,7 @@ open class ReadWriteListRange(
         override fun convert(data: SplicingTableData) = data.run {
             ReadWriteListRange(
                 level,
+                undoStack,
                 selection as Selection.Range,
                 list!!,
                 listWriter!!,
@@ -129,12 +138,13 @@ open class ReadWriteListRange(
 
 class ReadWriteListRangeToClipboard(
     level: ServerLevel,
+    undoStack: SplicingTableUndoStack,
     selection: Selection.Range,
     list: SpellList,
     listWriter: ADIotaHolder,
     clipboard: Iota?,
     override val clipboardWriter: ADIotaHolder,
-) : ReadWriteListRange(level, selection, list, listWriter, clipboard, clipboardWriter) {
+) : ReadWriteListRange(level, undoStack, selection, list, listWriter, clipboard, clipboardWriter) {
     companion object : SplicingTableDataConverter<ReadWriteListRangeToClipboard> {
         override fun test(view: SplicingTableClientView, selection: Selection?) =
             selection is Selection.Range && view.run { isListReadable && isListWritable && isClipboardWritable }
@@ -142,6 +152,7 @@ class ReadWriteListRangeToClipboard(
         override fun convert(data: SplicingTableData) = data.run {
             ReadWriteListRangeToClipboard(
                 level,
+                undoStack,
                 selection as Selection.Range,
                 list!!,
                 listWriter!!,
