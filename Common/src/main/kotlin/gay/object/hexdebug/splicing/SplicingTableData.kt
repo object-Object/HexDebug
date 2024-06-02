@@ -42,9 +42,7 @@ open class SplicingTableData(
         clipboardWriter = clipboardHolder?.takeIfWritable()
     )
 
-    fun writeList() = writeList(list)
-
-    fun writeList(value: List<Iota>?) = listWriter?.writeIota(value?.let(::ListIota), false) ?: false
+    fun writeList(value: List<Iota>) = listWriter?.writeIota(ListIota(value), false) ?: false
 
     fun writeClipboard(value: List<Iota>?) = writeClipboard(value?.let(::ListIota))
 

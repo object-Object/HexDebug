@@ -19,7 +19,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         validate = { selection.start > 0 },
     ) {
         list.add(selection.end, list.removeAt(selection.start - 1))
-        writeList()
+        writeList(list)
         selection.moveBy(-1)
     }),
 
@@ -29,7 +29,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         validate = { selection.end < list.lastIndex },
     ) {
         list.add(selection.start, list.removeAt(selection.end + 1))
-        writeList()
+        writeList(list)
         selection.moveBy(1)
     }),
 
