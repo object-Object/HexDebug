@@ -1,7 +1,6 @@
 package gay.`object`.hexdebug.splicing
 
 import at.petrak.hexcasting.api.addldata.ADIotaHolder
-import at.petrak.hexcasting.api.casting.SpellList
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import net.minecraft.server.level.ServerLevel
@@ -22,7 +21,7 @@ open class SplicingTableData(
     val level: ServerLevel,
     val undoStack: SplicingTableUndoStack,
     open val selection: Selection?,
-    open val list: SpellList?,
+    open val list: MutableList<Iota>?,
     open val listWriter: ADIotaHolder?,
     open val clipboard: Iota?,
     open val clipboardWriter: ADIotaHolder?,
@@ -37,17 +36,19 @@ open class SplicingTableData(
         level,
         undoStack,
         selection,
-        list = listHolder?.let { it.readIota(level) as? ListIota }?.list,
+        list = listHolder?.let { it.readIota(level) as? ListIota }?.list?.toMutableList(),
         listWriter = listHolder?.takeIfWritable(),
         clipboard = clipboardHolder?.readIota(level),
         clipboardWriter = clipboardHolder?.takeIfWritable()
     )
 
-    fun writeList(value: List<Iota>) = listWriter?.writeIota(ListIota(value), false) ?: false
+    fun writeList() = writeList(list)
 
-    fun writeClipboard(value: List<Iota>) = writeClipboard(ListIota(value))
+    fun writeList(value: List<Iota>?) = listWriter?.writeIota(value?.let(::ListIota), false) ?: false
 
-    fun writeClipboard(value: Iota) = clipboardWriter?.writeIota(value, false) ?: false
+    fun writeClipboard(value: List<Iota>?) = writeClipboard(value?.let(::ListIota))
+
+    fun writeClipboard(value: Iota?) = clipboardWriter?.writeIota(value, false) ?: false
 
     companion object : SplicingTableDataConverter<SplicingTableData> {
         override fun test(view: SplicingTableClientView, selection: Selection?) = true
@@ -59,7 +60,7 @@ open class ReadWriteList(
     level: ServerLevel,
     undoStack: SplicingTableUndoStack,
     selection: Selection,
-    override val list: SpellList,
+    override val list: MutableList<Iota>,
     override val listWriter: ADIotaHolder,
     clipboard: Iota?,
     clipboardWriter: ADIotaHolder?,
@@ -86,7 +87,7 @@ class ReadWriteListFromClipboard(
     level: ServerLevel,
     undoStack: SplicingTableUndoStack,
     selection: Selection,
-    list: SpellList,
+    list: MutableList<Iota>,
     listWriter: ADIotaHolder,
     override val clipboard: Iota,
     clipboardWriter: ADIotaHolder?,
@@ -113,7 +114,7 @@ open class ReadWriteListRange(
     level: ServerLevel,
     undoStack: SplicingTableUndoStack,
     override val selection: Selection.Range,
-    list: SpellList,
+    list: MutableList<Iota>,
     listWriter: ADIotaHolder,
     clipboard: Iota?,
     clipboardWriter: ADIotaHolder?,
@@ -140,7 +141,7 @@ class ReadWriteListRangeToClipboard(
     level: ServerLevel,
     undoStack: SplicingTableUndoStack,
     selection: Selection.Range,
-    list: SpellList,
+    list: MutableList<Iota>,
     listWriter: ADIotaHolder,
     clipboard: Iota?,
     override val clipboardWriter: ADIotaHolder,

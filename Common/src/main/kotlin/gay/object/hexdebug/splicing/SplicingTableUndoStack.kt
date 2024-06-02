@@ -26,5 +26,11 @@ data class SplicingTableUndoStack(
         val list: List<Iota>,
         val clipboard: List<Iota>?,
         val selection: Selection?,
-    )
+    ) {
+        fun applyTo(data: SplicingTableData) = data.let {
+            it.writeList(list)
+            it.writeClipboard(clipboard)
+            selection
+        }
+    }
 }
