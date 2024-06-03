@@ -39,13 +39,14 @@ dependencies {
     "shadowCommon"(project(":Common", "transformProduction$platformCapitalized")) { isTransitive = false }
 }
 
-sourceSets {
-    main {
-        resources {
-            source(project(":Common").sourceSets.main.get().resources)
-        }
-    }
-}
+// FIXME: find a less broken way to include common resources in platform devenv - this one breaks mixin refmaps
+//sourceSets {
+//    main {
+//        resources {
+//            source(project(":Common").sourceSets.main.get().resources)
+//        }
+//    }
+//}
 
 tasks {
     shadowJar {

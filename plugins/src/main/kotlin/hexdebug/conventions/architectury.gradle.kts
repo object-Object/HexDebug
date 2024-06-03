@@ -19,6 +19,13 @@ base.archivesName = "${hexdebugProperties.modId}-$platform"
 loom {
     silentMojangMappingsLicense()
     accessWidenerPath = project(":Common").file("src/main/resources/hexdebug.accesswidener")
+
+    mixin {
+        // the default name includes both archivesName and the subproject, resulting in the platform showing up twice
+        // default: hexdebug-common-Common-refmap.json
+        // fixed:   hexdebug-common.refmap.json
+        defaultRefmapName = "${base.archivesName.get()}.refmap.json"
+    }
 }
 
 dependencies {

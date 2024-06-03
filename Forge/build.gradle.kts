@@ -14,7 +14,10 @@ loom {
         convertAccessWideners = true
         extraAccessWideners.add(loom.accessWidenerPath.get().asFile.name)
 
-        mixinConfig("hexdebug-common.mixins.json", "hexdebug.mixins.json")
+        mixinConfig(
+            "hexdebug-common.mixins.json",
+            "hexdebug-forge.mixins.json",
+        )
     }
 
     runs {
