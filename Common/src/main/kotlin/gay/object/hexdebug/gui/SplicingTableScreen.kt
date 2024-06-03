@@ -33,19 +33,18 @@ class SplicingTableScreen(
 
     private val iotaButtons = mutableListOf<Button>()
     private val edgeButtons = mutableListOf<Button>()
+    private val viewButtons = mutableListOf<Button>()
+    private val predicateButtons = mutableListOf<Pair<Button, () -> Boolean>>()
 
-    private val listReadButtons = mutableListOf<Button>()
-    private val listWriteButtons = mutableListOf<Button>()
-    private val clipboardReadButtons = mutableListOf<Button>()
-    private val clipboardWriteButtons = mutableListOf<Button>()
-    private val actionButtons = mutableMapOf<SplicingTableAction, Button>()
+    private val listReadButtons = sequenceOf(
+        iotaButtons,
+        edgeButtons,
+        viewButtons,
+    ).flatten()
 
     private val allButtons = sequenceOf(
         listReadButtons,
-        listWriteButtons,
-        clipboardReadButtons,
-        clipboardWriteButtons,
-        actionButtons.values,
+        predicateButtons.asSequence().map { it.first },
     ).flatten()
 
     private var viewStartIndex = 0
@@ -55,7 +54,7 @@ class SplicingTableScreen(
             } else 0
             if (field != clamped) {
                 field = clamped
-                updateIotaButtons()
+                updateButtons()
             }
         }
 
@@ -66,11 +65,8 @@ class SplicingTableScreen(
         allButtons.forEach(::removeWidget)
         iotaButtons.clear()
         edgeButtons.clear()
-        listReadButtons.clear()
-        listWriteButtons.clear()
-        clipboardReadButtons.clear()
-        clipboardWriteButtons.clear()
-        actionButtons.clear()
+        viewButtons.clear()
+        predicateButtons.clear()
 
         iotaButtons += (0 until IOTA_BUTTONS).map { offset ->
             Button.builder(Component.empty()) { onSelectIota(viewStartIndex + offset) }
@@ -78,6 +74,7 @@ class SplicingTableScreen(
                 .size(22, 16)
                 .build()
         }
+
         edgeButtons += (0..IOTA_BUTTONS).map { offset ->
             Button.builder(Component.empty()) { onSelectEdge(viewStartIndex + offset) }
                 .pos(leftPos + 16 + offset * 26, topPos - 18)
@@ -85,24 +82,35 @@ class SplicingTableScreen(
                 .build()
         }
 
-        listReadButtons += listOf(
+        viewButtons += iotaButtons + edgeButtons
+
+        predicateButtons += SplicingTableAction.entries.mapIndexed { i, action ->
+            actionButton(action) {
+                it.pos(leftPos + imageWidth, topPos + i * 18).size(96, 16)
+            }
+        } + listOf(
             Button.builder(Component.literal("<")) { viewStartIndex-- }
                 .tooltip(Tooltip.create(Component.translatable(buttonKey("view_left"))))
                 .pos(leftPos, topPos - 17)
                 .size(14, 14)
-                .build(),
+                .build() to { viewStartIndex > 0 },
+
             Button.builder(Component.literal(">")) { viewStartIndex++ }
                 .tooltip(Tooltip.create(Component.translatable(buttonKey("view_right"))))
                 .pos(leftPos + 25 + iotaButtons.size * 26, topPos - 17)
                 .size(14, 14)
-                .build(),
-        ) + iotaButtons + edgeButtons
+                .build() to { viewStartIndex < data.lastIndex - IOTA_BUTTONS + 1 },
 
-        actionButtons += SplicingTableAction.entries.mapIndexed { i, action ->
-            actionButton(action) {
-                it.pos(leftPos + imageWidth, topPos + i * 18).size(96, 16)
-            }
-        }
+            button("select_all") { selection = Selection.range(0, data.lastIndex) }
+                .pos(leftPos + imageWidth - 64, topPos + 18)
+                .size(64, 16)
+                .build() to { selection?.start != 0 || selection?.end != data.lastIndex },
+
+            button("select_none") { selection = null }
+                .pos(leftPos + imageWidth - 64, topPos + 18 * 2)
+                .size(64, 16)
+                .build() to { selection != null },
+        )
 
         allButtons.forEach(::addRenderableWidget)
 
@@ -120,19 +128,18 @@ class SplicingTableScreen(
         val data = data
         if (data.isListReadable) {
             setActive(listReadButtons, true)
-            setActive(listWriteButtons, data.isListWritable)
-            setActive(clipboardReadButtons, data.isClipboardReadable)
-            setActive(clipboardWriteButtons, data.isClipboardWritable)
-            for ((action, button) in actionButtons) {
-                button.active = action.value.test(data, selection)
+            for ((button, predicate) in predicateButtons) {
+                button.active = predicate()
             }
         } else {
-            setActive(allButtons.asIterable(), false)
+            setActive(allButtons, false)
         }
     }
 
-    private fun setActive(buttons: Iterable<Button>, active: Boolean) {
-        buttons.forEach { it.active = active }
+    private fun setActive(buttons: Sequence<Button>, active: Boolean) {
+        for (button in buttons) {
+            button.active = active
+        }
     }
 
     private fun updateIotaButtons() {
@@ -170,13 +177,12 @@ class SplicingTableScreen(
     // button factories
 
     private fun actionButton(action: SplicingTableAction, fn: (Button.Builder) -> Button.Builder) = Pair(
-        action,
-        fn(
-            button(action.name.lowercase()) {
-                menu.table.runAction(action, null, selection)
-            }
-        ).build(),
-    )
+            fn(
+                button(action.name.lowercase()) {
+                    menu.table.runAction(action, null, selection)
+                }
+            ).build(),
+        ) { action.value.test(data, selection) }
 
     private fun button(name: String, onPress: Button.OnPress) = button(Component.translatable(buttonKey(name)), onPress)
 
