@@ -43,19 +43,26 @@ class SplicingTableMenu(
             addSlot(Slot(inventory, col, 8 + col * 18, 142))
         }
 
-        if (!level.isClientSide) {
-            val player = player as ServerPlayer
-            addSlotListener(object : ContainerListener {
-                override fun slotChanged(menu: AbstractContainerMenu, index: Int, stack: ItemStack) {
-                    // TODO: only send data for the slot that changed?
-                    if (index == ISplicingTable.LIST_INDEX || index == ISplicingTable.CLIPBOARD_INDEX) {
-                        table.getClientView()?.let { MsgSplicingTableNewDataS2C(it).sendToPlayer(player) }
+        addSlotListener(object : ContainerListener {
+            override fun slotChanged(menu: AbstractContainerMenu, index: Int, stack: ItemStack) {
+                when (index) {
+                    ISplicingTable.LIST_INDEX -> {
+                        table.listStackChanged(stack)
+                        (player as? ServerPlayer)?.let(::sendData)
+                    }
+                    ISplicingTable.CLIPBOARD_INDEX -> {
+                        table.clipboardStackChanged(stack)
+                        (player as? ServerPlayer)?.let(::sendData)
                     }
                 }
+            }
 
-                override fun dataChanged(menu: AbstractContainerMenu, index: Int, value: Int) {}
-            })
-        }
+            override fun dataChanged(menu: AbstractContainerMenu, index: Int, value: Int) {}
+        })
+    }
+
+    private fun sendData(player: ServerPlayer) {
+        table.getClientView()?.let { MsgSplicingTableNewDataS2C(it).sendToPlayer(player) }
     }
 
     // https://fabricmc.net/wiki/tutorial:screenhandler#screenhandler_and_screen

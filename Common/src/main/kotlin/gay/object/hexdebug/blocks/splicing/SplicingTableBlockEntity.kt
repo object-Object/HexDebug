@@ -10,6 +10,7 @@ import gay.`object`.hexdebug.splicing.*
 import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.CLIPBOARD_INDEX
 import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.CONTAINER_SIZE
 import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.LIST_INDEX
+import gay.`object`.hexdebug.utils.Option.None
 import gay.`object`.hexdebug.utils.Option.Some
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
@@ -20,6 +21,7 @@ import net.minecraft.world.ContainerHelper
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 
@@ -70,6 +72,20 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
             undoSize = undoStack.size,
             undoIndex = undoStack.index,
         )
+    }
+
+    override fun listStackChanged(stack: ItemStack) {
+        // when the list item is removed, clear the undo stack
+        if (stack.isEmpty) {
+            undoStack.clear()
+        }
+    }
+
+    override fun clipboardStackChanged(stack: ItemStack) {
+        // when the clipboard item is removed, remove clipboard changes from all undo stack entries
+        if (stack.isEmpty) {
+            undoStack.stack.replaceAll { it.copy(clipboard = None()) }
+        }
     }
 
     override fun runAction(action: SplicingTableAction, player: ServerPlayer?, selection: Selection?): Selection? {

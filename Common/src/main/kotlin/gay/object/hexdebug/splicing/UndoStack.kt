@@ -23,6 +23,11 @@ data class UndoStack(
         index += 1
     }
 
+    fun clear() {
+        stack.clear()
+        index = -1
+    }
+
     data class Entry(
         val list: Option<List<Iota>>,
         val clipboard: Option<Iota?>,
