@@ -2,6 +2,7 @@ package gay.`object`.hexdebug.splicing
 
 import at.petrak.hexcasting.api.casting.iota.Iota
 import gay.`object`.hexdebug.utils.Option
+import gay.`object`.hexdebug.utils.Option.Some
 
 data class UndoStack(
     val stack: MutableList<Entry> = mutableListOf(),
@@ -33,6 +34,8 @@ data class UndoStack(
         val clipboard: Option<Iota?>,
         val selection: Option<Selection?>,
     ) {
+        val isNotEmpty = list is Some || clipboard is Some || selection is Some
+
         fun applyTo(data: SplicingTableData, defaultSelection: Selection?): Selection? = data.let {
             list.ifPresent(data::writeList)
             clipboard.ifPresent(data::writeClipboard)

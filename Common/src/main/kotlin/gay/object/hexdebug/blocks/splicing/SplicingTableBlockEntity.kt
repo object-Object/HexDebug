@@ -24,6 +24,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
+import kotlin.math.min
 
 class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     HexDebugBlockEntities.SPLICING_TABLE.value, pos, state
@@ -84,7 +85,12 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     override fun clipboardStackChanged(stack: ItemStack) {
         // when the clipboard item is removed, remove clipboard changes from all undo stack entries
         if (stack.isEmpty) {
-            undoStack.stack.replaceAll { it.copy(clipboard = None()) }
+            undoStack.stack.apply {
+                val newStack = mapNotNull { entry -> entry.copy(clipboard = None()).takeIf { it.isNotEmpty } }
+                clear()
+                addAll(newStack)
+                undoStack.index = min(undoStack.index, lastIndex)
+            }
         }
     }
 
