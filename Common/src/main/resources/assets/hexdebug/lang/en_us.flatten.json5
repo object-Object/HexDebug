@@ -92,7 +92,9 @@
       },
       "craft/debugger": "Craft Debugger",
     },
-    "book.hexdebug:": {},
+    "book.hexdebug:": {
+      "next_eval_index": "Debug Locator's Rfln.",
+    },
   },
 
   hexdebug: {
