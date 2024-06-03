@@ -23,9 +23,9 @@ sealed class Selection private constructor(val from: Int, open val to: Int?) {
 
     fun moveBy(delta: Int) = of(start + delta, end?.plus(delta))
 
-    fun <T> subList(list: MutableList<T>) = list.subList(start, end ?: start)
+    fun <T> subList(list: List<T>) = list.subList(start, end?.plus(1) ?: start).toList()
 
-    fun <T> subList(list: List<T>) = list.subList(start, end ?: start)
+    fun <T> mutableSubList(list: MutableList<T>) = list.subList(start, end?.plus(1) ?: start)
 
     class Range private constructor(from: Int, override val to: Int) : Selection(from, to) {
         override val start = min(from, to)

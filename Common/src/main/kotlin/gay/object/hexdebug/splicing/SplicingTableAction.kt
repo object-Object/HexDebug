@@ -6,7 +6,7 @@ enum class SplicingTableAction(val value: Value<*>) {
     // any data
 
     UNDO(Value(
-        SplicingTableData,
+        ReadList,
         test = { undoSize > 1 && undoIndex > 0 },
         validate = { undoStack.size > 1 && undoStack.index > 0 },
     ) {
@@ -14,7 +14,7 @@ enum class SplicingTableAction(val value: Value<*>) {
     }),
 
     REDO(Value(
-        SplicingTableData,
+        ReadList,
         test = { undoSize > 1 && undoIndex < undoSize - 1 },
         validate = { undoStack.size > 1 && undoStack.index < undoStack.stack.lastIndex },
     ) {
@@ -29,8 +29,11 @@ enum class SplicingTableAction(val value: Value<*>) {
         validate = { selection.start > 0 },
     ) {
         list.add(selection.end, list.removeAt(selection.start - 1))
-        writeList(list)
-        selection.moveBy(-1)
+        if (writeList(list)) {
+            pushUndoState(selection.moveBy(-1))
+        } else {
+            selection
+        }
     }),
 
     NUDGE_RIGHT(Value(
@@ -39,33 +42,38 @@ enum class SplicingTableAction(val value: Value<*>) {
         validate = { selection.end < list.lastIndex },
     ) {
         list.add(selection.start, list.removeAt(selection.end + 1))
-        writeList(list)
-        selection.moveBy(1)
+        if (writeList(list)) {
+            pushUndoState(selection.moveBy(1))
+        } else {
+            selection
+        }
     }),
 
     DUPLICATE(Value(ReadWriteListRange) {
         list.addAll(selection.end + 1, selection.subList(list))
         if (writeList(list)) {
-            selection.expandRight(selection.size)
+            pushUndoState(selection.expandRight(selection.size))
         } else {
             selection
         }
     }),
 
     DELETE(Value(ReadWriteListRange) {
-        selection.subList(list).clear()
-        writeList(list)
-        null
+        selection.mutableSubList(list).clear()
+        if (writeList(list)) {
+            pushUndoState(null)
+        } else {
+            selection
+        }
     }),
 
     // rw list range, write clipboard
 
     CUT(Value(ReadWriteListRangeToClipboard) {
         val sublist = selection.subList(list)
+        selection.mutableSubList(list).clear()
         if (isClipboardTransferSafe(sublist) && writeClipboard(ListIota(sublist))) {
-            sublist.clear()
-            writeList(list)
-            null
+            pushUndoState(if (writeList(list)) null else selection)
         } else {
             selection
         }
@@ -73,8 +81,8 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     COPY(Value(ReadListRangeToClipboard) {
         val sublist = selection.subList(list)
-        if (isClipboardTransferSafe(sublist)) {
-            writeClipboard(ListIota(sublist))
+        if (isClipboardTransferSafe(sublist) && writeClipboard(ListIota(sublist))) {
+            pushUndoState(selection)
         }
         selection
     }),
@@ -82,12 +90,12 @@ enum class SplicingTableAction(val value: Value<*>) {
     // rw list, read clipboard
 
     PASTE(Value(ReadWriteListFromClipboard) {
-        selection.subList(list).apply {
+        selection.mutableSubList(list).apply {
             clear()
             add(clipboard)
         }
         if (isClipboardTransferSafe(clipboard) && writeList(list)) {
-            Selection.withSize(selection.start, 1)
+            pushUndoState(Selection.withSize(selection.start, 1))
         } else {
             selection
         }
@@ -98,12 +106,12 @@ enum class SplicingTableAction(val value: Value<*>) {
             is ListIota -> clipboard.list.toList()
             else -> listOf(clipboard)
         }
-        selection.subList(list).apply {
+        selection.mutableSubList(list).apply {
             clear()
             addAll(values)
         }
         if (isClipboardTransferSafe(clipboard) && writeList(list)) {
-            Selection.withSize(selection.start, values.size)
+            pushUndoState(Selection.withSize(selection.start, values.size))
         } else {
             selection
         }

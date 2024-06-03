@@ -14,7 +14,7 @@ data class SplicingTableUndoStack(
 
     private fun moveTo(newIndex: Int) = stack.getOrNull(newIndex)?.also { index = newIndex }
 
-    fun push(list: List<Iota>, clipboard: List<Iota>?, selection: Selection?) = push(Entry(list, clipboard, selection))
+    fun push(list: List<Iota>, clipboard: Iota?, selection: Selection?) = push(Entry(list, clipboard, selection))
 
     private fun push(entry: Entry) {
         if (index < stack.lastIndex) {
@@ -26,7 +26,7 @@ data class SplicingTableUndoStack(
 
     data class Entry(
         val list: List<Iota>,
-        val clipboard: List<Iota>?,
+        val clipboard: Iota?,
         val selection: Selection?,
     ) {
         fun applyTo(data: SplicingTableData) = data.let {

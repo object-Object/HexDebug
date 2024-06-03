@@ -101,14 +101,11 @@ class SplicingTableScreen(
                 .build(),
         ) + iotaButtons + edgeButtons
 
-        actionButtons += listOf(
-            actionButton(SplicingTableAction.NUDGE_LEFT) {
-                it.bounds(leftPos, topPos, 32, 16)
-            },
-            actionButton(SplicingTableAction.NUDGE_RIGHT) {
-                it.bounds(leftPos + 34, topPos, 32, 16)
+        actionButtons += SplicingTableAction.entries.mapIndexed { i, action ->
+            actionButton(action) {
+                it.pos(leftPos + imageWidth, topPos + i * 18).size(96, 16)
             }
-        )
+        }
 
         allButtons.forEach(::addRenderableWidget)
 

@@ -73,6 +73,9 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     override fun runAction(action: SplicingTableAction, player: ServerPlayer?, selection: Selection?): Selection? {
         val data = getData(player, selection) ?: return selection
+        if (undoStack.size == 0) {
+            data.pushUndoState(selection)
+        }
         return action.value.convertAndRun(data)
     }
 }
