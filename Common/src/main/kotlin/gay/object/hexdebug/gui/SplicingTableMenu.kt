@@ -1,9 +1,11 @@
 package gay.`object`.hexdebug.gui
 
 import gay.`object`.hexdebug.blocks.splicing.ClientSplicingTableContainer
+import gay.`object`.hexdebug.networking.msg.MsgSplicingTableGetDataC2S
 import gay.`object`.hexdebug.networking.msg.MsgSplicingTableNewDataS2C
 import gay.`object`.hexdebug.registry.HexDebugMenus
 import gay.`object`.hexdebug.splicing.ISplicingTable
+import gay.`object`.hexdebug.splicing.SplicingTableClientView
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
@@ -21,6 +23,8 @@ class SplicingTableMenu(
 
     val player get() = inventory.player
     val level get() = player.level()
+
+    var clientView = SplicingTableClientView.empty()
 
     init {
         table.startOpen(player)
@@ -59,9 +63,14 @@ class SplicingTableMenu(
 
             override fun dataChanged(menu: AbstractContainerMenu, index: Int, value: Int) {}
         })
+
+        // when the client menu is ready, ask the server to send the initial client view
+        if (level.isClientSide) {
+            MsgSplicingTableGetDataC2S().sendToServer()
+        }
     }
 
-    private fun sendData(player: ServerPlayer) {
+    fun sendData(player: ServerPlayer) {
         table.getClientView()?.let { MsgSplicingTableNewDataS2C(it).sendToPlayer(player) }
     }
 
@@ -96,4 +105,8 @@ class SplicingTableMenu(
     }
 
     override fun stillValid(player: Player) = inventory.stillValid(player)
+
+    companion object {
+        fun getInstance(player: Player) = player.containerMenu as? SplicingTableMenu
+    }
 }

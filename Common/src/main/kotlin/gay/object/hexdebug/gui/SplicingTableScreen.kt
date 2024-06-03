@@ -3,10 +3,10 @@ package gay.`object`.hexdebug.gui
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
-import gay.`object`.hexdebug.splicing.SplicingTableClientView
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.ChatFormatting
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Tooltip
@@ -22,18 +22,14 @@ class SplicingTableScreen(
     inventory: Inventory,
     title: Component,
 ) : AbstractContainerScreen<SplicingTableMenu>(menu, inventory, title) {
-    var selection: Selection? = null
+    var selection: Selection? = persistentSelection
         set(value) {
             field = value
+            persistentSelection = value
             updateButtons()
         }
 
-    var data = SplicingTableClientView.empty()
-        set(value) {
-            field = value
-            if (!value.isListReadable) selection = null
-            updateButtons()
-        }
+    val data get() = menu.clientView
 
     private val iotaButtons = mutableListOf<Button>()
     private val edgeButtons = mutableListOf<Button>()
@@ -115,7 +111,7 @@ class SplicingTableScreen(
 
     // state sync
 
-    private fun updateButtons() {
+    fun updateButtons() {
         updateActiveButtons()
         updateIotaButtons()
     }
@@ -257,6 +253,11 @@ class SplicingTableScreen(
         // FIXME: placeholder
         val TEXTURE = ResourceLocation("textures/gui/container/dispenser.png")
 
+        // FIXME: scuffed
+        var persistentSelection: Selection? = null
+
         const val IOTA_BUTTONS = 9
+
+        fun getInstance() = Minecraft.getInstance().screen as? SplicingTableScreen
     }
 }

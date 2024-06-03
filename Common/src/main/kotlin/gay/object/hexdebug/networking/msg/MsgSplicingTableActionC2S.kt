@@ -27,7 +27,7 @@ data class MsgSplicingTableActionC2S(val action: SplicingTableAction, val select
         }
 
         override fun MsgSplicingTableActionC2S.applyOnServer(ctx: PacketContext) = ctx.queue {
-            val menu = ctx.player.containerMenu as? SplicingTableMenu ?: return@queue
+            val menu = SplicingTableMenu.getInstance(ctx.player) ?: return@queue
             val newSelection = menu.table.runAction(action, ctx.player as? ServerPlayer, selection)
             MsgSplicingTableNewSelectionS2C(newSelection).sendToPlayer(ctx.player as ServerPlayer)
         }

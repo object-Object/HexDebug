@@ -16,6 +16,7 @@ object HexDebugNetworking {
             MsgEvaluatorStateS2C,
             MsgPrintDebuggerStatusS2C,
             MsgSplicingTableActionC2S,
+            MsgSplicingTableGetDataC2S,
             MsgSplicingTableNewSelectionS2C,
             MsgSplicingTableNewDataS2C,
         )

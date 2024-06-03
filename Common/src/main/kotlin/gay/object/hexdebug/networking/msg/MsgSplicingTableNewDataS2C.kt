@@ -1,11 +1,11 @@
 package gay.`object`.hexdebug.networking.msg
 
 import dev.architectury.networking.NetworkManager.PacketContext
+import gay.`object`.hexdebug.gui.SplicingTableMenu
 import gay.`object`.hexdebug.gui.SplicingTableScreen
 import gay.`object`.hexdebug.networking.HexDebugMessageCompanionS2C
 import gay.`object`.hexdebug.networking.HexDebugMessageS2C
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
-import net.minecraft.client.Minecraft
 import net.minecraft.network.FriendlyByteBuf
 
 /** The result of running a splicing table action on the server. */
@@ -36,8 +36,14 @@ data class MsgSplicingTableNewDataS2C(val data: SplicingTableClientView) : HexDe
         }
 
         override fun MsgSplicingTableNewDataS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
-            (Minecraft.getInstance().screen as? SplicingTableScreen)?.also {
-                it.data = data
+            SplicingTableMenu.getInstance(ctx.player)?.also { menu ->
+                menu.clientView = data
+                SplicingTableScreen.getInstance()?.also { screen ->
+                    if (!data.isListReadable && screen.selection != null) {
+                        screen.selection = null
+                    }
+                    screen.updateButtons()
+                }
             }
         }
     }
