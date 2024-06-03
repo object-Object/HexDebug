@@ -31,6 +31,7 @@ class SplicingTableScreen(
     var data = SplicingTableClientView.empty()
         set(value) {
             field = value
+            if (!value.isListReadable) selection = null
             updateButtons()
         }
 
