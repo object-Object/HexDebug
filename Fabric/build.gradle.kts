@@ -69,6 +69,8 @@ dependencies {
         implementation(it)
         include(it)
     }
+
+    localRuntime(project(":dev"))
 }
 
 publishMods {

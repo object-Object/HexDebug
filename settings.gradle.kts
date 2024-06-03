@@ -13,4 +13,4 @@ pluginManagement {
 
 rootProject.name = "HexDebug"
 
-include("Common", "Fabric", "Forge")
+include("Common", "Fabric", "Forge", "dev")
