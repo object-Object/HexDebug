@@ -6,6 +6,8 @@ import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.casting.mishaps.MishapOthersName
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.utils.Option
+import gay.`object`.hexdebug.utils.Option.None
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
@@ -25,7 +27,7 @@ interface SplicingTableDataConverter<T : SplicingTableData> {
 open class SplicingTableData(
     open val player: ServerPlayer?,
     val level: ServerLevel,
-    val undoStack: SplicingTableUndoStack,
+    val undoStack: UndoStack,
     open val selection: Selection?,
     open val list: MutableList<Iota>?,
     open val listWriter: ADIotaHolder?,
@@ -35,7 +37,7 @@ open class SplicingTableData(
     constructor(
         player: ServerPlayer?,
         level: ServerLevel,
-        undoStack: SplicingTableUndoStack,
+        undoStack: UndoStack,
         selection: Selection?,
         listHolder: ADIotaHolder?,
         clipboardHolder: ADIotaHolder?,
@@ -50,8 +52,14 @@ open class SplicingTableData(
         clipboardWriter = clipboardHolder?.takeIfWritable()
     )
 
-    fun pushUndoState(selection: Selection?) = selection.also {
-        undoStack.push(list.orEmpty().toList(), clipboard, selection)
+    fun pushUndoState(
+        list: Option<List<Iota>> = None(),
+        clipboard: Option<Iota?> = None(),
+        selection: Option<Selection?> = None(),
+    ): Selection? {
+        // copy list to avoid mutability issues
+        undoStack.push(UndoStack.Entry(list.map { it.toList() }, clipboard, selection))
+        return selection.getOrNull()
     }
 
     fun writeList(value: List<Iota>) = writeIota(listWriter, ListIota(value))
@@ -79,7 +87,7 @@ open class SplicingTableData(
 open class ReadList(
     override val player: ServerPlayer,
     level: ServerLevel,
-    undoStack: SplicingTableUndoStack,
+    undoStack: UndoStack,
     selection: Selection?,
     override val list: MutableList<Iota>,
     listWriter: ADIotaHolder?,
@@ -107,7 +115,7 @@ open class ReadList(
 open class ReadWriteList(
     player: ServerPlayer,
     level: ServerLevel,
-    undoStack: SplicingTableUndoStack,
+    undoStack: UndoStack,
     override val selection: Selection,
     override val list: MutableList<Iota>,
     override val listWriter: ADIotaHolder,
@@ -136,7 +144,7 @@ open class ReadWriteList(
 class ReadWriteListFromClipboard(
     player: ServerPlayer,
     level: ServerLevel,
-    undoStack: SplicingTableUndoStack,
+    undoStack: UndoStack,
     selection: Selection,
     list: MutableList<Iota>,
     listWriter: ADIotaHolder,
@@ -165,7 +173,7 @@ class ReadWriteListFromClipboard(
 open class ReadWriteListRange(
     player: ServerPlayer,
     level: ServerLevel,
-    undoStack: SplicingTableUndoStack,
+    undoStack: UndoStack,
     override val selection: Selection.Range,
     list: MutableList<Iota>,
     listWriter: ADIotaHolder,
@@ -194,7 +202,7 @@ open class ReadWriteListRange(
 class ReadWriteListRangeToClipboard(
     override val player: ServerPlayer,
     level: ServerLevel,
-    undoStack: SplicingTableUndoStack,
+    undoStack: UndoStack,
     selection: Selection.Range,
     list: MutableList<Iota>,
     listWriter: ADIotaHolder,
@@ -223,7 +231,7 @@ class ReadWriteListRangeToClipboard(
 class ReadListRangeToClipboard(
     player: ServerPlayer,
     level: ServerLevel,
-    undoStack: SplicingTableUndoStack,
+    undoStack: UndoStack,
     override val selection: Selection.Range,
     override val list: MutableList<Iota>,
     listWriter: ADIotaHolder?,

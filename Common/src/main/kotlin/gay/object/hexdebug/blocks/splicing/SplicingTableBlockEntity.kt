@@ -10,6 +10,7 @@ import gay.`object`.hexdebug.splicing.*
 import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.CLIPBOARD_INDEX
 import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.CONTAINER_SIZE
 import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.LIST_INDEX
+import gay.`object`.hexdebug.utils.Option.Some
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
@@ -32,7 +33,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0
 
-    private val undoStack = SplicingTableUndoStack()
+    private val undoStack = UndoStack()
 
     override fun load(tag: CompoundTag) {
         super.load(tag)
@@ -74,7 +75,11 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     override fun runAction(action: SplicingTableAction, player: ServerPlayer?, selection: Selection?): Selection? {
         val data = getData(player, selection) ?: return selection
         if (undoStack.size == 0) {
-            data.pushUndoState(selection)
+            data.pushUndoState(
+                list = Some(data.list.orEmpty()),
+                clipboard = Some(data.clipboard),
+                selection = Some(selection),
+            )
         }
         return action.value.convertAndRun(data)
     }

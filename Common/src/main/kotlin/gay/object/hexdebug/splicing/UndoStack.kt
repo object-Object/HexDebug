@@ -1,8 +1,9 @@
 package gay.`object`.hexdebug.splicing
 
 import at.petrak.hexcasting.api.casting.iota.Iota
+import gay.`object`.hexdebug.utils.Option
 
-data class SplicingTableUndoStack(
+data class UndoStack(
     val stack: MutableList<Entry> = mutableListOf(),
     var index: Int = -1,
 ) {
@@ -14,9 +15,7 @@ data class SplicingTableUndoStack(
 
     private fun moveTo(newIndex: Int) = stack.getOrNull(newIndex)?.also { index = newIndex }
 
-    fun push(list: List<Iota>, clipboard: Iota?, selection: Selection?) = push(Entry(list, clipboard, selection))
-
-    private fun push(entry: Entry) {
+    fun push(entry: Entry) {
         if (index < stack.lastIndex) {
             stack.subList(index + 1, stack.size).clear()
         }
@@ -25,14 +24,14 @@ data class SplicingTableUndoStack(
     }
 
     data class Entry(
-        val list: List<Iota>,
-        val clipboard: Iota?,
-        val selection: Selection?,
+        val list: Option<List<Iota>>,
+        val clipboard: Option<Iota?>,
+        val selection: Option<Selection?>,
     ) {
-        fun applyTo(data: SplicingTableData) = data.let {
-            it.writeList(list)
-            it.writeClipboard(clipboard)
-            selection
+        fun applyTo(data: SplicingTableData, defaultSelection: Selection?): Selection? = data.let {
+            list.ifPresent(data::writeList)
+            clipboard.ifPresent(data::writeClipboard)
+            selection.getOrElse(defaultSelection)
         }
     }
 }

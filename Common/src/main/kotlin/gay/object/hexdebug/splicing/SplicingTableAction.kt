@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.splicing
 
 import at.petrak.hexcasting.api.casting.iota.ListIota
+import gay.`object`.hexdebug.utils.Option.Some
 
 enum class SplicingTableAction(val value: Value<*>) {
     // any data
@@ -12,7 +13,7 @@ enum class SplicingTableAction(val value: Value<*>) {
     ) {
         when (val state = undoStack.undo()) {
             null -> selection
-            else -> state.applyTo(this)
+            else -> state.applyTo(this, selection)
         }
     }),
 
@@ -23,7 +24,7 @@ enum class SplicingTableAction(val value: Value<*>) {
     ) {
         when (val state = undoStack.redo()) {
             null -> selection
-            else -> state.applyTo(this)
+            else -> state.applyTo(this, selection)
         }
     }),
 
@@ -36,7 +37,10 @@ enum class SplicingTableAction(val value: Value<*>) {
     ) {
         list.add(selection.end, list.removeAt(selection.start - 1))
         if (writeList(list)) {
-            pushUndoState(selection.moveBy(-1))
+            pushUndoState(
+                list = Some(list),
+                selection = Some(selection.moveBy(-1)),
+            )
         } else {
             selection
         }
@@ -49,7 +53,10 @@ enum class SplicingTableAction(val value: Value<*>) {
     ) {
         list.add(selection.start, list.removeAt(selection.end + 1))
         if (writeList(list)) {
-            pushUndoState(selection.moveBy(1))
+            pushUndoState(
+                list = Some(list),
+                selection = Some(selection.moveBy(1)),
+            )
         } else {
             selection
         }
@@ -58,7 +65,10 @@ enum class SplicingTableAction(val value: Value<*>) {
     DUPLICATE(Value(ReadWriteListRange) {
         list.addAll(selection.end + 1, selection.subList(list))
         if (writeList(list)) {
-            pushUndoState(selection.expandRight(selection.size))
+            pushUndoState(
+                list = Some(list),
+                selection = Some(selection.expandRight(selection.size)),
+            )
         } else {
             selection
         }
@@ -67,7 +77,10 @@ enum class SplicingTableAction(val value: Value<*>) {
     DELETE(Value(ReadWriteListRange) {
         selection.mutableSubList(list).clear()
         if (writeList(list)) {
-            pushUndoState(null)
+            pushUndoState(
+                list = Some(list),
+                selection = Some(null),
+            )
         } else {
             selection
         }
@@ -79,7 +92,18 @@ enum class SplicingTableAction(val value: Value<*>) {
         val iota = selection.subList(list).let { if ((it.size) == 1) it.first() else ListIota(it) }
         selection.mutableSubList(list).clear()
         if (isClipboardTransferSafe(iota) && writeClipboard(iota)) {
-            pushUndoState(if (writeList(list)) null else selection)
+            if (writeList(list)) {
+                pushUndoState(
+                    list = Some(list),
+                    clipboard = Some(iota),
+                    selection = Some(null),
+                )
+            } else {
+                pushUndoState(
+                    clipboard = Some(iota),
+                )
+                selection
+            }
         } else {
             selection
         }
@@ -88,7 +112,9 @@ enum class SplicingTableAction(val value: Value<*>) {
     COPY(Value(ReadListRangeToClipboard) {
         val iota = selection.subList(list).let { if ((it.size) == 1) it.first() else ListIota(it) }
         if (isClipboardTransferSafe(iota) && writeClipboard(iota)) {
-            pushUndoState(selection)
+            pushUndoState(
+                clipboard = Some(iota),
+            )
         }
         selection
     }),
@@ -101,7 +127,10 @@ enum class SplicingTableAction(val value: Value<*>) {
             add(clipboard)
         }
         if (isClipboardTransferSafe(clipboard) && writeList(list)) {
-            pushUndoState(Selection.withSize(selection.start, 1))
+            pushUndoState(
+                list = Some(list),
+                selection = Some(Selection.withSize(selection.start, 1)),
+            )
         } else {
             selection
         }
@@ -117,7 +146,10 @@ enum class SplicingTableAction(val value: Value<*>) {
             addAll(values)
         }
         if (isClipboardTransferSafe(clipboard) && writeList(list)) {
-            pushUndoState(Selection.withSize(selection.start, values.size))
+            pushUndoState(
+                list = Some(list),
+                selection = Some(Selection.withSize(selection.start, values.size)),
+            )
         } else {
             selection
         }
