@@ -38,12 +38,7 @@ data class MsgSplicingTableNewDataS2C(val data: SplicingTableClientView) : HexDe
         override fun MsgSplicingTableNewDataS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
             SplicingTableMenu.getInstance(ctx.player)?.also { menu ->
                 menu.clientView = data
-                SplicingTableScreen.getInstance()?.also { screen ->
-                    if (!data.isListReadable && screen.selection != null) {
-                        screen.selection = null
-                    }
-                    screen.updateButtons()
-                }
+                SplicingTableScreen.getInstance()?.updateButtons()
             }
         }
     }

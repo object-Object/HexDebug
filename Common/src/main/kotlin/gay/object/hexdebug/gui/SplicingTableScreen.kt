@@ -22,10 +22,9 @@ class SplicingTableScreen(
     inventory: Inventory,
     title: Component,
 ) : AbstractContainerScreen<SplicingTableMenu>(menu, inventory, title) {
-    var selection: Selection? = persistentSelection
+    var selection: Selection? = null
         set(value) {
             field = value
-            persistentSelection = value
             updateButtons()
         }
 
@@ -120,6 +119,11 @@ class SplicingTableScreen(
     // state sync
 
     fun updateButtons() {
+        if (!data.isListReadable) {
+            // these conditions are necessary to avoid an infinite loop
+            if (selection != null) selection = null
+            if (viewStartIndex != 0) viewStartIndex = 0
+        }
         updateActiveButtons()
         updateIotaButtons()
     }
@@ -258,9 +262,6 @@ class SplicingTableScreen(
     companion object {
         // FIXME: placeholder
         val TEXTURE = ResourceLocation("textures/gui/container/dispenser.png")
-
-        // FIXME: scuffed
-        var persistentSelection: Selection? = null
 
         const val IOTA_BUTTONS = 9
 
