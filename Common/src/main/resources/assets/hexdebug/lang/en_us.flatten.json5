@@ -43,6 +43,7 @@
       title: "HexDebug Config",
       category: {
         client: "Client",
+        server: "Server",
       },
       option: {
         client: {
@@ -71,6 +72,12 @@
             "@Tooltip": "If true, show the line number (usually 1-indexed) from the debug client (eg. VSCode) in Debugger status messages; otherwise, show the list index (0-indexed)."
           }
         },
+        server: {
+          maxUndoStackSize: {
+            "": "Undo History Size Limit",
+            "@Tooltip": "Maximum allowed size of the Splicing Table's undo history. To disable the limit, set the value to 0.",
+          }
+        }
       },
     },
   },

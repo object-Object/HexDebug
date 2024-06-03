@@ -17,27 +17,31 @@ import net.minecraft.client.gui.screens.Screen
 object HexDebugConfig {
     fun init() {
         AutoConfig.register(
-            Global::class.java,
+            GlobalConfig::class.java,
             PartitioningSerializer.wrap(::Toml4jConfigSerializer),
         )
     }
 
-    fun getConfigScreen(parent: Screen): Screen = AutoConfig.getConfigScreen(Global::class.java, parent).get()
+    fun getConfigScreen(parent: Screen): Screen = AutoConfig.getConfigScreen(GlobalConfig::class.java, parent).get()
 
     // functions instead of getters to make it more clear that these can't be used until after init()
-    fun getHolder() = AutoConfig.getConfigHolder(Global::class.java)!!
+    fun getHolder() = AutoConfig.getConfigHolder(GlobalConfig::class.java)!!
 
     fun get() = getHolder().config!!
 
     @Config(name = HexDebug.MODID)
-    class Global : GlobalData() {
+    class GlobalConfig : GlobalData() {
         @Category("client")
         @TransitiveObject
-        val client = Client()
+        val client = ClientConfig()
+
+        @Category("server")
+        @TransitiveObject
+        val server = ServerConfig()
     }
 
     @Config(name = "client")
-    class Client : ConfigData {
+    class ClientConfig : ConfigData {
         @Tooltip
         val openDebugPort: Boolean = true
 
@@ -52,6 +56,12 @@ object HexDebugConfig {
 
         @Tooltip
         val showDebugClientLineNumber: Boolean = false
+    }
+
+    @Config(name = "server")
+    class ServerConfig : ConfigData {
+        @Tooltip
+        val maxUndoStackSize: Int = 64
     }
 }
 

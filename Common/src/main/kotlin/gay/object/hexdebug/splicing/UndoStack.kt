@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.splicing
 
 import at.petrak.hexcasting.api.casting.iota.Iota
+import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.utils.Option
 import gay.`object`.hexdebug.utils.Option.Some
 
@@ -10,6 +11,9 @@ data class UndoStack(
 ) {
     val size get() = stack.size
 
+    // this would need a restart to update the value, but I think that's fine since it's a server-side config
+    private val maxSize by lazy { HexDebugConfig.get().server.maxUndoStackSize }
+
     fun undo() = moveTo(index - 1)
 
     fun redo() = moveTo(index + 1)
@@ -17,11 +21,19 @@ data class UndoStack(
     private fun moveTo(newIndex: Int) = stack.getOrNull(newIndex)?.also { index = newIndex }
 
     fun push(entry: Entry) {
+        // drop entries from the top of the stack above the current index
         if (index < stack.lastIndex) {
             stack.subList(index + 1, stack.size).clear()
         }
+
         stack.add(entry)
-        index += 1
+
+        // drop entries from the bottom of the stack to enforce the size limit
+        if (maxSize > 0 && stack.size > maxSize) {
+            stack.subList(0, stack.size - maxSize).clear()
+        }
+
+        index = stack.lastIndex
     }
 
     fun clear() {
