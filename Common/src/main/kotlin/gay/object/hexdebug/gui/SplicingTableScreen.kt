@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.gui
 
 import at.petrak.hexcasting.api.casting.iota.IotaType
+import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
 import net.fabricmc.api.EnvType
@@ -88,14 +89,14 @@ class SplicingTableScreen(
                 it.pos(leftPos + imageWidth, topPos + i * 18).size(96, 16)
             }
         } + listOf(
-            Button.builder(Component.literal("<")) { viewStartIndex-- }
-                .tooltip(Tooltip.create(Component.translatable(buttonKey("view_left"))))
+            Button.builder("<".asTranslatedComponent) { viewStartIndex-- }
+                .tooltip(Tooltip.create(buttonKey("view_left").asTranslatedComponent))
                 .pos(leftPos, topPos - 17)
                 .size(14, 14)
                 .build() to { viewStartIndex > 0 },
 
-            Button.builder(Component.literal(">")) { viewStartIndex++ }
-                .tooltip(Tooltip.create(Component.translatable(buttonKey("view_right"))))
+            Button.builder(">".asTranslatedComponent) { viewStartIndex++ }
+                .tooltip(Tooltip.create(buttonKey("view_right").asTranslatedComponent))
                 .pos(leftPos + 25 + iotaButtons.size * 26, topPos - 17)
                 .size(14, 14)
                 .build() to { viewStartIndex < data.lastIndex - IOTA_BUTTONS + 1 },
@@ -157,7 +158,7 @@ class SplicingTableScreen(
             button.apply {
                 val iota = data.list?.getOrNull(index)
                 if (null != iota) {
-                    message = Component.literal(index.toString()).withStyle(*formats)
+                    message = index.toString().asTranslatedComponent.withStyle(*formats)
                     tooltip = Tooltip.create(IotaType.getDisplay(iota))
                 } else {
                     message = Component.empty()
@@ -188,7 +189,7 @@ class SplicingTableScreen(
             ).build(),
         ) { action.value.test(data, selection) }
 
-    private fun button(name: String, onPress: Button.OnPress) = button(Component.translatable(buttonKey(name)), onPress)
+    private fun button(name: String, onPress: Button.OnPress) = button(buttonKey(name).asTranslatedComponent, onPress)
 
     private fun button(message: Component, onPress: Button.OnPress) =
         Button.builder(message, onPress)
