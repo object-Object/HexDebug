@@ -67,7 +67,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         if (writeList(list)) {
             pushUndoState(
                 list = Some(list),
-                selection = Some(selection.expandRight(selection.size)),
+                selection = Some(Selection.withSize(selection.end + 1, selection.size)),
             )
         } else {
             selection
@@ -79,7 +79,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         if (writeList(list)) {
             pushUndoState(
                 list = Some(list),
-                selection = Some(null),
+                selection = Some(Selection.edge(selection.start)),
             )
         } else {
             selection
@@ -96,7 +96,7 @@ enum class SplicingTableAction(val value: Value<*>) {
                 pushUndoState(
                     list = Some(list),
                     clipboard = Some(iota),
-                    selection = Some(null),
+                    selection = Some(Selection.edge(selection.start)),
                 )
             } else {
                 pushUndoState(
@@ -129,7 +129,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         if (isClipboardTransferSafe(clipboard) && writeList(list)) {
             pushUndoState(
                 list = Some(list),
-                selection = Some(Selection.withSize(selection.start, 1)),
+                selection = Some(Selection.edge(selection.start + 1)),
             )
         } else {
             selection
@@ -148,7 +148,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         if (isClipboardTransferSafe(clipboard) && writeList(list)) {
             pushUndoState(
                 list = Some(list),
-                selection = Some(Selection.withSize(selection.start, values.size)),
+                selection = Some(Selection.edge(selection.start + values.size)),
             )
         } else {
             selection
