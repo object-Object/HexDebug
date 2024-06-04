@@ -35,6 +35,8 @@ class SplicingTableScreen(
 
     val data get() = menu.clientView
 
+    private val hasStaff get() = menu.staffSlot.hasItem()
+
     val guiSpellcasting = GuiSpellcasting(InteractionHand.MAIN_HAND, mutableListOf(), listOf(), null, 1).apply {
         @Suppress("CAST_NEVER_SUCCEEDS")
         (this as IMixinGuiSpellcasting).`onDrawSplicingTablePattern$hexdebug` = BiConsumer { pattern, index ->
@@ -262,21 +264,21 @@ class SplicingTableScreen(
     // mouse handlers
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (isInStaffGrid(mouseX, mouseY)) {
+        if (hasStaff && isInStaffGrid(mouseX, mouseY)) {
             guiSpellcasting.mouseClicked(mouseX, mouseY, button)
         }
         return super.mouseClicked(mouseX, mouseY, button)
     }
 
     override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, dragX: Double, dragY: Double): Boolean {
-        if (isInStaffGrid(mouseX, mouseY)) {
+        if (hasStaff && isInStaffGrid(mouseX, mouseY)) {
             guiSpellcasting.mouseDragged(mouseX, mouseY, button, dragX, dragY)
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY)
     }
 
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (isInStaffGrid(mouseX, mouseY)) {
+        if (hasStaff && isInStaffGrid(mouseX, mouseY)) {
             guiSpellcasting.mouseReleased(mouseX, mouseY, button)
         }
         return super.mouseReleased(mouseX, mouseY, button)
@@ -306,10 +308,12 @@ class SplicingTableScreen(
     }
 
     private fun renderStaffGrid(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        guiGraphics.blit(BORDER, leftPos - 200, topPos, 0, 0, 200, 200)
-        guiGraphics.enableScissor(staffMinX, staffMinY, staffMaxX, staffMaxY)
-        guiSpellcasting.render(guiGraphics, mouseX, mouseY, partialTick)
-        guiGraphics.disableScissor()
+        if (hasStaff) {
+            guiGraphics.blit(BORDER, leftPos - 200, topPos, 0, 0, 200, 200)
+            guiGraphics.enableScissor(staffMinX, staffMinY, staffMaxX, staffMaxY)
+            guiSpellcasting.render(guiGraphics, mouseX, mouseY, partialTick)
+            guiGraphics.disableScissor()
+        }
     }
 
     companion object {

@@ -23,12 +23,18 @@ class SplicingTableMenu(
     private val inventory: Inventory,
     val table: ISplicingTable,
 ) : AbstractContainerMenu(HexDebugMenus.SPLICING_TABLE.value, containerId) {
-    constructor(containerId: Int, inventory: Inventory) : this(containerId, inventory, ClientSplicingTableContainer())
+    constructor(containerId: Int, inventory: Inventory) : this(
+        containerId,
+        inventory,
+        ClientSplicingTableContainer(),
+    )
 
     val player get() = inventory.player
     val level get() = player.level()
 
     var clientView = SplicingTableClientView.empty()
+
+    val staffSlot: Slot
 
     init {
         table.startOpen(player)
@@ -47,7 +53,7 @@ class SplicingTableMenu(
         addTableSlot(SplicingTableSlot.FUEL, 158, 0) {
             mayPlace = ::isMediaItem
         }
-        addTableSlot(SplicingTableSlot.STAFF, 0, 0) {
+        staffSlot = addTableSlot(SplicingTableSlot.STAFF, 0, 0) {
             maxStackSize = 1
             mayPlace = { it.`is`(HexTags.Items.STAVES) }
         }
