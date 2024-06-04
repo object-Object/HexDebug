@@ -262,7 +262,7 @@ class SplicingTableScreen(
         }
     }
 
-    // mouse handlers
+    // staff delegation stuff
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         if (hasStaff && isInStaffGrid(mouseX, mouseY)) {
@@ -283,6 +283,15 @@ class SplicingTableScreen(
             guiSpellcasting.mouseReleased(mouseX, mouseY, button)
         }
         return super.mouseReleased(mouseX, mouseY, button)
+    }
+
+    override fun onClose() {
+        // support pressing esc to cancel drawing a pattern
+        if (hasStaff) {
+            guiSpellcasting.onClose()
+            if (minecraft?.screen != null) return
+        }
+        super.onClose()
     }
 
     private fun isInStaffGrid(mouseX: Double, mouseY: Double) =
