@@ -2,6 +2,8 @@ package gay.`object`.hexdebug.gui
 
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
+import at.petrak.hexcasting.client.gui.GuiSpellcasting
+import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
 import net.fabricmc.api.EnvType
@@ -15,6 +17,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
 
 @Environment(EnvType.CLIENT)
@@ -30,6 +33,13 @@ class SplicingTableScreen(
         }
 
     val data get() = menu.clientView
+
+    private val guiSpellcasting = GuiSpellcasting(InteractionHand.MAIN_HAND, mutableListOf(), listOf(), null, 1)
+
+    private val staffMinX get() = leftPos - 196
+    private val staffMinY get() = topPos + 4
+    private val staffMaxX get() = leftPos - 4
+    private val staffMaxY get() = topPos + 196
 
     private val iotaButtons = mutableListOf<Button>()
     private val edgeButtons = mutableListOf<Button>()
@@ -60,6 +70,8 @@ class SplicingTableScreen(
 
     override fun init() {
         super.init()
+        guiSpellcasting.init(minecraft!!, width, height)
+
         titleLabelX = (imageWidth - font.width(title)) / 2
 
         allButtons.forEach(::removeWidget)
@@ -241,10 +253,37 @@ class SplicingTableScreen(
         }
     }
 
+    // mouse handlers
+
+    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        if (isInStaffGrid(mouseX, mouseY)) {
+            guiSpellcasting.mouseClicked(mouseX, mouseY, button)
+        }
+        return super.mouseClicked(mouseX, mouseY, button)
+    }
+
+    override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, dragX: Double, dragY: Double): Boolean {
+        if (isInStaffGrid(mouseX, mouseY)) {
+            guiSpellcasting.mouseDragged(mouseX, mouseY, button, dragX, dragY)
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY)
+    }
+
+    override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        if (isInStaffGrid(mouseX, mouseY)) {
+            guiSpellcasting.mouseReleased(mouseX, mouseY, button)
+        }
+        return super.mouseReleased(mouseX, mouseY, button)
+    }
+
+    private fun isInStaffGrid(mouseX: Double, mouseY: Double) =
+        staffMinX <= mouseX && mouseX <= staffMaxX && staffMinY <= mouseY && mouseY <= staffMaxY
+
     // rendering
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         renderBackground(guiGraphics)
+        renderStaffGrid(guiGraphics, mouseX, mouseY, partialTick)
         super.render(guiGraphics, mouseX, mouseY, partialTick)
         renderTooltip(guiGraphics, mouseX, mouseY)
     }
@@ -260,9 +299,17 @@ class SplicingTableScreen(
         guiGraphics.drawString(font, title, titleLabelX, titleLabelY, 4210752, false)
     }
 
+    private fun renderStaffGrid(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+        guiGraphics.blit(BORDER, leftPos - 200, topPos, 0, 0, 200, 200)
+        guiGraphics.enableScissor(staffMinX, staffMinY, staffMaxX, staffMaxY)
+        guiSpellcasting.render(guiGraphics, mouseX, mouseY, partialTick)
+        guiGraphics.disableScissor()
+    }
+
     companion object {
         // FIXME: placeholder
         val TEXTURE = ResourceLocation("textures/gui/container/dispenser.png")
+        val BORDER = HexDebug.id("textures/gui/splicing_table/staff/border.png")
 
         const val IOTA_BUTTONS = 9
 
