@@ -1,5 +1,7 @@
 package gay.`object`.hexdebug.splicing
 
+import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
+import at.petrak.hexcasting.api.casting.math.HexPattern
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
@@ -13,6 +15,8 @@ interface ISplicingTable : Container {
 
     /** Runs the given action, and returns an updated selection (or null if the selection should be removed). */
     fun runAction(action: SplicingTableAction, player: ServerPlayer?, selection: Selection?): Selection?
+
+    fun drawPattern(pattern: HexPattern, index: Int, selection: Selection?): Pair<Selection?, ResolvedPatternType>
 
     companion object {
         const val CONTAINER_SIZE = 2

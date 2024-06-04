@@ -19,6 +19,8 @@ object HexDebugNetworking {
             MsgSplicingTableGetDataC2S,
             MsgSplicingTableNewSelectionS2C,
             MsgSplicingTableNewDataS2C,
+            MsgSplicingTableNewStaffPatternC2S,
+            MsgSplicingTableNewStaffPatternS2C,
         )
         for (message in messages) {
             message.register(CHANNEL)

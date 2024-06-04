@@ -1,7 +1,10 @@
 package gay.`object`.hexdebug.blocks.splicing
 
+import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
 import at.petrak.hexcasting.api.casting.iota.IotaType
+import at.petrak.hexcasting.api.casting.math.HexPattern
 import at.petrak.hexcasting.xplat.IXplatAbstractions
+import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerSlotDelegate
 import gay.`object`.hexdebug.gui.SplicingTableMenu
@@ -104,5 +107,10 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
             )
         }
         return action.value.convertAndRun(data)
+    }
+
+    override fun drawPattern(pattern: HexPattern, index: Int, selection: Selection?): Pair<Selection?, ResolvedPatternType> {
+        HexDebug.LOGGER.info(pattern)
+        return selection to ResolvedPatternType.ESCAPED
     }
 }

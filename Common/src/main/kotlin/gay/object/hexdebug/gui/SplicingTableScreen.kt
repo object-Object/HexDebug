@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
+import java.util.function.BiConsumer
 
 @Environment(EnvType.CLIENT)
 class SplicingTableScreen(
@@ -34,7 +35,12 @@ class SplicingTableScreen(
 
     val data get() = menu.clientView
 
-    private val guiSpellcasting = GuiSpellcasting(InteractionHand.MAIN_HAND, mutableListOf(), listOf(), null, 1)
+    val guiSpellcasting = GuiSpellcasting(InteractionHand.MAIN_HAND, mutableListOf(), listOf(), null, 1).apply {
+        @Suppress("CAST_NEVER_SUCCEEDS")
+        (this as IMixinGuiSpellcasting).`onDrawSplicingTablePattern$hexdebug` = BiConsumer { pattern, index ->
+            menu.table.drawPattern(pattern, index, selection)
+        }
+    }
 
     private val staffMinX get() = leftPos - 196
     private val staffMinY get() = topPos + 4
