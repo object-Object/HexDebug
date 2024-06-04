@@ -1,11 +1,15 @@
 package gay.`object`.hexdebug.gui
 
+import at.petrak.hexcasting.api.mod.HexTags
+import at.petrak.hexcasting.api.utils.isMediaItem
+import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.blocks.splicing.ClientSplicingTableContainer
 import gay.`object`.hexdebug.networking.msg.MsgSplicingTableGetDataC2S
 import gay.`object`.hexdebug.networking.msg.MsgSplicingTableNewDataS2C
 import gay.`object`.hexdebug.registry.HexDebugMenus
 import gay.`object`.hexdebug.splicing.ISplicingTable
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
+import gay.`object`.hexdebug.splicing.SplicingTableSlot
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
@@ -32,29 +36,45 @@ class SplicingTableMenu(
         // FIXME: placeholder slot coordinates
 
         // table
-        addSlot(Slot(table, ISplicingTable.LIST_INDEX, 80, 35))
-        addSlot(Slot(table, ISplicingTable.CLIPBOARD_INDEX, 26, 35))
+        addTableSlot(SplicingTableSlot.LIST, 80, 35) {
+            maxStackSize = 1
+            mayPlace = ::isIotaHolder
+        }
+        addTableSlot(SplicingTableSlot.CLIPBOARD, 26, 35) {
+            maxStackSize = 1
+            mayPlace = ::isIotaHolder
+        }
+        addTableSlot(SplicingTableSlot.FUEL, 158, 0) {
+            mayPlace = ::isMediaItem
+        }
+        addTableSlot(SplicingTableSlot.STAFF, 0, 0) {
+            maxStackSize = 1
+            mayPlace = { it.`is`(HexTags.Items.STAVES) }
+        }
+        for ((index, x, y) in SplicingTableSlot.STORAGE) {
+            addTableSlot(index, 140 + x * 18, 17 + y * 18)
+        }
 
         // player inventory
-        for (row in 0 until 3) {
-            for (col in 0 until 9) {
-                addSlot(Slot(inventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18))
+        for (y in 0 until 3) {
+            for (x in 0 until 9) {
+                addInventorySlot(x + y * 9 + 9, 8 + x * 18, 84 + y * 18)
             }
         }
 
         // player hotbar
-        for (col in 0 until 9) {
-            addSlot(Slot(inventory, col, 8 + col * 18, 142))
+        for (x in 0 until 9) {
+            addInventorySlot(x, 8 + x * 18, 142)
         }
 
         addSlotListener(object : ContainerListener {
             override fun slotChanged(menu: AbstractContainerMenu, index: Int, stack: ItemStack) {
                 when (index) {
-                    ISplicingTable.LIST_INDEX -> {
+                    SplicingTableSlot.LIST.index -> {
                         table.listStackChanged(stack)
                         (player as? ServerPlayer)?.let(::sendData)
                     }
-                    ISplicingTable.CLIPBOARD_INDEX -> {
+                    SplicingTableSlot.CLIPBOARD.index -> {
                         table.clipboardStackChanged(stack)
                         (player as? ServerPlayer)?.let(::sendData)
                     }
@@ -70,6 +90,24 @@ class SplicingTableMenu(
         }
     }
 
+    private fun addTableSlot(
+        slot: SplicingTableSlot,
+        x: Int,
+        y: Int,
+        builder: FilteredSlot.() -> Unit = {},
+    ) = addTableSlot(slot.index, x, y, builder)
+
+    private fun addTableSlot(
+        slot: Int,
+        x: Int,
+        y: Int,
+        builder: FilteredSlot.() -> Unit = {},
+    ) = addSlot(FilteredSlot(table, slot, x, y).also(builder))
+
+    private fun addInventorySlot(slot: Int, x: Int, y: Int) = addSlot(Slot(inventory, slot, x, y))
+
+    private fun isIotaHolder(stack: ItemStack) = IXplatAbstractions.INSTANCE.findDataHolder(stack) != null
+
     fun sendData(player: ServerPlayer) {
         table.getClientView()?.let { MsgSplicingTableNewDataS2C(it).sendToPlayer(player) }
     }
@@ -83,14 +121,14 @@ class SplicingTableMenu(
         val originalStack = slot.item
         val newStack = originalStack.copy()
 
-        if (index < ISplicingTable.CONTAINER_SIZE) {
+        if (index < SplicingTableSlot.CONTAINER_SIZE) {
             // from container to inventory
-            if (!moveItemStackTo(originalStack, ISplicingTable.CONTAINER_SIZE, slots.size, true)) {
+            if (!moveItemStackTo(originalStack, SplicingTableSlot.CONTAINER_SIZE, slots.size, true)) {
                 return ItemStack.EMPTY
             }
         } else {
             // from inventory to container
-            if (!moveItemStackTo(originalStack, 0, ISplicingTable.CONTAINER_SIZE, false)) {
+            if (!moveItemStackTo(originalStack, 0, SplicingTableSlot.CONTAINER_SIZE, false)) {
                 return ItemStack.EMPTY
             }
         }

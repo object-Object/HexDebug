@@ -6,13 +6,9 @@ import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.casting.math.HexPattern
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.blocks.base.BaseContainer
-import gay.`object`.hexdebug.blocks.base.ContainerSlotDelegate
 import gay.`object`.hexdebug.gui.SplicingTableMenu
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import gay.`object`.hexdebug.splicing.*
-import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.CLIPBOARD_INDEX
-import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.CONTAINER_SIZE
-import gay.`object`.hexdebug.splicing.ISplicingTable.Companion.LIST_INDEX
 import gay.`object`.hexdebug.utils.Option.None
 import gay.`object`.hexdebug.utils.Option.Some
 import net.minecraft.core.BlockPos
@@ -32,10 +28,12 @@ import kotlin.math.min
 class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     HexDebugBlockEntities.SPLICING_TABLE.value, pos, state
 ), ISplicingTable, BaseContainer, MenuProvider {
-    override val stacks = BaseContainer.withSize(CONTAINER_SIZE)
+    override val stacks = BaseContainer.withSize(SplicingTableSlot.CONTAINER_SIZE)
 
-    private var listStack by ContainerSlotDelegate(LIST_INDEX)
-    private var clipboardStack by ContainerSlotDelegate(CLIPBOARD_INDEX)
+    private var listStack by SplicingTableSlot.LIST.delegate
+    private var clipboardStack by SplicingTableSlot.CLIPBOARD.delegate
+    private var fuelStack by SplicingTableSlot.FUEL.delegate
+    private var staffStack by SplicingTableSlot.STAFF.delegate
 
     val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0
 

@@ -120,12 +120,12 @@ class SplicingTableScreen(
                 .build() to { viewStartIndex < data.lastIndex - IOTA_BUTTONS + 1 },
 
             button("select_all") { selection = Selection.range(0, data.lastIndex) }
-                .pos(leftPos + imageWidth - 64, topPos + 18)
+                .pos(leftPos + imageWidth - 64, topPos - 54)
                 .size(64, 16)
                 .build() to { selection?.start != 0 || selection?.end != data.lastIndex },
 
             button("select_none") { selection = null }
-                .pos(leftPos + imageWidth - 64, topPos + 18 * 2)
+                .pos(leftPos + imageWidth - 64, topPos - 36)
                 .size(64, 16)
                 .build() to { selection != null },
         )
