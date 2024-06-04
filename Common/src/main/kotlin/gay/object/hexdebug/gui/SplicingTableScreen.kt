@@ -102,13 +102,14 @@ class SplicingTableScreen(
                 .build()
         }
 
-        viewButtons += iotaButtons + edgeButtons
+        viewButtons += listOf()
 
         predicateButtons += SplicingTableAction.entries.mapIndexed { i, action ->
             actionButton(action) {
                 it.pos(leftPos + imageWidth, topPos + i * 18).size(96, 16)
             }
-        } + listOf(
+        }
+        predicateButtons += listOf(
             Button.builder("<".asTranslatedComponent) { viewStartIndex-- }
                 .tooltip(Tooltip.create(buttonKey("view_left").asTranslatedComponent))
                 .pos(leftPos, topPos - 17)
