@@ -20,6 +20,7 @@ import net.minecraft.world.ContainerHelper
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.SimpleContainerData
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
@@ -28,12 +29,16 @@ import kotlin.math.min
 class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     HexDebugBlockEntities.SPLICING_TABLE.value, pos, state
 ), ISplicingTable, BaseContainer, MenuProvider {
-    override val stacks = BaseContainer.withSize(SplicingTableSlot.CONTAINER_SIZE)
+    override val stacks = BaseContainer.withSize(SplicingTableSlot.container_size)
 
     private var listStack by SplicingTableSlot.LIST.delegate
     private var clipboardStack by SplicingTableSlot.CLIPBOARD.delegate
     private var fuelStack by SplicingTableSlot.FUEL.delegate
     private var staffStack by SplicingTableSlot.STAFF.delegate
+
+    private val containerData = SimpleContainerData(SplicingTableDataSlot.size)
+
+    private var media by SplicingTableDataSlot.MEDIA.delegate(containerData)
 
     val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0
 
@@ -42,14 +47,17 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     override fun load(tag: CompoundTag) {
         super.load(tag)
         ContainerHelper.loadAllItems(tag, stacks)
+        media = tag.getInt("media")
     }
 
     override fun saveAdditional(tag: CompoundTag) {
         super.saveAdditional(tag)
         ContainerHelper.saveAllItems(tag, stacks)
+        tag.putInt("media", media)
     }
 
-    override fun createMenu(i: Int, inventory: Inventory, player: Player) = SplicingTableMenu(i, inventory, this)
+    override fun createMenu(i: Int, inventory: Inventory, player: Player) =
+        SplicingTableMenu(i, inventory, this, containerData)
 
     override fun getDisplayName() = Component.translatable(blockState.block.descriptionId)
 

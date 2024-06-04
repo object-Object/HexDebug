@@ -9,28 +9,31 @@ import gay.`object`.hexdebug.networking.msg.MsgSplicingTableNewDataS2C
 import gay.`object`.hexdebug.registry.HexDebugMenus
 import gay.`object`.hexdebug.splicing.ISplicingTable
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
+import gay.`object`.hexdebug.splicing.SplicingTableDataSlot
 import gay.`object`.hexdebug.splicing.SplicingTableSlot
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.inventory.AbstractContainerMenu
-import net.minecraft.world.inventory.ContainerListener
-import net.minecraft.world.inventory.Slot
+import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
 
 class SplicingTableMenu(
     containerId: Int,
     private val inventory: Inventory,
     val table: ISplicingTable,
+    data: ContainerData,
 ) : AbstractContainerMenu(HexDebugMenus.SPLICING_TABLE.value, containerId) {
     constructor(containerId: Int, inventory: Inventory) : this(
         containerId,
         inventory,
         ClientSplicingTableContainer(),
+        SimpleContainerData(SplicingTableDataSlot.size),
     )
 
     val player get() = inventory.player
     val level get() = player.level()
+
+    val media by SplicingTableDataSlot.MEDIA.delegate(data)
 
     var clientView = SplicingTableClientView.empty()
 
@@ -72,6 +75,8 @@ class SplicingTableMenu(
         for (x in 0 until 9) {
             addInventorySlot(x, 8 + x * 18, 142)
         }
+
+        addDataSlots(data)
 
         addSlotListener(object : ContainerListener {
             override fun slotChanged(menu: AbstractContainerMenu, index: Int, stack: ItemStack) {
@@ -127,14 +132,14 @@ class SplicingTableMenu(
         val originalStack = slot.item
         val newStack = originalStack.copy()
 
-        if (index < SplicingTableSlot.CONTAINER_SIZE) {
+        if (index < SplicingTableSlot.container_size) {
             // from container to inventory
-            if (!moveItemStackTo(originalStack, SplicingTableSlot.CONTAINER_SIZE, slots.size, true)) {
+            if (!moveItemStackTo(originalStack, SplicingTableSlot.container_size, slots.size, true)) {
                 return ItemStack.EMPTY
             }
         } else {
             // from inventory to container
-            if (!moveItemStackTo(originalStack, 0, SplicingTableSlot.CONTAINER_SIZE, false)) {
+            if (!moveItemStackTo(originalStack, 0, SplicingTableSlot.container_size, false)) {
                 return ItemStack.EMPTY
             }
         }
