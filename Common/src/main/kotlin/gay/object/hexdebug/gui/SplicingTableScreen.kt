@@ -38,7 +38,7 @@ class SplicingTableScreen(
     val guiSpellcasting = GuiSpellcasting(InteractionHand.MAIN_HAND, mutableListOf(), listOf(), null, 1).apply {
         @Suppress("CAST_NEVER_SUCCEEDS")
         (this as IMixinGuiSpellcasting).`onDrawSplicingTablePattern$hexdebug` = BiConsumer { pattern, index ->
-            menu.table.drawPattern(pattern, index, selection)
+            menu.table.drawPattern(null, pattern, index, selection)
         }
     }
 

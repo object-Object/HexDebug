@@ -2,9 +2,9 @@ package gay.`object`.hexdebug.blocks.splicing
 
 import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
 import at.petrak.hexcasting.api.casting.iota.IotaType
+import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.casting.math.HexPattern
 import at.petrak.hexcasting.xplat.IXplatAbstractions
-import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerSlotDelegate
 import gay.`object`.hexdebug.gui.SplicingTableMenu
@@ -109,8 +109,24 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         return action.value.convertAndRun(data)
     }
 
-    override fun drawPattern(pattern: HexPattern, index: Int, selection: Selection?): Pair<Selection?, ResolvedPatternType> {
-        HexDebug.LOGGER.info(pattern)
-        return selection to ResolvedPatternType.ESCAPED
+    override fun drawPattern(player: ServerPlayer?, pattern: HexPattern, index: Int, selection: Selection?) =
+        getData(player, selection)
+            ?.let(ReadWriteList::convertOrNull)
+            ?.let { drawPattern(pattern, it) }
+            ?: (selection to ResolvedPatternType.ERRORED)
+
+    private fun drawPattern(pattern: HexPattern, data: ReadWriteList) = data.run {
+        selection.mutableSubList(list).apply {
+            clear()
+            add(PatternIota(pattern))
+        }
+        if (writeList(list)) {
+            pushUndoState(
+                list = Some(list),
+                selection = Some(Selection.edge(selection.start + 1)),
+            ) to ResolvedPatternType.ESCAPED
+        } else {
+            null
+        }
     }
 }

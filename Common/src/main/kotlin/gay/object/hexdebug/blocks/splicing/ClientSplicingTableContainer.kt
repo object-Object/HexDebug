@@ -24,7 +24,7 @@ class ClientSplicingTableContainer : SimpleContainer(ISplicingTable.CONTAINER_SI
         MsgSplicingTableActionC2S(action, it).sendToServer()
     }
 
-    override fun drawPattern(pattern: HexPattern, index: Int, selection: Selection?): Pair<Selection?, ResolvedPatternType> {
+    override fun drawPattern(player: ServerPlayer?, pattern: HexPattern, index: Int, selection: Selection?): Pair<Selection?, ResolvedPatternType> {
         MsgSplicingTableNewStaffPatternC2S(pattern, index, selection).sendToServer()
         return selection to ResolvedPatternType.UNRESOLVED
     }

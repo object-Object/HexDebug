@@ -31,7 +31,7 @@ data class MsgSplicingTableNewStaffPatternC2S(val pattern: HexPattern, val index
         override fun MsgSplicingTableNewStaffPatternC2S.applyOnServer(ctx: PacketContext) = ctx.queue {
             val player = ctx.player as ServerPlayer
             val menu = SplicingTableMenu.getInstance(player) ?: return@queue
-            val (newSelection, resolutionType) = menu.table.drawPattern(pattern, index, selection)
+            val (newSelection, resolutionType) = menu.table.drawPattern(player, pattern, index, selection)
             MsgSplicingTableNewSelectionS2C(newSelection).sendToPlayer(player)
             MsgSplicingTableNewStaffPatternS2C(resolutionType, index).sendToPlayer(player)
         }
