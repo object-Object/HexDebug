@@ -260,4 +260,7 @@ class ReadListRangeToClipboard(
     }
 }
 
-private fun ADIotaHolder.takeIfWritable() = takeIf { writeIota(ListIota(listOf()), true) }
+// simulate clearing the item, because that should be the most likely to succeed if the item is writable
+// writing any other value might give a false negative for specialized items like scrolls
+// we check if the write actually succeeded when running actions, so it's ok to be lax here
+private fun ADIotaHolder.takeIfWritable() = takeIf { writeIota(null, true) }

@@ -46,11 +46,9 @@ class SplicingTableMenu(
 
         // table
         addTableSlot(SplicingTableSlot.LIST, 80, 35) {
-            maxStackSize = 1
             mayPlace = ::isIotaHolder
         }
         addTableSlot(SplicingTableSlot.CLIPBOARD, 26, 35) {
-            maxStackSize = 1
             mayPlace = ::isIotaHolder
         }
         addTableSlot(SplicingTableSlot.FUEL, 158, 0) {
