@@ -33,6 +33,7 @@ open class SplicingTableData(
     open val listWriter: ADIotaHolder?,
     open val clipboard: Iota?,
     open val clipboardWriter: ADIotaHolder?,
+    var shouldConsumeMedia: Boolean = false,
 ) {
     constructor(
         player: ServerPlayer?,
@@ -70,7 +71,9 @@ open class SplicingTableData(
 
     fun writeIota(holder: ADIotaHolder?, value: Iota?): Boolean {
         if (holder == null || (value != null && IotaType.isTooLargeToSerialize(listOf(value)))) return false
-        return holder.writeIota(value, false)
+        return holder.writeIota(value, false).also {
+            if (it) shouldConsumeMedia = true
+        }
     }
 
     fun isClipboardTransferSafe(value: Iota) = isClipboardTransferSafe(listOf(value))
