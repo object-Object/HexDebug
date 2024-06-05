@@ -3,6 +3,7 @@ package gay.`object`.hexdebug.gui
 import at.petrak.hexcasting.api.mod.HexTags
 import at.petrak.hexcasting.api.utils.isMediaItem
 import at.petrak.hexcasting.xplat.IXplatAbstractions
+import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
 import gay.`object`.hexdebug.blocks.splicing.ClientSplicingTableContainer
 import gay.`object`.hexdebug.networking.msg.MsgSplicingTableGetDataC2S
 import gay.`object`.hexdebug.networking.msg.MsgSplicingTableNewDataS2C
@@ -33,7 +34,11 @@ class SplicingTableMenu(
     val player get() = inventory.player
     val level get() = player.level()
 
-    val media by SplicingTableDataSlot.MEDIA.delegate(data)
+    val media by ContainerDataLongDelegate(
+        data,
+        lowIndex = SplicingTableDataSlot.MEDIA_LOW.index,
+        highIndex = SplicingTableDataSlot.MEDIA_HIGH.index,
+    )
 
     var clientView = SplicingTableClientView.empty()
 
@@ -51,7 +56,7 @@ class SplicingTableMenu(
         addTableSlot(SplicingTableSlot.CLIPBOARD, 26, 35) {
             mayPlace = ::isIotaHolder
         }
-        addTableSlot(SplicingTableSlot.FUEL, 158, 0) {
+        addTableSlot(SplicingTableSlot.MEDIA, 158, 0) {
             mayPlace = ::isMediaItem
         }
         staffSlot = addTableSlot(SplicingTableSlot.STAFF, 0, 0) {

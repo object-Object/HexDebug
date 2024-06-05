@@ -1,5 +1,6 @@
 package gay.`object`.hexdebug.config
 
+import at.petrak.hexcasting.api.misc.MediaConstants
 import gay.`object`.hexdebug.HexDebug
 import me.shedaniel.autoconfig.AutoConfig
 import me.shedaniel.autoconfig.ConfigData
@@ -62,6 +63,12 @@ object HexDebugConfig {
     class ServerConfig : ConfigData {
         @Tooltip
         val maxUndoStackSize: Int = 64
+
+        @Tooltip
+        val splicingTableMediaCost: Long = MediaConstants.DUST_UNIT / 20
+
+        @Tooltip
+        val splicingTableMaxMedia: Long = MediaConstants.CRYSTAL_UNIT
     }
 }
 

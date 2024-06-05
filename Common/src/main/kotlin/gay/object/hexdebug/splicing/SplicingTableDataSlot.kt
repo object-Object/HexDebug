@@ -4,7 +4,9 @@ import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import net.minecraft.world.inventory.ContainerData
 
 enum class SplicingTableDataSlot {
-    MEDIA;
+    // media is a long but ContainerData stores ints :/
+    MEDIA_LOW,
+    MEDIA_HIGH;
 
     val index = ordinal
 

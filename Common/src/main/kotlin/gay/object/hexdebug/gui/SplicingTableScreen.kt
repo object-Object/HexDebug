@@ -1,6 +1,8 @@
 package gay.`object`.hexdebug.gui
 
 import at.petrak.hexcasting.api.casting.iota.IotaType
+import at.petrak.hexcasting.api.misc.MediaConstants
+import at.petrak.hexcasting.api.utils.asTextComponent
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
 import gay.`object`.hexdebug.HexDebug
@@ -19,6 +21,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
+import java.util.*
 import java.util.function.BiConsumer
 
 @Environment(EnvType.CLIENT)
@@ -318,9 +321,13 @@ class SplicingTableScreen(
         guiGraphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight)
     }
 
-    // disable inventory label
+    // disable inventory label and render custom labels
     override fun renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
         guiGraphics.drawString(font, title, titleLabelX, titleLabelY, 4210752, false)
+
+        val dust = menu.media.toDouble() / MediaConstants.DUST_UNIT
+        val mediaLabel = "%.2f".format(Locale.ROOT, dust).asTextComponent
+        guiGraphics.drawString(font, mediaLabel, 130, 6, 4210752, false)
     }
 
     private fun renderStaffGrid(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {

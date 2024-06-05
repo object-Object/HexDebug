@@ -9,7 +9,7 @@ private var nextSlotIndex = 0
 enum class SplicingTableSlot(val width: Int, val height: Int) : Iterable<Triple<Int, Int, Int>> {
     LIST,
     CLIPBOARD,
-    FUEL,
+    MEDIA,
     STAFF,
     STORAGE(2, 3);
 
