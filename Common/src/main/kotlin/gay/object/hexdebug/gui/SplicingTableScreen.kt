@@ -37,9 +37,10 @@ class SplicingTableScreen(
 
     private val hasStaff get() = menu.staffSlot.hasItem()
 
-    val guiSpellcasting = GuiSpellcasting(InteractionHand.MAIN_HAND, mutableListOf(), listOf(), null, 1).apply {
-        @Suppress("CAST_NEVER_SUCCEEDS")
-        (this as IMixinGuiSpellcasting).`onDrawSplicingTablePattern$hexdebug` = BiConsumer { pattern, index ->
+    var guiSpellcasting = GuiSpellcasting(
+        InteractionHand.MAIN_HAND, mutableListOf(), listOf(), null, 1
+    ).apply {
+        mixin.`onDrawSplicingTablePattern$hexdebug` = BiConsumer { pattern, index ->
             menu.table.drawPattern(null, pattern, index, selection)
         }
     }
@@ -102,7 +103,12 @@ class SplicingTableScreen(
                 .build()
         }
 
-        viewButtons += listOf()
+        viewButtons += listOf(
+            button("clear_grid") { guiSpellcasting.mixin.`clearPatterns$hexdebug`() }
+                .pos(leftPos - 200, topPos - 18)
+                .size(64, 16)
+                .build(),
+        )
 
         predicateButtons += SplicingTableAction.entries.mapIndexed { i, action ->
             actionButton(action) {

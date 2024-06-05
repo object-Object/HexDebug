@@ -25,6 +25,7 @@
           view_right: "Move View Right",
           select_none: "Select None",
           select_all: "Select All",
+          clear_grid: "Clear Grid",
           nudge_left: "Nudge Left",
           nudge_right: "Nudge Right",
           duplicate: "Duplicate",
