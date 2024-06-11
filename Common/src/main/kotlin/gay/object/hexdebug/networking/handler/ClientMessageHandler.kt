@@ -32,7 +32,7 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) {
         }
 
         is MsgPrintDebuggerStatusS2C -> {
-            val config = HexDebugConfig.get().client
+            val config = HexDebugConfig.client
             val shouldPrint = when (config.debuggerDisplayMode) {
                 DebuggerDisplayMode.DISABLED -> false
                 DebuggerDisplayMode.NOT_CONNECTED -> !isConnected
@@ -65,6 +65,10 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) {
         is MsgSplicingTableNewStaffPatternS2C -> {
             val info = ExecutionClientView(false, resolutionType, listOf(), null)
             SplicingTableScreen.getInstance()?.guiSpellcasting?.recvServerUpdate(info, index)
+        }
+
+        is MsgSyncConfigS2C -> {
+            HexDebugConfig.onSyncConfig(serverConfig)
         }
     }
 }

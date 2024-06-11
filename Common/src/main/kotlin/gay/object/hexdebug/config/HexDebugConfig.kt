@@ -1,9 +1,13 @@
 package gay.`object`.hexdebug.config
 
 import at.petrak.hexcasting.api.misc.MediaConstants
+import dev.architectury.event.events.client.ClientPlayerEvent
+import dev.architectury.event.events.common.PlayerEvent
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.networking.msg.MsgSyncConfigS2C
 import me.shedaniel.autoconfig.AutoConfig
 import me.shedaniel.autoconfig.ConfigData
+import me.shedaniel.autoconfig.ConfigHolder
 import me.shedaniel.autoconfig.annotation.Config
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Category
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip
@@ -11,24 +15,43 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.TransitiveObject
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer.GlobalData
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer
-import net.minecraft.client.gui.screens.Screen
+import net.minecraft.network.FriendlyByteBuf
 
 // we can't use a companion object because GlobalData sees the field and throws an error :/
 
 object HexDebugConfig {
+    @JvmStatic
+    lateinit var holder: ConfigHolder<GlobalConfig>
+
+    @JvmStatic
+    val client get() = holder.config.client
+
+    @JvmStatic
+    val server get() = syncedServerConfig ?: holder.config.server
+
+    // only used on the client, probably
+    private var syncedServerConfig: ServerConfig? = null
+
     fun init() {
-        AutoConfig.register(
+        holder = AutoConfig.register(
             GlobalConfig::class.java,
             PartitioningSerializer.wrap(::Toml4jConfigSerializer),
         )
+
+        PlayerEvent.PLAYER_JOIN.register { player ->
+            MsgSyncConfigS2C(holder.config.server).sendToPlayer(player)
+        }
     }
 
-    fun getConfigScreen(parent: Screen): Screen = AutoConfig.getConfigScreen(GlobalConfig::class.java, parent).get()
+    fun initClient() {
+        ClientPlayerEvent.CLIENT_PLAYER_QUIT.register { _ ->
+            syncedServerConfig = null
+        }
+    }
 
-    // functions instead of getters to make it more clear that these can't be used until after init()
-    fun getHolder() = AutoConfig.getConfigHolder(GlobalConfig::class.java)!!
-
-    fun get() = getHolder().config!!
+    fun onSyncConfig(serverConfig: ServerConfig) {
+        syncedServerConfig = serverConfig
+    }
 
     @Config(name = HexDebug.MODID)
     class GlobalConfig : GlobalData() {
@@ -62,13 +85,30 @@ object HexDebugConfig {
     @Config(name = "server")
     class ServerConfig : ConfigData {
         @Tooltip
-        val maxUndoStackSize: Int = 64
+        var maxUndoStackSize: Int = 64
+            private set
 
         @Tooltip
-        val splicingTableMediaCost: Long = MediaConstants.DUST_UNIT / 20
+        var splicingTableMediaCost: Long = MediaConstants.DUST_UNIT / 20
+            private set
 
         @Tooltip
-        val splicingTableMaxMedia: Long = MediaConstants.CRYSTAL_UNIT
+        var splicingTableMaxMedia: Long = MediaConstants.CRYSTAL_UNIT
+            private set
+
+        fun encode(buf: FriendlyByteBuf) {
+            buf.writeInt(maxUndoStackSize)
+            buf.writeLong(splicingTableMediaCost)
+            buf.writeLong(splicingTableMaxMedia)
+        }
+
+        companion object {
+            fun decode(buf: FriendlyByteBuf) = ServerConfig().apply {
+                maxUndoStackSize = buf.readInt()
+                splicingTableMediaCost = buf.readLong()
+                splicingTableMaxMedia = buf.readLong()
+            }
+        }
     }
 }
 

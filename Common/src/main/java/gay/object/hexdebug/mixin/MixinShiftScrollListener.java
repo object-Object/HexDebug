@@ -43,7 +43,7 @@ public abstract class MixinShiftScrollListener {
             && (player.isShiftKeyDown() || !needsSneaking)
             && !player.isSpectator()
             // additional logic
-            && HexDebugConfig.INSTANCE.get().getClient().getSmartDebuggerSneakScroll()
+            && HexDebugConfig.INSTANCE.getClient().getSmartDebuggerSneakScroll()
             && !ItemDebugger.isDebugging()
             && player.getMainHandItem().getItem() == HexDebugItems.DEBUGGER.getValue()
             && hexdebug$invokeIsScrollableItem(player.getOffhandItem().getItem())

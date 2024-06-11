@@ -40,8 +40,8 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
         var instance: DebugProxyClient? = null
             private set
 
-        private val enabled get() = HexDebugConfig.get().client.openDebugPort
-        private val port get() = HexDebugConfig.get().client.debugPort
+        private val enabled get() = HexDebugConfig.client.openDebugPort
+        private val port get() = HexDebugConfig.client.debugPort
 
         private val executorService = Executors.newCachedThreadPool()
 
@@ -50,7 +50,7 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
         private var serverJob: Job? = null
 
         fun init() {
-            HexDebugConfig.getHolder().registerSaveListener { _, _ ->
+            HexDebugConfig.holder.registerSaveListener { _, _ ->
                 reload()
                 InteractionResult.PASS
             }

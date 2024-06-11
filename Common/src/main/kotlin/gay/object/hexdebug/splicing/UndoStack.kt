@@ -11,8 +11,7 @@ data class UndoStack(
 ) {
     val size get() = stack.size
 
-    // this would need a restart to update the value, but I think that's fine since it's a server-side config
-    private val maxSize by lazy { HexDebugConfig.get().server.maxUndoStackSize }
+    private val maxSize get() = HexDebugConfig.server.maxUndoStackSize
 
     fun undo() = moveTo(index - 1)
 

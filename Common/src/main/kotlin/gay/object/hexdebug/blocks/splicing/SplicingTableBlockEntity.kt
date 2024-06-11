@@ -190,9 +190,9 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     }
 
     companion object {
-        private val config get() = HexDebugConfig.get().server
+        private val config get() = HexDebugConfig.server
 
-        private val mediaCost by lazy { config.splicingTableMediaCost }
-        private val maxMedia by lazy { config.splicingTableMaxMedia.coerceIn(0, null) }
+        private val mediaCost get() = config.splicingTableMediaCost
+        private val maxMedia get() = config.splicingTableMaxMedia.coerceIn(0, null)
     }
 }
