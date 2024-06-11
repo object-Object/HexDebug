@@ -36,6 +36,7 @@ trinkets = "3.7.0"
 clothConfig = "11.1.106"
 modMenu = "7.1.0"
 caelus = "3.1.0+1.20"
+devAuth = "1.2.0"
 
 # other non-Minecraft dependencies
 
@@ -94,6 +95,9 @@ caelus             = { module="top.theillusivec4.caelus:caelus-forge", version.r
 clothConfig-common = { module="me.shedaniel.cloth:cloth-config", version.ref="clothConfig" }
 clothConfig-fabric = { module="me.shedaniel.cloth:cloth-config-fabric", version.ref="clothConfig" }
 clothConfig-forge  = { module="me.shedaniel.cloth:cloth-config-forge", version.ref="clothConfig" }
+
+devAuth-fabric = { module="me.djtheredstoner:DevAuth-fabric", version.ref="devAuth" }
+devAuth-forge  = { module="me.djtheredstoner:DevAuth-forge-latest", version.ref="devAuth" }
 
 findbugs-jsr305 = { module="com.google.code.findbugs:jsr305", version.ref="findbugs-jsr305" }
 

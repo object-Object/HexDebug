@@ -82,6 +82,8 @@ dependencies {
         include(it)
         kotlinForgeRuntimeLibrary(it)
     }
+
+    modLocalRuntime(libs.devAuth.forge)
 }
 
 tasks {
