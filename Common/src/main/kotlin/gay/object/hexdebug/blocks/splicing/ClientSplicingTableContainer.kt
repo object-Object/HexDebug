@@ -8,13 +8,10 @@ import gay.`object`.hexdebug.splicing.ISplicingTable
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
 import gay.`object`.hexdebug.splicing.SplicingTableSlot
-import net.fabricmc.api.EnvType
-import net.fabricmc.api.Environment
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.SimpleContainer
 import net.minecraft.world.item.ItemStack
 
-@Environment(EnvType.CLIENT)
 class ClientSplicingTableContainer : SimpleContainer(SplicingTableSlot.container_size), ISplicingTable {
     override fun getClientView() = null
     override fun listStackChanged(stack: ItemStack) {}

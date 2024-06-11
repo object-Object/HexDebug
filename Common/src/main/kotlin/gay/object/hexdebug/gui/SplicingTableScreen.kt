@@ -9,8 +9,6 @@ import at.petrak.hexcasting.common.lib.HexSounds
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
-import net.fabricmc.api.EnvType
-import net.fabricmc.api.Environment
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
@@ -25,7 +23,6 @@ import net.minecraft.world.entity.player.Inventory
 import java.util.*
 import java.util.function.BiConsumer
 
-@Environment(EnvType.CLIENT)
 class SplicingTableScreen(
     menu: SplicingTableMenu,
     inventory: Inventory,
