@@ -1,4 +1,4 @@
-package gay.`object`.hexdebug.splicing
+package gay.`object`.hexdebug.blocks.splicing
 
 import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import net.minecraft.world.inventory.ContainerData

@@ -7,12 +7,11 @@ import gay.`object`.hexdebug.networking.msg.MsgSplicingTableNewStaffPatternC2S
 import gay.`object`.hexdebug.splicing.ISplicingTable
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
-import gay.`object`.hexdebug.splicing.SplicingTableSlot
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.SimpleContainer
 import net.minecraft.world.item.ItemStack
 
-class ClientSplicingTableContainer : SimpleContainer(SplicingTableSlot.container_size), ISplicingTable {
+class ClientSplicingTableContainer : SimpleContainer(SplicingTableItemSlot.container_size), ISplicingTable {
     override fun getClientView() = null
     override fun listStackChanged(stack: ItemStack) {}
     override fun clipboardStackChanged(stack: ItemStack) {}

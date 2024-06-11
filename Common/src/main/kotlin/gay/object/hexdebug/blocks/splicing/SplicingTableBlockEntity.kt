@@ -32,12 +32,12 @@ import kotlin.math.min
 class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     HexDebugBlockEntities.SPLICING_TABLE.value, pos, state
 ), ISplicingTable, BaseContainer, MenuProvider {
-    override val stacks = BaseContainer.withSize(SplicingTableSlot.container_size)
+    override val stacks = BaseContainer.withSize(SplicingTableItemSlot.container_size)
 
-    private var listStack by SplicingTableSlot.LIST.delegate
-    private var clipboardStack by SplicingTableSlot.CLIPBOARD.delegate
-    private var mediaStack by SplicingTableSlot.MEDIA.delegate
-    private var staffStack by SplicingTableSlot.STAFF.delegate
+    private var listStack by SplicingTableItemSlot.LIST.delegate
+    private var clipboardStack by SplicingTableItemSlot.CLIPBOARD.delegate
+    private var mediaStack by SplicingTableItemSlot.MEDIA.delegate
+    private var staffStack by SplicingTableItemSlot.STAFF.delegate
 
     private val containerData = SimpleContainerData(SplicingTableDataSlot.size)
 

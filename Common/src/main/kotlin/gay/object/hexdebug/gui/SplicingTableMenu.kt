@@ -10,8 +10,8 @@ import gay.`object`.hexdebug.networking.msg.MsgSplicingTableNewDataS2C
 import gay.`object`.hexdebug.registry.HexDebugMenus
 import gay.`object`.hexdebug.splicing.ISplicingTable
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
-import gay.`object`.hexdebug.splicing.SplicingTableDataSlot
-import gay.`object`.hexdebug.splicing.SplicingTableSlot
+import gay.`object`.hexdebug.blocks.splicing.SplicingTableDataSlot
+import gay.`object`.hexdebug.blocks.splicing.SplicingTableItemSlot
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
@@ -50,20 +50,20 @@ class SplicingTableMenu(
         // FIXME: placeholder slot coordinates
 
         // table
-        addTableSlot(SplicingTableSlot.LIST, 80, 35) {
+        addTableSlot(SplicingTableItemSlot.LIST, 80, 35) {
             mayPlace = ::isIotaHolder
         }
-        addTableSlot(SplicingTableSlot.CLIPBOARD, 26, 35) {
+        addTableSlot(SplicingTableItemSlot.CLIPBOARD, 26, 35) {
             mayPlace = ::isIotaHolder
         }
-        addTableSlot(SplicingTableSlot.MEDIA, 158, 0) {
+        addTableSlot(SplicingTableItemSlot.MEDIA, 158, 0) {
             mayPlace = ::isMediaItem
         }
-        staffSlot = addTableSlot(SplicingTableSlot.STAFF, 0, 0) {
+        staffSlot = addTableSlot(SplicingTableItemSlot.STAFF, 0, 0) {
             maxStackSize = 1
             mayPlace = { it.`is`(HexTags.Items.STAVES) }
         }
-        for ((index, x, y) in SplicingTableSlot.STORAGE) {
+        for ((index, x, y) in SplicingTableItemSlot.STORAGE) {
             addTableSlot(index, 140 + x * 18, 17 + y * 18)
         }
 
@@ -84,11 +84,11 @@ class SplicingTableMenu(
         addSlotListener(object : ContainerListener {
             override fun slotChanged(menu: AbstractContainerMenu, index: Int, stack: ItemStack) {
                 when (index) {
-                    SplicingTableSlot.LIST.index -> {
+                    SplicingTableItemSlot.LIST.index -> {
                         table.listStackChanged(stack)
                         (player as? ServerPlayer)?.let(::sendData)
                     }
-                    SplicingTableSlot.CLIPBOARD.index -> {
+                    SplicingTableItemSlot.CLIPBOARD.index -> {
                         table.clipboardStackChanged(stack)
                         (player as? ServerPlayer)?.let(::sendData)
                     }
@@ -105,7 +105,7 @@ class SplicingTableMenu(
     }
 
     private fun addTableSlot(
-        slot: SplicingTableSlot,
+        slot: SplicingTableItemSlot,
         x: Int,
         y: Int,
         builder: FilteredSlot.() -> Unit = {},
@@ -135,14 +135,14 @@ class SplicingTableMenu(
         val originalStack = slot.item
         val newStack = originalStack.copy()
 
-        if (index < SplicingTableSlot.container_size) {
+        if (index < SplicingTableItemSlot.container_size) {
             // from container to inventory
-            if (!moveItemStackTo(originalStack, SplicingTableSlot.container_size, slots.size, true)) {
+            if (!moveItemStackTo(originalStack, SplicingTableItemSlot.container_size, slots.size, true)) {
                 return ItemStack.EMPTY
             }
         } else {
             // from inventory to container
-            if (!moveItemStackTo(originalStack, 0, SplicingTableSlot.container_size, false)) {
+            if (!moveItemStackTo(originalStack, 0, SplicingTableItemSlot.container_size, false)) {
                 return ItemStack.EMPTY
             }
         }
