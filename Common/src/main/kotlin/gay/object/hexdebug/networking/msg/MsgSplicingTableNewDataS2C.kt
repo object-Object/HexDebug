@@ -1,16 +1,11 @@
 package gay.`object`.hexdebug.networking.msg
 
-import dev.architectury.networking.NetworkManager.PacketContext
-import gay.`object`.hexdebug.gui.SplicingTableMenu
-import gay.`object`.hexdebug.gui.SplicingTableScreen
-import gay.`object`.hexdebug.networking.HexDebugMessageCompanionS2C
-import gay.`object`.hexdebug.networking.HexDebugMessageS2C
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
 import net.minecraft.network.FriendlyByteBuf
 
 /** The result of running a splicing table action on the server. */
 data class MsgSplicingTableNewDataS2C(val data: SplicingTableClientView) : HexDebugMessageS2C {
-    companion object : HexDebugMessageCompanionS2C<MsgSplicingTableNewDataS2C> {
+    companion object : HexDebugMessageCompanion<MsgSplicingTableNewDataS2C> {
         override val type = MsgSplicingTableNewDataS2C::class.java
 
         override fun decode(buf: FriendlyByteBuf) = MsgSplicingTableNewDataS2C(
@@ -32,13 +27,6 @@ data class MsgSplicingTableNewDataS2C(val data: SplicingTableClientView) : HexDe
                 buf.writeBoolean(isClipboardWritable)
                 buf.writeInt(undoSize)
                 buf.writeInt(undoIndex)
-            }
-        }
-
-        override fun MsgSplicingTableNewDataS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
-            SplicingTableMenu.getInstance(ctx.player)?.also { menu ->
-                menu.clientView = data
-                SplicingTableScreen.getInstance()?.updateButtons()
             }
         }
     }

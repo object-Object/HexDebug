@@ -4,7 +4,7 @@ import dev.architectury.event.events.client.ClientPlayerEvent
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.items.ItemDebugger
-import gay.`object`.hexdebug.networking.msg.MsgDebugAdapterProxyC2S
+import gay.`object`.hexdebug.networking.msg.MsgDebugAdapterProxy
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.jvm.javaio.*
@@ -139,7 +139,7 @@ class DebugProxyClientProducer(input: InputStream) : StreamMessageProducer(input
 
             // instead of parsing the message here, just forward it to the server
             val content = String(buffer, charset(headers.charset))
-            MsgDebugAdapterProxyC2S(content).sendToServer()
+            MsgDebugAdapterProxy(content).sendToServer()
         } catch (exception: Exception) {
             // UnsupportedEncodingException can be thrown by String constructor
             // JsonParseException can be thrown by jsonHandler

@@ -1,28 +1,25 @@
-package gay.`object`.hexdebug.networking
+package gay.`object`.hexdebug.networking.msg
 
 import dev.architectury.networking.NetworkChannel
 import dev.architectury.networking.NetworkManager.PacketContext
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.networking.HexDebugNetworking
+import gay.`object`.hexdebug.networking.handler.applyOnClient
+import gay.`object`.hexdebug.networking.handler.applyOnServer
 import net.fabricmc.api.EnvType
-import net.fabricmc.api.Environment
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.server.level.ServerPlayer
 import java.util.function.Supplier
 
-interface HexDebugMessage
+sealed interface HexDebugMessage
 
-interface HexDebugMessageC2S : HexDebugMessage {
-    fun applyOnServer(ctx: PacketContext)
-
+sealed interface HexDebugMessageC2S : HexDebugMessage {
     fun sendToServer() {
         HexDebugNetworking.CHANNEL.sendToServer(this)
     }
 }
 
-interface HexDebugMessageS2C : HexDebugMessage {
-    @Environment(EnvType.CLIENT)
-    fun applyOnClient(ctx: PacketContext)
-
+sealed interface HexDebugMessageS2C : HexDebugMessage {
     fun sendToPlayer(player: ServerPlayer) {
         HexDebugNetworking.CHANNEL.sendToPlayer(player, this)
     }
@@ -32,7 +29,7 @@ interface HexDebugMessageS2C : HexDebugMessage {
     }
 }
 
-interface HexDebugMessageCompanion<T : HexDebugMessage> {
+sealed interface HexDebugMessageCompanion<T : HexDebugMessage> {
     val type: Class<T>
 
     fun decode(buf: FriendlyByteBuf): T
