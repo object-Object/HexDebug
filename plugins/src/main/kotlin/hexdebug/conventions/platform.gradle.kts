@@ -17,6 +17,14 @@ architectury {
     platformSetupLoomIde()
 }
 
+loom {
+    runs {
+        named("server") {
+            runDir = "runServer"
+        }
+    }
+}
+
 configurations {
     register("common")
     register("shadowCommon")
