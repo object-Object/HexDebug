@@ -54,12 +54,14 @@ class SplicingTableScreen(
     private val iotaButtons = mutableListOf<Button>()
     private val edgeButtons = mutableListOf<Button>()
     private val viewButtons = mutableListOf<Button>()
+    private val staffButtons = mutableListOf<Button>()
     private val predicateButtons = mutableListOf<Pair<Button, () -> Boolean>>()
 
     private val listReadButtons = sequenceOf(
         iotaButtons,
         edgeButtons,
         viewButtons,
+        staffButtons,
     ).flatten()
 
     private val allButtons = sequenceOf(
@@ -106,11 +108,13 @@ class SplicingTableScreen(
                 .build()
         }
 
-        viewButtons += listOf(
+        viewButtons += listOf()
+
+        staffButtons += listOf(
             button("clear_grid") { guiSpellcasting.mixin.`clearPatterns$hexdebug`() }
                 .pos(leftPos - 200, topPos - 18)
                 .size(64, 16)
-                .build(),
+                .build()
         )
 
         predicateButtons += SplicingTableAction.entries.mapIndexed { i, action ->
@@ -309,8 +313,11 @@ class SplicingTableScreen(
     // rendering
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+        val hasStaff = hasStaff
+        staffButtons.forEach { it.visible = hasStaff }
+
         renderBackground(guiGraphics)
-        renderStaffGrid(guiGraphics, mouseX, mouseY, partialTick)
+        if (hasStaff) renderStaffGrid(guiGraphics, mouseX, mouseY, partialTick)
         super.render(guiGraphics, mouseX, mouseY, partialTick)
         renderTooltip(guiGraphics, mouseX, mouseY)
     }
@@ -331,12 +338,10 @@ class SplicingTableScreen(
     }
 
     private fun renderStaffGrid(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        if (hasStaff) {
-            guiGraphics.blit(BORDER, leftPos - 200, topPos, 0, 0, 200, 200)
-            guiGraphics.enableScissor(staffMinX, staffMinY, staffMaxX, staffMaxY)
-            guiSpellcasting.render(guiGraphics, mouseX, mouseY, partialTick)
-            guiGraphics.disableScissor()
-        }
+        guiGraphics.blit(BORDER, leftPos - 200, topPos, 0, 0, 200, 200)
+        guiGraphics.enableScissor(staffMinX, staffMinY, staffMaxX, staffMaxY)
+        guiSpellcasting.render(guiGraphics, mouseX, mouseY, partialTick)
+        guiGraphics.disableScissor()
     }
 
     companion object {
