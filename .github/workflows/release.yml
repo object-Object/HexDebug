@@ -1,7 +1,5 @@
 name: Release
 
-# TODO: trigger this via Jenkins somehow?
-
 on:
   push:
     tags: 'v[0-9]+.[0-9]+.[0-9]+*'
