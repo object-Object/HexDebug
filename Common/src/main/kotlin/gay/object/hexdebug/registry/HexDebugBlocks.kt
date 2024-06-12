@@ -2,6 +2,7 @@ package gay.`object`.hexdebug.registry
 
 import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlock
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlock
+import gay.`object`.hexdebug.items.FocusHolderBlockItem
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.world.item.BlockItem
@@ -19,9 +20,11 @@ object HexDebugBlocks : HexDebugRegistrar<Block>(Registries.BLOCK, { BuiltInRegi
     }
 
     @JvmField
-    val FOCUS_HOLDER = blockItem("focus_holder", HexDebugItems.props) {
-        FocusHolderBlock(slateish.noPush())
-    }
+    val FOCUS_HOLDER = blockItem(
+        "focus_holder",
+        blockBuilder = { FocusHolderBlock(slateish.noPush()) },
+        itemBuilder = { FocusHolderBlockItem(it, HexDebugItems.props) },
+    )
 
     private val slateish get() = BlockProperties.copy(Blocks.DEEPSLATE_TILES).strength(4f, 4f)
 

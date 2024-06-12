@@ -112,6 +112,9 @@
           stop: "Stop"
         },
       },
+      focus_holder: {
+        item: "Item: %s",
+      },
     },
 
     category: {
