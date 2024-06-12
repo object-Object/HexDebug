@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.registry
 
 import at.petrak.hexcasting.xplat.IXplatAbstractions
+import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlockEntity
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlockEntity
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
@@ -17,6 +18,11 @@ object HexDebugBlockEntities : HexDebugRegistrar<BlockEntityType<*>>(
     @JvmField
     val SPLICING_TABLE = register("splicing_table", ::SplicingTableBlockEntity) {
         arrayOf(HexDebugBlocks.SPLICING_TABLE.value)
+    }
+
+    @JvmField
+    val FOCUS_HOLDER = register("focus_holder", ::FocusHolderBlockEntity) {
+        arrayOf(HexDebugBlocks.FOCUS_HOLDER.value)
     }
 
     private fun <T : BlockEntity> register(

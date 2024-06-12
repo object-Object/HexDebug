@@ -1,5 +1,6 @@
 package gay.`object`.hexdebug.registry
 
+import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlock
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlock
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
@@ -14,6 +15,11 @@ object HexDebugBlocks : HexDebugRegistrar<Block>(Registries.BLOCK, { BuiltInRegi
     @JvmField
     val SPLICING_TABLE = blockItem("splicing_table", HexDebugItems.props) {
         SplicingTableBlock(slateish.noPush())
+    }
+
+    @JvmField
+    val FOCUS_HOLDER = blockItem("focus_holder", HexDebugItems.props) {
+        FocusHolderBlock(slateish.noPush())
     }
 
     private val slateish get() = BlockProperties.copy(Blocks.DEEPSLATE_TILES).strength(4f, 4f)

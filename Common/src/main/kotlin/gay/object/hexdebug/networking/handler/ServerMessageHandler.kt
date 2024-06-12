@@ -2,7 +2,7 @@ package gay.`object`.hexdebug.networking.handler
 
 import dev.architectury.networking.NetworkManager.PacketContext
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
-import gay.`object`.hexdebug.gui.SplicingTableMenu
+import gay.`object`.hexdebug.gui.splicing.SplicingTableMenu
 import gay.`object`.hexdebug.networking.msg.*
 import net.minecraft.server.level.ServerPlayer
 

@@ -8,7 +8,7 @@ import at.petrak.hexcasting.common.msgs.IMessage;
 import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternC2S;
 import at.petrak.hexcasting.xplat.IClientXplatAbstractions;
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
-import gay.object.hexdebug.gui.IMixinGuiSpellcasting;
+import gay.object.hexdebug.gui.splicing.IMixinGuiSpellcasting;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

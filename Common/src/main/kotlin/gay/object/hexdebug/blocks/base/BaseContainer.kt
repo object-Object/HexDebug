@@ -5,7 +5,6 @@ import net.minecraft.world.Container
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import kotlin.reflect.KProperty
 
 /** Adapted from [https://fabricmc.net/wiki/tutorial:inventory](https://fabricmc.net/wiki/tutorial:inventory). */
 interface BaseContainer : Container {
@@ -36,8 +35,8 @@ interface BaseContainer : Container {
     override fun stillValid(player: Player) = true
 
     companion object {
-        fun withSize(size: Int) = NonNullList.withSize(size, ItemStack.EMPTY)
+        fun withSize(size: Int): NonNullList<ItemStack> = NonNullList.withSize(size, ItemStack.EMPTY)
 
-        fun of(vararg items: ItemStack) = NonNullList.of(ItemStack.EMPTY, *items)
+        fun of(vararg items: ItemStack): NonNullList<ItemStack> = NonNullList.of(ItemStack.EMPTY, *items)
     }
 }

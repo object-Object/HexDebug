@@ -1,17 +1,19 @@
-package gay.`object`.hexdebug.gui
+package gay.`object`.hexdebug.gui.splicing
 
 import at.petrak.hexcasting.api.mod.HexTags
 import at.petrak.hexcasting.api.utils.isMediaItem
-import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
 import gay.`object`.hexdebug.blocks.splicing.ClientSplicingTableContainer
+import gay.`object`.hexdebug.blocks.splicing.SplicingTableDataSlot
+import gay.`object`.hexdebug.blocks.splicing.SplicingTableItemSlot
+import gay.`object`.hexdebug.gui.BaseContainerMenu
+import gay.`object`.hexdebug.gui.FilteredSlot
 import gay.`object`.hexdebug.networking.msg.MsgSplicingTableGetDataC2S
 import gay.`object`.hexdebug.networking.msg.MsgSplicingTableNewDataS2C
 import gay.`object`.hexdebug.registry.HexDebugMenus
 import gay.`object`.hexdebug.splicing.ISplicingTable
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
-import gay.`object`.hexdebug.blocks.splicing.SplicingTableDataSlot
-import gay.`object`.hexdebug.blocks.splicing.SplicingTableItemSlot
+import gay.`object`.hexdebug.utils.isIotaHolder
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
@@ -20,10 +22,15 @@ import net.minecraft.world.item.ItemStack
 
 class SplicingTableMenu(
     containerId: Int,
-    private val inventory: Inventory,
+    inventory: Inventory,
     val table: ISplicingTable,
     data: ContainerData,
-) : AbstractContainerMenu(HexDebugMenus.SPLICING_TABLE.value, containerId) {
+) : BaseContainerMenu(
+    menuType = HexDebugMenus.SPLICING_TABLE.value,
+    containerId = containerId,
+    inventory = inventory,
+    containerSlots = SplicingTableItemSlot.container_size,
+) {
     constructor(containerId: Int, inventory: Inventory) : this(
         containerId,
         inventory,
@@ -118,45 +125,9 @@ class SplicingTableMenu(
         builder: FilteredSlot.() -> Unit = {},
     ) = addSlot(FilteredSlot(table, slot, x, y).also(builder))
 
-    private fun addInventorySlot(slot: Int, x: Int, y: Int) = addSlot(Slot(inventory, slot, x, y))
-
-    private fun isIotaHolder(stack: ItemStack) = IXplatAbstractions.INSTANCE.findDataHolder(stack) != null
-
     fun sendData(player: ServerPlayer) {
         table.getClientView()?.let { MsgSplicingTableNewDataS2C(it).sendToPlayer(player) }
     }
-
-    // https://fabricmc.net/wiki/tutorial:screenhandler#screenhandler_and_screen
-    override fun quickMoveStack(player: Player, index: Int): ItemStack {
-        val slot = slots.getOrNull(index)
-            ?.takeIf { it.hasItem() }
-            ?: return ItemStack.EMPTY
-
-        val originalStack = slot.item
-        val newStack = originalStack.copy()
-
-        if (index < SplicingTableItemSlot.container_size) {
-            // from container to inventory
-            if (!moveItemStackTo(originalStack, SplicingTableItemSlot.container_size, slots.size, true)) {
-                return ItemStack.EMPTY
-            }
-        } else {
-            // from inventory to container
-            if (!moveItemStackTo(originalStack, 0, SplicingTableItemSlot.container_size, false)) {
-                return ItemStack.EMPTY
-            }
-        }
-
-        if (originalStack.isEmpty) {
-            slot.set(ItemStack.EMPTY)
-        } else {
-            slot.setChanged()
-        }
-
-        return newStack
-    }
-
-    override fun stillValid(player: Player) = inventory.stillValid(player)
 
     companion object {
         fun getInstance(player: Player) = player.containerMenu as? SplicingTableMenu

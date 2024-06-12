@@ -5,8 +5,8 @@ import dev.architectury.networking.NetworkManager.PacketContext
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyClient
 import gay.`object`.hexdebug.config.DebuggerDisplayMode
 import gay.`object`.hexdebug.config.HexDebugConfig
-import gay.`object`.hexdebug.gui.SplicingTableMenu
-import gay.`object`.hexdebug.gui.SplicingTableScreen
+import gay.`object`.hexdebug.gui.splicing.SplicingTableMenu
+import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
 import gay.`object`.hexdebug.items.ItemDebugger
 import gay.`object`.hexdebug.items.ItemDebugger.DebugState
 import gay.`object`.hexdebug.items.ItemEvaluator

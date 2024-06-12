@@ -1,4 +1,4 @@
-package gay.`object`.hexdebug.gui
+package gay.`object`.hexdebug.gui.splicing
 
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.misc.MediaConstants

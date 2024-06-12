@@ -6,6 +6,7 @@
 
   "block.hexdebug": {
     splicing_table: "Splicing Table",
+    focus_holder: "Focus Holder",
   },
 
   "itemGroup.hexdebug": "HexDebug",
