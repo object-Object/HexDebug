@@ -1,8 +1,6 @@
 package gay.`object`.hexdebug.blocks.focusholder
 
-import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import net.minecraft.core.BlockPos
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
@@ -42,14 +40,14 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
     }
 
     override fun playerWillDestroy(level: Level, pos: BlockPos, state: BlockState, player: Player) {
-        // if broken in creative, drop with contents (like a shulker box)
+        // if broken in creative, drop with contents
         (level.getBlockEntity(pos) as? FocusHolderBlockEntity)?.let { blockEntity ->
             if (!level.isClientSide && !blockEntity.isEmpty && player.isCreative) {
                 val stack = ItemStack(this)
                 blockEntity.saveToItem(stack)
-                ItemEntity(level, pos.x + 0.5, pos.y + 0.5, pos.z + 0.5, stack).also {
-                    it.setDefaultPickUpDelay()
-                    level.addFreshEntity(it)
+                ItemEntity(level, pos.x + 0.5, pos.y + 0.5, pos.z + 0.5, stack).run {
+                    setDefaultPickUpDelay()
+                    level.addFreshEntity(this)
                 }
             }
         }
@@ -58,26 +56,27 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
 
     override fun getCloneItemStack(blockGetter: BlockGetter, pos: BlockPos, state: BlockState): ItemStack {
         val stack = super.getCloneItemStack(blockGetter, pos, state)
-        blockGetter.getBlockEntity(pos, HexDebugBlockEntities.FOCUS_HOLDER.value).ifPresent {
-            it.saveToItem(stack)
-        }
+        (blockGetter.getBlockEntity(pos) as? FocusHolderBlockEntity)?.saveToItem(stack)
         return stack
     }
 
     override fun getDrops(state: BlockState, params: LootParams.Builder): MutableList<ItemStack> {
-        val blockEntity = params.getBlockEntity<FocusHolderBlockEntity>()
-        val newParams = if (blockEntity != null && !blockEntity.isEmpty) {
-            params.withDynamicDrop(CONTENTS) {
-                it.accept(blockEntity.focusStack)
-            }
-        } else {
-            params
-        }
-        return super.getDrops(state, newParams)
-    }
+        val lootTableDrops = super.getDrops(state, params)
 
-    companion object {
-        val CONTENTS = ResourceLocation("contents")
+        val blockEntity = params.getBlockEntity<FocusHolderBlockEntity>()
+        if (blockEntity == null || blockEntity.isEmpty) {
+            // drop without NBT (ie. stackable with newly crafted items) if not holding a focus
+            return lootTableDrops
+        }
+
+        if (lootTableDrops.isEmpty()) {
+            // block was destroyed; just drop the focus
+            return mutableListOf(blockEntity.focusStack)
+        }
+
+        val stack = ItemStack(this)
+        blockEntity.saveToItem(stack)
+        return mutableListOf(stack)
     }
 }
 
