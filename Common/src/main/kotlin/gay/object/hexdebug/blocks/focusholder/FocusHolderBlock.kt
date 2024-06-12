@@ -65,13 +65,13 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
 
         val blockEntity = params.getBlockEntity<FocusHolderBlockEntity>()
         if (blockEntity == null || blockEntity.isEmpty) {
-            // drop without NBT (ie. stackable with newly crafted items) if not holding a focus
+            // drop without NBT (ie. stackable with newly crafted items) if not holding an item
             return lootTableDrops
         }
 
         if (lootTableDrops.isEmpty()) {
-            // block was destroyed; just drop the focus
-            return mutableListOf(blockEntity.focusStack)
+            // block was destroyed; just drop the contained item
+            return blockEntity.stacks
         }
 
         val stack = ItemStack(this)
