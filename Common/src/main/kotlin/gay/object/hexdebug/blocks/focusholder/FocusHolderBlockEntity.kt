@@ -19,7 +19,8 @@ class FocusHolderBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 ), BaseContainer, MenuProvider {
     override val stacks = BaseContainer.withSize(1)
 
-    private var focusStack by ContainerSlotDelegate(0)
+    var focusStack by ContainerSlotDelegate(0)
+        private set
 
     override fun load(tag: CompoundTag) {
         super.load(tag)
