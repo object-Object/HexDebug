@@ -44,18 +44,19 @@ abstract class HexDebugRegistrar<T : Any>(
         builder()
     })
 
-    fun <V : T> register(id: ResourceLocation, lazyValue: Lazy<V>) = Entry(id, lazyValue, registryKey).also {
+    fun <V : T> register(id: ResourceLocation, lazyValue: Lazy<V>) = Entry(id, lazyValue).also {
         if (mutableEntries.putIfAbsent(id, lazyValue) != null) {
             throw IllegalArgumentException("Duplicate id: $id")
         }
     }
 
-    inner class Entry<V : T>(
+    open inner class Entry<V : T>(
         val id: ResourceLocation,
-        lazyValue: Lazy<V>,
-        registryKey: ResourceKey<Registry<T>>,
+        private val lazyValue: Lazy<V>,
     ) {
-        val key = ResourceKey.create(registryKey, id)
+        constructor(entry: Entry<V>) : this(entry.id, entry.lazyValue)
+
+        val key: ResourceKey<T> = ResourceKey.create(registryKey, id)
 
         /** Do not access until the mod has been initialized! */
         val value by lazyValue

@@ -5,6 +5,7 @@ import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlock
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.material.PushReaction
@@ -27,7 +28,23 @@ object HexDebugBlocks : HexDebugRegistrar<Block>(Registries.BLOCK, { BuiltInRegi
     private fun BlockProperties.noPush() = pushReaction(PushReaction.BLOCK)
 
     private fun <T : Block> blockItem(name: String, props: ItemProperties, builder: () -> T) =
-        register(name, builder).also {
-            HexDebugItems.register(name) { BlockItem(it.value, props) }
-        }
+        blockItem(name, builder) { BlockItem(it, props) }
+
+    private fun <B : Block, I : Item> blockItem(
+        name: String,
+        blockBuilder: () -> B,
+        itemBuilder: (B) -> I,
+    ): BlockItemEntry<B, I> {
+        val blockEntry = register(name, blockBuilder)
+        val itemEntry = HexDebugItems.register(name) { itemBuilder(blockEntry.value) }
+        return BlockItemEntry(blockEntry, itemEntry)
+    }
+
+    class BlockItemEntry<B : Block, I : Item>(
+        blockEntry: Entry<B>,
+        val itemEntry: HexDebugRegistrar<Item>.Entry<I>,
+    ) : Entry<B>(blockEntry) {
+        val block by ::value
+        val item by itemEntry::value
+    }
 }
