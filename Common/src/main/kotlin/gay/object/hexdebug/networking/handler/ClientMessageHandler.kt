@@ -7,10 +7,10 @@ import gay.`object`.hexdebug.config.DebuggerDisplayMode
 import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.gui.splicing.SplicingTableMenu
 import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
-import gay.`object`.hexdebug.items.ItemDebugger
-import gay.`object`.hexdebug.items.ItemDebugger.DebugState
-import gay.`object`.hexdebug.items.ItemEvaluator
-import gay.`object`.hexdebug.items.ItemEvaluator.EvalState
+import gay.`object`.hexdebug.items.DebuggerItem
+import gay.`object`.hexdebug.items.DebuggerItem.DebugState
+import gay.`object`.hexdebug.items.EvaluatorItem
+import gay.`object`.hexdebug.items.EvaluatorItem.EvalState
 import gay.`object`.hexdebug.networking.msg.*
 import net.minecraft.network.chat.Component
 
@@ -21,14 +21,14 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) {
         }
 
         is MsgDebuggerStateS2C -> {
-            ItemDebugger.debugState = debuggerState
+            DebuggerItem.debugState = debuggerState
             if (debuggerState == DebugState.NOT_DEBUGGING) {
-                ItemEvaluator.evalState = EvalState.DEFAULT
+                EvaluatorItem.evalState = EvalState.DEFAULT
             }
         }
 
         is MsgEvaluatorStateS2C -> {
-            ItemEvaluator.evalState = evalState
+            EvaluatorItem.evalState = evalState
         }
 
         is MsgPrintDebuggerStatusS2C -> {

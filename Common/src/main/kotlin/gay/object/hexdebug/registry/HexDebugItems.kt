@@ -1,8 +1,8 @@
 package gay.`object`.hexdebug.registry
 
 import dev.architectury.registry.item.ItemPropertiesRegistry
-import gay.`object`.hexdebug.items.ItemDebugger
-import gay.`object`.hexdebug.items.ItemEvaluator
+import gay.`object`.hexdebug.items.DebuggerItem
+import gay.`object`.hexdebug.items.EvaluatorItem
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.world.item.CreativeModeTab
@@ -12,10 +12,10 @@ import net.minecraft.world.item.Rarity
 
 object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistries.ITEM }) {
     @JvmField
-    val DEBUGGER = register("debugger") { ItemDebugger(unstackable.noTab()) }
+    val DEBUGGER = register("debugger") { DebuggerItem(unstackable.noTab()) }
 
     @JvmField
-    val EVALUATOR = register("evaluator") { ItemEvaluator(unstackable.rarity(Rarity.UNCOMMON)) }
+    val EVALUATOR = register("evaluator") { EvaluatorItem(unstackable.rarity(Rarity.UNCOMMON)) }
 
     val props: Properties get() = Properties().`arch$tab`(HexDebugCreativeTabs.HEX_DEBUG.key)
 
@@ -29,10 +29,10 @@ object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistr
 
     private fun registerItemProperties() {
         // TODO: add more OOP brainrot
-        for ((id, function) in ItemDebugger.getProperties(DEBUGGER.value)) {
+        for ((id, function) in DebuggerItem.getProperties(DEBUGGER.value)) {
             ItemPropertiesRegistry.register(DEBUGGER.value, id, function)
         }
-        for ((id, function) in ItemEvaluator.getProperties()) {
+        for ((id, function) in EvaluatorItem.getProperties()) {
             ItemPropertiesRegistry.register(EVALUATOR.value, id, function)
         }
     }

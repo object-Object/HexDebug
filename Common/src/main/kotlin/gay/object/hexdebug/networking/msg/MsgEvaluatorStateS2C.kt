@@ -1,6 +1,6 @@
 package gay.`object`.hexdebug.networking.msg
 
-import gay.`object`.hexdebug.items.ItemEvaluator.EvalState
+import gay.`object`.hexdebug.items.EvaluatorItem.EvalState
 import net.minecraft.network.FriendlyByteBuf
 
 data class MsgEvaluatorStateS2C(val evalState: EvalState) : HexDebugMessageS2C {

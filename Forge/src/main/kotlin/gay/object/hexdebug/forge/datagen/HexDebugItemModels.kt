@@ -3,11 +3,11 @@
 package gay.`object`.hexdebug.forge.datagen
 
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.items.ItemDebugger
-import gay.`object`.hexdebug.items.ItemDebugger.DebugState
-import gay.`object`.hexdebug.items.ItemDebugger.StepMode
-import gay.`object`.hexdebug.items.ItemEvaluator
-import gay.`object`.hexdebug.items.ItemEvaluator.EvalState
+import gay.`object`.hexdebug.items.DebuggerItem
+import gay.`object`.hexdebug.items.DebuggerItem.DebugState
+import gay.`object`.hexdebug.items.DebuggerItem.StepMode
+import gay.`object`.hexdebug.items.EvaluatorItem
+import gay.`object`.hexdebug.items.EvaluatorItem.EvalState
 import gay.`object`.hexdebug.registry.HexDebugItems
 import gay.`object`.hexdebug.utils.itemPredicate
 import net.minecraft.data.PackOutput
@@ -47,16 +47,16 @@ class HexDebugItemModels(output: PackOutput, efh: ExistingFileHelper) : ItemMode
 
                     baseModel.override()
                         .model(model)
-                        .predicate(ItemDebugger.DEBUG_STATE_PREDICATE, debugState.itemPredicate)
-                        .predicate(ItemDebugger.STEP_MODE_PREDICATE, stepMode.itemPredicate)
-                        .predicate(ItemDebugger.HAS_HEX_PREDICATE, hasHex)
+                        .predicate(DebuggerItem.DEBUG_STATE_PREDICATE, debugState.itemPredicate)
+                        .predicate(DebuggerItem.STEP_MODE_PREDICATE, stepMode.itemPredicate)
+                        .predicate(DebuggerItem.HAS_HEX_PREDICATE, hasHex)
                 }
             }
         }
 
         // should be last so it overrides everything else
         baseModel.override()
-            .predicate(ItemDebugger.HIDE_ICONS_PREDICATE, 1f)
+            .predicate(DebuggerItem.HIDE_ICONS_PREDICATE, 1f)
             .model(baseModel)
     }
 
@@ -78,7 +78,7 @@ class HexDebugItemModels(output: PackOutput, efh: ExistingFileHelper) : ItemMode
 
             baseModel.override()
                 .model(model)
-                .predicate(ItemEvaluator.EVAL_STATE_PREDICATE, evalState.itemPredicate)
+                .predicate(EvaluatorItem.EVAL_STATE_PREDICATE, evalState.itemPredicate)
         }
     }
 }

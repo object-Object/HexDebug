@@ -30,7 +30,7 @@ import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.Level
 
-class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
+class DebuggerItem(properties: Properties) : ItemPackagedHex(properties) {
     override fun canDrawMediaFromInventory(stack: ItemStack?) = true
 
     override fun breakAfterDepletion() = false
@@ -153,7 +153,7 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
             return debugState == DebugState.DEBUGGING
         }
 
-        fun getProperties(item: ItemDebugger) = mapOf(
+        fun getProperties(item: DebuggerItem) = mapOf(
             DEBUG_STATE_PREDICATE to ClampedItemPropertyFunction { _, _, entity, _ ->
                 // don't show the active icon for debuggers held by other players, on the ground, etc
                 val state = if (entity is LocalPlayer) debugState else DebugState.NOT_DEBUGGING

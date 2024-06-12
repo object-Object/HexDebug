@@ -21,7 +21,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
 
-class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
+class EvaluatorItem(properties: Properties) : ItemStaff(properties) {
     override fun use(world: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
         val itemStack = player.getItemInHand(hand)
 

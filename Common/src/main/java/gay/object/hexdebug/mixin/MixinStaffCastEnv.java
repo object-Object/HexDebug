@@ -5,7 +5,7 @@ import at.petrak.hexcasting.api.casting.eval.env.StaffCastEnv;
 import at.petrak.hexcasting.api.casting.math.HexCoord;
 import at.petrak.hexcasting.api.mod.HexStatistics;
 import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternC2S;
-import gay.object.hexdebug.items.ItemEvaluator;
+import gay.object.hexdebug.items.EvaluatorItem;
 import gay.object.hexdebug.registry.HexDebugItems;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -55,7 +55,7 @@ public abstract class MixinStaffCastEnv {
 
         // actual new logic
 
-        ItemEvaluator.handleNewPatternOnServer(sender, msg);
+        EvaluatorItem.handleNewPatternOnServer(sender, msg);
         ci.cancel();
     }
 }
