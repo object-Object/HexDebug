@@ -2,6 +2,7 @@ package gay.`object`.hexdebug.gui.focusholder
 
 import gay.`object`.hexdebug.gui.BaseContainerMenu
 import gay.`object`.hexdebug.gui.FilteredSlot
+import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.registry.HexDebugMenus
 import gay.`object`.hexdebug.utils.isIotaHolder
 import net.minecraft.world.Container
@@ -25,7 +26,9 @@ class FocusHolderMenu(
     init {
         container.startOpen(player)
 
-        addSlot(FilteredSlot(container, 0, 80, 35, 1, ::isIotaHolder))
+        addSlot(FilteredSlot(container, 0, 80, 35, maxStackSize = 1) {
+            isIotaHolder(it) && !it.`is`(HexDebugBlocks.FOCUS_HOLDER.item)
+        })
 
         // player inventory
         for (y in 0 until 3) {
