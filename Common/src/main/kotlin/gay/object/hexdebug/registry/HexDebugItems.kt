@@ -3,6 +3,7 @@ package gay.`object`.hexdebug.registry
 import dev.architectury.registry.item.ItemPropertiesRegistry
 import gay.`object`.hexdebug.items.DebuggerItem
 import gay.`object`.hexdebug.items.EvaluatorItem
+import gay.`object`.hexdebug.items.base.ItemPredicateProvider
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.world.item.CreativeModeTab
@@ -28,12 +29,10 @@ object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistr
     }
 
     private fun registerItemProperties() {
-        // TODO: add more OOP brainrot
-        for ((id, function) in DebuggerItem.getProperties(DEBUGGER.value)) {
-            ItemPropertiesRegistry.register(DEBUGGER.value, id, function)
-        }
-        for ((id, function) in EvaluatorItem.getProperties()) {
-            ItemPropertiesRegistry.register(EVALUATOR.value, id, function)
+        for (entry in entries) {
+            (entry.value as? ItemPredicateProvider)?.getModelPredicates()?.forEach {
+                ItemPropertiesRegistry.register(entry.value, it.id, it.predicate)
+            }
         }
     }
 }

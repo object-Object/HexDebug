@@ -12,6 +12,6 @@ class HexDebugBlockLootTables : BlockLootSubProvider(setOf(), FeatureFlags.DEFAU
     }
 
     override fun getKnownBlocks(): MutableIterable<Block> {
-        return HexDebugBlocks.entries.map { it.value.value }.toMutableList()
+        return HexDebugBlocks.entries.map { it.value }.toMutableList()
     }
 }

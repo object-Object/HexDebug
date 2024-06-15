@@ -8,9 +8,10 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.EvaluatorCastEnv
+import gay.`object`.hexdebug.items.base.ItemPredicateProvider
+import gay.`object`.hexdebug.items.base.ModelPredicateEntry
 import gay.`object`.hexdebug.utils.itemPredicate
 import net.minecraft.client.player.LocalPlayer
-import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
@@ -21,7 +22,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
 
-class EvaluatorItem(properties: Properties) : ItemStaff(properties) {
+class EvaluatorItem(properties: Properties) : ItemStaff(properties), ItemPredicateProvider {
     override fun use(world: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
         val itemStack = player.getItemInHand(hand)
 
@@ -60,18 +61,18 @@ class EvaluatorItem(properties: Properties) : ItemStaff(properties) {
         return InteractionResultHolder.consume(itemStack)
     }
 
+    override fun getModelPredicates() = listOf(
+        ModelPredicateEntry(EVAL_STATE_PREDICATE) { _, _, entity, _ ->
+            // don't show the active icon for items held by other players, on the ground, etc
+            val state = if (entity is LocalPlayer) evalState else EvalState.DEFAULT
+            state.itemPredicate
+        }
+    )
+
     companion object {
         val EVAL_STATE_PREDICATE = HexDebug.id("eval_state")
 
         var evalState: EvalState = EvalState.DEFAULT
-
-        fun getProperties() = mapOf(
-            EVAL_STATE_PREDICATE to ClampedItemPropertyFunction { _, _, entity, _ ->
-                // don't show the active icon for debuggers held by other players, on the ground, etc
-                val state = if (entity is LocalPlayer) evalState else EvalState.DEFAULT
-                state.itemPredicate
-            },
-        )
 
         /**
          * Copy of [StaffCastEnv.handleNewPatternOnServer][at.petrak.hexcasting.api.casting.eval.env.StaffCastEnv.handleNewPatternOnServer]

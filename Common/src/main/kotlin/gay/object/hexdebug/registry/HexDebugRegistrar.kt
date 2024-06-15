@@ -21,14 +21,14 @@ abstract class HexDebugRegistrar<T : Any>(
 
     private var isInitialized = false
 
-    private val mutableEntries = mutableMapOf<ResourceLocation, Lazy<T>>()
-    val entries: Map<ResourceLocation, Lazy<T>> = mutableEntries
+    private val mutableEntries = mutableSetOf<Entry<out T>>()
+    val entries: Set<Entry<out T>> = mutableEntries
 
     open fun init(registerer: (ResourceLocation, T) -> Unit) {
         if (isInitialized) throw IllegalStateException("$this has already been initialized!")
         isInitialized = true
-        for ((id, lazyValue) in entries) {
-            registerer(id, lazyValue.value)
+        for (entry in entries) {
+            registerer(entry.id, entry.value)
         }
         if (Platform.getEnv() == EnvType.CLIENT) {
             initClient()
@@ -45,7 +45,7 @@ abstract class HexDebugRegistrar<T : Any>(
     })
 
     fun <V : T> register(id: ResourceLocation, lazyValue: Lazy<V>) = Entry(id, lazyValue).also {
-        if (mutableEntries.putIfAbsent(id, lazyValue) != null) {
+        if (!mutableEntries.add(it)) {
             throw IllegalArgumentException("Duplicate id: $id")
         }
     }
@@ -60,5 +60,12 @@ abstract class HexDebugRegistrar<T : Any>(
 
         /** Do not access until the mod has been initialized! */
         val value by lazyValue
+
+        override fun equals(other: Any?) = when (other) {
+            is HexDebugRegistrar<*>.Entry<*> -> key.registry() == other.key.registry() && id == other.id
+            else -> false
+        }
+
+        override fun hashCode() = 31 * key.registry().hashCode() + id.hashCode()
     }
 }
