@@ -9,7 +9,7 @@ import gay.`object`.hexdebug.items.DebuggerItem.StepMode
 import gay.`object`.hexdebug.items.EvaluatorItem
 import gay.`object`.hexdebug.items.EvaluatorItem.EvalState
 import gay.`object`.hexdebug.registry.HexDebugItems
-import gay.`object`.hexdebug.utils.itemPredicate
+import gay.`object`.hexdebug.utils.asItemPredicate
 import net.minecraft.data.PackOutput
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.client.model.generators.ItemModelProvider
@@ -47,8 +47,8 @@ class HexDebugItemModels(output: PackOutput, efh: ExistingFileHelper) : ItemMode
 
                     baseModel.override()
                         .model(model)
-                        .predicate(DebuggerItem.DEBUG_STATE_PREDICATE, debugState.itemPredicate)
-                        .predicate(DebuggerItem.STEP_MODE_PREDICATE, stepMode.itemPredicate)
+                        .predicate(DebuggerItem.DEBUG_STATE_PREDICATE, debugState.asItemPredicate)
+                        .predicate(DebuggerItem.STEP_MODE_PREDICATE, stepMode.asItemPredicate)
                         .predicate(DebuggerItem.HAS_HEX_PREDICATE, hasHex)
                 }
             }
@@ -78,7 +78,7 @@ class HexDebugItemModels(output: PackOutput, efh: ExistingFileHelper) : ItemMode
 
             baseModel.override()
                 .model(model)
-                .predicate(EvaluatorItem.EVAL_STATE_PREDICATE, evalState.itemPredicate)
+                .predicate(EvaluatorItem.EVAL_STATE_PREDICATE, evalState.asItemPredicate)
         }
     }
 }

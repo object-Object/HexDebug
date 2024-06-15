@@ -46,7 +46,7 @@ fun LivingEntity.findMediaHolderInHand(hand: InteractionHand, item: Item) =
 
 // ceil the denominator to a power of 2 so we don't have issues with eg. 1/3
 @OptIn(ExperimentalStdlibApi::class)
-inline val <reified T : Enum<T>> T.itemPredicate get() =
+inline val <reified T : Enum<T>> T.asItemPredicate get() =
     ordinal.toFloat() / (ceil(enumEntries<T>().lastIndex.toFloat() / 2f) * 2f)
 
 inline fun <reified T> List<T>.getWrapping(idx: Int) = this[idx.mod(size)]
@@ -56,3 +56,5 @@ fun Number.ceilToPow(base: Number): Int = toDouble().ceilToPow(base.toDouble())
 
 // https://stackoverflow.com/q/19870067
 private fun Double.ceilToPow(base: Double): Int = base.pow(ceil(log(this, base))).toInt()
+
+val Boolean.asItemPredicate get() = if (this) 1f else 0f

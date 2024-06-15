@@ -10,15 +10,29 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.BaseEntityBlock
+import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.RenderShape
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.StateDefinition
+import net.minecraft.world.level.block.state.properties.BooleanProperty
 import net.minecraft.world.level.storage.loot.LootParams
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.phys.BlockHitResult
 
 @Suppress("OVERRIDE_DEPRECATION")
 class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
+    init {
+        registerDefaultState(
+            getStateDefinition().any()
+                .setValue(HAS_ITEM, false)
+        )
+    }
+
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
+        builder.add(HAS_ITEM)
+    }
+
     override fun newBlockEntity(pos: BlockPos, state: BlockState) = FocusHolderBlockEntity(pos, state)
 
     override fun getRenderShape(state: BlockState) = RenderShape.MODEL
@@ -77,6 +91,10 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
         val stack = ItemStack(this)
         blockEntity.saveToItem(stack)
         return mutableListOf(stack)
+    }
+
+    companion object {
+        val HAS_ITEM = BooleanProperty.create("has_item")
     }
 }
 

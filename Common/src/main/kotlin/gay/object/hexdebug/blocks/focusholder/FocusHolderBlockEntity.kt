@@ -44,4 +44,13 @@ class FocusHolderBlockEntity(pos: BlockPos, state: BlockState) :
     override fun readIotaTag() = iotaHolder?.readIotaTag()
 
     override fun writeIota(iota: Iota?, simulate: Boolean) = iotaHolder?.writeIota(iota, simulate) ?: false
+
+    override fun setChanged() {
+        super.setChanged()
+        val hasItem = !iotaStack.isEmpty
+        if (blockState.getValue(FocusHolderBlock.HAS_ITEM) != hasItem) {
+            val newState = blockState.setValue(FocusHolderBlock.HAS_ITEM, hasItem)
+            level?.setBlockAndUpdate(blockPos, newState)
+        }
+    }
 }

@@ -3,6 +3,10 @@ package gay.`object`.hexdebug.items
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.item.IotaHolderItem
 import at.petrak.hexcasting.api.utils.*
+import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.items.base.ItemPredicateProvider
+import gay.`object`.hexdebug.items.base.ModelPredicateEntry
+import gay.`object`.hexdebug.utils.asItemPredicate
 import net.minecraft.core.NonNullList
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
@@ -14,7 +18,9 @@ import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
 
-class FocusHolderBlockItem(block: Block, properties: Properties) : BlockItem(block, properties), IotaHolderItem {
+class FocusHolderBlockItem(block: Block, properties: Properties) :
+    BlockItem(block, properties), IotaHolderItem, ItemPredicateProvider
+{
     override fun readIotaTag(stack: ItemStack): CompoundTag? {
         val (iotaStack, iotaHolder) = stack.getIotaStack()
         return iotaHolder?.readIotaTag(iotaStack)
@@ -46,7 +52,15 @@ class FocusHolderBlockItem(block: Block, properties: Properties) : BlockItem(blo
         }
     }
 
+    override fun getModelPredicates() = listOf(
+        ModelPredicateEntry(HAS_ITEM) { stack, _, _, _ ->
+            stack.hasIotaStack.asItemPredicate
+        },
+    )
+
     companion object {
+        val HAS_ITEM = HexDebug.id("has_item")
+
         val ItemStack.styledHoverName: Component get() = Component.empty()
             .append(hoverName)
             .withStyle(rarity.color)
