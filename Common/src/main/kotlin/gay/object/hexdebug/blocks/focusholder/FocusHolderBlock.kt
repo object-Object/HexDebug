@@ -60,7 +60,8 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
             if (!level.isClientSide) {
                 player.setItemInHand(hand, storedItem)
                 blockEntity.iotaStack = heldItem
-                blockEntity.setChanged()
+                // TODO: there's probably a way to not send two events here
+                blockEntity.sync()
                 level.setBlockAndUpdate(pos, state.setValue(HAS_ITEM, blockEntity.isNotEmpty))
             }
             return InteractionResult.sidedSuccess(level.isClientSide)
