@@ -121,13 +121,12 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
         return mutableListOf(stack)
     }
 
-    private fun getBlockEntity(level: BlockGetter, pos: BlockPos) =
-        level.getBlockEntity(pos) as? FocusHolderBlockEntity
-
     companion object {
-        val HAS_ITEM = BooleanProperty.create("has_item")
+        val HAS_ITEM: BooleanProperty = BooleanProperty.create("has_item")
 
-        fun isValidItem(stack: ItemStack) =
+        fun getBlockEntity(level: BlockGetter, pos: BlockPos) = level.getBlockEntity(pos) as? FocusHolderBlockEntity
+
+        private fun isValidItem(stack: ItemStack) =
             IXplatAbstractions.INSTANCE.findDataHolder(stack) != null
             && !stack.`is`(HexDebugBlocks.FOCUS_HOLDER.item) // TODO: use a tag instead?
     }
