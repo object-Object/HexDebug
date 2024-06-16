@@ -1,6 +1,8 @@
 package gay.`object`.hexdebug.utils
 
+import at.petrak.hexcasting.api.utils.italic
 import at.petrak.hexcasting.xplat.IXplatAbstractions
+import net.minecraft.network.chat.Component
 import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity
@@ -47,7 +49,13 @@ fun LivingEntity.findMediaHolderInHand(hand: InteractionHand, item: Item) =
     getItemInHand(hand, item)?.let(IXplatAbstractions.INSTANCE::findMediaHolder)
 
 val Container.isNotEmpty get() = !isEmpty
+
 val ItemStack.isNotEmpty get() = !isEmpty
+
+val ItemStack.styledHoverName: Component get() = Component.empty()
+    .append(hoverName)
+    .withStyle(rarity.color)
+    .also { if (hasCustomHoverName()) it.italic }
 
 // ceil the denominator to a power of 2 so we don't have issues with eg. 1/3
 @OptIn(ExperimentalStdlibApi::class)

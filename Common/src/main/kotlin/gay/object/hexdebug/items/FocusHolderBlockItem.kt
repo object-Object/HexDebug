@@ -2,11 +2,15 @@ package gay.`object`.hexdebug.items
 
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.item.IotaHolderItem
-import at.petrak.hexcasting.api.utils.*
+import at.petrak.hexcasting.api.utils.asTranslatedComponent
+import at.petrak.hexcasting.api.utils.getCompound
+import at.petrak.hexcasting.api.utils.getList
+import at.petrak.hexcasting.api.utils.putCompound
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.items.base.ItemPredicateProvider
 import gay.`object`.hexdebug.items.base.ModelPredicateEntry
 import gay.`object`.hexdebug.utils.asItemPredicate
+import gay.`object`.hexdebug.utils.styledHoverName
 import net.minecraft.core.NonNullList
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
@@ -60,11 +64,6 @@ class FocusHolderBlockItem(block: Block, properties: Properties) :
 
     companion object {
         val HAS_ITEM = HexDebug.id("has_item")
-
-        val ItemStack.styledHoverName: Component get() = Component.empty()
-            .append(hoverName)
-            .withStyle(rarity.color)
-            .also { if (hasCustomHoverName()) it.italic }
 
         val ItemStack.hasIotaStack get() = getCompound(BLOCK_ENTITY_TAG)
             ?.getList("Items", Tag.TAG_COMPOUND)
