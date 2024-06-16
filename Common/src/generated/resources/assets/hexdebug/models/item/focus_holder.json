@@ -1,0 +1,16 @@
+{
+  "overrides": [
+    {
+      "model": "hexdebug:block/focus_holder/empty",
+      "predicate": {
+        "hexdebug:has_item": 0.0
+      }
+    },
+    {
+      "model": "hexdebug:block/focus_holder/full",
+      "predicate": {
+        "hexdebug:has_item": 1.0
+      }
+    }
+  ]
+}

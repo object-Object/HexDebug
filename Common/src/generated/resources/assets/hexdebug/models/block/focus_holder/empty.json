@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "hexdebug:block/focus_holder/empty",
+    "particle": "hexcasting:block/slate"
+  }
+}

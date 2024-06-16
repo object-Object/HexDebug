@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "has_item=false": {
+      "model": "hexdebug:block/focus_holder/empty"
+    },
+    "has_item=true": {
+      "model": "hexdebug:block/focus_holder/full"
+    }
+  }
+}
