@@ -31,7 +31,6 @@ class HexDebugBlockModels(output: PackOutput, efh: ExistingFileHelper) : PaucalB
                 .texture("particle", HexAPI.modLoc("block/slate"))
         }
 
-
         getVariantBuilder(HexDebugBlocks.FOCUS_HOLDER.value).also { builder ->
             val id = HexDebugBlocks.FOCUS_HOLDER.id
             val itemModel = itemModels().getBuilder(id.path)

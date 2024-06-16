@@ -1,7 +1,9 @@
 package gay.`object`.hexdebug.blocks.focusholder
 
+import at.petrak.hexcasting.xplat.IXplatAbstractions
+import gay.`object`.hexdebug.registry.HexDebugBlocks
+import gay.`object`.hexdebug.utils.isNotEmpty
 import net.minecraft.core.BlockPos
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.item.ItemEntity
@@ -45,17 +47,43 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
         hand: InteractionHand,
         hit: BlockHitResult
     ): InteractionResult {
-        if (!level.isClientSide) {
-            state.getMenuProvider(level, pos)?.let {
-                (player as ServerPlayer).openMenu(it)
-            }
+        // don't insert/remove items if sneaking or using offhand
+        if (player.isShiftKeyDown || hand == InteractionHand.OFF_HAND) {
+            return InteractionResult.PASS
         }
-        return InteractionResult.SUCCESS
+
+        val blockEntity = getBlockEntity(level, pos) ?: return InteractionResult.PASS
+        val heldItem = player.getItemInHand(hand)
+        val storedItem = blockEntity.iotaStack
+
+        fun swapItem(): InteractionResult {
+            if (!level.isClientSide) {
+                player.setItemInHand(hand, storedItem)
+                blockEntity.iotaStack = heldItem
+                blockEntity.setChanged()
+                level.setBlockAndUpdate(pos, state.setValue(HAS_ITEM, blockEntity.isNotEmpty))
+            }
+            return InteractionResult.sidedSuccess(level.isClientSide)
+        }
+
+        return if (isValidItem(heldItem)) {
+            // main hand has valid item, swap with stored
+            swapItem()
+        } else if (heldItem.isNotEmpty) {
+            // main hand has invalid item, use it
+            InteractionResult.PASS
+        } else if (storedItem.isNotEmpty) {
+            // block has stored item, take it
+            swapItem()
+        } else {
+            // block and hand are empty, try other hand
+            InteractionResult.PASS
+        }
     }
 
     override fun playerWillDestroy(level: Level, pos: BlockPos, state: BlockState, player: Player) {
         // if broken in creative, drop with contents
-        (level.getBlockEntity(pos) as? FocusHolderBlockEntity)?.let { blockEntity ->
+        getBlockEntity(level, pos)?.let { blockEntity ->
             if (!level.isClientSide && !blockEntity.isEmpty && player.isCreative) {
                 val stack = ItemStack(this)
                 blockEntity.saveToItem(stack)
@@ -68,9 +96,9 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
         super.playerWillDestroy(level, pos, state, player)
     }
 
-    override fun getCloneItemStack(blockGetter: BlockGetter, pos: BlockPos, state: BlockState): ItemStack {
-        val stack = super.getCloneItemStack(blockGetter, pos, state)
-        (blockGetter.getBlockEntity(pos) as? FocusHolderBlockEntity)?.saveToItem(stack)
+    override fun getCloneItemStack(level: BlockGetter, pos: BlockPos, state: BlockState): ItemStack {
+        val stack = super.getCloneItemStack(level, pos, state)
+        getBlockEntity(level, pos)?.saveToItem(stack)
         return stack
     }
 
@@ -93,8 +121,15 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
         return mutableListOf(stack)
     }
 
+    private fun getBlockEntity(level: BlockGetter, pos: BlockPos) =
+        level.getBlockEntity(pos) as? FocusHolderBlockEntity
+
     companion object {
         val HAS_ITEM = BooleanProperty.create("has_item")
+
+        fun isValidItem(stack: ItemStack) =
+            IXplatAbstractions.INSTANCE.findDataHolder(stack) != null
+            && !stack.`is`(HexDebugBlocks.FOCUS_HOLDER.item) // TODO: use a tag instead?
     }
 }
 
