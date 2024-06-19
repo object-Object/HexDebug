@@ -496,7 +496,7 @@ class SplicingTableScreen(
         y = topPos + 20,
         width = 18,
         height = 21,
-        cornerHeight = 5,
+        triangleHeight = 5,
         isHorizontal = false,
         message = "TODO".asTextComponent,
     ) {
@@ -568,7 +568,7 @@ class SplicingTableScreen(
 
     /**
      - x/y/width/height refer to the total size of the hexagon, including the areas outside of the hitbox
-     - cornerHeight is the distance from the edge of the main rectangle to one of the pointy sides
+     - triangleHeight is the distance from the edge of the main rectangle to one of the pointy sides
      - isHorizontal is true if the pointy sides point to the left/right
 
      For example, a horizontal hexagon:
@@ -578,7 +578,7 @@ class SplicingTableScreen(
      -     /----------\
      |    /           |\
      |   /            | \
-     |  |             |--|  <- cornerHeight
+     |  |             |--|  <- triangleHeight
      |   \            | /
      |    \           |/
      -     \----------/
@@ -590,54 +590,54 @@ class SplicingTableScreen(
         y: Int,
         width: Int,
         height: Int,
-        cornerHeight: Int,
+        triangleHeight: Int,
         isHorizontal: Boolean,
         message: Component,
     ) : SplicingTableButton(x, y, width, height, message) {
-        private val cornerOffset = if (isHorizontal) {
-            vec2(cornerHeight, 0)
+        private val triangleOffset = if (isHorizontal) {
+            vec2(triangleHeight, 0)
         } else {
-            vec2(0, cornerHeight)
+            vec2(0, triangleHeight)
         }
 
-        private val rectX = x + cornerOffset.x
-        private val rectY = y + cornerOffset.y
+        private val rectX = x + triangleOffset.x
+        private val rectY = y + triangleOffset.y
 
-        private val rectWidth = width - 2 * cornerOffset.x
-        private val rectHeight = height - 2 * cornerOffset.y
+        private val rectWidth = width - 2 * triangleOffset.x
+        private val rectHeight = height - 2 * triangleOffset.y
 
         private val rectTopLeft = vec2(rectX, rectY)
         private val rectTopRight = vec2(rectX + rectWidth, rectY)
         private val rectBottomLeft = vec2(rectX, rectY + rectHeight)
         private val rectBottomRight = vec2(rectX + rectWidth, rectY + rectHeight)
 
-        private val corner1: Triple<Vec2, Vec2, Vec2>
-        private val corner2: Triple<Vec2, Vec2, Vec2>
+        private val triangle1: Triple<Vec2, Vec2, Vec2>
+        private val triangle2: Triple<Vec2, Vec2, Vec2>
 
         init {
             if (isHorizontal) {
-                val cornerY = y + height.toFloat() / 2f
-                corner1 = Triple(
+                val triangleY = y + height.toFloat() / 2f
+                triangle1 = Triple(
                     rectTopLeft,
                     rectBottomLeft,
-                    vec2(x, cornerY),
+                    vec2(x, triangleY),
                 )
-                corner2 = Triple(
+                triangle2 = Triple(
                     rectTopRight,
                     rectBottomRight,
-                    vec2(x + width, cornerY),
+                    vec2(x + width, triangleY),
                 )
             } else {
-                val cornerX = x + height.toFloat() / 2f
-                corner1 = Triple(
+                val triangleX = x + height.toFloat() / 2f
+                triangle1 = Triple(
                     rectTopLeft,
                     rectTopRight,
-                    vec2(cornerX, y),
+                    vec2(triangleX, y),
                 )
-                corner2 = Triple(
+                triangle2 = Triple(
                     rectBottomLeft,
                     rectBottomRight,
-                    vec2(cornerX, y + height),
+                    vec2(triangleX, y + height),
                 )
             }
         }
@@ -651,8 +651,8 @@ class SplicingTableScreen(
             val mousePos = vec2(mouseX, mouseY)
             return (
                 (mouseX >= rectTopLeft.x && mouseY >= rectTopLeft.y && mouseX < rectBottomRight.x && mouseY < rectBottomRight.y)
-                || pointInTriangle(mousePos, corner1)
-                || pointInTriangle(mousePos, corner2)
+                || pointInTriangle(mousePos, triangle1)
+                || pointInTriangle(mousePos, triangle2)
             )
         }
     }
