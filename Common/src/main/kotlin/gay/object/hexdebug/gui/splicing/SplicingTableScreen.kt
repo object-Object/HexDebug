@@ -12,14 +12,17 @@ import gay.`object`.hexdebug.splicing.SplicingTableAction
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Renderable
 import net.minecraft.client.gui.components.Tooltip
+import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.phys.Vec2
 import java.util.*
 import java.util.function.BiConsumer
 import kotlin.math.pow
@@ -96,7 +99,6 @@ class SplicingTableScreen(
 
         titleLabelX = (imageWidth - font.width(title)) / 2
 
-//        allButtons.forEach(::removeWidget)
         iotaButtons.clear()
         edgeButtons.clear()
         viewButtons.clear()
@@ -157,7 +159,7 @@ class SplicingTableScreen(
         allButtons.forEach(::addRenderableWidget)
 
         for (offset in 0 until IOTA_BUTTONS) {
-            addRenderableOnly(IotaButton(offset))
+            addRenderableWidget(IotaButton(offset))
         }
         for (offset in 0 until IOTA_BUTTONS) {
             addRenderableOnly(IotaSelection(offset))
@@ -353,9 +355,9 @@ class SplicingTableScreen(
             // main gui
             super.hasClickedOutside(mouseX, mouseY, guiLeft, guiTop, mouseButton)
             // storage
-            && (mouseX < guiLeft + 192 || mouseY < guiTop + 103 || mouseX > guiLeft + 192 + 46 || mouseY > guiTop + 103 + 68)
+            && (mouseX < guiLeft + 192 || mouseY < guiTop + 103 || mouseX >= guiLeft + 192 + 46 || mouseY >= guiTop + 103 + 68)
             // media/staff (FIXME: placeholder)
-            && (mouseX < guiLeft + 192 || mouseY < guiTop + 67 || mouseX > guiLeft + 192 + 18 || mouseY > guiTop + 67 + 36)
+            && (mouseX < guiLeft + 192 || mouseY < guiTop + 67 || mouseX >= guiLeft + 192 + 18 || mouseY >= guiTop + 67 + 36)
         )
     }
 
@@ -489,8 +491,20 @@ class SplicingTableScreen(
         RIGHT(xOffset = 19, uOffset = 0),
     }
 
-    inner class IotaButton(private val offset: Int) : Renderable {
-        override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    inner class IotaButton(private val offset: Int) : HexagonButton(
+        x = leftPos + 15 + 18 * offset,
+        y = topPos + 20,
+        width = 18,
+        height = 21,
+        cornerHeight = 5,
+        isHorizontal = false,
+        message = "TODO".asTextComponent,
+    ) {
+        override fun onPress() {
+            onSelectIota(viewStartIndex + offset)
+        }
+
+        override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
             val index = viewStartIndex + offset
             if (data.isInRange(index)) {
                 // FIXME: get actual type
@@ -524,4 +538,145 @@ class SplicingTableScreen(
             }
         }
     }
+
+    abstract inner class SplicingTableButton(
+        x: Int,
+        y: Int,
+        width: Int,
+        height: Int,
+        message: Component,
+    ) : AbstractButton(x, y, width, height, message) {
+        fun testHitbox(mouseX: Int, mouseY: Int) = testHitbox(mouseX.toDouble(), mouseY.toDouble())
+
+        open fun testHitbox(mouseX: Double, mouseY: Double): Boolean =
+            mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height
+
+        override fun isMouseOver(mouseX: Double, mouseY: Double) = isActive && visible && testHitbox(mouseX, mouseY)
+
+        override fun clicked(mouseX: Double, mouseY: Double) = isActive && visible && testHitbox(mouseX, mouseY)
+
+        override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+            if (visible) {
+                isHovered = testHitbox(mouseX, mouseY)
+                renderWidget(guiGraphics, mouseX, mouseY, partialTick)
+                updateTooltip()
+            }
+        }
+
+        override fun updateWidgetNarration(output: NarrationElementOutput) = defaultButtonNarrationText(output)
+    }
+
+    /**
+     - x/y/width/height refer to the total size of the hexagon, including the areas outside of the hitbox
+     - cornerHeight is the distance from the edge of the main rectangle to one of the pointy sides
+     - isHorizontal is true if the pointy sides point to the left/right
+
+     For example, a horizontal hexagon:
+
+       |----------------|  <- width
+
+     -     /----------\
+     |    /           |\
+     |   /            | \
+     |  |             |--|  <- cornerHeight
+     |   \            | /
+     |    \           |/
+     -     \----------/
+
+     ^ height
+    */
+    abstract inner class HexagonButton(
+        x: Int,
+        y: Int,
+        width: Int,
+        height: Int,
+        cornerHeight: Int,
+        isHorizontal: Boolean,
+        message: Component,
+    ) : SplicingTableButton(x, y, width, height, message) {
+        private val cornerOffset = if (isHorizontal) {
+            vec2(cornerHeight, 0)
+        } else {
+            vec2(0, cornerHeight)
+        }
+
+        private val rectX = x + cornerOffset.x
+        private val rectY = y + cornerOffset.y
+
+        private val rectWidth = width - 2 * cornerOffset.x
+        private val rectHeight = height - 2 * cornerOffset.y
+
+        private val rectTopLeft = vec2(rectX, rectY)
+        private val rectTopRight = vec2(rectX + rectWidth, rectY)
+        private val rectBottomLeft = vec2(rectX, rectY + rectHeight)
+        private val rectBottomRight = vec2(rectX + rectWidth, rectY + rectHeight)
+
+        private val corner1: Triple<Vec2, Vec2, Vec2>
+        private val corner2: Triple<Vec2, Vec2, Vec2>
+
+        init {
+            if (isHorizontal) {
+                val cornerY = y + height.toFloat() / 2f
+                corner1 = Triple(
+                    rectTopLeft,
+                    rectBottomLeft,
+                    vec2(x, cornerY),
+                )
+                corner2 = Triple(
+                    rectTopRight,
+                    rectBottomRight,
+                    vec2(x + width, cornerY),
+                )
+            } else {
+                val cornerX = x + height.toFloat() / 2f
+                corner1 = Triple(
+                    rectTopLeft,
+                    rectTopRight,
+                    vec2(cornerX, y),
+                )
+                corner2 = Triple(
+                    rectBottomLeft,
+                    rectBottomRight,
+                    vec2(cornerX, y + height),
+                )
+            }
+        }
+
+        override fun testHitbox(mouseX: Double, mouseY: Double): Boolean {
+            // full size check
+            if (!super.testHitbox(mouseX, mouseY)) {
+                return false
+            }
+
+            val mousePos = vec2(mouseX, mouseY)
+            return (
+                (mouseX >= rectTopLeft.x && mouseY >= rectTopLeft.y && mouseX < rectBottomRight.x && mouseY < rectBottomRight.y)
+                || pointInTriangle(mousePos, corner1)
+                || pointInTriangle(mousePos, corner2)
+            )
+        }
+    }
 }
+
+fun pointInTriangle(pt: Vec2, triangle: Triple<Vec2, Vec2, Vec2>): Boolean {
+    val (v1, v2, v3) = triangle
+    return pointInTriangle(pt, v1, v2, v3)
+}
+
+// https://stackoverflow.com/a/2049593
+fun pointInTriangle(pt: Vec2, v1: Vec2, v2: Vec2, v3: Vec2): Boolean {
+    val d1 = sign(pt, v1, v2)
+    val d2 = sign(pt, v2, v3)
+    val d3 = sign(pt, v3, v1)
+
+    val hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0)
+    val hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0)
+
+    return !(hasNeg && hasPos)
+}
+
+fun sign(p1: Vec2, p2: Vec2, p3: Vec2): Float {
+    return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y)
+}
+
+fun vec2(x: Number, y: Number) = Vec2(x.toFloat(), y.toFloat())
