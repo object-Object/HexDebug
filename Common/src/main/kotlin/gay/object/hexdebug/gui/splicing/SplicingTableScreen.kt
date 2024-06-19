@@ -413,7 +413,7 @@ class SplicingTableScreen(
         )
     }
 
-    private fun drawSelection(guiGraphics: GuiGraphics, offset: Int, type: IotaRenderType, leftEdge: Boolean, rightEdge: Boolean) {
+    private fun drawRangeSelection(guiGraphics: GuiGraphics, offset: Int, type: IotaRenderType, leftEdge: Boolean, rightEdge: Boolean) {
         blitSprite(
             guiGraphics,
             x = leftPos + 15 + 18 * offset,
@@ -424,19 +424,24 @@ class SplicingTableScreen(
             height = 25,
         )
         if (leftEdge) {
-            drawSelectionEdge(guiGraphics, offset, SelectionEdge.LEFT)
+            drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.LEFT)
         }
         if (rightEdge) {
-            drawSelectionEdge(guiGraphics, offset, SelectionEdge.RIGHT)
+            drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.RIGHT)
         }
     }
 
-    private fun drawSelectionEdge(guiGraphics: GuiGraphics, offset: Int, edge: SelectionEdge) {
+    private fun drawEdgeSelection(guiGraphics: GuiGraphics, offset: Int) {
+        drawSelectionEndCap(guiGraphics, offset - 1, SelectionEndCap.RIGHT)
+        drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.LEFT)
+    }
+
+    private fun drawSelectionEndCap(guiGraphics: GuiGraphics, offset: Int, endCap: SelectionEndCap) {
         blitSprite(
             guiGraphics,
-            x = leftPos + 14 + 18 * offset + edge.xOffset,
+            x = leftPos + 14 + 18 * offset + endCap.xOffset,
             y = topPos + 24,
-            uOffset = 370 + edge.uOffset,
+            uOffset = 370 + endCap.uOffset,
             vOffset = 4,
             width = 1,
             height = 13,
@@ -479,7 +484,7 @@ class SplicingTableScreen(
         PATTERN,
     }
 
-    enum class SelectionEdge(val xOffset: Int, val uOffset: Int) {
+    enum class SelectionEndCap(val xOffset: Int, val uOffset: Int) {
         LEFT(xOffset = 0, uOffset = 1),
         RIGHT(xOffset = 19, uOffset = 0),
     }
@@ -503,13 +508,18 @@ class SplicingTableScreen(
                 // FIXME: get actual type
                 val type = if (index % 2 == 0) IotaRenderType.GENERIC else IotaRenderType.PATTERN
 
-                val selection = selection
-                if (selection != null && index in selection) {
-                    drawSelection(
-                        guiGraphics, offset, type,
-                        leftEdge = index == selection.start,
-                        rightEdge = index == selection.end,
-                    )
+                when (val selection = selection) {
+                    is Selection.Range -> if (index in selection) {
+                        drawRangeSelection(
+                            guiGraphics, offset, type,
+                            leftEdge = index == selection.start,
+                            rightEdge = index == selection.end,
+                        )
+                    }
+                    is Selection.Edge -> if (index == selection.index) {
+                        drawEdgeSelection(guiGraphics, offset)
+                    }
+                    null -> {}
                 }
             }
         }
