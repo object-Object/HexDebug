@@ -424,17 +424,23 @@ class SplicingTableScreen(
             height = 25,
         )
         if (leftEdge) {
-            drawSelectionEdge(guiGraphics, offset)
+            drawSelectionEdge(guiGraphics, offset, SelectionEdge.LEFT)
         }
         if (rightEdge) {
-            drawSelectionEdge(guiGraphics, offset + 1)
+            drawSelectionEdge(guiGraphics, offset, SelectionEdge.RIGHT)
         }
     }
 
-    private fun drawSelectionEdge(guiGraphics: GuiGraphics, offset: Int) {
-        val x = leftPos + 14 + 18 * offset
-        val y = topPos + 24
-        blitSprite(guiGraphics, x, y, 370, 4, 2, 13)
+    private fun drawSelectionEdge(guiGraphics: GuiGraphics, offset: Int, edge: SelectionEdge) {
+        blitSprite(
+            guiGraphics,
+            x = leftPos + 14 + 18 * offset + edge.xOffset,
+            y = topPos + 24,
+            uOffset = 370 + edge.uOffset,
+            vOffset = 4,
+            width = 1,
+            height = 13,
+        )
     }
 
     private fun drawNumber(guiGraphics: GuiGraphics, x: Int, y: Int, number: Int) {
@@ -473,12 +479,17 @@ class SplicingTableScreen(
         PATTERN,
     }
 
+    enum class SelectionEdge(val xOffset: Int, val uOffset: Int) {
+        LEFT(xOffset = 0, uOffset = 1),
+        RIGHT(xOffset = 19, uOffset = 0),
+    }
+
     inner class IotaButton(private val offset: Int) : Renderable {
         override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
             val index = viewStartIndex + offset
             if (data.isInRange(index)) {
                 // FIXME: get actual type
-                val type = if (offset % 2 == 0) IotaRenderType.GENERIC else IotaRenderType.PATTERN
+                val type = if (index % 2 == 0) IotaRenderType.GENERIC else IotaRenderType.PATTERN
 
                 drawIota(guiGraphics, offset, type)
             }
@@ -490,7 +501,7 @@ class SplicingTableScreen(
             val index = viewStartIndex + offset
             if (data.isInRange(index)) {
                 // FIXME: get actual type
-                val type = if (offset % 2 == 0) IotaRenderType.GENERIC else IotaRenderType.PATTERN
+                val type = if (index % 2 == 0) IotaRenderType.GENERIC else IotaRenderType.PATTERN
 
                 val selection = selection
                 if (selection != null && index in selection) {
