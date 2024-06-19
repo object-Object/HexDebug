@@ -13,6 +13,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.components.Renderable
 import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
@@ -23,6 +24,7 @@ import java.util.*
 import java.util.function.BiConsumer
 import kotlin.math.pow
 
+@Suppress("SameParameterValue")
 class SplicingTableScreen(
     menu: SplicingTableMenu,
     inventory: Inventory,
@@ -37,7 +39,7 @@ class SplicingTableScreen(
     var selection: Selection? = null
         set(value) {
             field = value
-            updateButtons()
+            reloadData()
         }
 
     val data get() = menu.clientView
@@ -82,7 +84,7 @@ class SplicingTableScreen(
             } else 0
             if (field != clamped) {
                 field = clamped
-                updateButtons()
+                reloadData()
             }
         }
 
@@ -94,7 +96,7 @@ class SplicingTableScreen(
 
         titleLabelX = (imageWidth - font.width(title)) / 2
 
-        allButtons.forEach(::removeWidget)
+//        allButtons.forEach(::removeWidget)
         iotaButtons.clear()
         edgeButtons.clear()
         viewButtons.clear()
@@ -154,7 +156,14 @@ class SplicingTableScreen(
 
         allButtons.forEach(::addRenderableWidget)
 
-        updateButtons()
+        for (offset in 0 until IOTA_BUTTONS) {
+            addRenderableOnly(IotaButton(offset))
+        }
+        for (offset in 0 until IOTA_BUTTONS) {
+            addRenderableOnly(IotaSelection(offset))
+        }
+
+        reloadData()
     }
 
     private fun moveView(direction: Int) {
@@ -176,7 +185,7 @@ class SplicingTableScreen(
 
     // state sync
 
-    fun updateButtons() {
+    fun reloadData() {
         if (!data.isListReadable) {
             // these conditions are necessary to avoid an infinite loop
             if (selection != null) selection = null
@@ -392,6 +401,42 @@ class SplicingTableScreen(
         guiGraphics.disableScissor()
     }
 
+    private fun drawIota(guiGraphics: GuiGraphics, offset: Int, type: IotaRenderType) {
+        blitSprite(
+            guiGraphics,
+            x = leftPos + 15 + 18 * offset,
+            y = topPos + 20,
+            uOffset = 352 + 20 * type.ordinal,
+            vOffset = 0,
+            width = 18,
+            height = 21,
+        )
+    }
+
+    private fun drawSelection(guiGraphics: GuiGraphics, offset: Int, type: IotaRenderType, leftEdge: Boolean, rightEdge: Boolean) {
+        blitSprite(
+            guiGraphics,
+            x = leftPos + 15 + 18 * offset,
+            y = topPos + 18,
+            uOffset = 352 + 20 * type.ordinal,
+            vOffset = 24,
+            width = 18,
+            height = 25,
+        )
+        if (leftEdge) {
+            drawSelectionEdge(guiGraphics, offset)
+        }
+        if (rightEdge) {
+            drawSelectionEdge(guiGraphics, offset + 1)
+        }
+    }
+
+    private fun drawSelectionEdge(guiGraphics: GuiGraphics, offset: Int) {
+        val x = leftPos + 14 + 18 * offset
+        val y = topPos + 24
+        blitSprite(guiGraphics, x, y, 370, 4, 2, 13)
+    }
+
     private fun drawNumber(guiGraphics: GuiGraphics, x: Int, y: Int, number: Int) {
         var i = 0
         var rest = number.coerceIn(0, MAX_DIGIT)
@@ -421,5 +466,41 @@ class SplicingTableScreen(
         val MAX_DIGIT = 10f.pow(MAX_DIGIT_LEN).toInt() - 1
 
         fun getInstance() = Minecraft.getInstance().screen as? SplicingTableScreen
+    }
+
+    enum class IotaRenderType {
+        GENERIC,
+        PATTERN,
+    }
+
+    inner class IotaButton(private val offset: Int) : Renderable {
+        override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+            val index = viewStartIndex + offset
+            if (data.isInRange(index)) {
+                // FIXME: get actual type
+                val type = if (offset % 2 == 0) IotaRenderType.GENERIC else IotaRenderType.PATTERN
+
+                drawIota(guiGraphics, offset, type)
+            }
+        }
+    }
+
+    inner class IotaSelection(private val offset: Int) : Renderable {
+        override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+            val index = viewStartIndex + offset
+            if (data.isInRange(index)) {
+                // FIXME: get actual type
+                val type = if (offset % 2 == 0) IotaRenderType.GENERIC else IotaRenderType.PATTERN
+
+                val selection = selection
+                if (selection != null && index in selection) {
+                    drawSelection(
+                        guiGraphics, offset, type,
+                        leftEdge = index == selection.start,
+                        rightEdge = index == selection.end,
+                    )
+                }
+            }
+        }
     }
 }
