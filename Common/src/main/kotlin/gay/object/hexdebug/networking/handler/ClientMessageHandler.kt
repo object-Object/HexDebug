@@ -14,7 +14,7 @@ import gay.`object`.hexdebug.items.EvaluatorItem.EvalState
 import gay.`object`.hexdebug.networking.msg.*
 import net.minecraft.network.chat.Component
 
-fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) {
+fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
     when (this) {
         is MsgDebugAdapterProxy -> {
             DebugProxyClient.instance?.consume(content)
