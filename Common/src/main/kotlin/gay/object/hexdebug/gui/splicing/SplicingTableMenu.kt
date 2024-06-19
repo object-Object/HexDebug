@@ -54,36 +54,34 @@ class SplicingTableMenu(
     init {
         table.startOpen(player)
 
-        // FIXME: placeholder slot coordinates
-
         // table
-        addTableSlot(SplicingTableItemSlot.LIST, 80, 35) {
+        addTableSlot(SplicingTableItemSlot.LIST, 88, 68) {
             mayPlace = ::isIotaHolder
         }
-        addTableSlot(SplicingTableItemSlot.CLIPBOARD, 26, 35) {
+        addTableSlot(SplicingTableItemSlot.CLIPBOARD, 7, 68) {
             mayPlace = ::isIotaHolder
         }
-        addTableSlot(SplicingTableItemSlot.MEDIA, 158, 0) {
+        addTableSlot(SplicingTableItemSlot.MEDIA, 193, 68) { // FIXME: placeholder
             mayPlace = ::isMediaItem
         }
-        staffSlot = addTableSlot(SplicingTableItemSlot.STAFF, 0, 0) {
+        staffSlot = addTableSlot(SplicingTableItemSlot.STAFF, 193, 86) { // FIXME: placeholder
             maxStackSize = 1
             mayPlace = { it.`is`(HexTags.Items.STAVES) }
         }
         for ((index, x, y) in SplicingTableItemSlot.STORAGE) {
-            addTableSlot(index, 140 + x * 18, 17 + y * 18)
+            addTableSlot(index, 196 + x * 18, 111 + y * 18)
         }
 
         // player inventory
         for (y in 0 until 3) {
             for (x in 0 until 9) {
-                addInventorySlot(x + y * 9 + 9, 8 + x * 18, 84 + y * 18)
+                addInventorySlot(x + y * 9 + 9, 16 + x * 18, 111 + y * 18)
             }
         }
 
         // player hotbar
         for (x in 0 until 9) {
-            addInventorySlot(x, 8 + x * 18, 142)
+            addInventorySlot(x, 16 + x * 18, 169)
         }
 
         addDataSlots(data)

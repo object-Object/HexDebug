@@ -17,7 +17,6 @@ import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
 import java.util.*
@@ -28,6 +27,12 @@ class SplicingTableScreen(
     inventory: Inventory,
     title: Component,
 ) : AbstractContainerScreen<SplicingTableMenu>(menu, inventory, title) {
+    init {
+        // main gui
+        imageWidth = 192
+        imageHeight = 193
+    }
+
     var selection: Selection? = null
         set(value) {
             field = value
@@ -119,7 +124,7 @@ class SplicingTableScreen(
 
         predicateButtons += SplicingTableAction.entries.mapIndexed { i, action ->
             actionButton(action) {
-                it.pos(leftPos + imageWidth, topPos + i * 18).size(96, 16)
+                it.pos(leftPos + imageWidth + 46, topPos + i * 18).size(96, 16)
             }
         }
         predicateButtons += listOf(
@@ -310,6 +315,23 @@ class SplicingTableScreen(
     private fun isInStaffGrid(mouseX: Double, mouseY: Double) =
         staffMinX <= mouseX && mouseX <= staffMaxX && staffMinY <= mouseY && mouseY <= staffMaxY
 
+    override fun hasClickedOutside(
+        mouseX: Double,
+        mouseY: Double,
+        guiLeft: Int,
+        guiTop: Int,
+        mouseButton: Int
+    ): Boolean {
+        return (
+            // main gui
+            super.hasClickedOutside(mouseX, mouseY, guiLeft, guiTop, mouseButton)
+            // storage
+            && (mouseX < guiLeft + 192 || mouseY < guiTop + 103 || mouseX > guiLeft + 192 + 46 || mouseY > guiTop + 103 + 68)
+            // media/staff (FIXME: placeholder)
+            && (mouseX < guiLeft + 192 || mouseY < guiTop + 67 || mouseX > guiLeft + 192 + 18 || mouseY > guiTop + 67 + 36)
+        )
+    }
+
     // rendering
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
@@ -323,18 +345,14 @@ class SplicingTableScreen(
     }
 
     override fun renderBg(guiGraphics: GuiGraphics, partialTick: Float, mouseX: Int, mouseY: Int) {
-        val x = (width - imageWidth) / 2
-        val y = (height - imageHeight) / 2
-        guiGraphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight)
+        // +46 for the side slots
+        blitSprite(guiGraphics, leftPos, topPos, 256, 128, imageWidth + 46, imageHeight)
     }
 
-    // disable inventory label and render custom labels
     override fun renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
-        guiGraphics.drawString(font, title, titleLabelX, titleLabelY, 4210752, false)
-
         val dust = menu.media.toDouble() / MediaConstants.DUST_UNIT
         val mediaLabel = "%.2f".format(Locale.ROOT, dust).asTextComponent
-        guiGraphics.drawString(font, mediaLabel, 130, 6, 4210752, false)
+        guiGraphics.drawString(font, mediaLabel, 161, 8, 4210752, false)
     }
 
     private fun renderStaffGrid(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
@@ -344,9 +362,13 @@ class SplicingTableScreen(
         guiGraphics.disableScissor()
     }
 
+    private fun blitSprite(guiGraphics: GuiGraphics, x: Int, y: Int, uOffset: Int, vOffset: Int, width: Int, height: Int) {
+        guiGraphics.blit(TEXTURE, x, y, uOffset.toFloat(), vOffset.toFloat(), width, height, 512, 512)
+    }
+
     companion object {
+        val TEXTURE = HexDebug.id("textures/gui/splicing_table.png")
         // FIXME: placeholder
-        val TEXTURE = ResourceLocation("textures/gui/container/dispenser.png")
         val BORDER = HexDebug.id("textures/gui/splicing_table/staff/border.png")
 
         const val IOTA_BUTTONS = 9
