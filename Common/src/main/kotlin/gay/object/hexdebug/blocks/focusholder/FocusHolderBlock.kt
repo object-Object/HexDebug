@@ -62,7 +62,6 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
                 blockEntity.iotaStack = heldItem
                 // TODO: there's probably a way to not send two events here
                 blockEntity.sync()
-                level.setBlockAndUpdate(pos, state.setValue(HAS_ITEM, blockEntity.isNotEmpty))
             }
             return InteractionResult.sidedSuccess(level.isClientSide)
         }
