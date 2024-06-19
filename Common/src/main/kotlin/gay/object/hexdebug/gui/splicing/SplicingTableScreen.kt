@@ -21,6 +21,7 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
 import java.util.*
 import java.util.function.BiConsumer
+import kotlin.math.pow
 
 class SplicingTableScreen(
     menu: SplicingTableMenu,
@@ -353,6 +354,18 @@ class SplicingTableScreen(
         val dust = menu.media.toDouble() / MediaConstants.DUST_UNIT
         val mediaLabel = "%.2f".format(Locale.ROOT, dust).asTextComponent
         guiGraphics.drawString(font, mediaLabel, 161, 8, 4210752, false)
+
+        // index labels
+        for ((x, y, offset) in listOf(
+            Triple(18, 47, 0),
+            Triple(86, 47, 4),
+            Triple(155, 47, 8),
+        )) {
+            val index = viewStartIndex + offset
+            if (data.isInRange(index)) {
+                drawNumber(guiGraphics, x, y, index)
+            }
+        }
     }
 
     private fun renderStaffGrid(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
@@ -360,6 +373,20 @@ class SplicingTableScreen(
         guiGraphics.enableScissor(staffMinX, staffMinY, staffMaxX, staffMaxY)
         guiSpellcasting.render(guiGraphics, mouseX, mouseY, partialTick)
         guiGraphics.disableScissor()
+    }
+
+    private fun drawNumber(guiGraphics: GuiGraphics, x: Int, y: Int, number: Int) {
+        var i = 0
+        var rest = number.coerceIn(0, MAX_DIGIT)
+        do {
+            drawDigit(guiGraphics, x + (MAX_DIGIT_LEN - i - 1) * 5, y, rest % 10)
+            rest /= 10
+            i++
+        } while (rest > 0)
+    }
+
+    private fun drawDigit(guiGraphics: GuiGraphics, x: Int, y: Int, digit: Int) {
+        blitSprite(guiGraphics, x, y, 288 + 5 * digit, 0, 4, 5)
     }
 
     private fun blitSprite(guiGraphics: GuiGraphics, x: Int, y: Int, uOffset: Int, vOffset: Int, width: Int, height: Int) {
@@ -372,6 +399,9 @@ class SplicingTableScreen(
         val BORDER = HexDebug.id("textures/gui/splicing_table/staff/border.png")
 
         const val IOTA_BUTTONS = 9
+
+        const val MAX_DIGIT_LEN = 4
+        val MAX_DIGIT = 10f.pow(MAX_DIGIT_LEN).toInt() - 1
 
         fun getInstance() = Minecraft.getInstance().screen as? SplicingTableScreen
     }
