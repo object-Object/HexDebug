@@ -129,13 +129,13 @@ class SplicingTableScreen(
             }
         }
         predicateButtons += listOf(
-            Button.builder("<".asTranslatedComponent) { viewStartIndex-- }
+            Button.builder("<".asTranslatedComponent) { moveView(-1) }
                 .tooltip(Tooltip.create(buttonKey("view_left").asTranslatedComponent))
                 .pos(leftPos, topPos - 17)
                 .size(14, 14)
                 .build() to { viewStartIndex > 0 },
 
-            Button.builder(">".asTranslatedComponent) { viewStartIndex++ }
+            Button.builder(">".asTranslatedComponent) { moveView(1) }
                 .tooltip(Tooltip.create(buttonKey("view_right").asTranslatedComponent))
                 .pos(leftPos + 25 + iotaButtons.size * 26, topPos - 17)
                 .size(14, 14)
@@ -155,6 +155,23 @@ class SplicingTableScreen(
         allButtons.forEach(::addRenderableWidget)
 
         updateButtons()
+    }
+
+    private fun moveView(direction: Int) {
+        viewStartIndex = if (hasControlDown()) {
+            // start/end
+            if (direction >= 0) {
+                data.lastIndex
+            } else {
+                0
+            }
+        } else if (hasShiftDown()) {
+            // full screen
+            viewStartIndex + direction * IOTA_BUTTONS
+        } else {
+            // single iota
+            viewStartIndex + direction
+        }
     }
 
     // state sync
