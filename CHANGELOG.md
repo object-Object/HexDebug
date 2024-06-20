@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Pydantic's HISTORY.md](https://github.com/pydantic/pydantic/blob/main/HISTORY.md), and this project *mostly* adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED]
+
+### Fixed
+
+- Stepping the debug session would overwrite the displayed stack/ravenmind of an open non-Evaluator staff grid ([#6](https://github.com/object-Object/HexDebug/issues/6)).
+  - This was only a visual bug - no actual data was modified, and it would reset if you reopened the staff.
+
 ## 0.2.2+1.20.1
 
 ### Changed

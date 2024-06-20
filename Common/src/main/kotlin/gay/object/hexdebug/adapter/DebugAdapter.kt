@@ -7,8 +7,6 @@ import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.casting.math.HexPattern
-import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternS2C
-import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterState.Debugging
 import gay.`object`.hexdebug.adapter.DebugAdapterState.NotDebugging
@@ -17,6 +15,7 @@ import gay.`object`.hexdebug.debugger.*
 import gay.`object`.hexdebug.items.DebuggerItem
 import gay.`object`.hexdebug.items.EvaluatorItem
 import gay.`object`.hexdebug.networking.msg.MsgDebuggerStateS2C
+import gay.`object`.hexdebug.networking.msg.MsgEvaluatorClientInfoS2C
 import gay.`object`.hexdebug.networking.msg.MsgEvaluatorStateS2C
 import gay.`object`.hexdebug.networking.msg.MsgPrintDebuggerStatusS2C
 import gay.`object`.hexdebug.utils.futureOf
@@ -63,10 +62,10 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     protected open fun setDebuggerState(debuggerState: DebuggerItem.DebugState) {
         MsgDebuggerStateS2C(debuggerState).sendToPlayer(player)
 
-        // close the debugger grid if we stopped debugging
+        // close the evaluator grid if we stopped debugging
         if (debuggerState == DebuggerItem.DebugState.NOT_DEBUGGING) {
             val info = ExecutionClientView(true, ResolvedPatternType.EVALUATED, listOf(), null)
-            IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgNewSpellPatternS2C(info, -1))
+            MsgEvaluatorClientInfoS2C(info).sendToPlayer(player)
         }
     }
 
@@ -146,7 +145,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     private fun handleDebuggerStep(result: DebugStepResult): ExecutionClientView? {
         val view = result.clientInfo?.also {
-            IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgNewSpellPatternS2C(it, -1))
+            MsgEvaluatorClientInfoS2C(it).sendToPlayer(player)
         }
 
         // TODO: set nonzero exit code if we hit a mishap
