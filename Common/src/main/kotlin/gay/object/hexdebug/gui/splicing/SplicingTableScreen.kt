@@ -23,6 +23,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.phys.Vec2
+import java.awt.Color
 import java.util.*
 import java.util.function.BiConsumer
 import kotlin.math.pow
@@ -384,14 +385,10 @@ class SplicingTableScreen(
         guiGraphics.drawString(font, mediaLabel, 161, 8, 4210752, false)
 
         // index labels
-        for ((x, y, offset) in listOf(
-            Triple(18, 47, 0),
-            Triple(86, 47, 4),
-            Triple(155, 47, 8),
-        )) {
-            val index = viewStartIndex + offset
+        for (label in IndexLabel.entries) {
+            val index = viewStartIndex + label.offset
             if (data.isInRange(index)) {
-                drawNumber(guiGraphics, x, y, index)
+                drawNumber(guiGraphics, label.x, label.y, index, label.color)
             }
         }
     }
@@ -450,7 +447,9 @@ class SplicingTableScreen(
         )
     }
 
-    private fun drawNumber(guiGraphics: GuiGraphics, x: Int, y: Int, number: Int) {
+    private fun drawNumber(guiGraphics: GuiGraphics, x: Int, y: Int, number: Int, color: Color) {
+
+        guiGraphics.setColor(color.fred, color.fgreen, color.fblue, color.falpha)
         var i = 0
         var rest = number.coerceIn(0, MAX_DIGIT)
         do {
@@ -458,6 +457,7 @@ class SplicingTableScreen(
             rest /= 10
             i++
         } while (rest > 0)
+        guiGraphics.setColor(1f, 1f, 1f, 1f)
     }
 
     private fun drawDigit(guiGraphics: GuiGraphics, x: Int, y: Int, digit: Int) {
@@ -489,6 +489,14 @@ class SplicingTableScreen(
     enum class SelectionEndCap(val xOffset: Int, val uOffset: Int) {
         LEFT(xOffset = 0, uOffset = 1),
         RIGHT(xOffset = 19, uOffset = 0),
+    }
+
+    enum class IndexLabel(val x: Int, val y: Int, val offset: Int, val color: Color) {
+        LEFT(18, 47, 0, 0x886539),
+        MIDDLE(86, 47, 4, 0x77637c),
+        RIGHT(155, 47, 8, 0x886539);
+
+        constructor(x: Int, y: Int, offset: Int, color: Int) : this(x, y, offset, Color(color))
     }
 
     inner class IotaButton(private val offset: Int) : HexagonButton(
@@ -680,3 +688,8 @@ fun sign(p1: Vec2, p2: Vec2, p3: Vec2): Float {
 }
 
 fun vec2(x: Number, y: Number) = Vec2(x.toFloat(), y.toFloat())
+
+val Color.fred get() = red.toFloat() / 255f
+val Color.fgreen get() = green.toFloat() / 255f
+val Color.fblue get() = blue.toFloat() / 255f
+val Color.falpha get() = alpha.toFloat() / 255f
