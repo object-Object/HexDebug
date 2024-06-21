@@ -63,11 +63,11 @@ class SplicingTableScreen(
     private val staffMaxX get() = leftPos - 4
     private val staffMaxY get() = topPos + 196
 
-    private val iotaButtons = mutableListOf<Button>()
-    private val edgeButtons = mutableListOf<Button>()
-    private val viewButtons = mutableListOf<Button>()
-    private val staffButtons = mutableListOf<Button>()
-    private val predicateButtons = mutableListOf<Pair<Button, () -> Boolean>>()
+    private val iotaButtons = mutableListOf<AbstractButton>()
+    private val edgeButtons = mutableListOf<AbstractButton>()
+    private val viewButtons = mutableListOf<AbstractButton>()
+    private val staffButtons = mutableListOf<AbstractButton>()
+    private val predicateButtons = mutableListOf<Pair<AbstractButton, () -> Boolean>>()
 
     private val listReadButtons = sequenceOf(
         iotaButtons,
@@ -134,6 +134,8 @@ class SplicingTableScreen(
             }
         }
         predicateButtons += listOf(
+            // selection/view
+
             Button.builder("<".asTranslatedComponent) { moveView(-1) }
                 .tooltip(Tooltip.create(buttonKey("view_left").asTranslatedComponent))
                 .pos(leftPos, topPos - 17)
@@ -155,6 +157,177 @@ class SplicingTableScreen(
                 .pos(leftPos + imageWidth - 64, topPos - 36)
                 .size(64, 16)
                 .build() to { selection != null },
+
+            // move view
+
+            SpriteButton(
+                x = 4,
+                y = 25,
+                uOffset = 256,
+                vOffset = 0,
+                width = 10,
+                height = 10,
+                message = buttonText("view_left"),
+            ) { // onPress
+                moveView(-1)
+            } to { // test
+                viewStartIndex > 0
+            },
+
+            SpriteButton(
+                x = 178,
+                y = 25,
+                uOffset = 266,
+                vOffset = 0,
+                width = 10,
+                height = 10,
+                message = buttonText("view_right"),
+            ) { // onPress
+                moveView(1)
+            } to { // test
+                viewStartIndex < data.lastIndex - IOTA_BUTTONS + 1
+            },
+
+            // around main item slot
+
+            actionHexagonSpriteButton(
+                x = 67,
+                y = 57,
+                uOffset = 256,
+                vOffset = 48,
+                width = 18,
+                height = 16,
+                triangleHeight = 4,
+                isHorizontal = true,
+                action = SplicingTableAction.NUDGE_LEFT,
+            ),
+
+            actionHexagonSpriteButton(
+                x = 107,
+                y = 57,
+                uOffset = 276,
+                vOffset = 48,
+                width = 18,
+                height = 16,
+                triangleHeight = 4,
+                isHorizontal = true,
+                action = SplicingTableAction.NUDGE_RIGHT,
+            ),
+
+            actionHexagonSpriteButton(
+                x = 67,
+                y = 79,
+                uOffset = 256,
+                vOffset = 66,
+                width = 18,
+                height = 16,
+                triangleHeight = 4,
+                isHorizontal = true,
+                action = SplicingTableAction.DELETE,
+            ),
+
+
+            actionHexagonSpriteButton(
+                x = 107,
+                y = 79,
+                uOffset = 276,
+                vOffset = 66,
+                width = 18,
+                height = 16,
+                triangleHeight = 4,
+                isHorizontal = true,
+                action = SplicingTableAction.DUPLICATE,
+            ),
+
+            // right side
+
+            SpriteButton(
+                x = 144,
+                y = 64,
+                uOffset = 284,
+                vOffset = 16,
+                width = 18,
+                height = 11,
+                message = buttonText("select_none"),
+            ) { // onPress
+                selection = null
+            } to { // test
+                selection != null
+            },
+
+            SpriteButton(
+                x = 165,
+                y = 64,
+                uOffset = 305,
+                vOffset = 16,
+                width = 18,
+                height = 11,
+                message = buttonText("select_all"),
+            ) { // onPress
+                selection = Selection.range(0, data.lastIndex)
+            } to { // test
+                selection?.start != 0 || selection?.end != data.lastIndex
+            },
+
+            actionSpriteButton(
+                x = 144,
+                y = 77,
+                uOffset = 284,
+                vOffset = 29,
+                width = 18,
+                height = 11,
+                action = SplicingTableAction.UNDO,
+            ),
+
+            actionSpriteButton(
+                x = 165,
+                y = 77,
+                uOffset = 305,
+                vOffset = 29,
+                width = 18,
+                height = 11,
+                action = SplicingTableAction.REDO,
+            ),
+
+            // clipboard
+
+            actionSpriteButton(
+                x = 27,
+                y = 64,
+                uOffset = 256,
+                vOffset = 16,
+                width = 11,
+                height = 11,
+                action = SplicingTableAction.COPY,
+            ),
+
+            actionSpriteButton(
+                x = 40,
+                y = 64,
+                uOffset = 269,
+                vOffset = 16,
+                width = 11,
+                height = 11,
+                action = SplicingTableAction.CUT,
+            ),
+
+            *listOf(
+                SplicingTableAction.PASTE_SPLAT to false,
+                SplicingTableAction.PASTE to true,
+            ).map { (action, needsShiftDown) ->
+                object : SpriteButton(
+                    x = 27,
+                    y = 77,
+                    uOffset = 256,
+                    vOffset = 29,
+                    width = 24,
+                    height = 11,
+                    message = action.buttonText,
+                    onPress = action.onPress,
+                ) {
+                    override fun testVisible() = hasShiftDown() == needsShiftDown
+                } to action.test
+            }.toTypedArray(),
         )
 
         allButtons.forEach(::addRenderableWidget)
@@ -210,7 +383,7 @@ class SplicingTableScreen(
         }
     }
 
-    private fun setActive(buttons: Sequence<Button>, active: Boolean) {
+    private fun setActive(buttons: Sequence<AbstractButton>, active: Boolean) {
         for (button in buttons) {
             button.active = active
         }
@@ -258,11 +431,49 @@ class SplicingTableScreen(
             ).build(),
         ) { action.value.test(data, selection) }
 
+    private fun actionSpriteButton(
+        x: Int,
+        y: Int,
+        uOffset: Int,
+        vOffset: Int,
+        width: Int,
+        height: Int,
+        action: SplicingTableAction,
+    ) = SpriteButton(
+        x, y, uOffset, vOffset, width, height,
+        message = action.buttonText,
+        onPress = action.onPress,
+    ) to action.test
+
+    private fun actionHexagonSpriteButton(
+        x: Int,
+        y: Int,
+        uOffset: Int,
+        vOffset: Int,
+        width: Int,
+        height: Int,
+        triangleHeight: Int,
+        isHorizontal: Boolean,
+        action: SplicingTableAction,
+    ) = HexagonSpriteButton(
+        x, y, uOffset, vOffset, width, height, triangleHeight, isHorizontal,
+        message = action.buttonText,
+        onPress = action.onPress,
+    ) to action.test
+
+    private val SplicingTableAction.buttonText get() = buttonText(name.lowercase())
+
+    private val SplicingTableAction.onPress get(): () -> Unit = { menu.table.runAction(this, null, selection) }
+
+    private val SplicingTableAction.test get(): () -> Boolean = { value.test(data, selection) }
+
     private fun button(name: String, onPress: Button.OnPress) = button(buttonKey(name).asTranslatedComponent, onPress)
 
     private fun button(message: Component, onPress: Button.OnPress) =
         Button.builder(message, onPress)
             .tooltip(Tooltip.create(message))
+
+    private fun buttonText(name: String) = buttonKey(name).asTranslatedComponent
 
     private fun buttonKey(name: String) = "text.hexdebug.splicing_table.button.$name"
 
@@ -487,9 +698,141 @@ class SplicingTableScreen(
         constructor(x: Int, y: Int, offset: Int, color: Int) : this(x, y, offset, Color(color))
     }
 
+    abstract inner class SplicingTableButton(
+        x: Int,
+        y: Int,
+        width: Int,
+        height: Int,
+        message: Component,
+    ) : AbstractButton(leftPos + x, topPos + y, width, height, message) {
+        init {
+            tooltip = Tooltip.create(message)
+        }
+
+        abstract val uOffset: Int
+        abstract val vOffset: Int
+
+        open fun testVisible() = visible
+
+        fun testHitbox(mouseX: Int, mouseY: Int) = testHitbox(mouseX.toDouble(), mouseY.toDouble())
+
+        open fun testHitbox(mouseX: Double, mouseY: Double): Boolean =
+            mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height
+
+        override fun isMouseOver(mouseX: Double, mouseY: Double) = isActive && visible && testHitbox(mouseX, mouseY)
+
+        override fun clicked(mouseX: Double, mouseY: Double) = isActive && visible && testHitbox(mouseX, mouseY)
+
+        override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+            visible = testVisible()
+            if (visible) {
+                isHovered = testHitbox(mouseX, mouseY)
+                renderWidget(guiGraphics, mouseX, mouseY, partialTick)
+                updateTooltip()
+            }
+        }
+
+        override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+            blitSprite(guiGraphics, x, y, uOffset, vOffset, width, height)
+        }
+
+        override fun updateWidgetNarration(output: NarrationElementOutput) = defaultButtonNarrationText(output)
+    }
+
+    /**
+     - x/y/width/height refer to the total size of the hexagon, including the areas outside of the hitbox
+     - triangleHeight is the distance from the edge of the main rectangle to one of the pointy sides
+     - isHorizontal is true if the pointy sides point to the left/right
+
+     For example, a horizontal hexagon:
+
+       |----------------|  <- width
+
+     -     /----------\
+     |    /           |\
+     |   /            | \
+     |  |             |--|  <- triangleHeight
+     |   \            | /
+     |    \           |/
+     -     \----------/
+
+     ^ height
+    */
+    abstract inner class HexagonButton(
+        x: Int,
+        y: Int,
+        width: Int,
+        height: Int,
+        triangleHeight: Int,
+        isHorizontal: Boolean,
+        message: Component,
+    ) : SplicingTableButton(x, y, width, height, message) {
+        private val triangleOffset = if (isHorizontal) {
+            vec2(triangleHeight, 0)
+        } else {
+            vec2(0, triangleHeight)
+        }
+
+        private val rectX = this.x + triangleOffset.x
+        private val rectY = this.y + triangleOffset.y
+
+        private val rectWidth = width - 2 * triangleOffset.x
+        private val rectHeight = height - 2 * triangleOffset.y
+
+        private val rectTopLeft = vec2(rectX, rectY)
+        private val rectTopRight = vec2(rectX + rectWidth, rectY)
+        private val rectBottomLeft = vec2(rectX, rectY + rectHeight)
+        private val rectBottomRight = vec2(rectX + rectWidth, rectY + rectHeight)
+
+        private val triangle1: Triple<Vec2, Vec2, Vec2>
+        private val triangle2: Triple<Vec2, Vec2, Vec2>
+
+        init {
+            if (isHorizontal) {
+                val triangleY = this.y + height.toFloat() / 2f
+                triangle1 = Triple(
+                    rectTopLeft,
+                    rectBottomLeft,
+                    vec2(this.x, triangleY),
+                )
+                triangle2 = Triple(
+                    rectTopRight,
+                    rectBottomRight,
+                    vec2(this.x + width, triangleY),
+                )
+            } else {
+                val triangleX = this.x + height.toFloat() / 2f
+                triangle1 = Triple(
+                    rectTopLeft,
+                    rectTopRight,
+                    vec2(triangleX, this.y),
+                )
+                triangle2 = Triple(
+                    rectBottomLeft,
+                    rectBottomRight,
+                    vec2(triangleX, this.y + height),
+                )
+            }
+        }
+
+        override fun testHitbox(mouseX: Double, mouseY: Double): Boolean {
+            // full size check
+            if (!super.testHitbox(mouseX, mouseY)) {
+                return false
+            }
+
+            val mousePos = vec2(mouseX, mouseY)
+            return (
+                (mouseX >= rectTopLeft.x && mouseY >= rectTopLeft.y && mouseX < rectBottomRight.x && mouseY < rectBottomRight.y)
+                || pointInTriangle(mousePos, triangle1)
+                || pointInTriangle(mousePos, triangle2)
+            )
+        }
+    }
+
     inner class IotaButton(private val offset: Int) : HexagonButton(
-        x = leftPos + 15 + 18 * offset,
-        y = topPos + 20,
+        x = 15 + 18 * offset,
+        y = 20,
         width = 18,
         height = 21,
         triangleHeight = 5,
@@ -539,131 +882,34 @@ class SplicingTableScreen(
         }
     }
 
-    abstract inner class SplicingTableButton(
+    open inner class SpriteButton(
         x: Int,
         y: Int,
+        override val uOffset: Int,
+        override val vOffset: Int,
         width: Int,
         height: Int,
         message: Component,
-    ) : AbstractButton(x, y, width, height, message) {
-        abstract val uOffset: Int
-        abstract val vOffset: Int
-
-        fun testHitbox(mouseX: Int, mouseY: Int) = testHitbox(mouseX.toDouble(), mouseY.toDouble())
-
-        open fun testHitbox(mouseX: Double, mouseY: Double): Boolean =
-            mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height
-
-        override fun isMouseOver(mouseX: Double, mouseY: Double) = isActive && visible && testHitbox(mouseX, mouseY)
-
-        override fun clicked(mouseX: Double, mouseY: Double) = isActive && visible && testHitbox(mouseX, mouseY)
-
-        override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-            if (visible) {
-                isHovered = testHitbox(mouseX, mouseY)
-                renderWidget(guiGraphics, mouseX, mouseY, partialTick)
-                updateTooltip()
-            }
-        }
-
-        override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-            blitSprite(guiGraphics, x, y, uOffset, vOffset, width, height)
-        }
-
-        override fun updateWidgetNarration(output: NarrationElementOutput) = defaultButtonNarrationText(output)
+        private val onPress: () -> Unit,
+    ) : SplicingTableButton(x, y, width, height, message) {
+        override fun onPress() = onPress.invoke()
     }
 
-    /**
-     - x/y/width/height refer to the total size of the hexagon, including the areas outside of the hitbox
-     - triangleHeight is the distance from the edge of the main rectangle to one of the pointy sides
-     - isHorizontal is true if the pointy sides point to the left/right
-
-     For example, a horizontal hexagon:
-
-       |----------------|  <- width
-
-     -     /----------\
-     |    /           |\
-     |   /            | \
-     |  |             |--|  <- triangleHeight
-     |   \            | /
-     |    \           |/
-     -     \----------/
-
-     ^ height
-    */
-    abstract inner class HexagonButton(
+    inner class HexagonSpriteButton(
         x: Int,
         y: Int,
+        override val uOffset: Int,
+        override val vOffset: Int,
         width: Int,
         height: Int,
         triangleHeight: Int,
         isHorizontal: Boolean,
         message: Component,
-    ) : SplicingTableButton(x, y, width, height, message) {
-        private val triangleOffset = if (isHorizontal) {
-            vec2(triangleHeight, 0)
-        } else {
-            vec2(0, triangleHeight)
-        }
-
-        private val rectX = x + triangleOffset.x
-        private val rectY = y + triangleOffset.y
-
-        private val rectWidth = width - 2 * triangleOffset.x
-        private val rectHeight = height - 2 * triangleOffset.y
-
-        private val rectTopLeft = vec2(rectX, rectY)
-        private val rectTopRight = vec2(rectX + rectWidth, rectY)
-        private val rectBottomLeft = vec2(rectX, rectY + rectHeight)
-        private val rectBottomRight = vec2(rectX + rectWidth, rectY + rectHeight)
-
-        private val triangle1: Triple<Vec2, Vec2, Vec2>
-        private val triangle2: Triple<Vec2, Vec2, Vec2>
-
-        init {
-            if (isHorizontal) {
-                val triangleY = y + height.toFloat() / 2f
-                triangle1 = Triple(
-                    rectTopLeft,
-                    rectBottomLeft,
-                    vec2(x, triangleY),
-                )
-                triangle2 = Triple(
-                    rectTopRight,
-                    rectBottomRight,
-                    vec2(x + width, triangleY),
-                )
-            } else {
-                val triangleX = x + height.toFloat() / 2f
-                triangle1 = Triple(
-                    rectTopLeft,
-                    rectTopRight,
-                    vec2(triangleX, y),
-                )
-                triangle2 = Triple(
-                    rectBottomLeft,
-                    rectBottomRight,
-                    vec2(triangleX, y + height),
-                )
-            }
-        }
-
-        override fun testHitbox(mouseX: Double, mouseY: Double): Boolean {
-            // full size check
-            if (!super.testHitbox(mouseX, mouseY)) {
-                return false
-            }
-
-            val mousePos = vec2(mouseX, mouseY)
-            return (
-                (mouseX >= rectTopLeft.x && mouseY >= rectTopLeft.y && mouseX < rectBottomRight.x && mouseY < rectBottomRight.y)
-                || pointInTriangle(mousePos, triangle1)
-                || pointInTriangle(mousePos, triangle2)
-            )
-        }
+        private val onPress: () -> Unit,
+    ) : HexagonButton(x, y, width, height, triangleHeight, isHorizontal, message) {
+        override fun onPress() = onPress.invoke()
     }
-}
+ }
 
 fun pointInTriangle(pt: Vec2, triangle: Triple<Vec2, Vec2, Vec2>): Boolean {
     val (v1, v2, v3) = triangle
