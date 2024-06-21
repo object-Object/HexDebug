@@ -400,18 +400,6 @@ class SplicingTableScreen(
         guiGraphics.disableScissor()
     }
 
-    private fun drawIota(guiGraphics: GuiGraphics, offset: Int, type: IotaRenderType) {
-        blitSprite(
-            guiGraphics,
-            x = leftPos + 15 + 18 * offset,
-            y = topPos + 20,
-            uOffset = 352 + 20 * type.ordinal,
-            vOffset = 0,
-            width = 18,
-            height = 21,
-        )
-    }
-
     private fun drawRangeSelection(guiGraphics: GuiGraphics, offset: Int, type: IotaRenderType, leftEdge: Boolean, rightEdge: Boolean) {
         blitSprite(
             guiGraphics,
@@ -508,17 +496,21 @@ class SplicingTableScreen(
         isHorizontal = false,
         message = "TODO".asTextComponent,
     ) {
+        val index get() = viewStartIndex + offset
+
+        // FIXME: get actual type
+        val type get() = if (index % 2 == 0) IotaRenderType.GENERIC else IotaRenderType.PATTERN
+
+        override val uOffset get() = 352 + 20 * type.ordinal
+        override val vOffset = 0
+
         override fun onPress() {
             onSelectIota(viewStartIndex + offset)
         }
 
         override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-            val index = viewStartIndex + offset
             if (data.isInRange(index)) {
-                // FIXME: get actual type
-                val type = if (index % 2 == 0) IotaRenderType.GENERIC else IotaRenderType.PATTERN
-
-                drawIota(guiGraphics, offset, type)
+                super.renderWidget(guiGraphics, mouseX, mouseY, partialTick)
             }
         }
     }
@@ -554,6 +546,9 @@ class SplicingTableScreen(
         height: Int,
         message: Component,
     ) : AbstractButton(x, y, width, height, message) {
+        abstract val uOffset: Int
+        abstract val vOffset: Int
+
         fun testHitbox(mouseX: Int, mouseY: Int) = testHitbox(mouseX.toDouble(), mouseY.toDouble())
 
         open fun testHitbox(mouseX: Double, mouseY: Double): Boolean =
@@ -569,6 +564,10 @@ class SplicingTableScreen(
                 renderWidget(guiGraphics, mouseX, mouseY, partialTick)
                 updateTooltip()
             }
+        }
+
+        override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+            blitSprite(guiGraphics, x, y, uOffset, vOffset, width, height)
         }
 
         override fun updateWidgetNarration(output: NarrationElementOutput) = defaultButtonNarrationText(output)
