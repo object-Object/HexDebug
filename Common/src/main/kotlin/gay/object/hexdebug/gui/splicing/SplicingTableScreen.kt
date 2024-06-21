@@ -298,7 +298,7 @@ class SplicingTableScreen(
                 vOffset = 16,
                 width = 11,
                 height = 11,
-                action = SplicingTableAction.COPY,
+                action = SplicingTableAction.CUT,
             ),
 
             actionSpriteButton(
@@ -308,7 +308,7 @@ class SplicingTableScreen(
                 vOffset = 16,
                 width = 11,
                 height = 11,
-                action = SplicingTableAction.CUT,
+                action = SplicingTableAction.COPY,
             ),
 
             *listOf(
