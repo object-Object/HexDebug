@@ -1,14 +1,18 @@
 package gay.`object`.hexdebug.gui.splicing
 
 import at.petrak.hexcasting.api.casting.iota.IotaType
+import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.misc.MediaConstants
 import at.petrak.hexcasting.api.utils.asTextComponent
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
+import at.petrak.hexcasting.api.utils.darkGray
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
 import at.petrak.hexcasting.common.lib.HexSounds
+import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
+import gay.`object`.hexdebug.utils.joinToComponent
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
@@ -119,8 +123,6 @@ class SplicingTableScreen(
                 .build()
         }
 
-        viewButtons += listOf()
-
         staffButtons += listOf(
             button("clear_grid") { guiSpellcasting.mixin.`clearPatterns$hexdebug`() }
                 .pos(leftPos - 200, topPos - 18)
@@ -128,36 +130,7 @@ class SplicingTableScreen(
                 .build()
         )
 
-        predicateButtons += SplicingTableAction.entries.mapIndexed { i, action ->
-            actionButton(action) {
-                it.pos(leftPos + imageWidth + 46, topPos + i * 18).size(96, 16)
-            }
-        }
         predicateButtons += listOf(
-            // selection/view
-
-            Button.builder("<".asTranslatedComponent) { moveView(-1) }
-                .tooltip(Tooltip.create(buttonKey("view_left").asTranslatedComponent))
-                .pos(leftPos, topPos - 17)
-                .size(14, 14)
-                .build() to { viewStartIndex > 0 },
-
-            Button.builder(">".asTranslatedComponent) { moveView(1) }
-                .tooltip(Tooltip.create(buttonKey("view_right").asTranslatedComponent))
-                .pos(leftPos + 25 + iotaButtons.size * 26, topPos - 17)
-                .size(14, 14)
-                .build() to { viewStartIndex < data.lastIndex - IOTA_BUTTONS + 1 },
-
-            button("select_all") { selection = Selection.range(0, data.lastIndex) }
-                .pos(leftPos + imageWidth - 64, topPos - 54)
-                .size(64, 16)
-                .build() to { selection?.start != 0 || selection?.end != data.lastIndex },
-
-            button("select_none") { selection = null }
-                .pos(leftPos + imageWidth - 64, topPos - 36)
-                .size(64, 16)
-                .build() to { selection != null },
-
             // move view
 
             SpriteButton(
@@ -225,7 +198,6 @@ class SplicingTableScreen(
                 isHorizontal = true,
                 action = SplicingTableAction.DELETE,
             ),
-
 
             actionHexagonSpriteButton(
                 x = 107,
@@ -369,6 +341,11 @@ class SplicingTableScreen(
         }
         updateActiveButtons()
         updateIotaButtons()
+        for (child in children()) {
+            if (child is SplicingTableButton) {
+                child.reload()
+            }
+        }
     }
 
     private fun updateActiveButtons() {
@@ -423,14 +400,6 @@ class SplicingTableScreen(
 
     // button factories
 
-    private fun actionButton(action: SplicingTableAction, fn: (Button.Builder) -> Button.Builder) = Pair(
-            fn(
-                button(action.name.lowercase()) {
-                    menu.table.runAction(action, null, selection)
-                }
-            ).build(),
-        ) { action.value.test(data, selection) }
-
     private fun actionSpriteButton(
         x: Int,
         y: Int,
@@ -475,7 +444,9 @@ class SplicingTableScreen(
 
     private fun buttonText(name: String) = buttonKey(name).asTranslatedComponent
 
-    private fun buttonKey(name: String) = "text.hexdebug.splicing_table.button.$name"
+    private fun buttonKey(name: String) = splicingTableKey("button.$name")
+    private fun tooltipKey(name: String) = splicingTableKey("tooltip.$name")
+    private fun splicingTableKey(name: String) = "text.hexdebug.splicing_table.$name"
 
     // GUI functionality
 
@@ -611,7 +582,7 @@ class SplicingTableScreen(
         guiGraphics.disableScissor()
     }
 
-    private fun drawRangeSelection(guiGraphics: GuiGraphics, offset: Int, type: IotaRenderType, leftEdge: Boolean, rightEdge: Boolean) {
+    private fun drawRangeSelection(guiGraphics: GuiGraphics, offset: Int, type: IotaBackgroundType, leftEdge: Boolean, rightEdge: Boolean) {
         blitSprite(
             guiGraphics,
             x = leftPos + 15 + 18 * offset,
@@ -680,7 +651,7 @@ class SplicingTableScreen(
         fun getInstance() = Minecraft.getInstance().screen as? SplicingTableScreen
     }
 
-    enum class IotaRenderType {
+    enum class IotaBackgroundType {
         GENERIC,
         PATTERN,
     }
@@ -737,6 +708,8 @@ class SplicingTableScreen(
         }
 
         override fun updateWidgetNarration(output: NarrationElementOutput) = defaultButtonNarrationText(output)
+
+        open fun reload() {}
     }
 
     /**
@@ -839,12 +812,11 @@ class SplicingTableScreen(
         isHorizontal = false,
         message = "TODO".asTextComponent,
     ) {
-        val index get() = viewStartIndex + offset
+        private val index get() = viewStartIndex + offset
 
-        // FIXME: get actual type
-        val type get() = if (index % 2 == 0) IotaRenderType.GENERIC else IotaRenderType.PATTERN
+        private var backgroundType: IotaBackgroundType? = null
 
-        override val uOffset get() = 352 + 20 * type.ordinal
+        override val uOffset get() = 352 + 20 * (backgroundType?.ordinal ?: 0)
         override val vOffset = 0
 
         override fun onPress() {
@@ -852,9 +824,51 @@ class SplicingTableScreen(
         }
 
         override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-            if (data.isInRange(index)) {
+            if (data.isInRange(index) && backgroundType != null) {
                 super.renderWidget(guiGraphics, mouseX, mouseY, partialTick)
             }
+        }
+
+        override fun reload() {
+            val tag = data.list?.getOrNull(index)
+            val data = tag?.get(HexIotaTypes.KEY_DATA)
+
+            if (tag == null || data == null) {
+                active = false
+                backgroundType = null
+                tooltip = null
+                return
+            }
+
+            active = true
+
+            val type = IotaType.getTypeFromTag(tag)
+
+            val tooltipParts = listOfNotNull(
+                IotaType.getDisplay(tag),
+                tooltipKey("index").asTranslatedComponent(index).darkGray,
+                type?.typeName()?.let {
+                    tooltipKey("type").asTranslatedComponent(it).darkGray
+                },
+            )
+            tooltip = Tooltip.create(tooltipParts.joinToComponent("\n"))
+
+            backgroundType = if (type === PatternIota.TYPE) {
+                IotaBackgroundType.PATTERN
+            } else {
+                IotaBackgroundType.GENERIC
+            }
+
+            when (type) {
+                PatternIota.TYPE -> {
+
+                }
+                else -> {} // FIXME: implement
+            }
+        }
+
+        init {
+            reload()
         }
     }
 
@@ -863,7 +877,7 @@ class SplicingTableScreen(
             val index = viewStartIndex + offset
             if (data.isInRange(index)) {
                 // FIXME: get actual type
-                val type = if (index % 2 == 0) IotaRenderType.GENERIC else IotaRenderType.PATTERN
+                val type = if (index % 2 == 0) IotaBackgroundType.GENERIC else IotaBackgroundType.PATTERN
 
                 when (val selection = selection) {
                     is Selection.Range -> if (index in selection) {

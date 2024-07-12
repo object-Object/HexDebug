@@ -21,7 +21,6 @@
 
       splicing_table: {
         button: {
-          iota: "Iota %d",
           view_left: "Move View Left",
           view_right: "Move View Right",
           select_none: "Select None",
@@ -37,8 +36,12 @@
           copy: "Copy",
           paste: "Paste (Verbatim)",
           paste_splat: "Paste (Flattened)",
-        }
-      }
+        },
+        tooltip: {
+          index: "Index: %d",
+          type: "Type: %s",
+        },
+      },
     },
 
     "autoconfig.hexdebug": {

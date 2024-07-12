@@ -5,9 +5,7 @@ import at.petrak.hexcasting.api.utils.italic
 import at.petrak.hexcasting.api.utils.plusAssign
 import at.petrak.hexcasting.api.utils.styledWith
 import at.petrak.hexcasting.xplat.IXplatAbstractions
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.FormattedText
-import net.minecraft.network.chat.Style
+import net.minecraft.network.chat.*
 import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity
@@ -63,6 +61,8 @@ val ItemStack.styledHoverName: Component get() = Component.empty()
     .withStyle(rarity.color)
     .also { if (hasCustomHoverName()) it.italic }
 
+// text
+
 fun FormattedText.toComponent(): Component {
     if (this is Component) return this
     val result = Component.empty()
@@ -71,6 +71,34 @@ fun FormattedText.toComponent(): Component {
         Optional.empty<Void>()
     }, Style.EMPTY)
     return result
+}
+
+operator fun MutableComponent.plusAssign(string: String) {
+    append(string)
+}
+
+fun componentOf(value: Any?): Component = when (value) {
+    is Component -> value
+    is String -> value.asTextComponent
+    else -> value.toString().asTextComponent
+}
+
+fun Collection<Component>.joinToComponent(separator: String) = joinToComponent(separator.asTextComponent)
+
+fun Collection<Component>.joinToComponent(separator: Component = ComponentUtils.DEFAULT_SEPARATOR): Component {
+    return ComponentUtils.formatList(this, separator)
+}
+
+fun <T> Collection<T>.joinToComponent(
+    separator: String,
+    componentExtractor: (T) -> Component = ::componentOf,
+) = joinToComponent(separator.asTextComponent, componentExtractor)
+
+fun <T> Collection<T>.joinToComponent(
+    separator: Component = ComponentUtils.DEFAULT_SEPARATOR,
+    componentExtractor: (T) -> Component = ::componentOf,
+): Component {
+    return ComponentUtils.formatList(this, separator, componentExtractor)
 }
 
 // ceil the denominator to a power of 2 so we don't have issues with eg. 1/3
