@@ -7,8 +7,14 @@ import at.petrak.hexcasting.api.utils.asTextComponent
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.api.utils.darkGray
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
+import at.petrak.hexcasting.client.render.drawLineSeq
+import at.petrak.hexcasting.client.render.findDupIndices
+import at.petrak.hexcasting.client.render.getCenteredPattern
+import at.petrak.hexcasting.client.render.makeZappy
 import at.petrak.hexcasting.common.lib.HexSounds
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
+import com.mojang.blaze3d.platform.GlStateManager
+import com.mojang.blaze3d.systems.RenderSystem
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
@@ -23,6 +29,9 @@ import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
@@ -814,7 +823,11 @@ class SplicingTableScreen(
     ) {
         private val index get() = viewStartIndex + offset
 
+        private val patternWidth = 16f
+        private val patternHeight = 13f
+
         private var backgroundType: IotaBackgroundType? = null
+        private var zappyPoints: List<Vec2>? = null
 
         override val uOffset get() = 352 + 20 * (backgroundType?.ordinal ?: 0)
         override val vOffset = 0
@@ -826,32 +839,52 @@ class SplicingTableScreen(
         override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
             if (data.isInRange(index) && backgroundType != null) {
                 super.renderWidget(guiGraphics, mouseX, mouseY, partialTick)
+                renderPattern(guiGraphics)
             }
         }
 
-        override fun reload() {
-            val tag = data.list?.getOrNull(index)
-            val data = tag?.get(HexIotaTypes.KEY_DATA)
+        private fun renderPattern(guiGraphics: GuiGraphics) {
+            val zappyPoints = zappyPoints ?: return
 
-            if (tag == null || data == null) {
-                active = false
-                backgroundType = null
-                tooltip = null
-                return
-            }
+            val ps = guiGraphics.pose()
+
+            ps.pushPose()
+
+            RenderSystem.enableBlend()
+            RenderSystem.setShader(GameRenderer::getPositionColorShader)
+            RenderSystem.disableCull()
+            RenderSystem.blendFunc(
+                GlStateManager.SourceFactor.SRC_ALPHA,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+            )
+
+            ps.translate(x + 1f, y + 4f, 100f)
+            ps.translate(patternWidth / 2f, patternHeight / 2f, 0f)
+
+            val mat = ps.last().pose()
+
+            val outer = 0xff_d2c8c8.toInt()
+            val innerLight = 0xc8_aba2a2.toInt()
+            val innerDark = 0xc8_322b33.toInt()
+
+            drawLineSeq(mat, zappyPoints, width = 2f, z = 0f, tail = outer, head = outer)
+            drawLineSeq(mat, zappyPoints, width = 2f * 0.4f, z = 0f, tail = innerDark, head = innerLight)
+
+            ps.popPose()
+        }
+
+        override fun reload() {
+            active = false
+            backgroundType = null
+            tooltip = null
+            zappyPoints = null
+
+            val tag = data.list?.getOrNull(index) ?: return
 
             active = true
 
             val type = IotaType.getTypeFromTag(tag)
-
-            val tooltipParts = listOfNotNull(
-                IotaType.getDisplay(tag),
-                tooltipKey("index").asTranslatedComponent(index).darkGray,
-                type?.typeName()?.let {
-                    tooltipKey("type").asTranslatedComponent(it).darkGray
-                },
-            )
-            tooltip = Tooltip.create(tooltipParts.joinToComponent("\n"))
+            val data = tag.get(HexIotaTypes.KEY_DATA)
 
             backgroundType = if (type === PatternIota.TYPE) {
                 IotaBackgroundType.PATTERN
@@ -859,12 +892,50 @@ class SplicingTableScreen(
                 IotaBackgroundType.GENERIC
             }
 
+            tooltip = Tooltip.create(getTooltipText(type, data))
+
+            if (data == null) return
+
             when (type) {
                 PatternIota.TYPE -> {
-
+                    val pattern = PatternIota.deserialize(data).pattern
+                    val (_, dots) = getCenteredPattern(
+                        pattern = pattern,
+                        width = patternWidth,
+                        height = patternHeight,
+                        minSize = 8f,
+                    )
+                    this.zappyPoints = makeZappy(
+                        barePoints = dots,
+                        dupIndices = findDupIndices(pattern.positions()),
+                        hops = 1,
+                        variance = 0f,
+                        speed = 0f,
+                        flowIrregular = 0f,
+                        readabilityOffset = 0f,
+                        lastSegmentLenProportion = 1f,
+                        seed = 0.0,
+                    )
                 }
                 else -> {} // FIXME: implement
             }
+        }
+
+        private fun getTooltipText(type: IotaType<*>?, data: Tag?): Component {
+            val indexText = tooltipKey("index").asTranslatedComponent(index).darkGray
+            val tooltipParts = if (type != null && data != null) {
+                listOf(
+                    type.display(data),
+                    indexText,
+                    tooltipKey("type").asTranslatedComponent(type.typeName()).darkGray,
+                )
+            } else {
+                listOf(
+                    IotaType.getDisplay(CompoundTag()), // "a broken iota"
+                    indexText,
+                )
+            }
+            return tooltipParts.joinToComponent("\n")
         }
 
         init {
