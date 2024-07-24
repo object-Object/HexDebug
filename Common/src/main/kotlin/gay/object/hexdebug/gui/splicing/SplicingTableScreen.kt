@@ -314,11 +314,12 @@ class SplicingTableScreen(
 
         allButtons.forEach(::addRenderableWidget)
 
-        for (offset in 0 until IOTA_BUTTONS) {
+        val iotaButtons = (0 until IOTA_BUTTONS).map { offset ->
             addRenderableWidget(IotaButton(offset))
         }
-        for (offset in 0 until IOTA_BUTTONS) {
-            addRenderableOnly(IotaSelection(offset))
+
+        for (button in iotaButtons) {
+            addRenderableOnly(IotaSelection(button))
         }
 
         reloadData()
@@ -814,7 +815,7 @@ class SplicingTableScreen(
         }
     }
 
-    inner class IotaButton(private val offset: Int) : HexagonButton(
+    inner class IotaButton(val offset: Int) : HexagonButton(
         x = 15 + 18 * offset,
         y = 20,
         width = 18,
@@ -823,12 +824,14 @@ class SplicingTableScreen(
         isHorizontal = false,
         message = "TODO".asTextComponent,
     ) {
-        private val index get() = viewStartIndex + offset
+        val index get() = viewStartIndex + offset
 
         private val patternWidth = 16f
         private val patternHeight = 13f
 
-        private var backgroundType: IotaBackgroundType? = null
+        var backgroundType: IotaBackgroundType? = null
+            private set
+
         private var zappyPoints: List<Vec2>? = null
 
         override val uOffset get() = 352 + 20 * (backgroundType?.ordinal ?: 0)
@@ -962,26 +965,26 @@ class SplicingTableScreen(
         }
     }
 
-    inner class IotaSelection(private val offset: Int) : Renderable {
-        override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-            val index = viewStartIndex + offset
-            if (data.isInRange(index)) {
-                // FIXME: get actual type
-                val type = if (index % 2 == 0) IotaBackgroundType.GENERIC else IotaBackgroundType.PATTERN
+    inner class IotaSelection(button: IotaButton) : Renderable {
+        private val offset by button::offset
+        private val index by button::index
+        private val backgroundType by button::backgroundType
 
-                when (val selection = selection) {
-                    is Selection.Range -> if (index in selection) {
-                        drawRangeSelection(
-                            guiGraphics, offset, type,
-                            leftEdge = index == selection.start,
-                            rightEdge = index == selection.end,
-                        )
-                    }
-                    is Selection.Edge -> if (index == selection.index) {
-                        drawEdgeSelection(guiGraphics, offset)
-                    }
-                    null -> {}
+        override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+            if (!data.isInRange(index)) return
+            val backgroundType = backgroundType ?: return
+            when (val selection = selection) {
+                is Selection.Range -> if (index in selection) {
+                    drawRangeSelection(
+                        guiGraphics, offset, backgroundType,
+                        leftEdge = index == selection.start,
+                        rightEdge = index == selection.end,
+                    )
                 }
+                is Selection.Edge -> if (index == selection.index) {
+                    drawEdgeSelection(guiGraphics, offset)
+                }
+                null -> {}
             }
         }
     }
