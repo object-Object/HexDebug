@@ -6,6 +6,7 @@ import at.petrak.hexcasting.api.misc.MediaConstants
 import at.petrak.hexcasting.api.utils.asTextComponent
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.api.utils.darkGray
+import at.petrak.hexcasting.api.utils.gray
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
 import at.petrak.hexcasting.client.render.drawLineSeq
 import at.petrak.hexcasting.client.render.findDupIndices
@@ -31,8 +32,8 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.phys.Vec2
@@ -451,7 +452,8 @@ class SplicingTableScreen(
         Button.builder(message, onPress)
             .tooltip(Tooltip.create(message))
 
-    private fun buttonText(name: String) = buttonKey(name).asTranslatedComponent
+    private fun buttonText(name: String, vararg args: Any) = buttonKey(name).asTranslatedComponent(*args)
+    private fun tooltipText(name: String, vararg args: Any) = tooltipKey(name).asTranslatedComponent(*args)
 
     private fun buttonKey(name: String) = splicingTableKey("button.$name")
     private fun tooltipKey(name: String) = splicingTableKey("tooltip.$name")
@@ -879,33 +881,48 @@ class SplicingTableScreen(
             tooltip = null
             zappyPoints = null
 
+            // don't enable the button or display anything if this index is out of range
             val tag = data.list?.getOrNull(index) ?: return
+            val type = IotaType.getTypeFromTag(tag)
+            val data = tag.get(HexIotaTypes.KEY_DATA) // FIXME: either rename this or the class variable
 
             active = true
 
-            val type = IotaType.getTypeFromTag(tag)
-            val data = tag.get(HexIotaTypes.KEY_DATA)
-
-            backgroundType = if (type === PatternIota.TYPE) {
-                IotaBackgroundType.PATTERN
-            } else {
-                IotaBackgroundType.GENERIC
+            backgroundType = when (type) {
+                PatternIota.TYPE -> IotaBackgroundType.PATTERN
+                else -> IotaBackgroundType.GENERIC
             }
 
-            tooltip = Tooltip.create(getTooltipText(type, data))
+            val details = mutableListOf(
+                tooltipText("index", index),
+            )
+            val advanced = mutableListOf<MutableComponent>()
 
-            if (data == null) return
+            // if it's an invalid iota, just set the background type and tooltip, then return
+            // (so that we don't need null checks later)
+            if (type == null || data == null) {
+                tooltip = createTooltip(getBrokenIotaName(), details, advanced)
+                return
+            }
+
+            HexIotaTypes.REGISTRY.getKey(type)?.let { typeId ->
+                advanced += typeId.toString().asTextComponent
+            }
 
             when (type) {
                 PatternIota.TYPE -> {
                     val pattern = PatternIota.deserialize(data).pattern
+
+                    val patternString = "${pattern.startDir} ${pattern.anglesSignature()}".trimEnd()
+                    advanced += tooltipText("signature", patternString)
+
                     val (_, dots) = getCenteredPattern(
                         pattern = pattern,
                         width = patternWidth,
                         height = patternHeight,
                         minSize = 8f,
                     )
-                    this.zappyPoints = makeZappy(
+                    zappyPoints = makeZappy(
                         barePoints = dots,
                         dupIndices = findDupIndices(pattern.positions()),
                         hops = 1,
@@ -919,23 +936,25 @@ class SplicingTableScreen(
                 }
                 else -> {} // FIXME: implement
             }
+
+            val name = type.display(data) // TODO: actual pattern name
+
+            tooltip = createTooltip(name, details, advanced)
         }
 
-        private fun getTooltipText(type: IotaType<*>?, data: Tag?): Component {
-            val indexText = tooltipKey("index").asTranslatedComponent(index).darkGray
-            val tooltipParts = if (type != null && data != null) {
-                listOf(
-                    type.display(data),
-                    indexText,
-                    tooltipKey("type").asTranslatedComponent(type.typeName()).darkGray,
-                )
-            } else {
-                listOf(
-                    IotaType.getDisplay(CompoundTag()), // "a broken iota"
-                    indexText,
-                )
+        private fun getBrokenIotaName() = IotaType.getDisplay(CompoundTag()) // "a broken iota"
+
+        private fun createTooltip(
+            name: Component,
+            details: Collection<MutableComponent>,
+            advanced: Collection<MutableComponent>,
+        ): Tooltip {
+            var lines = sequenceOf(name)
+            lines += details.asSequence().map { it.gray }
+            if (Minecraft.getInstance().options.advancedItemTooltips) {
+                lines += advanced.asSequence().map { it.darkGray }
             }
-            return tooltipParts.joinToComponent("\n")
+            return Tooltip.create(lines.toList().joinToComponent("\n"))
         }
 
         init {

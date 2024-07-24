@@ -39,7 +39,7 @@
         },
         tooltip: {
           index: "Index: %d",
-          type: "Type: %s",
+          signature: "Signature: %s",
         },
       },
     },
