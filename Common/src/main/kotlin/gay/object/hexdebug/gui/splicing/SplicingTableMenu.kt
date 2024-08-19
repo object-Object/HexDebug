@@ -49,6 +49,7 @@ class SplicingTableMenu(
 
     var clientView = SplicingTableClientView.empty()
 
+    val mediaSlot: Slot
     val staffSlot: Slot
 
     init {
@@ -61,10 +62,10 @@ class SplicingTableMenu(
         addTableSlot(SplicingTableItemSlot.CLIPBOARD, 7, 68) {
             mayPlace = ::isIotaHolder
         }
-        addTableSlot(SplicingTableItemSlot.MEDIA, 193, 68) { // FIXME: placeholder
+        mediaSlot = addTableSlot(SplicingTableItemSlot.MEDIA, 205, 169) { // FIXME: placeholder
             mayPlace = ::isMediaItem
         }
-        staffSlot = addTableSlot(SplicingTableItemSlot.STAFF, 193, 86) { // FIXME: placeholder
+        staffSlot = addTableSlot(SplicingTableItemSlot.STAFF, -20, 169) { // FIXME: placeholder
             maxStackSize = 1
             mayPlace = { it.`is`(HexTags.Items.STAVES) }
         }

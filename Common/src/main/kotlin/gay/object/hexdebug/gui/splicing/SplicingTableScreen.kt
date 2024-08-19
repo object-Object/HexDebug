@@ -2,7 +2,6 @@ package gay.`object`.hexdebug.gui.splicing
 
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.casting.iota.PatternIota
-import at.petrak.hexcasting.api.misc.MediaConstants
 import at.petrak.hexcasting.api.utils.asTextComponent
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.api.utils.darkGray
@@ -17,6 +16,7 @@ import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlockEntity
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
 import gay.`object`.hexdebug.utils.joinToComponent
@@ -38,8 +38,8 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.phys.Vec2
 import java.awt.Color
-import java.util.*
 import java.util.function.BiConsumer
+import kotlin.math.ceil
 import kotlin.math.pow
 
 @Suppress("SameParameterValue")
@@ -62,7 +62,8 @@ class SplicingTableScreen(
 
     val data get() = menu.clientView
 
-    private val hasStaff get() = menu.staffSlot.hasItem()
+    private val hasMediaItem get() = menu.mediaSlot.hasItem()
+    private val hasStaffItem get() = menu.staffSlot.hasItem()
 
     var guiSpellcasting = GuiSpellcasting(
         InteractionHand.MAIN_HAND, mutableListOf(), listOf(), null, 1
@@ -507,21 +508,21 @@ class SplicingTableScreen(
     // staff delegation stuff
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (hasStaff && isInStaffGrid(mouseX, mouseY)) {
+        if (hasStaffItem && isInStaffGrid(mouseX, mouseY, button)) {
             guiSpellcasting.mouseClicked(mouseX, mouseY, button)
         }
         return super.mouseClicked(mouseX, mouseY, button)
     }
 
     override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, dragX: Double, dragY: Double): Boolean {
-        if (hasStaff && isInStaffGrid(mouseX, mouseY)) {
+        if (hasStaffItem && isInStaffGrid(mouseX, mouseY, button)) {
             guiSpellcasting.mouseDragged(mouseX, mouseY, button, dragX, dragY)
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY)
     }
 
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (hasStaff && isInStaffGrid(mouseX, mouseY)) {
+        if (hasStaffItem && isInStaffGrid(mouseX, mouseY, button)) {
             guiSpellcasting.mouseReleased(mouseX, mouseY, button)
         }
         return super.mouseReleased(mouseX, mouseY, button)
@@ -529,15 +530,16 @@ class SplicingTableScreen(
 
     override fun onClose() {
         // support pressing esc to cancel drawing a pattern
-        if (hasStaff) {
+        if (hasStaffItem) {
             guiSpellcasting.onClose()
             if (minecraft?.screen != null) return
         }
         super.onClose()
     }
 
-    private fun isInStaffGrid(mouseX: Double, mouseY: Double) =
+    private fun isInStaffGrid(mouseX: Double, mouseY: Double, button: Int) =
         staffMinX <= mouseX && mouseX <= staffMaxX && staffMinY <= mouseY && mouseY <= staffMaxY
+        && hasClickedOutside(mouseX, mouseY, leftPos, topPos, button) // avoid interacting with the grid when inserting the staff item
 
     override fun hasClickedOutside(
         mouseX: Double,
@@ -549,36 +551,109 @@ class SplicingTableScreen(
         return (
             // main gui
             super.hasClickedOutside(mouseX, mouseY, guiLeft, guiTop, mouseButton)
-            // storage
-            && (mouseX < guiLeft + 192 || mouseY < guiTop + 103 || mouseX >= guiLeft + 192 + 46 || mouseY >= guiTop + 103 + 68)
-            // media/staff (FIXME: placeholder)
-            && (mouseX < guiLeft + 192 || mouseY < guiTop + 67 || mouseX >= guiLeft + 192 + 18 || mouseY >= guiTop + 67 + 36)
+            // storage/media
+            && (mouseX < guiLeft + 192 || mouseY < guiTop + 103 || mouseX >= guiLeft + 192 + 46 || mouseY >= guiTop + 103 + 87)
+            // staff
+            && (mouseX < guiLeft - 22 || mouseY < guiTop + 167 || mouseX >= guiLeft - 22 + 20 || mouseY >= guiTop + 167 + 20)
         )
     }
 
     // rendering
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        val hasStaff = hasStaff
-        staffButtons.forEach { it.visible = hasStaff }
+        staffButtons.forEach { it.visible = hasStaffItem }
 
         renderBackground(guiGraphics)
-        if (hasStaff) renderStaffGrid(guiGraphics, mouseX, mouseY, partialTick)
         super.render(guiGraphics, mouseX, mouseY, partialTick)
         renderTooltip(guiGraphics, mouseX, mouseY)
     }
 
     override fun renderBg(guiGraphics: GuiGraphics, partialTick: Float, mouseX: Int, mouseY: Int) {
-        // +46 for the side slots
-        blitSprite(guiGraphics, leftPos, topPos, 256, 128, imageWidth + 46, imageHeight)
+        // main gui + right storage slots
+        blitSprite(
+            guiGraphics,
+            x = leftPos + 0,
+            y = topPos + 0,
+            uOffset = 256,
+            vOffset = 128,
+            width = imageWidth + 46,
+            height = imageHeight,
+        )
+
+        // media slot
+        if (!hasMediaItem) {
+            // dust background
+            blitSprite(
+                guiGraphics,
+                x = leftPos + 205,
+                y = topPos + 169,
+                uOffset = 461,
+                vOffset = 328,
+                width = 16,
+                height = 16,
+            )
+        }
+        if (menu.media > 0) {
+            // sparkly stars
+            blitSprite(
+                guiGraphics,
+                x = leftPos + 193,
+                y = topPos + 170,
+                uOffset = 449,
+                vOffset = 328,
+                width = 10,
+                height = 14,
+            )
+
+            // fuel bar
+            val filledFraction = menu.media.toDouble() / SplicingTableBlockEntity.maxMedia
+            val height = ceil(16.0 * filledFraction).toInt().coerceIn(0, 16)
+            blitSprite(
+                guiGraphics,
+                x = leftPos + 225,
+                y = topPos + 185 - height,
+                uOffset = 481,
+                vOffset = 344 - height,
+                width = 6,
+                height = height,
+            )
+        }
+
+        // staff grid
+        if (hasStaffItem) {
+            // background
+
+            // pattern grid
+            renderGuiSpellcasting(guiGraphics, mouseX, mouseY, partialTick)
+
+            // border
+
+            // staff slot without icon
+            blitSprite(
+                guiGraphics,
+                x = leftPos - 24,
+                y = topPos + 165,
+                uOffset = 232,
+                vOffset = 293,
+                width = 23,
+                height = 24,
+            )
+        } else {
+            // staff slot with icon
+            blitSprite(
+                guiGraphics,
+                x = leftPos - 24,
+                y = topPos + 165,
+                uOffset = 232,
+                vOffset = 328,
+                width = 23,
+                height = 24,
+            )
+        }
     }
 
     override fun renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
-        val dust = menu.media.toDouble() / MediaConstants.DUST_UNIT
-        val mediaLabel = "%.2f".format(Locale.ROOT, dust).asTextComponent
-        guiGraphics.drawString(font, mediaLabel, 161, 8, 4210752, false)
-
-        // index labels
+        // iota index labels
         for (label in IndexLabel.entries) {
             val index = viewStartIndex + label.offset
             if (data.isInRange(index)) {
@@ -587,8 +662,7 @@ class SplicingTableScreen(
         }
     }
 
-    private fun renderStaffGrid(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        guiGraphics.blit(BORDER, leftPos - 200, topPos, 0, 0, 200, 200)
+    private fun renderGuiSpellcasting(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         guiGraphics.enableScissor(staffMinX, staffMinY, staffMaxX, staffMaxY)
         guiSpellcasting.render(guiGraphics, mouseX, mouseY, partialTick)
         guiGraphics.disableScissor()
@@ -652,8 +726,6 @@ class SplicingTableScreen(
 
     companion object {
         val TEXTURE = HexDebug.id("textures/gui/splicing_table.png")
-        // FIXME: placeholder
-        val BORDER = HexDebug.id("textures/gui/splicing_table/staff/border.png")
 
         const val IOTA_BUTTONS = 9
 

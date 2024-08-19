@@ -193,6 +193,6 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         private val config get() = HexDebugConfig.server
 
         private val mediaCost get() = config.splicingTableMediaCost
-        private val maxMedia get() = config.splicingTableMaxMedia.coerceIn(0, null)
+        val maxMedia get() = config.splicingTableMaxMedia.coerceIn(1, null)
     }
 }
