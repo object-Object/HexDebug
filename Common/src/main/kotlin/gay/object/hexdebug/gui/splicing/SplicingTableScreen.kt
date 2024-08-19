@@ -570,40 +570,16 @@ class SplicingTableScreen(
 
     override fun renderBg(guiGraphics: GuiGraphics, partialTick: Float, mouseX: Int, mouseY: Int) {
         // main gui + right storage slots
-        blitSprite(
-            guiGraphics,
-            x = leftPos + 0,
-            y = topPos + 0,
-            uOffset = 256,
-            vOffset = 128,
-            width = imageWidth + 46,
-            height = imageHeight,
-        )
+        blitSprite(guiGraphics, x = leftPos, y = topPos, uOffset = 256, vOffset = 128, width = imageWidth + 46, height = imageHeight)
 
         // media slot
         if (!hasMediaItem) {
             // dust background
-            blitSprite(
-                guiGraphics,
-                x = leftPos + 205,
-                y = topPos + 169,
-                uOffset = 461,
-                vOffset = 328,
-                width = 16,
-                height = 16,
-            )
+            blitSprite(guiGraphics, x = leftPos + 205, y = topPos + 169, uOffset = 461, vOffset = 328, width = 16, height = 16)
         }
         if (menu.media > 0) {
             // sparkly stars
-            blitSprite(
-                guiGraphics,
-                x = leftPos + 193,
-                y = topPos + 170,
-                uOffset = 449,
-                vOffset = 328,
-                width = 10,
-                height = 14,
-            )
+            blitSprite(guiGraphics, x = leftPos + 193, y = topPos + 170, uOffset = 449, vOffset = 328, width = 10, height = 14)
 
             // fuel bar
             val filledFraction = menu.media.toDouble() / SplicingTableBlockEntity.maxMedia
@@ -628,27 +604,20 @@ class SplicingTableScreen(
 
             // border
 
+            // top
+            blitRepeating(guiGraphics, x = leftPos - 206, y = topPos - 7, uOffset = 208, vOffset = 1, width = 32, height = 10, xTiles = 6, yTiles = 1)
+            // bottom
+            blitRepeating(guiGraphics, x = leftPos - 206, y = topPos + 189, uOffset = 208, vOffset = 45, width = 32, height = 10, xTiles = 6, yTiles = 1)
+            // left
+            blitRepeating(guiGraphics, x = leftPos - 213, y = topPos, uOffset = 201, vOffset = 12, width = 10, height = 32, xTiles = 1, yTiles = 6)
+            // right
+            blitRepeating(guiGraphics, x = leftPos - 17, y = topPos, uOffset = 237, vOffset = 12, width = 10, height = 32, xTiles = 1, yTiles = 6)
+
             // staff slot without icon
-            blitSprite(
-                guiGraphics,
-                x = leftPos - 24,
-                y = topPos + 165,
-                uOffset = 232,
-                vOffset = 293,
-                width = 23,
-                height = 24,
-            )
+            blitSprite(guiGraphics, x = leftPos - 24, y = topPos + 165, uOffset = 232, vOffset = 293, width = 23, height = 24)
         } else {
             // staff slot with icon
-            blitSprite(
-                guiGraphics,
-                x = leftPos - 24,
-                y = topPos + 165,
-                uOffset = 232,
-                vOffset = 328,
-                width = 23,
-                height = 24,
-            )
+            blitSprite(guiGraphics, x = leftPos - 24, y = topPos + 165, uOffset = 232, vOffset = 328, width = 23, height = 24)
         }
     }
 
@@ -718,6 +687,32 @@ class SplicingTableScreen(
 
     private fun drawDigit(guiGraphics: GuiGraphics, x: Int, y: Int, digit: Int) {
         blitSprite(guiGraphics, x, y, 288 + 5 * digit, 0, 4, 5)
+    }
+
+    private fun blitRepeating(
+        guiGraphics: GuiGraphics,
+        x: Int,
+        y: Int,
+        uOffset: Int,
+        vOffset: Int,
+        width: Int,
+        height: Int,
+        xTiles: Int,
+        yTiles: Int,
+    ) {
+        for (yIndex in 0 until yTiles) {
+            for (xIndex in 0 until xTiles) {
+                blitSprite(
+                    guiGraphics,
+                    x = x + width * xIndex,
+                    y = y + height * yIndex,
+                    uOffset = uOffset,
+                    vOffset = vOffset,
+                    width = width,
+                    height = height,
+                )
+            }
+        }
     }
 
     private fun blitSprite(guiGraphics: GuiGraphics, x: Int, y: Int, uOffset: Int, vOffset: Int, width: Int, height: Int) {
