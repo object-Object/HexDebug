@@ -526,9 +526,8 @@ class SplicingTableScreen(
     }
 
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (hasStaffItem && isInStaffGrid(mouseX, mouseY, button)) {
-            guiSpellcasting.mouseReleased(mouseX, mouseY, button)
-        }
+        // don't keep holding onto a line if the mouse is released outside of the grid
+        guiSpellcasting.mouseReleased(mouseX, mouseY, button)
         return super.mouseReleased(mouseX, mouseY, button)
     }
 
