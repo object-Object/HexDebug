@@ -73,10 +73,14 @@ class SplicingTableScreen(
         }
     }
 
-    private val staffMinX get() = leftPos - 196
-    private val staffMinY get() = topPos + 4
-    private val staffMaxX get() = leftPos - 4
-    private val staffMaxY get() = topPos + 196
+    // should be multiples of 32, since that's how big the edge parts are
+    private val staffWidth = 32 * 6
+    private val staffHeight = 32 * 6
+
+    private val staffMinX get() = leftPos - 14 - staffWidth
+    private val staffMaxX get() = leftPos - 14
+    private val staffMinY get() = topPos
+    private val staffMaxY get() = topPos + staffHeight
 
     private val iotaButtons = mutableListOf<AbstractButton>()
     private val edgeButtons = mutableListOf<AbstractButton>()
@@ -136,7 +140,7 @@ class SplicingTableScreen(
 
         staffButtons += listOf(
             button("clear_grid") { guiSpellcasting.mixin.`clearPatterns$hexdebug`() }
-                .pos(leftPos - 200, topPos - 18)
+                .pos(leftPos - 200, topPos - 24)
                 .size(64, 16)
                 .build()
         )
@@ -598,20 +602,32 @@ class SplicingTableScreen(
         // staff grid
         if (hasStaffItem) {
             // background
+            RenderSystem.enableBlend()
+            guiGraphics.setColor(1f, 1f, 1f, 0.25f)
+            blitRepeating(guiGraphics, x = staffMinX, y = staffMinY, uOffset = 240, vOffset = 0, width = 8, height = 8, xTiles = staffWidth / 8, yTiles = staffHeight / 8)
+            guiGraphics.setColor(1f, 1f, 1f, 1f)
+            RenderSystem.disableBlend()
 
             // pattern grid
             renderGuiSpellcasting(guiGraphics, mouseX, mouseY, partialTick)
 
-            // border
-
             // top
-            blitRepeating(guiGraphics, x = leftPos - 206, y = topPos - 7, uOffset = 208, vOffset = 1, width = 32, height = 10, xTiles = 6, yTiles = 1)
+            blitRepeating(guiGraphics, x = staffMinX, y = staffMinY - 7, uOffset = 208, vOffset = 1, width = 32, height = 10, xTiles = staffWidth / 32, yTiles = 1)
             // bottom
-            blitRepeating(guiGraphics, x = leftPos - 206, y = topPos + 189, uOffset = 208, vOffset = 45, width = 32, height = 10, xTiles = 6, yTiles = 1)
+            blitRepeating(guiGraphics, x = staffMinX, y = staffMaxY - 3, uOffset = 208, vOffset = 45, width = 32, height = 10, xTiles = staffWidth / 32, yTiles = 1)
             // left
-            blitRepeating(guiGraphics, x = leftPos - 213, y = topPos, uOffset = 201, vOffset = 12, width = 10, height = 32, xTiles = 1, yTiles = 6)
+            blitRepeating(guiGraphics, x = staffMinX - 7, y = staffMinY, uOffset = 201, vOffset = 12, width = 10, height = 32, xTiles = 1, yTiles = staffHeight / 32)
             // right
-            blitRepeating(guiGraphics, x = leftPos - 17, y = topPos, uOffset = 237, vOffset = 12, width = 10, height = 32, xTiles = 1, yTiles = 6)
+            blitRepeating(guiGraphics, x = staffMaxX - 3, y = staffMinY, uOffset = 237, vOffset = 12, width = 10, height = 32, xTiles = 1, yTiles = staffHeight / 32)
+
+            // top left
+            blitSprite(guiGraphics, x = staffMinX - 7, y = staffMinY - 8, uOffset = 176, vOffset = 0, width = 8, height = 9)
+            // top right
+            blitSprite(guiGraphics, x = staffMaxX - 1, y = staffMinY - 7, uOffset = 184, vOffset = 1, width = 9, height = 8)
+            // bottom left
+            blitSprite(guiGraphics, x = staffMinX - 8, y = staffMaxY - 1, uOffset = 175, vOffset = 9, width = 9, height = 8)
+            // bottom right
+            blitSprite(guiGraphics, x = staffMaxX - 1, y = staffMaxY - 1, uOffset = 184, vOffset = 9, width = 8, height = 9)
 
             // staff slot without icon
             blitSprite(guiGraphics, x = leftPos - 24, y = topPos + 165, uOffset = 232, vOffset = 293, width = 23, height = 24)
