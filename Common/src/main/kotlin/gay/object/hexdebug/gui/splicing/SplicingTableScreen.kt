@@ -694,7 +694,7 @@ class SplicingTableScreen(
 
     private fun drawNumber(guiGraphics: GuiGraphics, x: Int, y: Int, number: Int, color: Color) {
 
-        guiGraphics.setColor(color.fred, color.fgreen, color.fblue, color.falpha)
+        guiGraphics.setColor(color)
         var i = 0
         var rest = number.coerceIn(0, MAX_DIGIT)
         do {
@@ -920,6 +920,8 @@ class SplicingTableScreen(
             private set
 
         private var zappyPoints: List<Vec2>? = null
+        private var typeUVOffset: Pair<Int, Int>? = null
+        private var typeColor: Color? = null
 
         override val uOffset get() = 352 + 20 * (backgroundType?.ordinal ?: 0)
         override val vOffset = 0
@@ -931,13 +933,22 @@ class SplicingTableScreen(
         override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
             if (data.isInRange(index) && backgroundType != null) {
                 super.renderWidget(guiGraphics, mouseX, mouseY, partialTick)
-                renderPattern(guiGraphics)
+
+                val zappyPoints = zappyPoints
+                val typeUVOffset = typeUVOffset
+
+                if (zappyPoints != null) {
+                    renderPattern(guiGraphics, zappyPoints)
+                } else if (typeUVOffset != null) {
+                    val (uOffset, vOffset) = typeUVOffset
+                    guiGraphics.setColor(typeColor ?: Color.WHITE)
+                    blitSprite(guiGraphics, x = x + 2, y = y + 3, uOffset = uOffset, vOffset = vOffset, width = 14, height = 14)
+                    guiGraphics.setColor(1f, 1f, 1f, 1f)
+                }
             }
         }
 
-        private fun renderPattern(guiGraphics: GuiGraphics) {
-            val zappyPoints = zappyPoints ?: return
-
+        private fun renderPattern(guiGraphics: GuiGraphics, zappyPoints: List<Vec2>) {
             val ps = guiGraphics.pose()
 
             ps.pushPose()
@@ -970,16 +981,19 @@ class SplicingTableScreen(
             backgroundType = null
             tooltip = null
             zappyPoints = null
+            typeUVOffset = null
+            typeColor = null
 
             // don't enable the button or display anything if this index is out of range
-            val tag = data.list?.getOrNull(index) ?: return
-            val type = IotaType.getTypeFromTag(tag)
-            val data = tag.get(HexIotaTypes.KEY_DATA) // FIXME: either rename this or the class variable
+            val iotaTag = data.list?.getOrNull(index) ?: return
+
+            val iotaType = IotaType.getTypeFromTag(iotaTag)
+            val iotaData = iotaTag.get(HexIotaTypes.KEY_DATA)
 
             active = true
 
-            backgroundType = when (type) {
-                PatternIota.TYPE -> IotaBackgroundType.PATTERN
+            backgroundType = when (iotaType) {
+                HexIotaTypes.PATTERN -> IotaBackgroundType.PATTERN
                 else -> IotaBackgroundType.GENERIC
             }
 
@@ -990,18 +1004,33 @@ class SplicingTableScreen(
 
             // if it's an invalid iota, just set the background type and tooltip, then return
             // (so that we don't need null checks later)
-            if (type == null || data == null) {
+            if (iotaType == null || iotaData == null) {
                 tooltip = createTooltip(getBrokenIotaName(), details, advanced)
+                typeColor = Color.LIGHT_GRAY
                 return
             }
 
-            HexIotaTypes.REGISTRY.getKey(type)?.let { typeId ->
-                advanced += typeId.toString().asTextComponent
+            val iotaTypeId = HexIotaTypes.REGISTRY.getKey(iotaType)
+            if (iotaTypeId != null) {
+                advanced += iotaTypeId.toString().asTextComponent
             }
 
-            when (type) {
-                PatternIota.TYPE -> {
-                    val pattern = PatternIota.deserialize(data).pattern
+            typeColor = Color(iotaType.color(), true)
+
+            // type-specific rendering
+            typeUVOffset = when (iotaType) {
+                HexIotaTypes.DOUBLE -> getTypeUVOffset(0, 0)
+                HexIotaTypes.VEC3 -> getTypeUVOffset(1, 0)
+                HexIotaTypes.ENTITY -> getTypeUVOffset(2, 0)
+                HexIotaTypes.BOOLEAN -> getTypeUVOffset(1, 1)
+                HexIotaTypes.LIST -> getTypeUVOffset(2, 1)
+                HexIotaTypes.NULL -> getTypeUVOffset(0, 2)
+                HexIotaTypes.GARBAGE -> getTypeUVOffset(1, 2)
+                HexIotaTypes.CONTINUATION -> getTypeUVOffset(2, 2)
+
+                // custom pattern rendering
+                HexIotaTypes.PATTERN -> {
+                    val pattern = PatternIota.deserialize(iotaData).pattern
 
                     val patternString = "${pattern.startDir} ${pattern.anglesSignature()}".trimEnd()
                     advanced += tooltipText("signature", patternString)
@@ -1023,11 +1052,26 @@ class SplicingTableScreen(
                         lastSegmentLenProportion = 1f,
                         seed = 0.0,
                     )
+
+                    null
                 }
-                else -> {} // FIXME: implement
+
+                else -> when (iotaTypeId?.toString()) {
+                    // addon patterns (so we don't need to actually depend on the addons)
+                    "moreiotas:string" -> getTypeUVOffset(3, 0)
+                    "moreiotas:matrix" -> getTypeUVOffset(3, 1)
+                    "hexal:iota_type",
+                    "hexal:entity_type",
+                    "hexal:item_type",
+                    "moreiotas:iota_type",
+                    "moreiotas:entity_type",
+                    "moreiotas:item_type" -> getTypeUVOffset(3, 2)
+                    // generic type icon
+                    else -> getTypeUVOffset(0, 1)
+                }
             }
 
-            val name = type.display(data) // TODO: actual pattern name
+            val name = iotaType.display(iotaData) // TODO: actual pattern name
 
             tooltip = createTooltip(name, details, advanced)
         }
@@ -1046,6 +1090,8 @@ class SplicingTableScreen(
             }
             return Tooltip.create(lines.toList().joinToComponent("\n"))
         }
+
+        private fun getTypeUVOffset(xIndex: Int, yIndex: Int) = Pair(337 + 16 * xIndex, 57 + 16 * yIndex)
 
         init {
             reload()
@@ -1132,3 +1178,5 @@ val Color.fred get() = red.toFloat() / 255f
 val Color.fgreen get() = green.toFloat() / 255f
 val Color.fblue get() = blue.toFloat() / 255f
 val Color.falpha get() = alpha.toFloat() / 255f
+
+fun GuiGraphics.setColor(color: Color) = setColor(color.fred, color.fgreen, color.fblue, color.falpha)
