@@ -575,6 +575,11 @@ class SplicingTableScreen(
         // main gui + right storage slots
         blitSprite(guiGraphics, x = leftPos, y = topPos, uOffset = 256, vOffset = 128, width = imageWidth + 46, height = imageHeight)
 
+        if (data.isListReadable) {
+            // fancy media lines next to list slot
+            blitSprite(guiGraphics, x = leftPos + 56, y = topPos + 75, uOffset = 312, vOffset = 52, width = 80, height = 2)
+        }
+
         // media slot
         if (!hasMediaItem) {
             // dust background
