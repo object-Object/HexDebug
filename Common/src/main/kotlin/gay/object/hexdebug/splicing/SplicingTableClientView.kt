@@ -1,9 +1,15 @@
 package gay.`object`.hexdebug.splicing
 
+import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
+import at.petrak.hexcasting.api.casting.iota.Iota
+import at.petrak.hexcasting.api.casting.iota.IotaType
+import gay.`object`.hexdebug.utils.displayWithPatternName
+import gay.`object`.hexdebug.utils.toHexpatternSource
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
 
 data class SplicingTableClientView(
-    val list: List<CompoundTag>?,
+    val list: List<IotaClientView>?,
     val clipboard: CompoundTag?,
     val isListWritable: Boolean,
     val isClipboardWritable: Boolean,
@@ -27,4 +33,16 @@ data class SplicingTableClientView(
             undoIndex = -1,
         )
     }
+}
+
+data class IotaClientView(
+    val tag: CompoundTag,
+    val name: Component,
+    val hexpatternSource: String,
+) {
+    constructor(iota: Iota, env: CastingEnvironment) : this(
+        tag = IotaType.serialize(iota),
+        name = iota.displayWithPatternName(env),
+        hexpatternSource = iota.toHexpatternSource(env),
+    )
 }

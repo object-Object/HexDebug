@@ -1,6 +1,8 @@
 package gay.`object`.hexdebug.networking.msg
 
+import gay.`object`.hexdebug.splicing.IotaClientView
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 
 /** The result of running a splicing table action on the server. */
@@ -10,8 +12,16 @@ data class MsgSplicingTableNewDataS2C(val data: SplicingTableClientView) : HexDe
 
         override fun decode(buf: FriendlyByteBuf) = MsgSplicingTableNewDataS2C(
             data = SplicingTableClientView(
-                list = buf.readNullable { it.readList(FriendlyByteBuf::readNbt) }?.filterNotNull(),
-                clipboard = buf.readNullable(FriendlyByteBuf::readNbt),
+                list = buf.readNullable {
+                    buf.readList {
+                        IotaClientView(
+                            tag = buf.readNbt() ?: CompoundTag(),
+                            name = buf.readComponent(),
+                            hexpatternSource = buf.readUtf(),
+                        )
+                    }
+                },
+                clipboard = buf.readNbt(),
                 isListWritable = buf.readBoolean(),
                 isClipboardWritable = buf.readBoolean(),
                 undoSize = buf.readInt(),
@@ -21,8 +31,14 @@ data class MsgSplicingTableNewDataS2C(val data: SplicingTableClientView) : HexDe
 
         override fun MsgSplicingTableNewDataS2C.encode(buf: FriendlyByteBuf) {
             data.apply {
-                buf.writeNullable(list) { buf, list -> buf.writeCollection(list, FriendlyByteBuf::writeNbt) }
-                buf.writeNullable(clipboard, FriendlyByteBuf::writeNbt)
+                buf.writeNullable(list) { _, list ->
+                    buf.writeCollection(list) { _, it ->
+                        buf.writeNbt(it.tag)
+                        buf.writeComponent(it.name)
+                        buf.writeUtf(it.hexpatternSource)
+                    }
+                }
+                buf.writeNbt(clipboard)
                 buf.writeBoolean(isListWritable)
                 buf.writeBoolean(isClipboardWritable)
                 buf.writeInt(undoSize)

@@ -18,6 +18,7 @@ import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlockEntity
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
 import gay.`object`.hexdebug.utils.joinToComponent
+import gay.`object`.hexdebug.utils.simpleString
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
@@ -400,10 +401,10 @@ class SplicingTableScreen(
                 arrayOf()
             }
             button.apply {
-                val iota = data.list?.getOrNull(index)
-                if (null != iota) {
+                val iotaView = data.list?.getOrNull(index)
+                if (null != iotaView) {
                     message = index.toString().asTranslatedComponent.withStyle(*formats)
-                    tooltip = Tooltip.create(IotaType.getDisplay(iota))
+                    tooltip = Tooltip.create(iotaView.name)
                 } else {
                     message = Component.empty()
                     tooltip = null
@@ -1043,10 +1044,10 @@ class SplicingTableScreen(
             typeColor = null
 
             // don't enable the button or display anything if this index is out of range
-            val iotaTag = data.list?.getOrNull(index) ?: return
+            val iotaView = data.list?.getOrNull(index) ?: return
 
-            val iotaType = IotaType.getTypeFromTag(iotaTag)
-            val iotaData = iotaTag.get(HexIotaTypes.KEY_DATA)
+            val iotaType = IotaType.getTypeFromTag(iotaView.tag)
+            val iotaData = iotaView.tag.get(HexIotaTypes.KEY_DATA)
 
             active = true
 
@@ -1090,8 +1091,7 @@ class SplicingTableScreen(
                 HexIotaTypes.PATTERN -> {
                     val pattern = PatternIota.deserialize(iotaData).pattern
 
-                    val patternString = "${pattern.startDir} ${pattern.anglesSignature()}".trimEnd()
-                    advanced += tooltipText("signature", patternString)
+                    advanced += tooltipText("signature", pattern.simpleString())
 
                     val (_, dots) = getCenteredPattern(
                         pattern = pattern,
@@ -1129,9 +1129,7 @@ class SplicingTableScreen(
                 }
             }
 
-            val name = iotaType.display(iotaData) // TODO: actual pattern name
-
-            tooltip = createTooltip(name, details, advanced)
+            tooltip = createTooltip(iotaView.name, details, advanced)
         }
 
         private fun getBrokenIotaName() = IotaType.getDisplay(CompoundTag()) // "a broken iota"

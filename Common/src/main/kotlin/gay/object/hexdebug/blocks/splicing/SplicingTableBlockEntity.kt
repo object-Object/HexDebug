@@ -8,6 +8,7 @@ import at.petrak.hexcasting.api.utils.extractMedia
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
+import gay.`object`.hexdebug.casting.eval.FakeCastEnv
 import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.gui.splicing.SplicingTableMenu
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
@@ -86,8 +87,9 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     }
 
     override fun getClientView() = getData(null, null)?.run {
+        val env = FakeCastEnv(level)
         SplicingTableClientView(
-            list = list?.map { IotaType.serialize(it) },
+            list = list?.map { IotaClientView(it, env) },
             clipboard = clipboard?.let { IotaType.serialize(it) },
             isListWritable = listWriter != null,
             isClipboardWritable = clipboardWriter != null,
