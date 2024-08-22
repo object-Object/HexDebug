@@ -3,6 +3,8 @@ package gay.`object`.hexdebug.splicing
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.IotaType
+import at.petrak.hexcasting.api.casting.iota.PatternIota
+import at.petrak.hexcasting.api.casting.math.HexPattern
 import gay.`object`.hexdebug.utils.displayWithPatternName
 import gay.`object`.hexdebug.utils.toHexpatternSource
 import net.minecraft.nbt.CompoundTag
@@ -39,10 +41,12 @@ data class IotaClientView(
     val tag: CompoundTag,
     val name: Component,
     val hexpatternSource: String,
+    val pattern: HexPattern?,
 ) {
     constructor(iota: Iota, env: CastingEnvironment) : this(
         tag = IotaType.serialize(iota),
         name = iota.displayWithPatternName(env),
         hexpatternSource = iota.toHexpatternSource(env),
+        pattern = (iota as? PatternIota)?.pattern,
     )
 }

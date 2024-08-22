@@ -1,7 +1,7 @@
 package gay.`object`.hexdebug.gui.splicing
 
+import at.petrak.hexcasting.api.casting.eval.SpecialPatterns
 import at.petrak.hexcasting.api.casting.iota.IotaType
-import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.misc.MediaConstants
 import at.petrak.hexcasting.api.utils.*
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
@@ -15,6 +15,7 @@ import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlockEntity
+import gay.`object`.hexdebug.splicing.IotaClientView
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
 import gay.`object`.hexdebug.utils.joinToComponent
@@ -39,6 +40,7 @@ import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.util.function.BiConsumer
 import kotlin.math.ceil
+import kotlin.math.max
 import kotlin.math.pow
 
 @Suppress("SameParameterValue")
@@ -141,6 +143,13 @@ class SplicingTableScreen(
             button("clear_grid") { guiSpellcasting.mixin.`clearPatterns$hexdebug`() }
                 .pos(leftPos - 200, topPos - 24)
                 .size(64, 16)
+                .build()
+        )
+
+        viewButtons += listOf(
+            button("export") { exportToSystemClipboard() }
+                .pos(leftPos + imageWidth + 2, topPos)
+                .size(128, 16)
                 .build()
         )
 
@@ -338,6 +347,11 @@ class SplicingTableScreen(
         )
 
         reloadData()
+    }
+
+    private fun exportToSystemClipboard() {
+        val export = data.list?.toHexpatternSource() ?: return
+        minecraft?.keyboardHandler?.clipboard = export
     }
 
     private fun moveView(direction: Int) {
@@ -1088,9 +1102,7 @@ class SplicingTableScreen(
                 HexIotaTypes.CONTINUATION -> getTypeUVOffset(2, 2)
 
                 // custom pattern rendering
-                HexIotaTypes.PATTERN -> {
-                    val pattern = PatternIota.deserialize(iotaData).pattern
-
+                HexIotaTypes.PATTERN -> iotaView.pattern?.let { pattern ->
                     advanced += tooltipText("signature", pattern.simpleString())
 
                     val (_, dots) = getCenteredPattern(
@@ -1241,3 +1253,13 @@ fun GuiGraphics.setColor(color: Color) = setColor(color.fred, color.fgreen, colo
 val HEX_COLOR = TextColor.fromRgb(0xb38ef3)
 val PERCENTAGE = DecimalFormat("####").apply { roundingMode = RoundingMode.DOWN }
 val DUST_AMOUNT = DecimalFormat("###,###.##")
+
+private fun List<IotaClientView>.toHexpatternSource(): String {
+    var depth = 0
+    return joinToString("\n") {
+        if (it.pattern == SpecialPatterns.RETROSPECTION) depth--
+        val indent = " ".repeat(max(0, 4 * depth))
+        if (it.pattern == SpecialPatterns.INTROSPECTION) depth++
+        indent + it.hexpatternSource
+    }
+}
