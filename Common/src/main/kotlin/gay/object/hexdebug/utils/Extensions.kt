@@ -18,12 +18,11 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
+import java.awt.Color
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.enums.enumEntries
 import kotlin.math.ceil
-import kotlin.math.log
-import kotlin.math.pow
 
 // futures
 
@@ -113,15 +112,9 @@ fun <T> Collection<T>.joinToComponent(
 inline val <reified T : Enum<T>> T.asItemPredicate get() =
     ordinal.toFloat() / (ceil(enumEntries<T>().lastIndex.toFloat() / 2f) * 2f)
 
-inline fun <reified T> List<T>.getWrapping(idx: Int) = this[idx.mod(size)]
-
-/** Rounds `this` up to the next power of `base`. */
-fun Number.ceilToPow(base: Number): Int = toDouble().ceilToPow(base.toDouble())
-
-// https://stackoverflow.com/q/19870067
-private fun Double.ceilToPow(base: Double): Int = base.pow(ceil(log(this, base))).toInt()
-
 val Boolean.asItemPredicate get() = if (this) 1f else 0f
+
+inline fun <reified T> List<T>.getWrapping(idx: Int) = this[idx.mod(size)]
 
 // iota/pattern stringifying
 
@@ -189,3 +182,8 @@ fun HexPattern.simpleString() = buildString {
         append(anglesSignature())
     }
 }
+
+val Color.fred get() = red.toFloat() / 255f
+val Color.fgreen get() = green.toFloat() / 255f
+val Color.fblue get() = blue.toFloat() / 255f
+val Color.falpha get() = alpha.toFloat() / 255f

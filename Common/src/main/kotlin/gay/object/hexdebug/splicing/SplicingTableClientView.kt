@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.splicing
 
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
+import at.petrak.hexcasting.api.casting.eval.SpecialPatterns
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.casting.iota.PatternIota
@@ -9,6 +10,7 @@ import gay.`object`.hexdebug.utils.displayWithPatternName
 import gay.`object`.hexdebug.utils.toHexpatternSource
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
+import kotlin.math.max
 
 data class SplicingTableClientView(
     val list: List<IotaClientView>?,
@@ -49,4 +51,14 @@ data class IotaClientView(
         hexpatternSource = iota.toHexpatternSource(env),
         pattern = (iota as? PatternIota)?.pattern,
     )
+}
+
+fun List<IotaClientView>.toHexpatternSource(): String {
+    var depth = 0
+    return joinToString("\n") {
+        if (it.pattern == SpecialPatterns.RETROSPECTION) depth--
+        val indent = " ".repeat(max(0, 4 * depth))
+        if (it.pattern == SpecialPatterns.INTROSPECTION) depth++
+        indent + it.hexpatternSource
+    }
 }
