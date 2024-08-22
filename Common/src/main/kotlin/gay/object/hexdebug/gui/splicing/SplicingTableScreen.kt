@@ -2,10 +2,8 @@ package gay.`object`.hexdebug.gui.splicing
 
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.casting.iota.PatternIota
-import at.petrak.hexcasting.api.utils.asTextComponent
-import at.petrak.hexcasting.api.utils.asTranslatedComponent
-import at.petrak.hexcasting.api.utils.darkGray
-import at.petrak.hexcasting.api.utils.gray
+import at.petrak.hexcasting.api.misc.MediaConstants
+import at.petrak.hexcasting.api.utils.*
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
 import at.petrak.hexcasting.client.render.drawLineSeq
 import at.petrak.hexcasting.client.render.findDupIndices
@@ -23,10 +21,7 @@ import gay.`object`.hexdebug.utils.joinToComponent
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.gui.components.AbstractButton
-import net.minecraft.client.gui.components.Button
-import net.minecraft.client.gui.components.Renderable
-import net.minecraft.client.gui.components.Tooltip
+import net.minecraft.client.gui.components.*
 import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
@@ -34,10 +29,13 @@ import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.TextColor
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.phys.Vec2
 import java.awt.Color
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.util.function.BiConsumer
 import kotlin.math.ceil
 import kotlin.math.pow
@@ -327,6 +325,17 @@ class SplicingTableScreen(
             addRenderableOnly(IotaSelection(button))
         }
 
+        addRenderableWidget(
+            MediaBar(
+                x = leftPos + 225,
+                y = topPos + 169,
+                uOffset = 481,
+                vOffset = 328,
+                width = 6,
+                height = 16,
+            )
+        )
+
         reloadData()
     }
 
@@ -590,17 +599,7 @@ class SplicingTableScreen(
             blitSprite(guiGraphics, x = leftPos + 193, y = topPos + 170, uOffset = 449, vOffset = 328, width = 10, height = 14)
 
             // fuel bar
-            val filledFraction = menu.media.toDouble() / SplicingTableBlockEntity.maxMedia
-            val height = ceil(16.0 * filledFraction).toInt().coerceIn(0, 16)
-            blitSprite(
-                guiGraphics,
-                x = leftPos + 225,
-                y = topPos + 185 - height,
-                uOffset = 481,
-                vOffset = 344 - height,
-                width = 6,
-                height = height,
-            )
+
         }
 
         // staff grid
@@ -766,6 +765,65 @@ class SplicingTableScreen(
         RIGHT(155, 47, 8, 0x886539);
 
         constructor(x: Int, y: Int, offset: Int, color: Int) : this(x, y, offset, Color(color))
+    }
+
+    // FIXME: no tooltip hover over rightmost pixel ???
+    inner class MediaBar(
+        x: Int,
+        y: Int,
+        private val uOffset: Int,
+        private val vOffset: Int,
+        width: Int,
+        height: Int,
+    ) : AbstractWidget(x, y, width, height, Component.empty()) {
+        private val media get() = menu.media
+        private val maxMedia get() = SplicingTableBlockEntity.maxMedia
+        private val fullness get() = if (maxMedia > 0) media.toDouble() / maxMedia else 0.0
+
+        override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+            if (media > 0 && maxMedia > 0) {
+                val visibleHeight = ceil(height * fullness).toInt().coerceIn(0, height)
+                val yOffset = height - visibleHeight
+                blitSprite(
+                    guiGraphics,
+                    x = x,
+                    y = y + yOffset,
+                    uOffset = uOffset,
+                    vOffset = vOffset + yOffset,
+                    width = width,
+                    height = visibleHeight,
+                )
+            }
+        }
+
+        override fun updateTooltip() {
+            // stolen from ItemMediaHolder
+            // FIXME: i don't think this is the right way to do this :/
+            tooltip = if (maxMedia > 0) {
+                val color = TextColor.fromRgb(mediaBarColor(media, maxMedia))
+
+                val mediamount = DUST_AMOUNT.format(media.toDouble() / MediaConstants.DUST_UNIT)
+                    .asTextComponent
+                    .styledWith { it.withColor(HEX_COLOR) }
+
+                val percentFull = (PERCENTAGE.format(100f * fullness) + "%")
+                    .asTextComponent
+                    .styledWith { it.withColor(color) }
+
+                val maxCapacity = "hexcasting.tooltip.media"
+                    .asTranslatedComponent(DUST_AMOUNT.format(maxMedia.toDouble() / MediaConstants.DUST_UNIT))
+                    .styledWith { it.withColor(HEX_COLOR) }
+
+                Tooltip.create(
+                    "hexcasting.tooltip.media_amount.advanced"
+                        .asTranslatedComponent(mediamount, maxCapacity, percentFull)
+                )
+            } else null
+            super.updateTooltip()
+        }
+
+        // TODO: implement?
+        override fun updateWidgetNarration(narrationElementOutput: NarrationElementOutput) {}
     }
 
     abstract inner class SplicingTableButton(
@@ -1180,3 +1238,8 @@ val Color.fblue get() = blue.toFloat() / 255f
 val Color.falpha get() = alpha.toFloat() / 255f
 
 fun GuiGraphics.setColor(color: Color) = setColor(color.fred, color.fgreen, color.fblue, color.falpha)
+
+// stolen from ItemMediaHolder
+val HEX_COLOR = TextColor.fromRgb(0xb38ef3)
+val PERCENTAGE = DecimalFormat("####").apply { roundingMode = RoundingMode.DOWN }
+val DUST_AMOUNT = DecimalFormat("###,###.##")
