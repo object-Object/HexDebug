@@ -1,7 +1,6 @@
 package gay.`object`.hexdebug.debugger
 
 import at.petrak.hexcasting.api.HexAPI
-import at.petrak.hexcasting.api.casting.PatternShapeMatch
 import at.petrak.hexcasting.api.casting.SpellList
 import at.petrak.hexcasting.api.casting.eval.*
 import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect
@@ -11,7 +10,6 @@ import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation.NotDone
 import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.mishaps.Mishap
 import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
-import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import at.petrak.hexcasting.common.casting.actions.eval.OpEval
 import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
 import gay.`object`.hexdebug.adapter.LaunchArgs
@@ -21,7 +19,8 @@ import gay.`object`.hexdebug.casting.eval.debugCastEnv
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
 import gay.`object`.hexdebug.utils.ceilToPow
-import net.minecraft.network.chat.Component
+import gay.`object`.hexdebug.utils.displayWithPatternName
+import gay.`object`.hexdebug.utils.toHexpatternSource
 import net.minecraft.server.level.ServerLevel
 import org.eclipse.lsp4j.debug.*
 import java.util.*
@@ -725,45 +724,10 @@ class HexDebugger(
         } else false
     }
 
-    private fun iotaToString(iota: Iota, isSource: Boolean = false): String = when (iota) {
-        // i feel like hex should have a thing for this...
-        is PatternIota -> HexAPI.instance().run {
-            when (val lookup = PatternRegistryManifest.matchPattern(iota.pattern, defaultEnv, false)) {
-                is PatternShapeMatch.Normal -> getActionI18n(lookup.key, false)
-                is PatternShapeMatch.PerWorld -> getActionI18n(lookup.key, true)
-                is PatternShapeMatch.Special -> lookup.handler.name
-                is PatternShapeMatch.Nothing -> when (iota.pattern) {
-                    SpecialPatterns.INTROSPECTION -> if (isSource) {
-                        Component.literal("{")
-                    } else {
-                        getRawHookI18n(HexAPI.modLoc("open_paren"))
-                    }
-
-                    SpecialPatterns.RETROSPECTION -> if (isSource) {
-                        Component.literal("}")
-                    } else {
-                        getRawHookI18n(HexAPI.modLoc("close_paren"))
-                    }
-
-                    SpecialPatterns.CONSIDERATION -> getRawHookI18n(HexAPI.modLoc("escape"))
-                    SpecialPatterns.EVANITION -> getRawHookI18n(HexAPI.modLoc("undo"))
-                    else -> iota.display()
-                }
-            }
-        }.string
-
-        else -> {
-            val result = when (iota) {
-                is ListIota -> "[" + iota.list.joinToString { iotaToString(it, isSource) } + "]"
-                is GarbageIota -> "Garbage"
-                else -> iota.display().string
-            }
-            if (isSource) {
-                "<$result>"
-            } else {
-                result
-            }
-        }
+    private fun iotaToString(iota: Iota, isSource: Boolean = false): String = if (isSource) {
+        iota.toHexpatternSource(defaultEnv)
+    } else {
+        iota.displayWithPatternName(defaultEnv).string
     }
 
     data class EvaluatorResetData(
