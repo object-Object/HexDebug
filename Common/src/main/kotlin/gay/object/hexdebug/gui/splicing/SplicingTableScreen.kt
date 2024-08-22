@@ -642,41 +642,6 @@ class SplicingTableScreen(
         guiGraphics.disableScissor()
     }
 
-    private fun drawRangeSelection(guiGraphics: GuiGraphics, offset: Int, type: IotaBackgroundType, leftEdge: Boolean, rightEdge: Boolean) {
-        blitSprite(
-            guiGraphics,
-            x = leftPos + 15 + 18 * offset,
-            y = topPos + 18,
-            uOffset = 352 + 20 * type.ordinal,
-            vOffset = 24,
-            width = 18,
-            height = 25,
-        )
-        if (leftEdge) {
-            drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.LEFT)
-        }
-        if (rightEdge) {
-            drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.RIGHT)
-        }
-    }
-
-    private fun drawEdgeSelection(guiGraphics: GuiGraphics, offset: Int) {
-        drawSelectionEndCap(guiGraphics, offset - 1, SelectionEndCap.RIGHT)
-        drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.LEFT)
-    }
-
-    private fun drawSelectionEndCap(guiGraphics: GuiGraphics, offset: Int, endCap: SelectionEndCap) {
-        blitSprite(
-            guiGraphics,
-            x = leftPos + 14 + 18 * offset + endCap.xOffset,
-            y = topPos + 24,
-            uOffset = 370 + endCap.uOffset,
-            vOffset = 4,
-            width = 1,
-            height = 13,
-        )
-    }
-
     companion object {
         val TEXTURE = HexDebug.id("textures/gui/splicing_table.png")
 
@@ -733,11 +698,12 @@ class SplicingTableScreen(
             guiGraphics.blit(TEXTURE, x, y, uOffset.toFloat(), vOffset.toFloat(), width, height, 512, 512)
         }
 
-        fun button(name: String, onPress: Button.OnPress) = button(buttonKey(name).asTranslatedComponent, onPress)
-
-        fun button(message: Component, onPress: Button.OnPress) =
-            Button.builder(message, onPress)
+        // TODO: remove when we have icons for the remaining buttons
+        fun button(name: String, onPress: Button.OnPress): Button.Builder {
+            val message = buttonKey(name).asTranslatedComponent
+            return Button.builder(message, onPress)
                 .tooltip(Tooltip.create(message))
+        }
 
         fun buttonText(name: String, vararg args: Any) = buttonKey(name).asTranslatedComponent(*args)
         fun tooltipText(name: String, vararg args: Any) = tooltipKey(name).asTranslatedComponent(*args)
@@ -785,6 +751,41 @@ class SplicingTableScreen(
                 }
                 null -> {}
             }
+        }
+
+        private fun drawRangeSelection(guiGraphics: GuiGraphics, offset: Int, type: IotaBackgroundType, leftEdge: Boolean, rightEdge: Boolean) {
+            blitSprite(
+                guiGraphics,
+                x = leftPos + 15 + 18 * offset,
+                y = topPos + 18,
+                uOffset = 352 + 20 * type.ordinal,
+                vOffset = 24,
+                width = 18,
+                height = 25,
+            )
+            if (leftEdge) {
+                drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.LEFT)
+            }
+            if (rightEdge) {
+                drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.RIGHT)
+            }
+        }
+
+        private fun drawEdgeSelection(guiGraphics: GuiGraphics, offset: Int) {
+            drawSelectionEndCap(guiGraphics, offset - 1, SelectionEndCap.RIGHT)
+            drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.LEFT)
+        }
+
+        private fun drawSelectionEndCap(guiGraphics: GuiGraphics, offset: Int, endCap: SelectionEndCap) {
+            blitSprite(
+                guiGraphics,
+                x = leftPos + 14 + 18 * offset + endCap.xOffset,
+                y = topPos + 24,
+                uOffset = 370 + endCap.uOffset,
+                vOffset = 4,
+                width = 1,
+                height = 13,
+            )
         }
     }
 }
