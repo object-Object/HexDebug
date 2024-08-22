@@ -29,6 +29,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.TextColor
@@ -1096,7 +1097,11 @@ class SplicingTableScreen(
                 HexIotaTypes.VEC3 -> getTypeUVOffset(1, 0)
                 HexIotaTypes.ENTITY -> getTypeUVOffset(2, 0)
                 HexIotaTypes.BOOLEAN -> getTypeUVOffset(1, 1)
-                HexIotaTypes.LIST -> getTypeUVOffset(2, 1)
+                HexIotaTypes.LIST -> {
+                    val listTag = iotaData.downcast(ListTag.TYPE)
+                    advanced += tooltipText("length", listTag.size)
+                    getTypeUVOffset(2, 1)
+                }
                 HexIotaTypes.NULL -> getTypeUVOffset(0, 2)
                 HexIotaTypes.GARBAGE -> getTypeUVOffset(1, 2)
                 HexIotaTypes.CONTINUATION -> getTypeUVOffset(2, 2)
