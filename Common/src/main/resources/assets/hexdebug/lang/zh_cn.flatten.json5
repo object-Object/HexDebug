@@ -36,10 +36,12 @@
           copy: "复制",
           paste: "粘贴（逐项）",
           paste_splat: "粘贴（扁平化）",
+          export: "导出为.hexpattern文件",
         },
         tooltip: {
           index: "索引下标：%d",
           signature: "图案编码：%s",
+          length: "长度：%d",
         },
       },
     },
@@ -47,8 +49,8 @@
     "autoconfig.hexdebug": {
       title: "咒法调试配置",
       category: {
-        client: "客户端",
-        server: "服务端",
+        client: "Client",
+        server: "Server",
       },
       option: {
         client: {
