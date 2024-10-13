@@ -15,10 +15,8 @@ import gay.`object`.hexdebug.items.base.ItemPredicateProvider
 import gay.`object`.hexdebug.items.base.ModelPredicateEntry
 import gay.`object`.hexdebug.utils.asItemPredicate
 import gay.`object`.hexdebug.utils.getWrapping
-import gay.`object`.hexdebug.utils.itemPredicate
 import gay.`object`.hexdebug.utils.otherHand
 import net.minecraft.client.player.LocalPlayer
-import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
 import net.minecraft.core.NonNullList
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
@@ -149,11 +147,11 @@ class DebuggerItem(properties: Properties) : ItemPackagedHex(properties), ItemPr
         ModelPredicateEntry(DEBUG_STATE_PREDICATE) { _, _, entity, _ ->
             // don't show the active icon for debuggers held by other players, on the ground, etc
             val state = if (entity is LocalPlayer) debugState else DebugState.NOT_DEBUGGING
-            state.itemPredicate(DebugState.values())
+            state.asItemPredicate(DebugState.values())
         },
 
         ModelPredicateEntry(STEP_MODE_PREDICATE) { stack, _, _, _ ->
-            getStepMode(stack).itemPredicate(StepMode.values())
+            getStepMode(stack).asItemPredicate(StepMode.values())
         },
 
         ModelPredicateEntry(HAS_HEX_PREDICATE) { stack, _, _, _ ->

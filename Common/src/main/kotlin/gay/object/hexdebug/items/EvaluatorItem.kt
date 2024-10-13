@@ -9,9 +9,10 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.newEvaluatorCastEnv
-import gay.`object`.hexdebug.utils.itemPredicate
+import gay.`object`.hexdebug.items.base.ItemPredicateProvider
+import gay.`object`.hexdebug.items.base.ModelPredicateEntry
+import gay.`object`.hexdebug.utils.asItemPredicate
 import net.minecraft.client.player.LocalPlayer
-import net.minecraft.client.renderer.item.ClampedItemPropertyFunction
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
@@ -60,7 +61,7 @@ class EvaluatorItem(properties: Properties) : ItemStaff(properties), ItemPredica
         ModelPredicateEntry(EVAL_STATE_PREDICATE) { _, _, entity, _ ->
             // don't show the active icon for items held by other players, on the ground, etc
             val state = if (entity is LocalPlayer) evalState else EvalState.DEFAULT
-            state.itemPredicate(EvalState.values())
+            state.asItemPredicate(EvalState.values())
         }
     )
 

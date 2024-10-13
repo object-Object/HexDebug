@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.*
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
+import net.minecraft.world.level.material.PushReaction
 import net.minecraft.world.phys.BlockHitResult
 
 @Suppress("OVERRIDE_DEPRECATION")
@@ -78,6 +79,8 @@ class SplicingTableBlock(properties: Properties) : BaseEntityBlock(properties) {
         getBlockEntity(level, pos)?.analogOutputSignal ?: 0
 
     private fun getBlockEntity(level: Level, pos: BlockPos) = level.getBlockEntity(pos) as? SplicingTableBlockEntity
+
+    override fun getPistonPushReaction(state: BlockState) = PushReaction.BLOCK
 
     companion object {
         val FACING = BlockStateProperties.HORIZONTAL_FACING

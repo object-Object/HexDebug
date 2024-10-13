@@ -1,18 +1,17 @@
 package gay.`object`.hexdebug.utils
 
-import at.petrak.hexcasting.api.HexAPI
-import at.petrak.hexcasting.api.casting.PatternShapeMatch
-import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
-import at.petrak.hexcasting.api.casting.eval.SpecialPatterns
-import at.petrak.hexcasting.api.casting.iota.GarbageIota
-import at.petrak.hexcasting.api.casting.iota.Iota
-import at.petrak.hexcasting.api.casting.iota.ListIota
-import at.petrak.hexcasting.api.casting.iota.PatternIota
-import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.api.PatternRegistry
+import at.petrak.hexcasting.api.spell.casting.SpecialPatterns
+import at.petrak.hexcasting.api.spell.iota.GarbageIota
+import at.petrak.hexcasting.api.spell.iota.Iota
+import at.petrak.hexcasting.api.spell.iota.ListIota
+import at.petrak.hexcasting.api.spell.iota.PatternIota
+import at.petrak.hexcasting.api.spell.math.HexPattern
+import at.petrak.hexcasting.api.spell.mishaps.MishapInvalidPattern
 import at.petrak.hexcasting.api.utils.*
-import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import net.minecraft.network.chat.*
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity
@@ -107,7 +106,7 @@ fun <T> Collection<T>.joinToComponent(
 }
 
 // ceil the denominator to a power of 2 so we don't have issues with eg. 1/3
-inline fun <reified T : Enum<T>> T.itemPredicate(entries: Array<T>) =
+inline fun <reified T : Enum<T>> T.asItemPredicate(entries: Array<T>) =
     ordinal.toFloat() / (ceil(entries.lastIndex.toFloat() / 2f) * 2f)
 
 val Boolean.asItemPredicate get() = if (this) 1f else 0f
@@ -116,23 +115,23 @@ inline fun <reified T> Array<T>.getWrapping(idx: Int) = this[idx.mod(size)]
 
 // iota/pattern stringifying
 
-fun Iota.displayWithPatternName(env: CastingEnvironment): Component = when (this) {
-    is PatternIota -> pattern.getI18nOrNull(env) ?: display()
+fun Iota.displayWithPatternName(world: ServerLevel): Component = when (this) {
+    is PatternIota -> pattern.getI18nOrNull(world) ?: display()
     is ListIota -> {
-        val contents = list.toList().joinToComponent(", ") { it.displayWithPatternName(env) }
+        val contents = list.toList().joinToComponent(", ") { it.displayWithPatternName(world) }
         "hexcasting.tooltip.list_contents".asTranslatedComponent(contents).darkPurple
     }
     else -> display()
 }
 
-fun Iota.toHexpatternSource(env: CastingEnvironment, wrapEmbedded: Boolean = true): String {
+fun Iota.toHexpatternSource(world: ServerLevel, wrapEmbedded: Boolean = true): String {
     val iotaText = when (this) {
         is PatternIota -> {
             // don't wrap known patterns in angled brackets
             when (pattern) {
                 SpecialPatterns.INTROSPECTION -> "{"
                 SpecialPatterns.RETROSPECTION -> "}"
-                else -> pattern.getI18nOrNull(env)?.string
+                else -> pattern.getI18nOrNull(world)?.string
             }?.let { return it }
             // but do wrap unknown ones
             pattern.simpleString()
@@ -140,8 +139,8 @@ fun Iota.toHexpatternSource(env: CastingEnvironment, wrapEmbedded: Boolean = tru
         is ListIota -> list.joinToString(separator = ", ", prefix = "[", postfix = "]") {
             when (it) {
                 // don't use { and } for intro/retro in an embedded list
-                is PatternIota -> it.pattern.getI18nOrNull(env)?.string ?: it.pattern.simpleString()
-                else -> it.toHexpatternSource(env, wrapEmbedded = false)
+                is PatternIota -> it.pattern.getI18nOrNull(world)?.string ?: it.pattern.simpleString()
+                else -> it.toHexpatternSource(world, wrapEmbedded = false)
             }
         }
         is GarbageIota -> "Garbage"
@@ -153,22 +152,17 @@ fun Iota.toHexpatternSource(env: CastingEnvironment, wrapEmbedded: Boolean = tru
     return iotaText
 }
 
-fun HexPattern.getI18nOrNull(env: CastingEnvironment): Component? {
-    val hexAPI = HexAPI.instance()
-    return when (val lookup = PatternRegistryManifest.matchPattern(this, env, false)) {
-        is PatternShapeMatch.Normal -> hexAPI.getActionI18n(lookup.key, false)
-        is PatternShapeMatch.PerWorld -> hexAPI.getActionI18n(lookup.key, true)
-        is PatternShapeMatch.Special -> lookup.handler.name
-        is PatternShapeMatch.Nothing -> {
-            val path = when (this) {
-                SpecialPatterns.INTROSPECTION -> "open_paren"
-                SpecialPatterns.RETROSPECTION -> "close_paren"
-                SpecialPatterns.CONSIDERATION -> "escape"
-                SpecialPatterns.EVANITION -> "undo"
-                else -> return null
-            }
-            hexAPI.getRawHookI18n(HexAPI.modLoc(path))
+fun HexPattern.getI18nOrNull(world: ServerLevel): Component? {
+    return try {
+        PatternRegistry.matchPattern(this, world).displayName
+    } catch (e: MishapInvalidPattern) {
+        val path = when (this) {
+            SpecialPatterns.INTROSPECTION -> "open_paren"
+            SpecialPatterns.RETROSPECTION -> "close_paren"
+            SpecialPatterns.CONSIDERATION -> "escape"
+            else -> return null
         }
+        "hexcasting.spell.hexcasting:$path".asTranslatedComponent.lightPurple
     }
 }
 

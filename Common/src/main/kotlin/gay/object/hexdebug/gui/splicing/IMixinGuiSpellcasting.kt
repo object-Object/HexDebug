@@ -1,6 +1,6 @@
 package gay.`object`.hexdebug.gui.splicing
 
-import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.api.spell.math.HexPattern
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
 import net.minecraft.world.InteractionHand
 import java.util.function.BiConsumer

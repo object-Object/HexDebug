@@ -1,15 +1,15 @@
 package gay.`object`.hexdebug.splicing
 
-import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
-import at.petrak.hexcasting.api.casting.eval.SpecialPatterns
-import at.petrak.hexcasting.api.casting.iota.Iota
-import at.petrak.hexcasting.api.casting.iota.IotaType
-import at.petrak.hexcasting.api.casting.iota.PatternIota
-import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.api.spell.casting.SpecialPatterns
+import at.petrak.hexcasting.api.spell.iota.Iota
+import at.petrak.hexcasting.api.spell.iota.PatternIota
+import at.petrak.hexcasting.api.spell.math.HexPattern
+import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
 import gay.`object`.hexdebug.utils.displayWithPatternName
 import gay.`object`.hexdebug.utils.toHexpatternSource
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerLevel
 import kotlin.math.max
 
 data class SplicingTableClientView(
@@ -45,10 +45,10 @@ data class IotaClientView(
     val hexpatternSource: String,
     val pattern: HexPattern?,
 ) {
-    constructor(iota: Iota, env: CastingEnvironment) : this(
-        tag = IotaType.serialize(iota),
-        name = iota.displayWithPatternName(env),
-        hexpatternSource = iota.toHexpatternSource(env),
+    constructor(iota: Iota, level: ServerLevel) : this(
+        tag = HexIotaTypes.serialize(iota),
+        name = iota.displayWithPatternName(level),
+        hexpatternSource = iota.toHexpatternSource(level),
         pattern = (iota as? PatternIota)?.pattern,
     )
 }

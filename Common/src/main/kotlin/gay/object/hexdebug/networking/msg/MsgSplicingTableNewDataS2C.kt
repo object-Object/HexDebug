@@ -1,6 +1,6 @@
 package gay.`object`.hexdebug.networking.msg
 
-import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.api.spell.math.HexPattern
 import gay.`object`.hexdebug.splicing.IotaClientView
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
 import net.minecraft.nbt.CompoundTag

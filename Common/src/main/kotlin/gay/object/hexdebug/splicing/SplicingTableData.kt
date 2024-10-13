@@ -1,10 +1,10 @@
 package gay.`object`.hexdebug.splicing
 
 import at.petrak.hexcasting.api.addldata.ADIotaHolder
-import at.petrak.hexcasting.api.casting.iota.Iota
-import at.petrak.hexcasting.api.casting.iota.IotaType
-import at.petrak.hexcasting.api.casting.iota.ListIota
-import at.petrak.hexcasting.api.casting.mishaps.MishapOthersName
+import at.petrak.hexcasting.api.spell.iota.Iota
+import at.petrak.hexcasting.api.spell.iota.ListIota
+import at.petrak.hexcasting.api.spell.mishaps.MishapOthersName.Companion.getTrueNameFromDatum
+import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.utils.Option
 import gay.`object`.hexdebug.utils.Option.None
@@ -70,7 +70,7 @@ open class SplicingTableData(
     fun writeClipboard(value: Iota?) = writeIota(clipboardWriter, value)
 
     fun writeIota(holder: ADIotaHolder?, value: Iota?): Boolean {
-        if (holder == null || (value != null && IotaType.isTooLargeToSerialize(listOf(value)))) return false
+        if (holder == null || (value != null && HexIotaTypes.isTooLargeToSerialize(listOf(value)))) return false
         return holder.writeIota(value, false).also {
             if (it) shouldConsumeMedia = true
         }
@@ -79,7 +79,7 @@ open class SplicingTableData(
     fun isClipboardTransferSafe(value: Iota) = isClipboardTransferSafe(listOf(value))
 
     // prevent transfer if list contains someone else's truename
-    fun isClipboardTransferSafe(value: List<Iota>) = null == MishapOthersName.getTrueNameFromArgs(value, player)
+    fun isClipboardTransferSafe(value: List<Iota>) = null == value.firstNotNullOfOrNull { getTrueNameFromDatum(it, player) }
 
     companion object : SplicingTableDataConverter<SplicingTableData> {
         override fun test(view: SplicingTableClientView, selection: Selection?) = true

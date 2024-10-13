@@ -3,32 +3,28 @@ package gay.`object`.hexdebug.registry
 import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlock
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlock
 import gay.`object`.hexdebug.items.FocusHolderBlockItem
-import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.core.registries.Registries
+import net.minecraft.core.Registry
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.material.PushReaction
 import net.minecraft.world.item.Item.Properties as ItemProperties
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties as BlockProperties
 
-object HexDebugBlocks : HexDebugRegistrar<Block>(Registries.BLOCK, { BuiltInRegistries.BLOCK }) {
+object HexDebugBlocks : HexDebugRegistrar<Block>(Registry.BLOCK_REGISTRY, { Registry.BLOCK }) {
     @JvmField
     val SPLICING_TABLE = blockItem("splicing_table", HexDebugItems.props) {
-        SplicingTableBlock(slateish.noPush())
+        SplicingTableBlock(slateish)
     }
 
     @JvmField
     val FOCUS_HOLDER = blockItem(
         "focus_holder",
-        blockBuilder = { FocusHolderBlock(slateish.noPush()) },
+        blockBuilder = { FocusHolderBlock(slateish) },
         itemBuilder = { FocusHolderBlockItem(it, HexDebugItems.props) },
     )
 
     private val slateish get() = BlockProperties.copy(Blocks.DEEPSLATE_TILES).strength(4f, 4f)
-
-    private fun BlockProperties.noPush() = pushReaction(PushReaction.BLOCK)
 
     private fun <T : Block> blockItem(name: String, props: ItemProperties, builder: () -> T) =
         blockItem(name, builder) { BlockItem(it, props) }

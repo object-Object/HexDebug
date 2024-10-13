@@ -1,7 +1,6 @@
 package gay.`object`.hexdebug.debugger
 
 import at.petrak.hexcasting.api.PatternRegistry
-import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.spell.Action
 import at.petrak.hexcasting.api.spell.SpellList
 import at.petrak.hexcasting.api.spell.casting.*
@@ -11,12 +10,13 @@ import at.petrak.hexcasting.api.spell.casting.eval.SpellContinuation.Done
 import at.petrak.hexcasting.api.spell.casting.eval.SpellContinuation.NotDone
 import at.petrak.hexcasting.api.spell.casting.sideeffects.EvalSound
 import at.petrak.hexcasting.api.spell.casting.sideeffects.OperatorSideEffect
-import at.petrak.hexcasting.api.spell.iota.*
+import at.petrak.hexcasting.api.spell.iota.Iota
+import at.petrak.hexcasting.api.spell.iota.ListIota
+import at.petrak.hexcasting.api.spell.iota.NullIota
+import at.petrak.hexcasting.api.spell.iota.PatternIota
 import at.petrak.hexcasting.api.spell.math.HexDir
 import at.petrak.hexcasting.api.spell.math.HexPattern
 import at.petrak.hexcasting.api.spell.mishaps.Mishap
-import at.petrak.hexcasting.api.spell.mishaps.MishapInvalidPattern
-import at.petrak.hexcasting.api.utils.PatternNameHelper
 import at.petrak.hexcasting.common.casting.operators.eval.OpEval
 import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
 import gay.`object`.hexdebug.adapter.LaunchArgs
@@ -759,41 +759,9 @@ class HexDebugger(
     }
 
     private fun iotaToString(iota: Iota, isSource: Boolean = false): String = if (isSource) {
-        iota.toHexpatternSource(defaultEnv)
+        iota.toHexpatternSource(world)
     } else {
-        iota.displayWithPatternName(defaultEnv).string
-    }
-
-    private fun oldIotaToString(iota: Iota, isSource: Boolean = false): String = when (iota) {
-        is PatternIota -> patternToString(iota.pattern, isSource).string
-
-        else -> {
-            val result = when (iota) {
-                is ListIota -> "[" + iota.list.joinToString { oldIotaToString(it, isSource) } + "]"
-                is GarbageIota -> "Garbage"
-                else -> iota.display().string
-            }
-            if (isSource) {
-                "<$result>"
-            } else {
-                result
-            }
-        }
-    }
-
-    private fun patternToString(pattern: HexPattern, isSource: Boolean = false): Component {
-        if (isSource) {
-            when (pattern) {
-                SpecialPatterns.INTROSPECTION -> return Component.literal("{")
-                SpecialPatterns.RETROSPECTION -> return Component.literal("}")
-                else -> {}
-            }
-        }
-        return try {
-            PatternRegistry.matchPattern(pattern, defaultEnv.world).displayName
-        } catch (e: MishapInvalidPattern) {
-            PatternNameHelper.representationForPattern(pattern)
-        }
+        iota.displayWithPatternName(world).string
     }
 
     data class EvaluatorResetData(

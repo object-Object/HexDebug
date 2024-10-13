@@ -18,7 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import net.minecraft.world.level.storage.loot.LootParams
+import net.minecraft.world.level.material.PushReaction
+import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.phys.BlockHitResult
 
@@ -102,7 +103,7 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
         return stack
     }
 
-    override fun getDrops(state: BlockState, params: LootParams.Builder): MutableList<ItemStack> {
+    override fun getDrops(state: BlockState, params: LootContext.Builder): MutableList<ItemStack> {
         val lootTableDrops = super.getDrops(state, params)
 
         val blockEntity = params.getBlockEntity<FocusHolderBlockEntity>()
@@ -121,6 +122,8 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
         return mutableListOf(stack)
     }
 
+    override fun getPistonPushReaction(state: BlockState) = PushReaction.BLOCK
+
     companion object {
         val HAS_ITEM: BooleanProperty = BooleanProperty.create("has_item")
 
@@ -132,6 +135,6 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
     }
 }
 
-inline fun <reified T : BlockEntity> LootParams.Builder.getBlockEntity(): T? {
+inline fun <reified T : BlockEntity> LootContext.Builder.getBlockEntity(): T? {
     return getOptionalParameter(LootContextParams.BLOCK_ENTITY) as? T
 }

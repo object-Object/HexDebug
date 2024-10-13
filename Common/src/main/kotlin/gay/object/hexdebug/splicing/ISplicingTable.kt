@@ -1,7 +1,7 @@
 package gay.`object`.hexdebug.splicing
 
-import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
-import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.api.spell.casting.ResolvedPatternType
+import at.petrak.hexcasting.api.spell.math.HexPattern
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack

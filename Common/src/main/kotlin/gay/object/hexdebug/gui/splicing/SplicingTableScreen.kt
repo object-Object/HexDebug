@@ -4,6 +4,7 @@ import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
 import at.petrak.hexcasting.common.lib.HexSounds
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.gui.splicing.widgets.*
 import gay.`object`.hexdebug.splicing.Selection
@@ -15,11 +16,10 @@ import gay.`object`.hexdebug.utils.fgreen
 import gay.`object`.hexdebug.utils.fred
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.components.Button
-import net.minecraft.client.gui.components.Renderable
 import net.minecraft.client.gui.components.Tooltip
+import net.minecraft.client.gui.components.Widget
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
@@ -592,85 +592,85 @@ class SplicingTableScreen(
 
     // rendering
 
-    override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun render(poseStack: PoseStack, mouseX: Int, mouseY: Int, partialTick: Float) {
         staffButtons.forEach { it.visible = hasStaffItem }
 
-        renderBackground(guiGraphics)
-        super.render(guiGraphics, mouseX, mouseY, partialTick)
-        renderTooltip(guiGraphics, mouseX, mouseY)
+        renderBackground(poseStack)
+        super.render(poseStack, mouseX, mouseY, partialTick)
+        renderTooltip(poseStack, mouseX, mouseY)
     }
 
-    override fun renderBg(guiGraphics: GuiGraphics, partialTick: Float, mouseX: Int, mouseY: Int) {
+    override fun renderBg(poseStack: PoseStack, partialTick: Float, mouseX: Int, mouseY: Int) {
         // main gui + right storage slots
-        blitSprite(guiGraphics, x = leftPos, y = topPos, uOffset = 256, vOffset = 128, width = imageWidth + 46, height = imageHeight)
+        blitSprite(poseStack, x = leftPos, y = topPos, uOffset = 256, vOffset = 128, width = imageWidth + 46, height = imageHeight)
 
         if (data.isListReadable) {
             // fancy media lines next to list slot
-            blitSprite(guiGraphics, x = leftPos + 56, y = topPos + 75, uOffset = 312, vOffset = 52, width = 80, height = 2)
+            blitSprite(poseStack, x = leftPos + 56, y = topPos + 75, uOffset = 312, vOffset = 52, width = 80, height = 2)
         }
 
         // media slot
         if (!hasMediaItem) {
             // dust background
-            blitSprite(guiGraphics, x = leftPos + 205, y = topPos + 169, uOffset = 461, vOffset = 328, width = 16, height = 16)
+            blitSprite(poseStack, x = leftPos + 205, y = topPos + 169, uOffset = 461, vOffset = 328, width = 16, height = 16)
         }
         if (menu.media > 0) {
             // sparkly stars
-            blitSprite(guiGraphics, x = leftPos + 193, y = topPos + 170, uOffset = 449, vOffset = 328, width = 10, height = 14)
+            blitSprite(poseStack, x = leftPos + 193, y = topPos + 170, uOffset = 449, vOffset = 328, width = 10, height = 14)
         }
 
         // staff grid
         if (hasStaffItem) {
             // background
             RenderSystem.enableBlend()
-            guiGraphics.setColor(1f, 1f, 1f, 0.25f)
-            blitRepeating(guiGraphics, x = staffMinX, y = staffMinY, uOffset = 240, vOffset = 0, width = 8, height = 8, xTiles = staffWidth / 8, yTiles = staffHeight / 8)
-            guiGraphics.setColor(1f, 1f, 1f, 1f)
+            poseStack.setColor(1f, 1f, 1f, 0.25f)
+            blitRepeating(poseStack, x = staffMinX, y = staffMinY, uOffset = 240, vOffset = 0, width = 8, height = 8, xTiles = staffWidth / 8, yTiles = staffHeight / 8)
+            poseStack.setColor(1f, 1f, 1f, 1f)
             RenderSystem.disableBlend()
 
             // pattern grid
-            renderGuiSpellcasting(guiGraphics, mouseX, mouseY, partialTick)
+            renderGuiSpellcasting(poseStack, mouseX, mouseY, partialTick)
 
             // top
-            blitRepeating(guiGraphics, x = staffMinX, y = staffMinY - 7, uOffset = 208, vOffset = 1, width = 32, height = 10, xTiles = staffWidth / 32, yTiles = 1)
+            blitRepeating(poseStack, x = staffMinX, y = staffMinY - 7, uOffset = 208, vOffset = 1, width = 32, height = 10, xTiles = staffWidth / 32, yTiles = 1)
             // bottom
-            blitRepeating(guiGraphics, x = staffMinX, y = staffMaxY - 3, uOffset = 208, vOffset = 45, width = 32, height = 10, xTiles = staffWidth / 32, yTiles = 1)
+            blitRepeating(poseStack, x = staffMinX, y = staffMaxY - 3, uOffset = 208, vOffset = 45, width = 32, height = 10, xTiles = staffWidth / 32, yTiles = 1)
             // left
-            blitRepeating(guiGraphics, x = staffMinX - 7, y = staffMinY, uOffset = 201, vOffset = 12, width = 10, height = 32, xTiles = 1, yTiles = staffHeight / 32)
+            blitRepeating(poseStack, x = staffMinX - 7, y = staffMinY, uOffset = 201, vOffset = 12, width = 10, height = 32, xTiles = 1, yTiles = staffHeight / 32)
             // right
-            blitRepeating(guiGraphics, x = staffMaxX - 3, y = staffMinY, uOffset = 237, vOffset = 12, width = 10, height = 32, xTiles = 1, yTiles = staffHeight / 32)
+            blitRepeating(poseStack, x = staffMaxX - 3, y = staffMinY, uOffset = 237, vOffset = 12, width = 10, height = 32, xTiles = 1, yTiles = staffHeight / 32)
 
             // top left
-            blitSprite(guiGraphics, x = staffMinX - 7, y = staffMinY - 8, uOffset = 176, vOffset = 0, width = 8, height = 9)
+            blitSprite(poseStack, x = staffMinX - 7, y = staffMinY - 8, uOffset = 176, vOffset = 0, width = 8, height = 9)
             // top right
-            blitSprite(guiGraphics, x = staffMaxX - 1, y = staffMinY - 7, uOffset = 184, vOffset = 1, width = 9, height = 8)
+            blitSprite(poseStack, x = staffMaxX - 1, y = staffMinY - 7, uOffset = 184, vOffset = 1, width = 9, height = 8)
             // bottom left
-            blitSprite(guiGraphics, x = staffMinX - 8, y = staffMaxY - 1, uOffset = 175, vOffset = 9, width = 9, height = 8)
+            blitSprite(poseStack, x = staffMinX - 8, y = staffMaxY - 1, uOffset = 175, vOffset = 9, width = 9, height = 8)
             // bottom right
-            blitSprite(guiGraphics, x = staffMaxX - 1, y = staffMaxY - 1, uOffset = 184, vOffset = 9, width = 8, height = 9)
+            blitSprite(poseStack, x = staffMaxX - 1, y = staffMaxY - 1, uOffset = 184, vOffset = 9, width = 8, height = 9)
 
             // staff slot without icon
-            blitSprite(guiGraphics, x = leftPos - 24, y = topPos + 165, uOffset = 232, vOffset = 293, width = 23, height = 24)
+            blitSprite(poseStack, x = leftPos - 24, y = topPos + 165, uOffset = 232, vOffset = 293, width = 23, height = 24)
         } else {
             // staff slot with icon
-            blitSprite(guiGraphics, x = leftPos - 24, y = topPos + 165, uOffset = 232, vOffset = 328, width = 23, height = 24)
+            blitSprite(poseStack, x = leftPos - 24, y = topPos + 165, uOffset = 232, vOffset = 328, width = 23, height = 24)
         }
     }
 
-    override fun renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
+    override fun renderLabels(poseStack: PoseStack, mouseX: Int, mouseY: Int) {
         // iota index labels
         for (label in IndexLabel.entries) {
             val index = viewStartIndex + label.offset
             if (data.isInRange(index)) {
-                drawNumber(guiGraphics, label.x, label.y, index, label.color)
+                drawNumber(poseStack, label.x, label.y, index, label.color)
             }
         }
     }
 
-    private fun renderGuiSpellcasting(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        guiGraphics.enableScissor(staffMinX, staffMinY, staffMaxX, staffMaxY)
-        guiSpellcasting.render(guiGraphics, mouseX, mouseY, partialTick)
-        guiGraphics.disableScissor()
+    private fun renderGuiSpellcasting(poseStack: PoseStack, mouseX: Int, mouseY: Int, partialTick: Float) {
+        poseStack.enableScissor(staffMinX, staffMinY, staffMaxX, staffMaxY)
+        guiSpellcasting.render(poseStack, mouseX, mouseY, partialTick)
+        poseStack.disableScissor()
     }
 
     companion object {
@@ -683,24 +683,24 @@ class SplicingTableScreen(
 
         fun getInstance() = Minecraft.getInstance().screen as? SplicingTableScreen
 
-        fun drawNumber(guiGraphics: GuiGraphics, x: Int, y: Int, number: Int, color: Color) {
-            guiGraphics.setColor(color)
+        fun drawNumber(poseStack: PoseStack, x: Int, y: Int, number: Int, color: Color) {
+            poseStack.setColor(color)
             var i = 0
             var rest = number.coerceIn(0, MAX_DIGIT)
             do {
-                drawDigit(guiGraphics, x + (MAX_DIGIT_LEN - i - 1) * 5, y, rest % 10)
+                drawDigit(poseStack, x + (MAX_DIGIT_LEN - i - 1) * 5, y, rest % 10)
                 rest /= 10
                 i++
             } while (rest > 0)
-            guiGraphics.setColor(1f, 1f, 1f, 1f)
+            poseStack.setColor(1f, 1f, 1f, 1f)
         }
 
-        fun drawDigit(guiGraphics: GuiGraphics, x: Int, y: Int, digit: Int) {
-            blitSprite(guiGraphics, x, y, 288 + 5 * digit, 0, 4, 5)
+        fun drawDigit(poseStack: PoseStack, x: Int, y: Int, digit: Int) {
+            blitSprite(poseStack, x, y, 288 + 5 * digit, 0, 4, 5)
         }
 
         fun blitRepeating(
-            guiGraphics: GuiGraphics,
+            poseStack: PoseStack,
             x: Int,
             y: Int,
             uOffset: Int,
@@ -713,7 +713,7 @@ class SplicingTableScreen(
             for (yIndex in 0 until yTiles) {
                 for (xIndex in 0 until xTiles) {
                     blitSprite(
-                        guiGraphics,
+                        poseStack,
                         x = x + width * xIndex,
                         y = y + height * yIndex,
                         uOffset = uOffset,
@@ -725,8 +725,8 @@ class SplicingTableScreen(
             }
         }
 
-        fun blitSprite(guiGraphics: GuiGraphics, x: Int, y: Int, uOffset: Int, vOffset: Int, width: Int, height: Int) {
-            guiGraphics.blit(TEXTURE, x, y, uOffset.toFloat(), vOffset.toFloat(), width, height, 512, 512)
+        fun blitSprite(poseStack: PoseStack, x: Int, y: Int, uOffset: Int, vOffset: Int, width: Int, height: Int) {
+            blit(poseStack, TEXTURE, x, y, uOffset.toFloat(), vOffset.toFloat(), width, height, 512, 512)
         }
 
         // TODO: remove when we have icons for the remaining buttons
@@ -761,33 +761,33 @@ class SplicingTableScreen(
         }
     }
 
-    inner class IotaSelection(button: IotaButton) : Renderable {
+    inner class IotaSelection(button: IotaButton) : Widget {
         private val offset by button::offset
         private val index by button::index
         private val backgroundType by button::backgroundType
 
-        override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+        override fun render(poseStack: PoseStack, mouseX: Int, mouseY: Int, partialTick: Float) {
             if (!data.isInRange(index) || backgroundType == null) return
             RenderSystem.enableBlend()
             when (val selection = selection) {
                 is Selection.Range -> if (index in selection) {
                     drawRangeSelection(
-                        guiGraphics, offset,
+                        poseStack, offset,
                         leftEdge = index == selection.start,
                         rightEdge = index == selection.end,
                     )
                 }
                 is Selection.Edge -> if (index == selection.index) {
-                    drawEdgeSelection(guiGraphics, offset)
+                    drawEdgeSelection(poseStack, offset)
                 }
                 null -> {}
             }
             RenderSystem.disableBlend()
         }
 
-        private fun drawRangeSelection(guiGraphics: GuiGraphics, offset: Int, leftEdge: Boolean, rightEdge: Boolean) {
+        private fun drawRangeSelection(poseStack: PoseStack, offset: Int, leftEdge: Boolean, rightEdge: Boolean) {
             blitSprite(
-                guiGraphics,
+                poseStack,
                 x = leftPos + 15 + 18 * offset,
                 y = topPos + 18,
                 uOffset = 352,
@@ -796,16 +796,16 @@ class SplicingTableScreen(
                 height = 25,
             )
             if (leftEdge) {
-                drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.LEFT)
+                drawSelectionEndCap(poseStack, offset, SelectionEndCap.LEFT)
             }
             if (rightEdge) {
-                drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.RIGHT)
+                drawSelectionEndCap(poseStack, offset, SelectionEndCap.RIGHT)
             }
         }
 
-        private fun drawEdgeSelection(guiGraphics: GuiGraphics, offset: Int) {
+        private fun drawEdgeSelection(poseStack: PoseStack, offset: Int) {
             blitSprite(
-                guiGraphics,
+                poseStack,
                 x = leftPos + 13 + 18 * offset,
                 y = topPos + 23,
                 uOffset = 375,
@@ -815,9 +815,9 @@ class SplicingTableScreen(
             )
         }
 
-        private fun drawSelectionEndCap(guiGraphics: GuiGraphics, offset: Int, endCap: SelectionEndCap) {
+        private fun drawSelectionEndCap(poseStack: PoseStack, offset: Int, endCap: SelectionEndCap) {
             blitSprite(
-                guiGraphics,
+                poseStack,
                 x = leftPos + 14 + 18 * offset + endCap.xOffset,
                 y = topPos + 24,
                 uOffset = 370 + endCap.uOffset,

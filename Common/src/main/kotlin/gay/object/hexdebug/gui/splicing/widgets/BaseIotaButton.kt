@@ -1,14 +1,14 @@
 package gay.`object`.hexdebug.gui.splicing.widgets
 
-import at.petrak.hexcasting.api.casting.iota.IotaType
+import at.petrak.hexcasting.api.spell.iota.IotaType
 import at.petrak.hexcasting.api.utils.asTextComponent
 import at.petrak.hexcasting.api.utils.darkGray
 import at.petrak.hexcasting.api.utils.downcast
 import at.petrak.hexcasting.api.utils.gray
-import at.petrak.hexcasting.client.render.drawLineSeq
-import at.petrak.hexcasting.client.render.findDupIndices
-import at.petrak.hexcasting.client.render.getCenteredPattern
-import at.petrak.hexcasting.client.render.makeZappy
+import at.petrak.hexcasting.client.drawLineSeq
+import at.petrak.hexcasting.client.findDupIndices
+import at.petrak.hexcasting.client.getCenteredPattern
+import at.petrak.hexcasting.client.makeZappy
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem

@@ -2,7 +2,7 @@ package gay.`object`.hexdebug.blocks.focusholder
 
 import at.petrak.hexcasting.api.addldata.ADIotaHolder
 import at.petrak.hexcasting.api.block.HexBlockEntity
-import at.petrak.hexcasting.api.casting.iota.Iota
+import at.petrak.hexcasting.api.spell.iota.Iota
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerSlotDelegate

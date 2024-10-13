@@ -1,23 +1,25 @@
 package gay.`object`.hexdebug.networking.msg
 
-import at.petrak.hexcasting.api.casting.eval.ExecutionClientView
-import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
+import at.petrak.hexcasting.api.spell.casting.ControllerInfo
+import at.petrak.hexcasting.api.spell.casting.ResolvedPatternType
 import net.minecraft.network.FriendlyByteBuf
 
 /**
- * Similar to [at.petrak.hexcasting.common.msgs.MsgNewSpellPatternS2C], but is only applied if holding an Evaluator.
+ * Similar to [at.petrak.hexcasting.common.network.MsgNewSpellPatternAck], but is only applied if holding an Evaluator.
  * This avoids interfering with other staves' client view when stepping through a debug session.
  */
-data class MsgEvaluatorClientInfoS2C(val info: ExecutionClientView) : HexDebugMessageS2C {
+data class MsgEvaluatorClientInfoS2C(val info: ControllerInfo) : HexDebugMessageS2C {
     companion object : HexDebugMessageCompanion<MsgEvaluatorClientInfoS2C> {
         override val type = MsgEvaluatorClientInfoS2C::class.java
 
         override fun decode(buf: FriendlyByteBuf) = MsgEvaluatorClientInfoS2C(
-            ExecutionClientView(
+            ControllerInfo(
                 isStackClear = buf.readBoolean(),
                 resolutionType = buf.readEnum(ResolvedPatternType::class.java),
-                stackDescs = buf.readList(FriendlyByteBuf::readNbt).filterNotNull(),
+                stack = buf.readList(FriendlyByteBuf::readNbt).filterNotNull(),
+                parenthesized = buf.readList(FriendlyByteBuf::readNbt).filterNotNull(),
                 ravenmind = buf.readNullable(FriendlyByteBuf::readNbt),
+                parenCount = buf.readInt(),
             )
         )
 
@@ -25,8 +27,10 @@ data class MsgEvaluatorClientInfoS2C(val info: ExecutionClientView) : HexDebugMe
             info.apply {
                 buf.writeBoolean(isStackClear)
                 buf.writeEnum(resolutionType)
-                buf.writeCollection(stackDescs, FriendlyByteBuf::writeNbt)
+                buf.writeCollection(stack, FriendlyByteBuf::writeNbt)
+                buf.writeCollection(parenthesized, FriendlyByteBuf::writeNbt)
                 buf.writeNullable(ravenmind, FriendlyByteBuf::writeNbt)
+                buf.writeInt(parenCount)
             }
         }
     }

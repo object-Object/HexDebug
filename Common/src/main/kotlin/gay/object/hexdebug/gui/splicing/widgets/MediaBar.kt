@@ -5,12 +5,11 @@ import at.petrak.hexcasting.api.utils.asTextComponent
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.api.utils.mediaBarColor
 import at.petrak.hexcasting.api.utils.styledWith
+import com.mojang.blaze3d.vertex.PoseStack
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlockEntity
 import gay.`object`.hexdebug.gui.splicing.SplicingTableMenu
 import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
-import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractWidget
-import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.TextColor
@@ -32,12 +31,12 @@ class MediaBar(
     private val maxMedia get() = SplicingTableBlockEntity.maxMedia
     private val fullness get() = if (maxMedia > 0) media.toDouble() / maxMedia else 0.0
 
-    override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun renderButton(poseStack: PoseStack, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (media > 0 && maxMedia > 0) {
             val visibleHeight = ceil(height * fullness).toInt().coerceIn(0, height)
             val yOffset = height - visibleHeight
             SplicingTableScreen.blitSprite(
-                guiGraphics,
+                poseStack,
                 x = x,
                 y = y + yOffset,
                 uOffset = uOffset,
@@ -75,7 +74,7 @@ class MediaBar(
     }
 
     // TODO: implement?
-    override fun updateWidgetNarration(narrationElementOutput: NarrationElementOutput) {}
+    override fun updateNarration(narrationElementOutput: NarrationElementOutput) {}
 }
 
 // stolen from ItemMediaHolder

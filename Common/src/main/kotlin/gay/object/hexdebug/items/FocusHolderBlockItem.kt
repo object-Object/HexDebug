@@ -1,7 +1,7 @@
 package gay.`object`.hexdebug.items
 
-import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.item.IotaHolderItem
+import at.petrak.hexcasting.api.spell.iota.Iota
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.api.utils.getCompound
 import at.petrak.hexcasting.api.utils.getList
@@ -63,6 +63,7 @@ class FocusHolderBlockItem(block: Block, properties: Properties) :
     )
 
     companion object {
+        private const val BLOCK_ENTITY_TAG = "BlockEntityTag"
         val HAS_ITEM = HexDebug.id("has_item")
 
         val ItemStack.hasIotaStack get() = getCompound(BLOCK_ENTITY_TAG)

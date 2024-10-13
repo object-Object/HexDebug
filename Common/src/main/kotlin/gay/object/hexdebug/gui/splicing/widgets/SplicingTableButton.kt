@@ -1,7 +1,7 @@
 package gay.`object`.hexdebug.gui.splicing.widgets
 
+import com.mojang.blaze3d.vertex.PoseStack
 import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
-import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.client.gui.narration.NarrationElementOutput
@@ -38,25 +38,24 @@ abstract class SplicingTableButton(
 
     override fun clicked(mouseX: Double, mouseY: Double) = isActive && visible && testHitbox(mouseX, mouseY)
 
-    override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun render(poseStack: PoseStack, mouseX: Int, mouseY: Int, partialTick: Float) {
         visible = testVisible()
         if (visible) {
             isHovered = testHitbox(mouseX, mouseY)
-            renderWidget(guiGraphics, mouseX, mouseY, partialTick)
-            updateTooltip()
+            renderButton(poseStack, mouseX, mouseY, partialTick)
         }
     }
 
-    override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun renderButton(poseStack: PoseStack, mouseX: Int, mouseY: Int, partialTick: Float) {
         val (uOffset, vOffset) = when {
             !isActive -> Pair(uOffsetDisabled, vOffsetDisabled)
             isHovered -> Pair(uOffsetHovered, vOffsetHovered)
             else -> Pair(uOffset, vOffset)
         }
-        SplicingTableScreen.blitSprite(guiGraphics, x, y, uOffset, vOffset, width, height)
+        SplicingTableScreen.blitSprite(poseStack, x, y, uOffset, vOffset, width, height)
     }
 
-    override fun updateWidgetNarration(output: NarrationElementOutput) = defaultButtonNarrationText(output)
+    override fun updateNarration(output: NarrationElementOutput) = defaultButtonNarrationText(output)
 
     open fun reload() {}
 }

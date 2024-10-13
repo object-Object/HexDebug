@@ -1,9 +1,9 @@
 package gay.`object`.hexdebug.networking.handler
 
-import at.petrak.hexcasting.api.casting.eval.ExecutionClientView
+import at.petrak.hexcasting.api.spell.casting.ControllerInfo
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
 import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
-import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternS2C
+import at.petrak.hexcasting.common.network.MsgNewSpellPatternAck
 import dev.architectury.networking.NetworkManager.PacketContext
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyClient
 import gay.`object`.hexdebug.config.DebuggerDisplayMode
@@ -44,7 +44,7 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
                 if (heldItem.`is`(HexDebugItems.EVALUATOR.value)) {
                     // just delegate to the existing handler instead of copying the functionality here
                     // we use an index of -1 because we don't want to update the resolution type of any patterns
-                    MsgNewSpellPatternS2C.handle(MsgNewSpellPatternS2C(info, -1))
+                    MsgNewSpellPatternAck.handle(MsgNewSpellPatternAck(info, -1))
                 }
             }
         }
@@ -81,10 +81,10 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
         }
 
         is MsgSplicingTableNewStaffPatternS2C -> {
-            val info = ExecutionClientView(false, resolutionType, listOf(), null)
+            val info = ControllerInfo(false, resolutionType, listOf(), listOf(), null, 0)
             SplicingTableScreen.getInstance()?.guiSpellcasting?.recvServerUpdate(info, index)
 
-            val sound = if (resolutionType.success) HexEvalSounds.NORMAL_EXECUTE else HexEvalSounds.MISHAP
+            val sound = if (resolutionType.success) HexEvalSounds.SPELL else HexEvalSounds.MISHAP
             sound.sound?.let { ctx.player.playSound(it, 1f, 1f) }
         }
 

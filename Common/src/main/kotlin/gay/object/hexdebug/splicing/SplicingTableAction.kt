@@ -1,6 +1,6 @@
 package gay.`object`.hexdebug.splicing
 
-import at.petrak.hexcasting.api.casting.iota.ListIota
+import at.petrak.hexcasting.api.spell.iota.ListIota
 import gay.`object`.hexdebug.utils.Option.Some
 
 enum class SplicingTableAction(val value: Value<*>) {

@@ -1,6 +1,6 @@
 package gay.`object`.hexdebug.adapter
 
-import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
+import at.petrak.hexcasting.api.spell.casting.CastingContext
 import dev.architectury.event.events.common.LifecycleEvent
 import dev.architectury.event.events.common.PlayerEvent
 import gay.`object`.hexdebug.HexDebug
@@ -13,7 +13,7 @@ object DebugAdapterManager {
 
     operator fun get(player: Player) = debugAdapters[player.uuid]
 
-    operator fun get(env: CastingEnvironment) = env.castingEntity?.let { it as? Player }?.let { get(it) }
+    operator fun get(env: CastingContext) = get(env.caster)
 
     fun init() {
         PlayerEvent.PLAYER_JOIN.register { player ->

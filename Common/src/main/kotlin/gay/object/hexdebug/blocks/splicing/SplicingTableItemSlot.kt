@@ -42,6 +42,6 @@ enum class SplicingTableItemSlot(val width: Int, val height: Int) : Iterable<Tri
     override fun toString() = name + if (size == 1) "($index)" else "($index..$lastIndex)"
 
     companion object {
-        val container_size = entries.last().lastIndex + 1
+        val container_size = values().last().lastIndex + 1
     }
 }

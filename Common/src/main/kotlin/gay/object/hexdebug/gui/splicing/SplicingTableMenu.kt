@@ -2,7 +2,7 @@ package gay.`object`.hexdebug.gui.splicing
 
 import at.petrak.hexcasting.api.mod.HexTags
 import at.petrak.hexcasting.api.utils.isMediaItem
-import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
+import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import gay.`object`.hexdebug.blocks.splicing.ClientSplicingTableContainer
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableDataSlot
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableItemSlot
@@ -39,12 +39,11 @@ class SplicingTableMenu(
     )
 
     val player get() = inventory.player
-    val level get() = player.level()
+    val level get() = player.level
 
-    val media by ContainerDataLongDelegate(
+    val media by ContainerDataDelegate(
         data,
-        lowIndex = SplicingTableDataSlot.MEDIA_LOW.index,
-        highIndex = SplicingTableDataSlot.MEDIA_HIGH.index,
+        index = SplicingTableDataSlot.MEDIA.index,
     )
 
     var clientView = SplicingTableClientView.empty()

@@ -1,6 +1,6 @@
 package gay.`object`.hexdebug.networking.msg
 
-import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.api.spell.math.HexPattern
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.readSelection
 import gay.`object`.hexdebug.splicing.writeSelection

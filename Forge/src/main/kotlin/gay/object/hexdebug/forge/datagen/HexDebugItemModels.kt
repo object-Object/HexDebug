@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalStdlibApi::class)
-
 package gay.`object`.hexdebug.forge.datagen
 
 import gay.`object`.hexdebug.HexDebug
@@ -9,7 +7,7 @@ import gay.`object`.hexdebug.items.DebuggerItem.StepMode
 import gay.`object`.hexdebug.items.EvaluatorItem
 import gay.`object`.hexdebug.items.EvaluatorItem.EvalState
 import gay.`object`.hexdebug.registry.HexDebugItems
-import gay.`object`.hexdebug.utils.itemPredicate
+import gay.`object`.hexdebug.utils.asItemPredicate
 import net.minecraft.data.DataGenerator
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.client.model.generators.ItemModelProvider
@@ -47,8 +45,8 @@ class HexDebugItemModels(gen: DataGenerator, efh: ExistingFileHelper) : ItemMode
 
                     baseModel.override()
                         .model(model)
-                        .predicate(DebuggerItem.DEBUG_STATE_PREDICATE, debugState.itemPredicate(DebugState.values()))
-                        .predicate(DebuggerItem.STEP_MODE_PREDICATE, stepMode.itemPredicate(StepMode.values()))
+                        .predicate(DebuggerItem.DEBUG_STATE_PREDICATE, debugState.asItemPredicate(DebugState.values()))
+                        .predicate(DebuggerItem.STEP_MODE_PREDICATE, stepMode.asItemPredicate(StepMode.values()))
                         .predicate(DebuggerItem.HAS_HEX_PREDICATE, hasHex)
                 }
             }
@@ -78,7 +76,7 @@ class HexDebugItemModels(gen: DataGenerator, efh: ExistingFileHelper) : ItemMode
 
             baseModel.override()
                 .model(model)
-                .predicate(ItemEvaluator.EVAL_STATE_PREDICATE, evalState.itemPredicate(EvalState.values()))
+                .predicate(EvaluatorItem.EVAL_STATE_PREDICATE, evalState.asItemPredicate(EvalState.values()))
         }
     }
 }

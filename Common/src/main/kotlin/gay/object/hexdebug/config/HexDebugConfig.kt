@@ -89,24 +89,24 @@ object HexDebugConfig {
             private set
 
         @Tooltip
-        var splicingTableMediaCost: Long = MediaConstants.DUST_UNIT / 20
+        var splicingTableMediaCost: Int = MediaConstants.DUST_UNIT / 20
             private set
 
         @Tooltip
-        var splicingTableMaxMedia: Long = MediaConstants.CRYSTAL_UNIT
+        var splicingTableMaxMedia: Int = MediaConstants.CRYSTAL_UNIT
             private set
 
         fun encode(buf: FriendlyByteBuf) {
             buf.writeInt(maxUndoStackSize)
-            buf.writeLong(splicingTableMediaCost)
-            buf.writeLong(splicingTableMaxMedia)
+            buf.writeInt(splicingTableMediaCost)
+            buf.writeInt(splicingTableMaxMedia)
         }
 
         companion object {
             fun decode(buf: FriendlyByteBuf) = ServerConfig().apply {
                 maxUndoStackSize = buf.readInt()
-                splicingTableMediaCost = buf.readLong()
-                splicingTableMaxMedia = buf.readLong()
+                splicingTableMediaCost = buf.readInt()
+                splicingTableMaxMedia = buf.readInt()
             }
         }
     }

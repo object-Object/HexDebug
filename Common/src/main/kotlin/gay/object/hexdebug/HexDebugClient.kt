@@ -1,10 +1,10 @@
 package gay.`object`.hexdebug
 
-import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.client.ScryingLensOverlayRegistry
 import at.petrak.hexcasting.api.utils.asTextComponent
 import at.petrak.hexcasting.api.utils.gray
 import at.petrak.hexcasting.api.utils.plusAssign
+import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyClient
 import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlock
 import gay.`object`.hexdebug.config.HexDebugConfig
@@ -66,7 +66,7 @@ object HexDebugClient {
         // see HexAdditionalRenderers
         val maxWidth = (mc.window.guiScaledWidth / 2f * 0.8f).toInt()
 
-        val fullDisplay = IotaType.getDisplay(tag)
+        val fullDisplay = HexIotaTypes.getDisplay(tag)
         val displayLines = font.splitter.splitLines(fullDisplay, maxWidth, Style.EMPTY)
 
         val truncatedDisplay = Component.empty()

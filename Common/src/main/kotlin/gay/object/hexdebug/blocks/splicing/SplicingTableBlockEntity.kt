@@ -1,14 +1,13 @@
 package gay.`object`.hexdebug.blocks.splicing
 
-import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
-import at.petrak.hexcasting.api.casting.iota.IotaType
-import at.petrak.hexcasting.api.casting.iota.PatternIota
-import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.api.spell.casting.ResolvedPatternType
+import at.petrak.hexcasting.api.spell.iota.PatternIota
+import at.petrak.hexcasting.api.spell.math.HexPattern
 import at.petrak.hexcasting.api.utils.extractMedia
+import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.blocks.base.BaseContainer
-import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
-import gay.`object`.hexdebug.casting.eval.FakeCastEnv
+import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.gui.splicing.SplicingTableMenu
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
@@ -42,10 +41,9 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     private val containerData = SimpleContainerData(SplicingTableDataSlot.size)
 
-    private var media by ContainerDataLongDelegate(
+    private var media by ContainerDataDelegate(
         containerData,
-        lowIndex = SplicingTableDataSlot.MEDIA_LOW.index,
-        highIndex = SplicingTableDataSlot.MEDIA_HIGH.index,
+        index = SplicingTableDataSlot.MEDIA.index,
     )
 
     val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0
@@ -55,13 +53,13 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     override fun load(tag: CompoundTag) {
         super.load(tag)
         ContainerHelper.loadAllItems(tag, stacks)
-        media = tag.getLong("media")
+        media = tag.getInt("media")
     }
 
     override fun saveAdditional(tag: CompoundTag) {
         super.saveAdditional(tag)
         ContainerHelper.saveAllItems(tag, stacks)
-        tag.putLong("media", media)
+        tag.putInt("media", media)
     }
 
     override fun createMenu(i: Int, inventory: Inventory, player: Player) =
@@ -87,10 +85,9 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     }
 
     override fun getClientView() = getData(null, null)?.run {
-        val env = FakeCastEnv(level)
         SplicingTableClientView(
-            list = list?.map { IotaClientView(it, env) },
-            clipboard = clipboard?.let { IotaType.serialize(it) },
+            list = list?.map { IotaClientView(it, level) },
+            clipboard = clipboard?.let { HexIotaTypes.serialize(it) },
             isListWritable = listWriter != null,
             isClipboardWritable = clipboardWriter != null,
             undoSize = undoStack.size,

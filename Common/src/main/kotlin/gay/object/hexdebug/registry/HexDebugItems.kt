@@ -1,10 +1,9 @@
 package gay.`object`.hexdebug.registry
 
-import dev.architectury.platform.Platform
 import dev.architectury.registry.item.ItemPropertiesRegistry
 import gay.`object`.hexdebug.items.DebuggerItem
 import gay.`object`.hexdebug.items.EvaluatorItem
-import net.fabricmc.api.EnvType
+import gay.`object`.hexdebug.items.base.ItemPredicateProvider
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
@@ -18,7 +17,7 @@ object HexDebugItems : HexDebugRegistrar<Item>(Registry.ITEM_REGISTRY, { Registr
     @JvmField
     val EVALUATOR = register("evaluator") { EvaluatorItem(unstackable.rarity(Rarity.UNCOMMON)) }
 
-    private val props: Properties get() = Properties().tab(HexDebugCreativeTabs.HEX_DEBUG)
+    val props: Properties get() = Properties().tab(HexDebugCreativeTabs.HEX_DEBUG)
 
     private val unstackable get() = props.stacksTo(1)
 

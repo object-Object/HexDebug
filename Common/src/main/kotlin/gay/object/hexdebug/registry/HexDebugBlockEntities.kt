@@ -4,16 +4,15 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlockEntity
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlockEntity
 import net.minecraft.core.BlockPos
-import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.core.registries.Registries
+import net.minecraft.core.Registry
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 
 object HexDebugBlockEntities : HexDebugRegistrar<BlockEntityType<*>>(
-    Registries.BLOCK_ENTITY_TYPE,
-    { BuiltInRegistries.BLOCK_ENTITY_TYPE },
+    Registry.BLOCK_ENTITY_TYPE_REGISTRY,
+    { Registry.BLOCK_ENTITY_TYPE },
 ) {
     @JvmField
     val SPLICING_TABLE = register("splicing_table", ::SplicingTableBlockEntity) {
