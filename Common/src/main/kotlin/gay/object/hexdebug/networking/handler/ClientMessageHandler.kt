@@ -2,6 +2,7 @@ package gay.`object`.hexdebug.networking.handler
 
 import at.petrak.hexcasting.api.casting.eval.ExecutionClientView
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
+import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
 import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternS2C
 import dev.architectury.networking.NetworkManager.PacketContext
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyClient
@@ -82,6 +83,9 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
         is MsgSplicingTableNewStaffPatternS2C -> {
             val info = ExecutionClientView(false, resolutionType, listOf(), null)
             SplicingTableScreen.getInstance()?.guiSpellcasting?.recvServerUpdate(info, index)
+
+            val sound = if (resolutionType.success) HexEvalSounds.NORMAL_EXECUTE else HexEvalSounds.MISHAP
+            sound.sound?.let { ctx.player.playSound(it, 1f, 1f) }
         }
 
         is MsgSyncConfigS2C -> {
