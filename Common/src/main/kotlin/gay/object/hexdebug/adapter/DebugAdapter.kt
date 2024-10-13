@@ -14,9 +14,10 @@ import gay.`object`.hexdebug.adapter.DebugAdapterState.Debugging
 import gay.`object`.hexdebug.adapter.DebugAdapterState.NotDebugging
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyServerLauncher
 import gay.`object`.hexdebug.debugger.*
-import gay.`object`.hexdebug.items.ItemDebugger
-import gay.`object`.hexdebug.items.ItemEvaluator
+import gay.`object`.hexdebug.items.DebuggerItem
+import gay.`object`.hexdebug.items.EvaluatorItem
 import gay.`object`.hexdebug.networking.msg.MsgDebuggerStateS2C
+import gay.`object`.hexdebug.networking.msg.MsgEvaluatorClientInfoS2C
 import gay.`object`.hexdebug.networking.msg.MsgEvaluatorStateS2C
 import gay.`object`.hexdebug.networking.msg.MsgPrintDebuggerStatusS2C
 import gay.`object`.hexdebug.utils.futureOf
@@ -55,22 +56,22 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     private fun setDebuggerState(state: DebugAdapterState) = setDebuggerState(
         when (state) {
-            is Debugging -> ItemDebugger.DebugState.DEBUGGING
-            else -> ItemDebugger.DebugState.NOT_DEBUGGING
+            is Debugging -> DebuggerItem.DebugState.DEBUGGING
+            else -> DebuggerItem.DebugState.NOT_DEBUGGING
         }
     )
 
-    protected open fun setDebuggerState(debuggerState: ItemDebugger.DebugState) {
+    protected open fun setDebuggerState(debuggerState: DebuggerItem.DebugState) {
         MsgDebuggerStateS2C(debuggerState).sendToPlayer(player)
 
-        // close the debugger grid if we stopped debugging
-        if (debuggerState == ItemDebugger.DebugState.NOT_DEBUGGING) {
+        // close the evaluator grid if we stopped debugging
+        if (debuggerState == DebuggerItem.DebugState.NOT_DEBUGGING) {
             val info = ControllerInfo(true, ResolvedPatternType.EVALUATED, listOf(), listOf(), null, 0)
-            IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgNewSpellPatternAck(info, -1))
+            MsgEvaluatorClientInfoS2C(info).sendToPlayer(player)
         }
     }
 
-    protected open fun setEvaluatorState(evalState: ItemEvaluator.EvalState) {
+    protected open fun setEvaluatorState(evalState: EvaluatorItem.EvalState) {
         MsgEvaluatorStateS2C(evalState).sendToPlayer(player)
     }
 
@@ -118,13 +119,13 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     fun evaluate(env: CastingContext, list: SpellList) = debugger?.let {
         val result = it.evaluate(env, list)
         if (result.startedEvaluating) {
-            setEvaluatorState(ItemEvaluator.EvalState.MODIFIED)
+            setEvaluatorState(EvaluatorItem.EvalState.MODIFIED)
         }
         handleDebuggerStep(result)
     }
 
     fun resetEvaluator() {
-        setEvaluatorState(ItemEvaluator.EvalState.DEFAULT)
+        setEvaluatorState(EvaluatorItem.EvalState.DEFAULT)
         if (debugger?.resetEvaluator() == true) {
             sendStoppedEvent(StopReason.STEP)
         }
@@ -146,7 +147,7 @@ open class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     private fun handleDebuggerStep(result: DebugStepResult): ControllerInfo? {
         val view = result.clientInfo?.also {
-            IXplatAbstractions.INSTANCE.sendPacketToPlayer(player, MsgNewSpellPatternAck(it, -1))
+            MsgEvaluatorClientInfoS2C(it).sendToPlayer(player)
         }
 
         // TODO: set nonzero exit code if we hit a mishap

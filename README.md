@@ -17,6 +17,18 @@ A [Hex Casting](https://github.com/FallingColors/HexMod) addon that runs a debug
 - **Breakpoints**: Set breakpoints on specific patterns, or use the Uncaught Mishaps option to pause the debugger when a mishap occurs and see what went wrong.
 - **Multiplayer**: Debug your hexes in multiplayer! The debug client connects to a port opened by the game client (configurable, defaults to 4444), and each player can have up to one active debugger instance at a time.
 
+
+## FAQ
+
+### Quilt Kotlin Libraries version
+
+If you're having issues with the version of Quilt Kotlin Libraries / Fabric Language Kotlin on Quilt 1.19.2, try installing *both* of the following:
+
+* [QKL 1.0.2](https://modrinth.com/mod/qkl/version/1.0.2+kt.1.8.0+flk.1.9.0)
+* [QKL Core 4.0.0](https://modrinth.com/mod/qkl/version/4.0.0+kt.1.9.23+flk.1.10.19) or higher (the file starting with `quilt-kotlin-libraries-core`)
+
+QKL targets a specific version of Minecraft, while QKL Core is what replaces FLK and can be used with any Minecraft version.
+
 ## Maven
 
 Build artifacts are published to the [BlameJared repository](https://maven.blamejared.com/gay/object/hexdebug/) via [Jenkins](https://ci.blamejared.com/job/object-Object/job/HexDebug/).

@@ -3,7 +3,7 @@ package gay.`object`.hexdebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.networking.HexDebugNetworking
-import gay.`object`.hexdebug.registry.HexDebugItems
+import gay.`object`.hexdebug.registry.*
 import net.minecraft.resources.ResourceLocation
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -18,7 +18,10 @@ object HexDebug {
         LOGGER.info("HexDebug <3 HexBug")
         HexDebugConfig.init()
         initRegistries(
+            HexDebugBlocks,
+            HexDebugBlockEntities,
             HexDebugItems,
+            HexDebugMenus,
         )
         HexDebugNetworking.init()
         DebugAdapterManager.init()

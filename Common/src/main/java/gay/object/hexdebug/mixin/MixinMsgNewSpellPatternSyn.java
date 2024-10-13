@@ -58,7 +58,7 @@ public abstract class MixinMsgNewSpellPatternSyn {
 
         // actual new logic
 
-        ItemEvaluator.handleNewPatternOnServer(sender, msg);
+        EvaluatorItem.handleNewPatternOnServer(sender, msg);
         ci.cancel();
     }
 }

@@ -3,21 +3,20 @@
 package gay.`object`.hexdebug.forge.datagen
 
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.items.ItemDebugger
-import gay.`object`.hexdebug.items.ItemDebugger.DebugState
-import gay.`object`.hexdebug.items.ItemDebugger.StepMode
-import gay.`object`.hexdebug.items.ItemEvaluator
-import gay.`object`.hexdebug.items.ItemEvaluator.EvalState
+import gay.`object`.hexdebug.items.DebuggerItem
+import gay.`object`.hexdebug.items.DebuggerItem.DebugState
+import gay.`object`.hexdebug.items.DebuggerItem.StepMode
+import gay.`object`.hexdebug.items.EvaluatorItem
+import gay.`object`.hexdebug.items.EvaluatorItem.EvalState
 import gay.`object`.hexdebug.registry.HexDebugItems
 import gay.`object`.hexdebug.utils.itemPredicate
 import net.minecraft.data.DataGenerator
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.client.model.generators.ItemModelProvider
 import net.minecraftforge.client.model.generators.ModelBuilder
-import net.minecraftforge.client.model.generators.ModelFile
 import net.minecraftforge.common.data.ExistingFileHelper
 
-class HexDebugModels(gen: DataGenerator, efh: ExistingFileHelper) : ItemModelProvider(gen, HexDebug.MODID, efh) {
+class HexDebugItemModels(gen: DataGenerator, efh: ExistingFileHelper) : ItemModelProvider(gen, HexDebug.MODID, efh) {
     override fun registerModels() {
         debugger(HexDebugItems.DEBUGGER.id)
 
@@ -26,7 +25,7 @@ class HexDebugModels(gen: DataGenerator, efh: ExistingFileHelper) : ItemModelPro
 
     private fun debugger(item: ResourceLocation) {
         val baseModel = basicItem(item)
-            .parent(ModelFile.UncheckedModelFile("item/handheld_rod"))
+            .parent(getExistingFile(mcLoc("item/handheld_rod")))
 
         val basePath = baseModel.location.path
 
@@ -48,22 +47,22 @@ class HexDebugModels(gen: DataGenerator, efh: ExistingFileHelper) : ItemModelPro
 
                     baseModel.override()
                         .model(model)
-                        .predicate(ItemDebugger.DEBUG_STATE_PREDICATE, debugState.itemPredicate(DebugState.values()))
-                        .predicate(ItemDebugger.STEP_MODE_PREDICATE, stepMode.itemPredicate(StepMode.values()))
-                        .predicate(ItemDebugger.HAS_HEX_PREDICATE, hasHex)
+                        .predicate(DebuggerItem.DEBUG_STATE_PREDICATE, debugState.itemPredicate(DebugState.values()))
+                        .predicate(DebuggerItem.STEP_MODE_PREDICATE, stepMode.itemPredicate(StepMode.values()))
+                        .predicate(DebuggerItem.HAS_HEX_PREDICATE, hasHex)
                 }
             }
         }
 
         // should be last so it overrides everything else
         baseModel.override()
-            .predicate(ItemDebugger.HIDE_ICONS_PREDICATE, 1f)
+            .predicate(DebuggerItem.HIDE_ICONS_PREDICATE, 1f)
             .model(baseModel)
     }
 
     private fun evaluator(item: ResourceLocation) {
         val baseModel = basicItem(item)
-            .parent(ModelFile.UncheckedModelFile("item/handheld_rod"))
+            .parent(getExistingFile(mcLoc("item/handheld_rod")))
 
         val basePath = baseModel.location.path
 

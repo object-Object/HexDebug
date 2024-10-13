@@ -21,7 +21,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 
-class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
+class EvaluatorItem(properties: Properties) : ItemStaff(properties), ItemPredicateProvider {
     override fun use(world: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
         val itemStack = player.getItemInHand(hand)
 
@@ -56,18 +56,18 @@ class ItemEvaluator(properties: Properties) : ItemStaff(properties) {
         return InteractionResultHolder.consume(itemStack)
     }
 
+    override fun getModelPredicates() = listOf(
+        ModelPredicateEntry(EVAL_STATE_PREDICATE) { _, _, entity, _ ->
+            // don't show the active icon for items held by other players, on the ground, etc
+            val state = if (entity is LocalPlayer) evalState else EvalState.DEFAULT
+            state.itemPredicate(EvalState.values())
+        }
+    )
+
     companion object {
         val EVAL_STATE_PREDICATE = HexDebug.id("eval_state")
 
         var evalState: EvalState = EvalState.DEFAULT
-
-        fun getProperties() = mapOf(
-            EVAL_STATE_PREDICATE to ClampedItemPropertyFunction { _, _, entity, _ ->
-                // don't show the active icon for debuggers held by other players, on the ground, etc
-                val state = if (entity is LocalPlayer) evalState else EvalState.DEFAULT
-                state.itemPredicate(EvalState.values())
-            },
-        )
 
         /**
          * Copy of [MsgNewSpellPatternSyn.handle][at.petrak.hexcasting.common.network.MsgNewSpellPatternSyn.handle]

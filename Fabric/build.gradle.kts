@@ -6,10 +6,6 @@ architectury {
     fabric()
 }
 
-hexdebugPlatform {
-    platform("fabric", "quilt")
-}
-
 hexdebugModDependencies {
     filesMatching.add("fabric.mod.json")
 
@@ -75,21 +71,43 @@ dependencies {
         implementation(it)
         include(it)
     }
+
+    modLocalRuntime(libs.devAuth.fabric)
 }
 
-// this fails if we do it for all projects, since the tag already exists :/
-// see https://github.com/modmuss50/mod-publish-plugin/issues/3
 publishMods {
+    modLoaders.add("quilt")
+
+    // this fails if we do it for all projects, since the tag already exists :/
+    // see https://github.com/modmuss50/mod-publish-plugin/issues/3
     github {
-        accessToken = providers.environmentVariable("GITHUB_TOKEN").orElse("")
-        repository = providers.environmentVariable("GITHUB_REPOSITORY").orElse("")
-        commitish = providers.environmentVariable("GITHUB_SHA").orElse("")
+        accessToken = System.getenv("GITHUB_TOKEN") ?: ""
+        repository = System.getenv("GITHUB_REPOSITORY") ?: ""
+        commitish = System.getenv("GITHUB_SHA") ?: ""
 
         type = STABLE
         displayName = "v${project.version}"
         tagName = "v${project.version}"
+    }
+}
 
-        additionalFiles.from(project(":Common").tasks.remapJar.get().archiveFile)
+tasks {
+    named("publishGithub") {
+        dependsOn(
+            project(":Common").tasks.remapJar,
+            project(":Forge").tasks.remapJar,
+        )
+
+        // we need to do this here so that it waits until Forge is already configured
+        // otherwise tasks.remapJar doesn't exist yet
+        publishMods {
+            github {
+                additionalFiles.from(
+                    project(":Common").tasks.remapJar.get().archiveFile,
+                    project(":Forge").tasks.remapJar.get().archiveFile,
+                )
+            }
+        }
     }
 }
 

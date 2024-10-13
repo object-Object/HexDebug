@@ -4,28 +4,6 @@ import hexdebug.hexdebugProperties
 import hexdebug.libs
 import kotlin.io.path.div
 
-// plugin config
-
-abstract class HexDebugArchitecturyExtension(private val project: Project) : IHexDebugArchitecturyExtension {
-    override fun platform(platform: String) = project.run {
-        val archivesName = "${hexdebugProperties.modId}-$platform"
-
-        base.archivesName = archivesName
-
-        publishing {
-            publications {
-                named<MavenPublication>("maven") {
-                    artifactId = archivesName
-                }
-            }
-        }
-    }
-}
-
-val extension = extensions.create<HexDebugArchitecturyExtension>("hexdebugArchitectury")
-
-// build logic
-
 plugins {
     id("hexdebug.conventions.kotlin")
     id("hexdebug.utils.OTJFPOPKPCPBP")
@@ -34,9 +12,20 @@ plugins {
     id("dev.architectury.loom")
 }
 
+val platform: String by project
+
+base.archivesName = "${hexdebugProperties.modId}-$platform"
+
 loom {
     silentMojangMappingsLicense()
     accessWidenerPath = project(":Common").file("src/main/resources/hexdebug.accesswidener")
+
+    mixin {
+        // the default name includes both archivesName and the subproject, resulting in the platform showing up twice
+        // default: hexdebug-common-Common-refmap.json
+        // fixed:   hexdebug-common.refmap.json
+        defaultRefmapName = "${base.archivesName.get()}.refmap.json"
+    }
 }
 
 dependencies {
@@ -82,6 +71,7 @@ publishing {
     }
     publications {
         create<MavenPublication>("maven") {
+            artifactId = base.archivesName.get()
             from(components["java"])
         }
     }

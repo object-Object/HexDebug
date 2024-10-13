@@ -11,12 +11,14 @@ import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.casting.actions.OpBreakpoint
 import gay.`object`.hexdebug.casting.actions.OpIsDebugging
+import gay.`object`.hexdebug.casting.actions.OpNextEvalIndex
 import net.minecraft.resources.ResourceLocation
 
 object HexDebugActions {
     private val patterns = mutableMapOf<ResourceLocation, Pair<HexPattern, () -> Action>>()
 
     val IS_DEBUGGING = make("const/debugging", HexDir.EAST, "qqqqqewaa", OpIsDebugging)
+    val NEXT_EVAL_INDEX = make("next_eval_index", HexDir.SOUTH_WEST, "dedqdeqwaa", OpNextEvalIndex)
 
     val BREAKPOINT_BEFORE = make("breakpoint/before", HexDir.SOUTH_WEST, "awqdeew", OpBreakpoint(true))
     val BREAKPOINT_AFTER = make("breakpoint/after", HexDir.EAST, "wqqaewd", OpBreakpoint(false))

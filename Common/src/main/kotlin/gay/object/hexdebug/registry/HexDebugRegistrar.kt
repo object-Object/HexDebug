@@ -1,9 +1,13 @@
 package gay.`object`.hexdebug.registry
 
+import dev.architectury.platform.Platform
 import gay.`object`.hexdebug.HexDebug
+import net.fabricmc.api.EnvType
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
+
+typealias RegistrarEntry<T> = HexDebugRegistrar<T>.Entry<out T>
 
 // scuffed.
 
@@ -17,38 +21,51 @@ abstract class HexDebugRegistrar<T : Any>(
 
     private var isInitialized = false
 
-    private val mutableEntries = mutableMapOf<ResourceLocation, Lazy<T>>()
-    val entries: Map<ResourceLocation, Lazy<T>> = mutableEntries
+    private val mutableEntries = mutableSetOf<Entry<out T>>()
+    val entries: Set<Entry<out T>> = mutableEntries
 
     open fun init(registerer: (ResourceLocation, T) -> Unit) {
         if (isInitialized) throw IllegalStateException("$this has already been initialized!")
         isInitialized = true
-        for ((id, lazyValue) in entries) {
-            registerer(id, lazyValue.value)
+        for (entry in entries) {
+            registerer(entry.id, entry.value)
+        }
+        if (Platform.getEnv() == EnvType.CLIENT) {
+            initClient()
         }
     }
 
-    fun <V : T> register(name: String, getValue: () -> V) = register(HexDebug.id(name), getValue)
+    open fun initClient() {}
 
-    fun <V : T> register(id: ResourceLocation, getValue: () -> V) = register(id, lazy {
+    fun <V : T> register(name: String, builder: () -> V) = register(HexDebug.id(name), builder)
+
+    fun <V : T> register(id: ResourceLocation, builder: () -> V) = register(id, lazy {
         if (!isInitialized) throw IllegalStateException("$this has not been initialized!")
-        getValue()
+        builder()
     })
 
-    fun <V : T> register(id: ResourceLocation, lazyValue: Lazy<V>) = Entry(id, lazyValue, registryKey).also {
-        if (mutableEntries.putIfAbsent(id, lazyValue) != null) {
+    fun <V : T> register(id: ResourceLocation, lazyValue: Lazy<V>) = Entry(id, lazyValue).also {
+        if (!mutableEntries.add(it)) {
             throw IllegalArgumentException("Duplicate id: $id")
         }
     }
 
-    data class Entry<T, V : T>(
+    open inner class Entry<V : T>(
         val id: ResourceLocation,
         private val lazyValue: Lazy<V>,
-        private val registryKey: ResourceKey<Registry<T>>,
     ) {
-        val key = ResourceKey.create(registryKey, id)
+        constructor(entry: Entry<V>) : this(entry.id, entry.lazyValue)
+
+        val key: ResourceKey<T> = ResourceKey.create(registryKey, id)
 
         /** Do not access until the mod has been initialized! */
         val value by lazyValue
+
+        override fun equals(other: Any?) = when (other) {
+            is HexDebugRegistrar<*>.Entry<*> -> key.registry() == other.key.registry() && id == other.id
+            else -> false
+        }
+
+        override fun hashCode() = 31 * key.registry().hashCode() + id.hashCode()
     }
 }

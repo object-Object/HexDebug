@@ -4,6 +4,11 @@
     evaluator: "运行杖",
   },
 
+  "block.hexdebug": {
+    splicing_table: "剪接台",
+    focus_holder: "核心装载器",
+  },
+
   "itemGroup.hexdebug.hexdebug": "咒法调试",
 
   text: {
@@ -13,12 +18,39 @@
       thwack: "哐当！",
       // Next Iota: [{index}] {iota}
       debugger_stopped: "下一个Iota：[%d] %s",
+
+      splicing_table: {
+        button: {
+          view_left: "向左移动视野",
+          view_right: "向右移动视野",
+          select_none: "取消选区",
+          select_all: "全选",
+          clear_grid: "清空网格",
+          nudge_left: "左移",
+          nudge_right: "右移",
+          duplicate: "复制",
+          delete: "删除",
+          undo: "撤销",
+          redo: "重做",
+          cut: "剪切",
+          copy: "复制",
+          paste: "粘贴（逐项）",
+          paste_splat: "粘贴（扁平化）",
+          export: "导出为.hexpattern文件",
+        },
+        tooltip: {
+          index: "索引下标：%d",
+          signature: "图案编码：%s",
+          length: "长度：%d",
+        },
+      },
     },
 
     "autoconfig.hexdebug": {
       title: "咒法调试配置",
       category: {
-        client: "客户端",
+        client: "Client",
+        server: "Server",
       },
       option: {
         client: {
@@ -47,6 +79,12 @@
             "@Tooltip": "若设为true，显示调试客户端（如VSCode）的行号，通常以1起始；否则显示列表索引下标，以0起始。"
           }
         },
+        server: {
+          maxUndoStackSize: {
+            "": "撤销历史步数上限",
+            "@Tooltip": "剪接台撤销历史的长度上限。设为0可禁用上限。",
+          }
+        }
       },
     },
   },
@@ -54,13 +92,16 @@
   "hexcasting.spell": {
     "hexdebug:": {
       "const/debugging": "调试杖之精思",
+      "next_eval_index": "调试位之精思", // TODO: this name kinda sucks tbh
       "breakpoint/": {
         before: "在前方添加断点",
         after: "在后方添加断点"
       },
       "craft/debugger": "制作调试杖",
     },
-    "book.hexdebug:": {},
+    "book.hexdebug:": {
+      "next_eval_index": "调试位之精思",
+    },
   },
 
   hexdebug: {
@@ -75,6 +116,9 @@
           restart: "重启",
           stop: "停止"
         },
+      },
+      focus_holder: {
+        item: "物品：%s",
       },
     },
 
@@ -102,7 +146,8 @@
           debugging: {
             "": "调试",
             page: {
-              "const/debugging": "若栈由$(l:hexdebug:items/debugging#debugger)$(item)调试杖/$执行，则返回 $(thing)True/$；否则返回 $(thing)False/$。",
+              "const/debugging": "若栈由$(l:hexdebug:items/debugging#debugger)$(item)调试杖/$或$(l:hexdebug:items/debugging#evaluator)$(item)运行杖/$执行，则返回 $(thing)True/$；否则返回 $(thing)False/$。",
+              "next_eval_index": "若栈由$(l:hexdebug:items/debugging#debugger)$(item)调试杖/$或$(l:hexdebug:items/debugging#evaluator)$(item)运行杖/$执行，则返回下一个待执行 iota 的索引下标；否则返回 $(l:casting/influences)$(thing)Null/$。",
               "breakpoint/": {
                 before: "在运行此图案前，暂停$(l:hexdebug:items/debugging#debugger)$(item)调试杖/$。",
                 after: "在运行此图案后，也即在运行下一图案之前，暂停$(l:hexdebug:items/debugging#debugger)$(item)调试杖/$。",

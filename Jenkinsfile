@@ -43,6 +43,9 @@ pipeline {
             }
         }
         stage("Check Datagen") {
+            options {
+                timeout(time: 5, unit: 'MINUTES')
+            }
             steps {
                 sh "./gradlew runAllDatagen"
                 sh "git add --intent-to-add ."

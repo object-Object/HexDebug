@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.debugger
 
 import at.petrak.hexcasting.api.PatternRegistry
+import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.spell.Action
 import at.petrak.hexcasting.api.spell.SpellList
 import at.petrak.hexcasting.api.spell.casting.*
@@ -23,7 +24,8 @@ import gay.`object`.hexdebug.casting.eval.*
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
 import gay.`object`.hexdebug.utils.ceilToPow
-import net.minecraft.network.chat.Component
+import gay.`object`.hexdebug.utils.displayWithPatternName
+import gay.`object`.hexdebug.utils.toHexpatternSource
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.level.gameevent.GameEvent
@@ -756,12 +758,18 @@ class HexDebugger(
         } else false
     }
 
-    private fun iotaToString(iota: Iota, isSource: Boolean = false): String = when (iota) {
+    private fun iotaToString(iota: Iota, isSource: Boolean = false): String = if (isSource) {
+        iota.toHexpatternSource(defaultEnv)
+    } else {
+        iota.displayWithPatternName(defaultEnv).string
+    }
+
+    private fun oldIotaToString(iota: Iota, isSource: Boolean = false): String = when (iota) {
         is PatternIota -> patternToString(iota.pattern, isSource).string
 
         else -> {
             val result = when (iota) {
-                is ListIota -> "[" + iota.list.joinToString { iotaToString(it, isSource) } + "]"
+                is ListIota -> "[" + iota.list.joinToString { oldIotaToString(it, isSource) } + "]"
                 is GarbageIota -> "Garbage"
                 else -> iota.display().string
             }

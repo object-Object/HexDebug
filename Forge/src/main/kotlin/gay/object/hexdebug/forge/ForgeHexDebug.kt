@@ -2,6 +2,7 @@ package gay.`object`.hexdebug.forge
 
 import dev.architectury.platform.forge.EventBuses
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.forge.datagen.HexDebugBlockTags
 import gay.`object`.hexdebug.forge.datagen.HexDebugItemTags
 import gay.`object`.hexdebug.forge.datagen.HexDebugModels
 import gay.`object`.hexdebug.forge.datagen.HexDebugRecipes
@@ -29,9 +30,16 @@ class HexDebugForge {
     private fun gatherData(event: GatherDataEvent) {
         event.apply {
             val efh = existingFileHelper
-            addProvider(includeClient()) { HexDebugModels(it, efh) }
+            addProvider(includeClient()) { HexDebugBlockModels(it, efh) }
+            addProvider(includeClient()) { HexDebugItemModels(it, efh) }
             addProvider(includeServer()) { HexDebugRecipes(it) }
             addProvider(includeServer()) { HexDebugItemTags(it, efh) }
+            addProvider(includeServer()) { HexDebugBlockTags(it, lookupProvider, efh) }
+            addProvider(includeServer()) {
+                LootTableProvider(it, setOf(), listOf(
+                    SubProviderEntry(::HexDebugBlockLootTables, LootContextParamSets.BLOCK),
+                ))
+            }
         }
     }
 }

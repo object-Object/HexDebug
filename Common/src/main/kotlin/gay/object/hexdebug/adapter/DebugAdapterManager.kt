@@ -1,5 +1,6 @@
 package gay.`object`.hexdebug.adapter
 
+import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import dev.architectury.event.events.common.LifecycleEvent
 import dev.architectury.event.events.common.PlayerEvent
 import gay.`object`.hexdebug.HexDebug
@@ -11,6 +12,8 @@ object DebugAdapterManager {
     private val debugAdapters = mutableMapOf<UUID, DebugAdapter>()
 
     operator fun get(player: Player) = debugAdapters[player.uuid]
+
+    operator fun get(env: CastingEnvironment) = env.castingEntity?.let { it as? Player }?.let { get(it) }
 
     fun init() {
         PlayerEvent.PLAYER_JOIN.register { player ->

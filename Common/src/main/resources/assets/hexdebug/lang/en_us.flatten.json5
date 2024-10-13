@@ -4,6 +4,11 @@
     evaluator: "Evaluator",
   },
 
+  "block.hexdebug": {
+    splicing_table: "Splicing Table",
+    focus_holder: "Focus Holder",
+  },
+
   "itemGroup.hexdebug.hexdebug": "HexDebug",
 
   text: {
@@ -13,12 +18,39 @@
       thwack: "Thwack!",
       // Next Iota: [{index}] {iota}
       debugger_stopped: "Next Iota: [%d] %s",
+
+      splicing_table: {
+        button: {
+          view_left: "Move View Left",
+          view_right: "Move View Right",
+          select_none: "Select None",
+          select_all: "Select All",
+          clear_grid: "Clear Grid",
+          nudge_left: "Nudge Left",
+          nudge_right: "Nudge Right",
+          duplicate: "Duplicate",
+          delete: "Delete",
+          undo: "Undo",
+          redo: "Redo",
+          cut: "Cut",
+          copy: "Copy",
+          paste: "Paste (Verbatim)",
+          paste_splat: "Paste (Flattened)",
+          export: "Export as .hexpattern",
+        },
+        tooltip: {
+          index: "Index: %d",
+          signature: "Signature: %s",
+          length: "Length: %d",
+        },
+      },
     },
 
     "autoconfig.hexdebug": {
       title: "HexDebug Config",
       category: {
         client: "Client",
+        server: "Server",
       },
       option: {
         client: {
@@ -47,6 +79,12 @@
             "@Tooltip": "If true, show the line number (usually 1-indexed) from the debug client (eg. VSCode) in Debugger status messages; otherwise, show the list index (0-indexed)."
           }
         },
+        server: {
+          maxUndoStackSize: {
+            "": "Undo History Size Limit",
+            "@Tooltip": "Maximum allowed size of the Splicing Table's undo history. To disable the limit, set the value to 0.",
+          }
+        }
       },
     },
   },
@@ -54,13 +92,16 @@
   "hexcasting.spell": {
     "hexdebug:": {
       "const/debugging": "Debugger's Reflection",
+      "next_eval_index": "Debug Locator's Reflection", // TODO: this name kinda sucks tbh
       "breakpoint/": {
         before: "Set Breakpoint Before",
         after: "Set Breakpoint After"
       },
       "craft/debugger": "Craft Debugger",
     },
-    "book.hexdebug:": {},
+    "book.hexdebug:": {
+      "next_eval_index": "Debug Locator's Rfln.",
+    },
   },
 
   hexdebug: {
@@ -75,6 +116,9 @@
           restart: "Restart",
           stop: "Stop"
         },
+      },
+      focus_holder: {
+        item: "Item: %s",
       },
     },
 
@@ -102,7 +146,8 @@
           debugging: {
             "": "Debugging",
             page: {
-              "const/debugging": "Adds $(thing)True/$ to the top of the stack if executed by a $(l:hexdebug:items/debugging#debugger)$(item)Debugger/$, or $(thing)False/$ otherwise.",
+              "const/debugging": "Adds $(thing)True/$ to the top of the stack if executed by a $(l:hexdebug:items/debugging#debugger)$(item)Debugger/$ or $(l:hexdebug:items/debugging#evaluator)$(item)Evaluator/$, or $(thing)False/$ otherwise.",
+              "next_eval_index": "Adds the index of the next iota to be evaluated if executed by a $(l:hexdebug:items/debugging#debugger)$(item)Debugger/$ or $(l:hexdebug:items/debugging#evaluator)$(item)Evaluator/$, or $(l:casting/influences)$(thing)Null/$ otherwise.",
               "breakpoint/": {
                 before: "Pauses the $(l:hexdebug:items/debugging#debugger)$(item)Debugger/$ before executing this pattern.",
                 after: "Pauses the $(l:hexdebug:items/debugging#debugger)$(item)Debugger/$ after executing this pattern (ie. before executing the next pattern).",

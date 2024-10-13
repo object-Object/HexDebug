@@ -3,8 +3,8 @@ package gay.`object`.hexdebug.adapter.proxy
 import dev.architectury.event.events.client.ClientPlayerEvent
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.config.HexDebugConfig
-import gay.`object`.hexdebug.items.ItemDebugger
-import gay.`object`.hexdebug.networking.msg.MsgDebugAdapterProxyC2S
+import gay.`object`.hexdebug.items.DebuggerItem
+import gay.`object`.hexdebug.networking.msg.MsgDebugAdapterProxy
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.jvm.javaio.*
@@ -40,8 +40,8 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
         var instance: DebugProxyClient? = null
             private set
 
-        private val enabled get() = HexDebugConfig.get().client.openDebugPort
-        private val port get() = HexDebugConfig.get().client.debugPort
+        private val enabled get() = HexDebugConfig.client.openDebugPort
+        private val port get() = HexDebugConfig.client.debugPort
 
         private val executorService = Executors.newCachedThreadPool()
 
@@ -50,12 +50,12 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
         private var serverJob: Job? = null
 
         fun init() {
-            HexDebugConfig.getHolder().registerSaveListener { _, _ ->
+            HexDebugConfig.holder.registerSaveListener { _, _ ->
                 reload()
                 InteractionResult.PASS
             }
             ClientPlayerEvent.CLIENT_PLAYER_JOIN.register {
-                ItemDebugger.debugState = ItemDebugger.DebugState.NOT_DEBUGGING
+                DebuggerItem.debugState = DebuggerItem.DebugState.NOT_DEBUGGING
                 start()
             }
             ClientPlayerEvent.CLIENT_PLAYER_QUIT.register {
@@ -139,7 +139,7 @@ class DebugProxyClientProducer(input: InputStream) : StreamMessageProducer(input
 
             // instead of parsing the message here, just forward it to the server
             val content = String(buffer, charset(headers.charset))
-            MsgDebugAdapterProxyC2S(content).sendToServer()
+            MsgDebugAdapterProxy(content).sendToServer()
         } catch (exception: Exception) {
             // UnsupportedEncodingException can be thrown by String constructor
             // JsonParseException can be thrown by jsonHandler

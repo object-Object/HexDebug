@@ -14,7 +14,10 @@ loom {
         convertAccessWideners = true
         extraAccessWideners.add(loom.accessWidenerPath.get().asFile.name)
 
-        mixinConfig("hexdebug-common.mixins.json", "hexdebug.mixins.json")
+        mixinConfig(
+            "hexdebug-common.mixins.json",
+            "hexdebug-forge.mixins.json",
+        )
     }
 
     runs {
@@ -27,14 +30,11 @@ loom {
                 "--output", project(":Common").file("src/generated/resources").absolutePath,
                 "--existing", file("src/main/resources").absolutePath,
                 "--existing", project(":Common").file("src/main/resources").absolutePath,
+                "--existing-mod", "hexcasting",
             )
             property("hexdebug.apply-datagen-mixin", "true")
         }
     }
-}
-
-hexdebugPlatform {
-    platform("forge")
 }
 
 hexdebugModDependencies {
@@ -81,6 +81,8 @@ dependencies {
         include(it)
         kotlinForgeRuntimeLibrary(it)
     }
+
+    modLocalRuntime(libs.devAuth.forge)
 }
 
 tasks {
@@ -94,10 +96,3 @@ tasks {
         }
     }
 }
-
-// SO SO SO SCUFFED.
-val publishFile = publishMods.file.get().asFile
-project(":Fabric").publishMods.github {
-    additionalFiles.from(publishFile)
-}
-

@@ -11,6 +11,9 @@ import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.newDebuggerCastEnv
 import gay.`object`.hexdebug.debugger.CastArgs
+import gay.`object`.hexdebug.items.base.ItemPredicateProvider
+import gay.`object`.hexdebug.items.base.ModelPredicateEntry
+import gay.`object`.hexdebug.utils.asItemPredicate
 import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.itemPredicate
 import gay.`object`.hexdebug.utils.otherHand
@@ -31,7 +34,7 @@ import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.Level
 
-class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
+class DebuggerItem(properties: Properties) : ItemPackagedHex(properties), ItemPredicateProvider {
     override fun canDrawMediaFromInventory(stack: ItemStack?) = true
 
     override fun breakAfterDepletion() = false
@@ -142,6 +145,26 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
 
     private fun getHideIcons(stack: ItemStack) = stack.getBoolean(HIDE_ICONS_TAG)
 
+    override fun getModelPredicates() = listOf(
+        ModelPredicateEntry(DEBUG_STATE_PREDICATE) { _, _, entity, _ ->
+            // don't show the active icon for debuggers held by other players, on the ground, etc
+            val state = if (entity is LocalPlayer) debugState else DebugState.NOT_DEBUGGING
+            state.itemPredicate(DebugState.values())
+        },
+
+        ModelPredicateEntry(STEP_MODE_PREDICATE) { stack, _, _, _ ->
+            getStepMode(stack).itemPredicate(StepMode.values())
+        },
+
+        ModelPredicateEntry(HAS_HEX_PREDICATE) { stack, _, _, _ ->
+            hasHex(stack).asItemPredicate
+        },
+
+        ModelPredicateEntry(HIDE_ICONS_PREDICATE) { stack, _, _, _ ->
+            getHideIcons(stack).asItemPredicate
+        },
+    )
+
     companion object {
         private const val STEP_MODE_TAG = "step_mode"
         private const val HIDE_ICONS_TAG = "hide_icons"
@@ -157,23 +180,6 @@ class ItemDebugger(properties: Properties) : ItemPackagedHex(properties) {
         fun isDebugging(): Boolean {
             return debugState == DebugState.DEBUGGING
         }
-
-        fun getProperties(item: ItemDebugger) = mapOf(
-            DEBUG_STATE_PREDICATE to ClampedItemPropertyFunction { _, _, entity, _ ->
-                // don't show the active icon for debuggers held by other players, on the ground, etc
-                val state = if (entity is LocalPlayer) debugState else DebugState.NOT_DEBUGGING
-                state.itemPredicate(DebugState.values())
-            },
-            STEP_MODE_PREDICATE to ClampedItemPropertyFunction { stack, _, _, _ ->
-                item.getStepMode(stack).itemPredicate(StepMode.values())
-            },
-            HAS_HEX_PREDICATE to ClampedItemPropertyFunction { stack, _, _, _ ->
-                if (item.hasHex(stack)) 1f else 0f
-            },
-            HIDE_ICONS_PREDICATE to ClampedItemPropertyFunction { stack, _, _, _ ->
-                if (item.getHideIcons(stack)) 1f else 0f
-            },
-        )
     }
 
     enum class DebugState {

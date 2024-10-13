@@ -2,49 +2,6 @@ package hexdebug.conventions
 
 import hexdebug.hexdebugProperties
 
-// plugin config
-
-abstract class HexDebugPlatformExtension(private val project: Project) {
-    abstract val developmentConfiguration: Property<String>
-    abstract val shadowCommonConfiguration: Property<String>
-
-    private val hexdebugArchitectury by lazy {
-        project.extensions.getByType<IHexDebugArchitecturyExtension>()
-    }
-
-    fun platform(platform: String, vararg extraModLoaders: String) = project.run {
-        // "inheritance"
-        hexdebugArchitectury.platform(platform)
-
-        platform.replaceFirstChar(Char::uppercase).also {
-            developmentConfiguration.convention("development$it")
-            shadowCommonConfiguration.convention("transformProduction$it")
-        }
-
-        configurations {
-            named(developmentConfiguration.get()) {
-                extendsFrom(get("common"))
-            }
-        }
-
-        dependencies {
-            "shadowCommon"(project(":Common", shadowCommonConfiguration.get())) { isTransitive = false }
-        }
-
-        publishMods {
-            modLoaders.addAll(platform, *extraModLoaders)
-            displayName = modLoaders.map { values ->
-                val loaders = values.joinToString(", ") { it.replaceFirstChar(Char::uppercase) }
-                "v${project.version} [$loaders]"
-            }
-        }
-    }
-}
-
-val extension = extensions.create<HexDebugPlatformExtension>("hexdebugPlatform")
-
-// build logic
-
 plugins {
     id("hexdebug.conventions.architectury")
     id("hexdebug.utils.mod-dependencies")
@@ -53,8 +10,19 @@ plugins {
     id("me.modmuss50.mod-publish-plugin")
 }
 
+val platform: String by project
+val platformCapitalized = platform.capitalize()
+
 architectury {
     platformSetupLoomIde()
+}
+
+loom {
+    runs {
+        named("server") {
+            runDir = "runServer"
+        }
+    }
 }
 
 configurations {
@@ -66,19 +34,27 @@ configurations {
     runtimeClasspath {
         extendsFrom(get("common"))
     }
+    // this needs to wait until Loom has been configured
+    afterEvaluate {
+        named("development$platformCapitalized") {
+            extendsFrom(get("common"))
+        }
+    }
 }
 
 dependencies {
     "common"(project(":Common", "namedElements")) { isTransitive = false }
+    "shadowCommon"(project(":Common", "transformProduction$platformCapitalized")) { isTransitive = false }
 }
 
-sourceSets {
-    main {
-        resources {
-            source(project(":Common").sourceSets.main.get().resources)
-        }
-    }
-}
+// FIXME: find a less broken way to include common resources in platform devenv - this one breaks mixin refmaps
+//sourceSets {
+//    main {
+//        resources {
+//            source(project(":Common").sourceSets.main.get().resources)
+//        }
+//    }
+//}
 
 tasks {
     shadowJar {
@@ -123,6 +99,13 @@ publishMods {
     changelog = hexdebugProperties.getLatestChangelog()
     file = tasks.remapJar.flatMap { it.archiveFile }
 
+    modLoaders.add(platform)
+
+    displayName = modLoaders.map { values ->
+        val loaders = values.joinToString(", ") { it.capitalize() }
+        "v${project.version} [$loaders]"
+    }
+
     curseforge {
         accessToken = envOrEmpty("CURSEFORGE_TOKEN")
         projectId = hexdebugProperties.curseforgeId
@@ -137,3 +120,5 @@ publishMods {
         minecraftVersions.add(hexdebugProperties.minecraftVersion)
     }
 }
+
+fun String.capitalize() = replaceFirstChar(Char::uppercase)
