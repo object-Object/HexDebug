@@ -58,9 +58,14 @@ abstract class BaseIotaButton(
     override val uOffset get() = 352 + 20 * (backgroundType?.ordinal ?: 0)
     override val vOffset = 0
 
+    override val uOffsetDisabled get() = uOffset
+    override val vOffsetDisabled get() = vOffset
+
     override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (iotaView != null && backgroundType != null) {
+            RenderSystem.enableBlend()
             super.renderWidget(guiGraphics, mouseX, mouseY, partialTick)
+            RenderSystem.disableBlend()
 
             val zappyPoints = zappyPoints
             val typeUVOffset = typeUVOffset

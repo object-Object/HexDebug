@@ -21,6 +21,12 @@ abstract class SplicingTableButton(
     abstract val uOffset: Int
     abstract val vOffset: Int
 
+    open val uOffsetHovered get() = uOffset + 0
+    open val vOffsetHovered get() = vOffset + 405
+
+    open val uOffsetDisabled get() = uOffset - 136
+    open val vOffsetDisabled get() = vOffset + 405
+
     open fun testVisible() = visible
 
     fun testHitbox(mouseX: Int, mouseY: Int) = testHitbox(mouseX.toDouble(), mouseY.toDouble())
@@ -42,6 +48,11 @@ abstract class SplicingTableButton(
     }
 
     override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+        val (uOffset, vOffset) = when {
+            !isActive -> Pair(uOffsetDisabled, vOffsetDisabled)
+            isHovered -> Pair(uOffsetHovered, vOffsetHovered)
+            else -> Pair(uOffset, vOffset)
+        }
         SplicingTableScreen.blitSprite(guiGraphics, x, y, uOffset, vOffset, width, height)
     }
 

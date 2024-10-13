@@ -98,6 +98,8 @@ class SplicingTableScreen(
             }
         }
 
+    private var clearGridButton: SpriteButton? = null
+
     override fun init() {
         super.init()
 
@@ -125,13 +127,6 @@ class SplicingTableScreen(
                 .build()
         }
 
-        staffButtons += listOf(
-            button("clear_grid") { guiSpellcasting.mixin.`clearPatterns$hexdebug`() }
-                .pos(leftPos - 200, topPos - 24)
-                .size(64, 16)
-                .build()
-        )
-
         viewButtons += listOf(
             button("export") { exportToSystemClipboard() }
                 .pos(leftPos + imageWidth + 2, topPos)
@@ -139,10 +134,34 @@ class SplicingTableScreen(
                 .build()
         )
 
+        clearGridButton = object : SpriteButton(
+            x = (staffMinX + staffMaxX) / 2 - 19,
+            y = staffMaxY - 10,
+            uOffset = 192,
+            vOffset = 293,
+            width = 38,
+            height = 25,
+            message = buttonText("clear_grid"),
+            onPress = {
+                guiSpellcasting.mixin.`clearPatterns$hexdebug`()
+            },
+        ) {
+            override val uOffsetHovered get() = uOffset
+            override val vOffsetHovered get() = vOffset
+
+            override val uOffsetDisabled get() = uOffset
+            override val vOffsetDisabled get() = vOffset
+
+            override fun testVisible() = hasStaffItem
+
+            override fun testHitbox(mouseX: Double, mouseY: Double) =
+                mouseX >= x + 2 && mouseY >= y + 2 && mouseX < x + width - 2 && mouseY < y + height - 3
+        }.also(::addRenderableWidget)
+
         predicateButtons += listOf(
             // move view
 
-            SpriteButton(
+            object : SpriteButton(
                 x = leftPos + 4,
                 y = topPos + 25,
                 uOffset = 256,
@@ -150,13 +169,18 @@ class SplicingTableScreen(
                 width = 10,
                 height = 10,
                 message = buttonText("view_left"),
-            ) { // onPress
-                moveView(-1)
+                onPress = {
+                    moveView(-1)
+                },
+            ) {
+                // TODO: remove when sam adds a disabled texture lol
+                override val uOffsetDisabled get() = uOffset
+                override val vOffsetDisabled get() = vOffset
             } to { // test
                 viewStartIndex > 0
             },
 
-            SpriteButton(
+            object : SpriteButton(
                 x = leftPos + 178,
                 y = topPos + 25,
                 uOffset = 266,
@@ -164,8 +188,12 @@ class SplicingTableScreen(
                 width = 10,
                 height = 10,
                 message = buttonText("view_right"),
-            ) { // onPress
-                moveView(1)
+                onPress = {
+                    moveView(1)
+                },
+            ) {
+                override val uOffsetDisabled get() = uOffset
+                override val vOffsetDisabled get() = vOffset
             } to { // test
                 viewStartIndex < data.lastIndex - IOTA_BUTTONS + 1
             },
@@ -540,7 +568,10 @@ class SplicingTableScreen(
 
     private fun isInStaffGrid(mouseX: Double, mouseY: Double, button: Int) =
         staffMinX <= mouseX && mouseX <= staffMaxX && staffMinY <= mouseY && mouseY <= staffMaxY
-        && hasClickedOutside(mouseX, mouseY, leftPos, topPos, button) // avoid interacting with the grid when inserting the staff item
+        // avoid interacting with the grid when inserting the staff item...
+        && hasClickedOutside(mouseX, mouseY, leftPos, topPos, button)
+        // or when clicking the clear grid button
+        && !(clearGridButton?.testHitbox(mouseX, mouseY) ?: false)
 
     override fun hasClickedOutside(
         mouseX: Double,
@@ -736,12 +767,12 @@ class SplicingTableScreen(
         private val backgroundType by button::backgroundType
 
         override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-            if (!data.isInRange(index)) return
-            val backgroundType = backgroundType ?: return
+            if (!data.isInRange(index) || backgroundType == null) return
+            RenderSystem.enableBlend()
             when (val selection = selection) {
                 is Selection.Range -> if (index in selection) {
                     drawRangeSelection(
-                        guiGraphics, offset, backgroundType,
+                        guiGraphics, offset,
                         leftEdge = index == selection.start,
                         rightEdge = index == selection.end,
                     )
@@ -751,14 +782,15 @@ class SplicingTableScreen(
                 }
                 null -> {}
             }
+            RenderSystem.disableBlend()
         }
 
-        private fun drawRangeSelection(guiGraphics: GuiGraphics, offset: Int, type: IotaBackgroundType, leftEdge: Boolean, rightEdge: Boolean) {
+        private fun drawRangeSelection(guiGraphics: GuiGraphics, offset: Int, leftEdge: Boolean, rightEdge: Boolean) {
             blitSprite(
                 guiGraphics,
                 x = leftPos + 15 + 18 * offset,
                 y = topPos + 18,
-                uOffset = 352 + 20 * type.ordinal,
+                uOffset = 352,
                 vOffset = 24,
                 width = 18,
                 height = 25,
@@ -772,8 +804,15 @@ class SplicingTableScreen(
         }
 
         private fun drawEdgeSelection(guiGraphics: GuiGraphics, offset: Int) {
-            drawSelectionEndCap(guiGraphics, offset - 1, SelectionEndCap.RIGHT)
-            drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.LEFT)
+            blitSprite(
+                guiGraphics,
+                x = leftPos + 13 + 18 * offset,
+                y = topPos + 23,
+                uOffset = 375,
+                vOffset = 29,
+                width = 4,
+                height = 15,
+            )
         }
 
         private fun drawSelectionEndCap(guiGraphics: GuiGraphics, offset: Int, endCap: SelectionEndCap) {
