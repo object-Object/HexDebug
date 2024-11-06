@@ -9,9 +9,7 @@ import at.petrak.hexcasting.common.casting.actions.spells.OpMakePackagedSpell
 import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import at.petrak.hexcasting.common.lib.HexRegistries
 import at.petrak.hexcasting.common.lib.hex.HexActions
-import gay.`object`.hexdebug.casting.actions.OpBreakpoint
-import gay.`object`.hexdebug.casting.actions.OpIsDebugging
-import gay.`object`.hexdebug.casting.actions.OpNextEvalIndex
+import gay.`object`.hexdebug.casting.actions.*
 
 object HexDebugActions : HexDebugRegistrar<ActionRegistryEntry>(HexRegistries.ACTION, { HexActions.REGISTRY }) {
     val IS_DEBUGGING = make("const/debugging", HexDir.EAST, "qqqqqewaa", OpIsDebugging)
@@ -24,6 +22,10 @@ object HexDebugActions : HexDebugRegistrar<ActionRegistryEntry>(HexRegistries.AC
     val CRAFT_DEBUGGER = make("craft/debugger", HexDir.SOUTH_WEST, "aaewwwwwaqwawqwadawqwwwawwwqwwwaw") {
         OpMakePackagedSpell(HexDebugItems.DEBUGGER.value as ItemPackagedHex, 10 * MediaConstants.CRYSTAL_UNIT)
     }
+
+    // temporary implementation of FallingColors/HexMod#412 since there's no 1.20 gloop
+    val BLOCK_READ = make("block_read", HexDir.EAST, "aqqqqqeawqwaw", OpReadBlock)
+    val BLOCK_WRITE = make("block_write", HexDir.EAST, "deeeeeqdwewewewdw", OpWriteBlock)
 
     private fun make(name: String, startDir: HexDir, signature: String, action: Action) =
         make(name, startDir, signature) { action }

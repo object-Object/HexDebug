@@ -35,7 +35,13 @@ class FocusHolderBlockEntity(pos: BlockPos, state: BlockState) :
 
     override fun readIotaTag() = iotaHolder?.readIotaTag()
 
-    override fun writeIota(iota: Iota?, simulate: Boolean) = iotaHolder?.writeIota(iota, simulate) ?: false
+    override fun writeIota(iota: Iota?, simulate: Boolean): Boolean {
+        val success = iotaHolder?.writeIota(iota, simulate) ?: false
+        if (!simulate && success) {
+            sync() // sync container to clients, eg. to update scrying lens readout
+        }
+        return success
+    }
 
     override fun writeable() = iotaHolder?.writeable() ?: false
 
