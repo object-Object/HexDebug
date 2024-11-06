@@ -90,6 +90,10 @@ publishMods {
 }
 
 tasks {
+    remapJar {
+        injectAccessWidener.set(true)
+    }
+
     named("publishGithub") {
         dependsOn(
             project(":Common").tasks.remapJar,

@@ -31,7 +31,6 @@
   "mixins": [
     "hexdebug-common.mixins.json"
   ],
-  "accessWidener": "hexdebug.accesswidener",
   "depends": {
     "minecraft": "${versions.minecraft}",
     "fabricloader": ">=${versions.fabric_loader}",
