@@ -30,6 +30,11 @@ class FocusHolderBlockItem(block: Block, properties: Properties) :
         return iotaHolder?.readIotaTag(iotaStack)
     }
 
+    override fun writeable(stack: ItemStack): Boolean {
+        val (_, iotaHolder) = stack.getIotaStack()
+        return iotaHolder?.writeable(stack) ?: false
+    }
+
     override fun canWrite(stack: ItemStack, iota: Iota?): Boolean {
         val (iotaStack, iotaHolder) = stack.getIotaStack()
         return iotaHolder?.canWrite(iotaStack, iota) ?: false

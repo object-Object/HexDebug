@@ -37,6 +37,8 @@ class FocusHolderBlockEntity(pos: BlockPos, state: BlockState) :
 
     override fun writeIota(iota: Iota?, simulate: Boolean) = iotaHolder?.writeIota(iota, simulate) ?: false
 
+    override fun writeable() = iotaHolder?.writeable() ?: false
+
     override fun setChanged() {
         super.setChanged()
         if (blockState.getValue(HAS_ITEM) != isNotEmpty) {

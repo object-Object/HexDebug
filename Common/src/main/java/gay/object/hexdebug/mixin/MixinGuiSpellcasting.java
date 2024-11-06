@@ -42,7 +42,7 @@ public abstract class MixinGuiSpellcasting implements IMixinGuiSpellcasting {
     public abstract InteractionHand getHandOpenedWith();
 
     @WrapWithCondition(
-        method = "mouseReleased",
+        method = "drawEnd",
         at = @At(
             value = "INVOKE",
             target = "Lat/petrak/hexcasting/xplat/IClientXplatAbstractions;sendPacketToServer(Lat/petrak/hexcasting/common/msgs/IMessage;)V",
