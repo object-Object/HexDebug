@@ -10,6 +10,7 @@ import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation.NotDone
 import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.mishaps.Mishap
 import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
+import at.petrak.hexcasting.api.casting.mishaps.MishapStackSize
 import at.petrak.hexcasting.common.casting.actions.eval.OpEval
 import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
 import gay.`object`.hexdebug.adapter.LaunchArgs
@@ -486,7 +487,9 @@ class HexDebugger(
 
     fun executeOnce() = executeNextDebugStep(getVM())
 
-    // Copy of CastingVM.queueExecuteAndWrapIotas to allow stepping by one pattern at a time.
+    /**
+     * Copy of [CastingVM.queueExecuteAndWrapIotas] to allow stepping by one pattern at a time.
+     */
     private fun executeNextDebugStep(
         vm: CastingVM,
         exactlyOnce: Boolean = false,
@@ -514,7 +517,20 @@ class HexDebugger(
             }
 
             // ...and execute it.
-            val castResult = frame.evaluate(continuation.next, world, vm)
+            val castResult = frame.evaluate(continuation.next, world, vm).let { result ->
+                // if stack is unable to be serialized, have the result be an error
+                val newData = result.newData
+                if (newData != null && IotaType.isTooLargeToSerialize(newData.stack)) {
+                    result.copy(
+                        newData = null,
+                        sideEffects = listOf(OperatorSideEffect.DoMishap(MishapStackSize(), Mishap.Context(null, null))),
+                        resolutionType = ResolvedPatternType.ERRORED,
+                        sound = HexEvalSounds.MISHAP,
+                    )
+                } else {
+                    result
+                }
+            }
 
             val newImage = castResult.newData
 
