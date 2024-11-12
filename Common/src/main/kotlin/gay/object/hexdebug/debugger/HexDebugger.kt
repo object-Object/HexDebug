@@ -355,7 +355,8 @@ class HexDebugger(
 
     private fun isAtBreakpoint(): Boolean {
         val nextIota = when (val frame = nextFrame) {
-            is FrameEvaluate -> getIotas(frame)?.car
+            // why is this empty sometimes??????
+            is FrameEvaluate -> getIotas(frame)?.firstOrNull()
             is FrameBreakpoint -> return true
             else -> null
         } ?: return false
