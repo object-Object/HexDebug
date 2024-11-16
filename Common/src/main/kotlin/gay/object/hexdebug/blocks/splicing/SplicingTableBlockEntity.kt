@@ -149,6 +149,13 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         val data = getData(player, selection)
             ?.let(ReadWriteList::convertOrNull)
             ?: return errorResult
+        if (undoStack.size == 0) {
+            data.pushUndoState(
+                list = Some(data.list),
+                clipboard = Some(data.clipboard),
+                selection = Some(selection),
+            )
+        }
         return drawPattern(pattern, data).also { consumeMedia(data) }
     }
 
