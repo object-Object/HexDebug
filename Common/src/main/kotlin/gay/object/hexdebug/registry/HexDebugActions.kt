@@ -26,6 +26,8 @@ object HexDebugActions : HexDebugRegistrar<ActionRegistryEntry>(HexRegistries.AC
     // temporary implementation of FallingColors/HexMod#412 since there's no 1.20 gloop
     val BLOCK_READ = make("block_read", HexDir.EAST, "aqqqqqeawqwaw", OpReadBlock)
     val BLOCK_WRITE = make("block_write", HexDir.EAST, "deeeeeqdwewewewdw", OpWriteBlock)
+    val BLOCK_READ_INDEXED = make("block_read_indexed", HexDir.EAST, "aqqqqqedwewewewdw", OpReadBlockIndexed)
+    val BLOCK_WRITE_INDEXED = make("block_write_indexed", HexDir.EAST, "deeeeeqawqwaw", OpWriteBlockIndexed)
 
     private fun make(name: String, startDir: HexDir, signature: String, action: Action) =
         make(name, startDir, signature) { action }
