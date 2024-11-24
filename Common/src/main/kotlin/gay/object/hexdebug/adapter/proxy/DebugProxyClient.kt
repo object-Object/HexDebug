@@ -17,6 +17,7 @@ import org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.net.BindException
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
@@ -66,7 +67,7 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
         private fun start() {
             thread = thread?.also {
                 HexDebug.LOGGER.warn("Tried to start DebugAdapterProxyClient while already running")
-            } ?: thread(name="DebugAdapterProxyClient_$port") {
+            } ?: thread(name="DebugAdapterProxyClient") {
                 runBlocking {
                     wrapperJob = launch { runServerWrapper() }
                 }
@@ -100,10 +101,23 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
                 awaitCancellation()
             }
             HexDebug.LOGGER.info("Listening for debug client on port {}...", port)
-            aSocket(selector).tcp().bind(port = port).use { serverSocket ->
-                while (true) {
-                    acceptClient(serverSocket)
-                }
+            try {
+                aSocket(selector)
+                    .tcp()
+                    .bind(
+                        port = port,
+                        configure = {
+                            reuseAddress = true
+                        },
+                    )
+                    .use { serverSocket ->
+                        while (true) {
+                            acceptClient(serverSocket)
+                        }
+                    }
+            } catch (e: BindException) {
+                HexDebug.LOGGER.error("Failed to open local proxy server!", e)
+                awaitCancellation()
             }
         }
 
