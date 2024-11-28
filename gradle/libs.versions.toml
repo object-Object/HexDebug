@@ -32,7 +32,7 @@ patchouli-forge = "1.20.1-84-FORGE"
 
 cardinalComponents = "5.2.1"
 serializationHooks = "0.4.99999"
-mixinExtras = "0.1.1"
+mixinExtras = "0.3.6"
 trinkets = "3.7.0"
 clothConfig = "11.1.106"
 modMenu = "7.1.0"
@@ -89,10 +89,13 @@ patchouli-forge  = { module="vazkii.patchouli:Patchouli", version.ref="patchouli
 
 cardinalComponents = { module="dev.onyxstudios.cardinal-components-api:cardinal-components-api", version.ref="cardinalComponents" }
 serializationHooks = { module="libs:serialization-hooks", version.ref="serializationHooks" }
-mixinExtras        = { module="com.github.LlamaLad7:MixinExtras", version.ref="mixinExtras" }
 trinkets           = { module="dev.emi:trinkets", version.ref="trinkets" }
 modMenu            = { module="com.terraformersmc:modmenu", version.ref="modMenu" }
 caelus             = { module="top.theillusivec4.caelus:caelus-forge", version.ref="caelus" }
+
+mixinExtras-common = { module="io.github.llamalad7:mixinextras-common", version.ref="mixinExtras" }
+mixinExtras-fabric = { module="io.github.llamalad7:mixinextras-fabric", version.ref="mixinExtras" }
+mixinExtras-forge  = { module="io.github.llamalad7:mixinextras-forge", version.ref="mixinExtras" }
 
 clothConfig-common = { module="me.shedaniel.cloth:cloth-config", version.ref="clothConfig" }
 clothConfig-fabric = { module="me.shedaniel.cloth:cloth-config-fabric", version.ref="clothConfig" }

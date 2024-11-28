@@ -51,9 +51,10 @@ dependencies {
     modLocalRuntime(libs.trinkets)
     modLocalRuntime(libs.inline.fabric)
 
-    libs.mixinExtras.also {
+    libs.mixinExtras.fabric.also {
         localRuntime(it)
         include(it)
+        annotationProcessor(it)
     }
 
     modApi(libs.clothConfig.fabric) {

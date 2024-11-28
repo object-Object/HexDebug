@@ -7,7 +7,7 @@ import at.petrak.hexcasting.client.gui.GuiSpellcasting;
 import at.petrak.hexcasting.common.msgs.IMessage;
 import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternC2S;
 import at.petrak.hexcasting.xplat.IClientXplatAbstractions;
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import gay.object.hexdebug.gui.splicing.IMixinGuiSpellcasting;
 import net.minecraft.world.InteractionHand;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +47,8 @@ public abstract class MixinGuiSpellcasting implements IMixinGuiSpellcasting {
             value = "INVOKE",
             target = "Lat/petrak/hexcasting/xplat/IClientXplatAbstractions;sendPacketToServer(Lat/petrak/hexcasting/common/msgs/IMessage;)V",
             remap = false
-        )
+        ),
+        remap = false
     )
     private boolean redirectSplicingTableStaffPacket$hexdebug(IClientXplatAbstractions instance, IMessage message) {
         if (onDrawSplicingTablePattern$hexdebug != null && message instanceof MsgNewSpellPatternC2S newSpellPatternC2S) {

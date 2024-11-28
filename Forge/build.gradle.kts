@@ -63,11 +63,16 @@ dependencies {
     modImplementation(libs.paucal.forge)
     modLocalRuntime(libs.patchouli.forge)
     modLocalRuntime(libs.caelus)
-    modLocalRuntime(libs.inline.fabric)
+    modLocalRuntime(libs.inline.forge) { isTransitive = false }
 
     modApi(libs.clothConfig.forge)
 
-    libs.mixinExtras.also {
+    libs.mixinExtras.common.also {
+        compileOnly(it)
+        annotationProcessor(it)
+    }
+
+    libs.mixinExtras.forge.also {
         localRuntime(it)
         include(it)
     }
