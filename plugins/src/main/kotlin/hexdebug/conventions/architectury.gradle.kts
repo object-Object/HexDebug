@@ -52,7 +52,7 @@ sourceSets {
 
 tasks {
     val jenkinsArtifacts = register<Copy>("jenkinsArtifacts") {
-        from(remapJar, remapSourcesJar, get("javadocJar"))
+        from(remapJar)
         into(rootDir.toPath() / "build" / "jenkinsArtifacts")
     }
 
