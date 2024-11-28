@@ -131,9 +131,9 @@ fun Iota.toHexpatternSource(env: CastingEnvironment, wrapEmbedded: Boolean = tru
     val iotaText = when (this) {
         is PatternIota -> {
             // don't wrap known patterns in angled brackets
-            when (pattern) {
-                SpecialPatterns.INTROSPECTION -> "{"
-                SpecialPatterns.RETROSPECTION -> "}"
+            when (pattern.angles) {
+                SpecialPatterns.INTROSPECTION.angles -> "{"
+                SpecialPatterns.RETROSPECTION.angles -> "}"
                 else -> pattern.getI18nOrNull(env)?.string
             }?.let { return it }
             // but do wrap unknown ones
@@ -162,11 +162,11 @@ fun HexPattern.getI18nOrNull(env: CastingEnvironment): Component? {
         is PatternShapeMatch.PerWorld -> hexAPI.getActionI18n(lookup.key, true)
         is PatternShapeMatch.Special -> lookup.handler.name
         is PatternShapeMatch.Nothing -> {
-            val path = when (this) {
-                SpecialPatterns.INTROSPECTION -> "open_paren"
-                SpecialPatterns.RETROSPECTION -> "close_paren"
-                SpecialPatterns.CONSIDERATION -> "escape"
-                SpecialPatterns.EVANITION -> "undo"
+            val path = when (this.angles) {
+                SpecialPatterns.INTROSPECTION.angles -> "open_paren"
+                SpecialPatterns.RETROSPECTION.angles -> "close_paren"
+                SpecialPatterns.CONSIDERATION.angles -> "escape"
+                SpecialPatterns.EVANITION.angles -> "undo"
                 else -> return null
             }
             hexAPI.getRawHookI18n(HexAPI.modLoc(path))

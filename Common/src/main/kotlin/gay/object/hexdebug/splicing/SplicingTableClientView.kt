@@ -56,9 +56,9 @@ data class IotaClientView(
 fun List<IotaClientView>.toHexpatternSource(): String {
     var depth = 0
     return joinToString("\n") {
-        if (it.pattern == SpecialPatterns.RETROSPECTION) depth--
+        if (it.pattern?.angles == SpecialPatterns.RETROSPECTION.angles) depth--
         val indent = " ".repeat(max(0, 4 * depth))
-        if (it.pattern == SpecialPatterns.INTROSPECTION) depth++
+        if (it.pattern?.angles == SpecialPatterns.INTROSPECTION.angles) depth++
         indent + it.hexpatternSource
     }
 }
