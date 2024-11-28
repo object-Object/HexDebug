@@ -29,7 +29,7 @@ class DebuggerCastEnv(
         printDebugMishap(this, caster, mishap)
     }
 
-    override fun extractMediaEnvironment(cost: Long): Long {
+    override fun extractMediaEnvironment(cost: Long, simulate: Boolean): Long {
         if (caster.isCreative) return 0
 
         var costLeft = cost
@@ -42,13 +42,13 @@ class DebuggerCastEnv(
         // The contracts on the AD and on this function are different.
         // ADs return the amount extracted, this wants the amount left
         if (casterMediaHolder != null) {
-            val extracted = casterMediaHolder.withdrawMedia(costLeft.toInt().toLong(), false)
+            val extracted = casterMediaHolder.withdrawMedia(costLeft.toInt().toLong(), simulate)
             costLeft -= extracted
         }
 
         // debugger can always extract from inventory
         if (costLeft > 0) {
-            costLeft = extractMediaFromInventory(costLeft, canOvercast())
+            costLeft = extractMediaFromInventory(costLeft, canOvercast(), simulate)
         }
 
         return costLeft

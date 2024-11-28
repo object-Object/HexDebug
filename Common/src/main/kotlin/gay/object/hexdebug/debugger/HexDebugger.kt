@@ -592,11 +592,11 @@ class HexDebugger(
             lastResolutionType = castResult.resolutionType
 
             try {
-                vm.performSideEffects(info, castResult.sideEffects)
+                vm.performSideEffects(castResult.sideEffects)
             } catch (e: Exception) {
                 e.printStackTrace()
                 vm.performSideEffects(
-                    info, listOf(OperatorSideEffect.DoMishap(MishapInternalException(e), Mishap.Context(null, null)))
+                    listOf(OperatorSideEffect.DoMishap(MishapInternalException(e), Mishap.Context(null, null)))
                 )
             }
             info.earlyExit = info.earlyExit || !castResult.resolutionType.success

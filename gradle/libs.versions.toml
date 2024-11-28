@@ -22,7 +22,8 @@ forge-dependency = "47" # for mods.toml
 
 # mods
 
-hexcasting = "0.11.1-7-pre-672"
+hexcasting = "0.11.2-pre-701"
+hexcasting-dependency = "0.11.2-pre"
 paucal = "0.6.0-pre-118"
 
 patchouli = "1.20.1-84"
@@ -37,6 +38,7 @@ clothConfig = "11.1.106"
 modMenu = "7.1.0"
 caelus = "3.1.0+1.20"
 devAuth = "1.2.0"
+inline = "1.20.1-1.0.1"
 
 # other non-Minecraft dependencies
 
@@ -98,6 +100,9 @@ clothConfig-forge  = { module="me.shedaniel.cloth:cloth-config-forge", version.r
 
 devAuth-fabric = { module="me.djtheredstoner:DevAuth-fabric", version.ref="devAuth" }
 devAuth-forge  = { module="me.djtheredstoner:DevAuth-forge-latest", version.ref="devAuth" }
+
+inline-fabric = { module="com.samsthenerd.inline:inline-fabric", version.ref="inline" }
+inline-forge  = { module="com.samsthenerd.inline:inline-forge", version.ref="inline" }
 
 findbugs-jsr305 = { module="com.google.code.findbugs:jsr305", version.ref="findbugs-jsr305" }
 

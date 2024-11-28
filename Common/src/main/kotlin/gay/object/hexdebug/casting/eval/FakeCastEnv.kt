@@ -25,7 +25,7 @@ class FakeCastEnv(level: ServerLevel) : CastingEnvironment(level) {
 
     override fun mishapSprayPos(): Vec3 = TODO()
 
-    override fun extractMediaEnvironment(cost: Long): Long = cost
+    override fun extractMediaEnvironment(cost: Long, simulate: Boolean): Long = cost
 
     override fun isVecInRangeEnvironment(vec: Vec3?): Boolean = false
 

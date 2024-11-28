@@ -49,6 +49,7 @@ dependencies {
     modLocalRuntime(libs.cardinalComponents)
     modLocalRuntime(libs.serializationHooks)
     modLocalRuntime(libs.trinkets)
+    modLocalRuntime(libs.inline.fabric)
 
     libs.mixinExtras.also {
         localRuntime(it)
