@@ -23,7 +23,8 @@ forge-dependency = "47" # for mods.toml
 # mods
 
 hexcasting = "0.11.2-pre-701"
-hexcasting-dependency = "0.11.2-pre"
+# FIXME: this should be 0.11.2 but that breaks dev env because there's no 0.11.2 on maven :(
+hexcasting-dependency = "0.11.1"
 paucal = "0.6.0-pre-118"
 
 patchouli = "1.20.1-84"
