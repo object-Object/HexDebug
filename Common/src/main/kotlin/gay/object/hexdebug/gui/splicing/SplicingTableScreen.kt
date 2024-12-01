@@ -60,13 +60,17 @@ class SplicingTableScreen(
     }
 
     // should be multiples of 32, since that's how big the edge parts are
-    private val staffWidth = 32 * 6
-    private val staffHeight = 32 * 6
+    private val staffWidth = 32 * 7
+    private val staffHeight = 32 * 7
 
-    private val staffMinX get() = leftPos - 14 - staffWidth
+    // 32 * 6 is the height that matches the main GUI
+    // so offset up if taller or down if shorter
+    private val staffOffsetY: Int = ((32 * 6) - staffHeight) / 2
+
     private val staffMaxX get() = leftPos - 14
-    private val staffMinY get() = topPos
-    private val staffMaxY get() = topPos + staffHeight
+    private val staffMinX get() = staffMaxX - staffWidth
+    private val staffMinY get() = topPos + staffOffsetY
+    private val staffMaxY get() = staffMinY + staffHeight
 
     private val predicateButtons = mutableListOf<Pair<AbstractButton, () -> Boolean>>()
 
