@@ -71,15 +71,11 @@ class SplicingTableScreen(
 
     private val iotaButtons = mutableListOf<AbstractButton>()
     private val edgeButtons = mutableListOf<AbstractButton>()
-    private val viewButtons = mutableListOf<AbstractButton>()
-    private val staffButtons = mutableListOf<AbstractButton>()
     private val predicateButtons = mutableListOf<Pair<AbstractButton, () -> Boolean>>()
 
     private val listReadButtons = sequenceOf(
         iotaButtons,
         edgeButtons,
-        viewButtons,
-        staffButtons,
     ).flatten()
 
     private val allButtons = sequenceOf(
@@ -110,7 +106,6 @@ class SplicingTableScreen(
 
         iotaButtons.clear()
         edgeButtons.clear()
-        viewButtons.clear()
         predicateButtons.clear()
 
         iotaButtons += (0 until IOTA_BUTTONS).map { offset ->
@@ -127,13 +122,6 @@ class SplicingTableScreen(
                 .build()
         }
 
-        viewButtons += listOf(
-            button("export") { exportToSystemClipboard() }
-                .pos(leftPos + imageWidth + 2, topPos)
-                .size(128, 16)
-                .build()
-        )
-
         clearGridButton = object : SpriteButton(
             x = (staffMinX + staffMaxX) / 2 - 19,
             y = staffMaxY - 10,
@@ -146,7 +134,7 @@ class SplicingTableScreen(
                 guiSpellcasting.mixin.`clearPatterns$hexdebug`()
             },
         ) {
-            override val uOffsetHovered get() = uOffset
+            override val uOffsetHovered get() = uOffset - 48
             override val vOffsetHovered get() = vOffset
 
             override val uOffsetDisabled get() = uOffset
@@ -159,9 +147,31 @@ class SplicingTableScreen(
         }.also(::addRenderableWidget)
 
         predicateButtons += listOf(
+            // export hexpattern
+            object : SpriteButton(
+                x = leftPos + 194,
+                y = topPos + 18,
+                uOffset = 432,
+                vOffset = 392,
+                width = 24,
+                height = 24,
+                message = buttonText("export"),
+                onPress = {
+                    exportToSystemClipboard()
+                },
+            ) {
+                override val uOffsetHovered get() = uOffset
+                override val vOffsetHovered get() = vOffset + 32
+
+                override val uOffsetDisabled get() = uOffset
+                override val vOffsetDisabled get() = vOffset + 64
+            } to { // test
+                true
+            },
+
             // move view
 
-            object : SpriteButton(
+            SpriteButton(
                 x = leftPos + 4,
                 y = topPos + 25,
                 uOffset = 256,
@@ -169,18 +179,13 @@ class SplicingTableScreen(
                 width = 10,
                 height = 10,
                 message = buttonText("view_left"),
-                onPress = {
-                    moveView(-1)
-                },
-            ) {
-                // TODO: remove when sam adds a disabled texture lol
-                override val uOffsetDisabled get() = uOffset
-                override val vOffsetDisabled get() = vOffset
+            ) { // onPress
+                moveView(-1)
             } to { // test
                 viewStartIndex > 0
             },
 
-            object : SpriteButton(
+            SpriteButton(
                 x = leftPos + 178,
                 y = topPos + 25,
                 uOffset = 266,
@@ -188,12 +193,8 @@ class SplicingTableScreen(
                 width = 10,
                 height = 10,
                 message = buttonText("view_right"),
-                onPress = {
-                    moveView(1)
-                },
-            ) {
-                override val uOffsetDisabled get() = uOffset
-                override val vOffsetDisabled get() = vOffset
+            ) { // onPress
+                moveView(1)
             } to { // test
                 viewStartIndex < data.lastIndex - IOTA_BUTTONS + 1
             },
@@ -593,8 +594,6 @@ class SplicingTableScreen(
     // rendering
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        staffButtons.forEach { it.visible = hasStaffItem }
-
         renderBackground(guiGraphics)
         super.render(guiGraphics, mouseX, mouseY, partialTick)
         renderTooltip(guiGraphics, mouseX, mouseY)
