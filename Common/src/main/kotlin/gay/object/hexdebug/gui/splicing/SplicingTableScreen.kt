@@ -13,7 +13,6 @@ import gay.`object`.hexdebug.utils.falpha
 import gay.`object`.hexdebug.utils.fblue
 import gay.`object`.hexdebug.utils.fgreen
 import gay.`object`.hexdebug.utils.fred
-import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
@@ -69,19 +68,7 @@ class SplicingTableScreen(
     private val staffMinY get() = topPos
     private val staffMaxY get() = topPos + staffHeight
 
-    private val iotaButtons = mutableListOf<AbstractButton>()
-    private val edgeButtons = mutableListOf<AbstractButton>()
     private val predicateButtons = mutableListOf<Pair<AbstractButton, () -> Boolean>>()
-
-    private val listReadButtons = sequenceOf(
-        iotaButtons,
-        edgeButtons,
-    ).flatten()
-
-    private val allButtons = sequenceOf(
-        listReadButtons,
-        predicateButtons.asSequence().map { it.first },
-    ).flatten()
 
     private var viewStartIndex = 0
         set(value) {
@@ -104,23 +91,7 @@ class SplicingTableScreen(
 
         titleLabelX = (imageWidth - font.width(title)) / 2
 
-        iotaButtons.clear()
-        edgeButtons.clear()
         predicateButtons.clear()
-
-        iotaButtons += (0 until IOTA_BUTTONS).map { offset ->
-            Button.builder(Component.empty()) { onSelectIota(viewStartIndex + offset) }
-                .pos(leftPos + 20 + offset * 26, topPos - 18)
-                .size(22, 16)
-                .build()
-        }
-
-        edgeButtons += (0..IOTA_BUTTONS).map { offset ->
-            Button.builder(Component.empty()) { onSelectEdge(viewStartIndex + offset) }
-                .pos(leftPos + 16 + offset * 26, topPos - 18)
-                .size(4, 16)
-                .build()
-        }
 
         clearGridButton = object : SpriteButton(
             x = (staffMinX + staffMaxX) / 2 - 19,
@@ -340,14 +311,20 @@ class SplicingTableScreen(
             }.toTypedArray(),
         )
 
-        allButtons.forEach(::addRenderableWidget)
+        for ((button, _) in predicateButtons) {
+            addRenderableWidget(button)
+        }
 
         val iotaButtons = (0 until IOTA_BUTTONS).map { offset ->
             addRenderableWidget(IotaButton(offset))
         }
 
         for (button in iotaButtons) {
-            addRenderableOnly(IotaSelection(button))
+            addRenderableOnly(IotaRangeSelection(button))
+        }
+
+        for (offset in 0 until IOTA_BUTTONS + 1) {
+            addRenderableWidget(IotaEdgeSelection(offset))
         }
 
         addRenderableWidget(
@@ -396,7 +373,6 @@ class SplicingTableScreen(
             if (viewStartIndex != 0) viewStartIndex = 0
         }
         updateActiveButtons()
-        updateIotaButtons()
         for (child in children()) {
             if (child is SplicingTableButton) {
                 child.reload()
@@ -405,52 +381,8 @@ class SplicingTableScreen(
     }
 
     private fun updateActiveButtons() {
-        val data = data
-        if (data.isListReadable) {
-            setActive(listReadButtons, true)
-            for ((button, predicate) in predicateButtons) {
-                button.active = predicate()
-            }
-        } else {
-            setActive(allButtons, false)
-        }
-    }
-
-    private fun setActive(buttons: Sequence<AbstractButton>, active: Boolean) {
-        for (button in buttons) {
-            button.active = active
-        }
-    }
-
-    private fun updateIotaButtons() {
-        iotaButtons.forEachIndexed { offset, button ->
-            val index = viewStartIndex + offset
-            val formats = if (isIotaSelected(index)) {
-                arrayOf(ChatFormatting.BOLD, ChatFormatting.UNDERLINE)
-            } else {
-                arrayOf()
-            }
-            button.apply {
-                val iotaView = data.list?.getOrNull(index)
-                if (null != iotaView) {
-                    message = index.toString().asTranslatedComponent.withStyle(*formats)
-                    tooltip = Tooltip.create(iotaView.name)
-                } else {
-                    message = Component.empty()
-                    tooltip = null
-                    active = false
-                }
-            }
-        }
-
-        edgeButtons.forEachIndexed { offset, button ->
-            val index = viewStartIndex + offset
-            button.apply {
-                setAlpha(if (isEdgeSelected(index)) 1f else 0.3f)
-                if (!(data.isInRange(index) || data.isInRange(index - 1))) {
-                    active = false
-                }
-            }
+        for ((button, predicate) in predicateButtons) {
+            button.active = data.isListReadable && predicate()
         }
     }
 
@@ -752,7 +684,14 @@ class SplicingTableScreen(
         override val iotaView get() = data.list?.getOrNull(index)
 
         override fun onPress() {
+            HexDebug.LOGGER.info("button pressed")
             onSelectIota(index)
+        }
+
+        override fun testHitbox(mouseX: Double, mouseY: Double): Boolean {
+            // skip hitbox if hovering over an edge selection
+            // FIXME: hack
+            return super.testHitbox(mouseX, mouseY) && mouseX >= x + 2 && mouseX < x + width - 2
         }
 
         init {
@@ -760,58 +699,32 @@ class SplicingTableScreen(
         }
     }
 
-    inner class IotaSelection(button: IotaButton) : Renderable {
+    // TODO: hover texture?
+    inner class IotaRangeSelection(button: IotaButton) : Renderable {
         private val offset by button::offset
         private val index by button::index
-        private val backgroundType by button::backgroundType
 
         override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-            if (!data.isInRange(index) || backgroundType == null) return
-            RenderSystem.enableBlend()
-            when (val selection = selection) {
-                is Selection.Range -> if (index in selection) {
-                    drawRangeSelection(
-                        guiGraphics, offset,
-                        leftEdge = index == selection.start,
-                        rightEdge = index == selection.end,
-                    )
+            val selection = selection
+            if (data.isInRange(index) && selection is Selection.Range && index in selection) {
+                RenderSystem.enableBlend()
+                blitSprite(
+                    guiGraphics,
+                    x = leftPos + 15 + 18 * offset,
+                    y = topPos + 18,
+                    uOffset = 352,
+                    vOffset = 24,
+                    width = 18,
+                    height = 25,
+                )
+                if (index == selection.start) {
+                    drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.LEFT)
                 }
-                is Selection.Edge -> if (index == selection.index) {
-                    drawEdgeSelection(guiGraphics, offset)
+                if (index == selection.end) {
+                    drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.RIGHT)
                 }
-                null -> {}
+                RenderSystem.disableBlend()
             }
-            RenderSystem.disableBlend()
-        }
-
-        private fun drawRangeSelection(guiGraphics: GuiGraphics, offset: Int, leftEdge: Boolean, rightEdge: Boolean) {
-            blitSprite(
-                guiGraphics,
-                x = leftPos + 15 + 18 * offset,
-                y = topPos + 18,
-                uOffset = 352,
-                vOffset = 24,
-                width = 18,
-                height = 25,
-            )
-            if (leftEdge) {
-                drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.LEFT)
-            }
-            if (rightEdge) {
-                drawSelectionEndCap(guiGraphics, offset, SelectionEndCap.RIGHT)
-            }
-        }
-
-        private fun drawEdgeSelection(guiGraphics: GuiGraphics, offset: Int) {
-            blitSprite(
-                guiGraphics,
-                x = leftPos + 13 + 18 * offset,
-                y = topPos + 23,
-                uOffset = 375,
-                vOffset = 29,
-                width = 4,
-                height = 15,
-            )
         }
 
         private fun drawSelectionEndCap(guiGraphics: GuiGraphics, offset: Int, endCap: SelectionEndCap) {
@@ -824,6 +737,40 @@ class SplicingTableScreen(
                 width = 1,
                 height = 13,
             )
+        }
+    }
+
+    inner class IotaEdgeSelection(private val offset: Int) : SplicingTableButton(
+        x = leftPos + 13 + 18 * offset,
+        y = topPos + 23,
+        width = 4,
+        height = 15,
+        message = null,
+    ) {
+        override val uOffset = 375
+        override val vOffset = 29
+
+        override val uOffsetHovered get() = uOffset
+        override val vOffsetHovered get() = vOffset + 405
+
+        override val uOffsetDisabled get() = uOffset
+        override val vOffsetDisabled get() = vOffset
+
+        private val index get() = viewStartIndex + offset
+
+        override fun testVisible() = data.isInRange(index) || data.isInRange(index - 1)
+
+        override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+            if (isHovered || index == (selection as? Selection.Edge)?.index) {
+                RenderSystem.enableBlend()
+                super.renderWidget(guiGraphics, mouseX, mouseY, partialTick)
+                RenderSystem.disableBlend()
+            }
+        }
+
+        override fun onPress() {
+            HexDebug.LOGGER.info("edge pressed")
+            onSelectEdge(index)
         }
     }
 }

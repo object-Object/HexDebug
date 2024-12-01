@@ -12,10 +12,12 @@ abstract class SplicingTableButton(
     y: Int,
     width: Int,
     height: Int,
-    message: Component,
-) : AbstractButton(x, y, width, height, message) {
+    message: Component?,
+) : AbstractButton(x, y, width, height, message ?: Component.empty()) {
     init {
-        tooltip = Tooltip.create(message)
+        if (message != null) {
+            tooltip = Tooltip.create(message)
+        }
     }
 
     abstract val uOffset: Int
