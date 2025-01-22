@@ -5,8 +5,8 @@
   },
 
   "block.hexdebug": {
-    splicing_table: "Стол Склейки",
-    focus_holder: "Держатель Талисмана",
+    splicing_table: "Стол склейки",
+    focus_holder: "Держатель талисмана",
   },
 
   "itemGroup.hexdebug": "HexDebug",
