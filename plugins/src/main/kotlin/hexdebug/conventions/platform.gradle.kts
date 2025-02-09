@@ -1,6 +1,7 @@
 package hexdebug.conventions
 
 import hexdebug.hexdebugProperties
+import kotlin.io.path.div
 
 plugins {
     id("hexdebug.conventions.architectury")
@@ -57,6 +58,15 @@ dependencies {
 //}
 
 tasks {
+    val jenkinsArtifacts = register<Copy>("jenkinsArtifacts") {
+        from(remapJar)
+        into(rootDir.toPath() / "build" / "jenkinsArtifacts")
+    }
+
+    build {
+        dependsOn(jenkinsArtifacts)
+    }
+
     shadowJar {
         exclude("architectury.common.json")
         configurations = listOf(project.configurations["shadowCommon"])
