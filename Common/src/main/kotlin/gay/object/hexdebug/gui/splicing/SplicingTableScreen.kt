@@ -489,6 +489,13 @@ class SplicingTableScreen(
         return super.mouseClicked(mouseX, mouseY, button)
     }
 
+    override fun mouseMoved(mouseX: Double, mouseY: Double) {
+        if (hasStaffItem && isInStaffGrid(mouseX, mouseY, button = null)) {
+            guiSpellcasting.mouseMoved(mouseX, mouseY)
+        }
+        super.mouseMoved(mouseX, mouseY)
+    }
+
     override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, dragX: Double, dragY: Double): Boolean {
         if (hasStaffItem && isInStaffGrid(mouseX, mouseY, button)) {
             guiSpellcasting.mouseDragged(mouseX, mouseY, button, dragX, dragY)
@@ -511,10 +518,10 @@ class SplicingTableScreen(
         super.onClose()
     }
 
-    private fun isInStaffGrid(mouseX: Double, mouseY: Double, button: Int) =
+    private fun isInStaffGrid(mouseX: Double, mouseY: Double, button: Int?) =
         staffMinX <= mouseX && mouseX <= staffMaxX && staffMinY <= mouseY && mouseY <= staffMaxY
         // avoid interacting with the grid when inserting the staff item...
-        && hasClickedOutside(mouseX, mouseY, leftPos, topPos, button)
+        && (button == null || hasClickedOutside(mouseX, mouseY, leftPos, topPos, button))
         // or when clicking the clear grid button
         && !(clearGridButton?.testHitbox(mouseX, mouseY) ?: false)
 
