@@ -436,6 +436,14 @@ class SplicingTableScreen(
 
     private fun isEdgeSelected(index: Int) = selection?.let { it.start == index && it.end == null } ?: false
 
+    private fun isEdgeInRange(index: Int) =
+        // cell to the right is in range
+        data.isInRange(index)
+        // cell to the left is in range
+        || data.isInRange(index - 1)
+        // allow selecting leftmost edge of empty list
+        || (index == 0 && data.list?.size == 0)
+
     private fun onSelectIota(index: Int) {
         if (!data.isInRange(index)) return
 
@@ -454,7 +462,7 @@ class SplicingTableScreen(
     }
 
     private fun onSelectEdge(index: Int) {
-        if (!(data.isInRange(index) || data.isInRange(index - 1))) return
+        if (!isEdgeInRange(index)) return
 
         val selection = selection
         this.selection = if (isEdgeSelected(index)) {
@@ -762,7 +770,7 @@ class SplicingTableScreen(
 
         private val index get() = viewStartIndex + offset
 
-        override fun testVisible() = data.isInRange(index) || data.isInRange(index - 1)
+        override fun testVisible() = isEdgeInRange(index)
 
         override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
             if (isHovered || index == (selection as? Selection.Edge)?.index) {
