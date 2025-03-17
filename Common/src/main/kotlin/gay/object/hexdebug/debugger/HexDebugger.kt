@@ -17,6 +17,7 @@ import gay.`object`.hexdebug.adapter.LaunchArgs
 import gay.`object`.hexdebug.casting.eval.FrameBreakpoint
 import gay.`object`.hexdebug.casting.eval.IDebugCastEnv
 import gay.`object`.hexdebug.casting.eval.debugCastEnv
+import gay.`object`.hexdebug.casting.iotas.CognitohazardIota
 import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
 import gay.`object`.hexdebug.utils.ceilToPow
@@ -62,6 +63,9 @@ class HexDebugger(
 
     private val breakpoints = mutableMapOf<Int, MutableMap<Int, SourceBreakpointMode>>() // source id -> line number
     private val exceptionBreakpoints = mutableSetOf<ExceptionBreakpointType>()
+
+    // this gets set to true by registerNewSource if a frame is loaded that contains a cognitohazard iota
+    private var isPoisoned = false
 
     private val initialSource = registerNewSource(iotas)!!
 
@@ -114,6 +118,9 @@ class HexDebugger(
 
         val source = sourceAllocator.add(unregisteredIotas)
         for ((index, iota) in unregisteredIotas.withIndex()) {
+            if (iota is CognitohazardIota) {
+                isPoisoned = true
+            }
             iotaMetadata[iota] = IotaMetadata(source, index)
         }
         return source
@@ -511,7 +518,7 @@ class HexDebugger(
             val frame = continuation.frame
 
             // TODO: there's probably a less hacky way to do this
-            if (frame is FrameBreakpoint && frame.isFatal) {
+            if (frame is FrameBreakpoint && frame.isFatal || isPoisoned) {
                 continuation = Done
                 break
             }

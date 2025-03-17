@@ -25,6 +25,7 @@ object HexDebug {
             HexDebugMenus,
             HexDebugActions,
             HexDebugContinuationTypes,
+            HexDebugIotaTypes,
         )
         HexDebugNetworking.init()
         DebugAdapterManager.init()

@@ -10,8 +10,12 @@ import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import at.petrak.hexcasting.common.lib.HexRegistries
 import at.petrak.hexcasting.common.lib.hex.HexActions
 import gay.`object`.hexdebug.casting.actions.*
+import gay.`object`.hexdebug.casting.iotas.CognitohazardIota
 
 object HexDebugActions : HexDebugRegistrar<ActionRegistryEntry>(HexRegistries.ACTION, { HexActions.REGISTRY }) {
+    val COGNITOHAZARD = make("const/cognitohazard", HexDir.NORTH_WEST, "wdeaqqdqeedqadqeedqaeadeaqqeadeaqqdqdeaqqeaeedqaw") {
+        Action.makeConstantOp(CognitohazardIota())
+    }
     val IS_DEBUGGING = make("const/debugging", HexDir.EAST, "qqqqqewaa", OpIsDebugging)
     val NEXT_EVAL_INDEX = make("next_eval_index", HexDir.SOUTH_WEST, "dedqdeqwaa", OpNextEvalIndex)
 
