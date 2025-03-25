@@ -93,6 +93,7 @@
     "hexdebug:": {
       "const/debugging": "调试杖之精思",
       "next_eval_index": "调试位之精思", // TODO: this name kinda sucks tbh
+      "const/cognitohazard": "认知危害之精思",
       "breakpoint/": {
         before: "在前方添加断点",
         after: "在后方添加断点"
@@ -101,6 +102,7 @@
     },
     "book.hexdebug:": {
       "next_eval_index": "调试位之精思",
+      "const/cognitohazard": "认知危害之精思"
     },
   },
 
@@ -120,6 +122,7 @@
       focus_holder: {
         item: "物品：%s",
       },
+      cognitohazard_iota: "认知危害",
     },
 
     category: {
@@ -130,8 +133,9 @@
             page: {
               debugger: "部分文献中有些不太明确的描述，称古代人会使用一件奇怪的物品协助他们发现复杂$(hex)咒术/$中的问题。我应已成功复刻出了它，定名为$(item)调试杖/$。$(br2)\
                 它的工作方式与$(l:items/hexcasting)$(item)造物/$类似。不过，它还能从副手中的物品（比如$(l:items/focus)$(item)核心/$）里直接施放$(hex)咒术/$。$(br2)\
-                有些可惜的是，$(item)调试杖/$自身没有太大用处；它似乎需要某种$(l:https://marketplace.visualstudio.com/items?itemName=object-Object.hex-casting)外部工具/$才能正常运作。",
-              thwack: "$(italic)哐当！/$",
+                有些可惜的是，$(item)调试杖/$自身没有太大用处；而为发挥出它的所有潜能，需要先$(l:https://github.com/object-Object/HexDebug/wiki/Setting-up-VSCode-with-HexDebug)准备好/$某种$(l:https://marketplace.visualstudio.com/items?itemName=object-Object.hex-casting)外部工具/$才能正常运作。",
+              thwack: "$(italic)哐当！/$$(br2)\
+                潜行滚动滚轮还可切换$(item)调试杖/$的各种“步进模式”，操作与$(l:items/spellbook)$(item)法术书/$和$(l:items/abacus)$(item)算盘/$类似。",
               evaluator: "我又新制造了一种法杖——$(l:items/debugging#evaluator)$(item)运行杖/$，用以补充$(l:items/debugging#debugger)$(item)调试杖/$的功能。$(br2)\
                 调试$(hex)咒术/$时，此法杖绘制的图案会运行于$(l:items/debugging#debugger)$(item)调试杖/$当前的栈和$(l:patterns/readwrite#hexcasting:local)$(thing)渡鸦之思/$。$(br2)\
                 清空咒术网格后，$(l:items/debugging#debugger)$(item)调试杖/$似乎会回到$(l:items/debugging#evaluator)$(item)运行杖/$绘制首个图案前的状态。当然，这种操作无法撤回已造成实际影响的法术。",
@@ -148,6 +152,11 @@
             page: {
               "const/debugging": "若栈由$(l:items/debugging#debugger)$(item)调试杖/$或$(l:items/debugging#evaluator)$(item)运行杖/$执行，则返回 $(thing)True/$；否则返回 $(thing)False/$。",
               "next_eval_index": "若栈由$(l:items/debugging#debugger)$(item)调试杖/$或$(l:items/debugging#evaluator)$(item)运行杖/$执行，则返回下一个待执行 iota 的索引下标；否则返回 $(l:casting/influences)$(thing)Null/$。",
+              "const/cognitohazard": {
+                "1": "向栈顶压入一个$(thing)认知危害/$。",
+                "2": "貌似部分$(l:items/debugging#evaluator)调试工具/$在某些$(l:patterns/meta#hexcasting:eval/cc)高等级技术/$中容易导致安全问题。而为解决这一问题，我设计了本图案。$(br2)\
+                  $(thing)认知危害/$ iota 正常运行时什么都不会发生。不过，如果它出现在$(l:items/debugging#debugger)$(item)调试杖/$执行的$(hex)咒术/$里，那该$(hex)咒术/$便会$(italic)立即/$终止——甚至要先于$(thing)认知危害/$的执行。",
+              },
               "breakpoint/": {
                 before: "在运行此图案前，暂停$(l:items/debugging#debugger)$(item)调试杖/$。",
                 after: "在运行此图案后，也即在运行下一图案之前，暂停$(l:items/debugging#debugger)$(item)调试杖/$。",
