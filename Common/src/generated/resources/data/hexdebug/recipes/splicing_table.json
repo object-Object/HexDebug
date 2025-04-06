@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "C": {
+      "item": "hexcasting:charged_amethyst"
+    },
+    "F": {
+      "item": "hexcasting:focus"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "P": {
+      "item": "hexcasting:edified_planks"
+    },
+    "S": {
+      "item": "hexcasting:slate_block"
+    }
+  },
+  "pattern": [
+    "PCP",
+    "AFA",
+    "SGS"
+  ],
+  "result": {
+    "item": "hexdebug:splicing_table"
+  },
+  "show_notification": true
+}

@@ -5,6 +5,7 @@ import at.petrak.hexcasting.common.lib.HexBlocks
 import at.petrak.hexcasting.common.lib.HexItems
 import at.petrak.paucal.api.datagen.PaucalRecipeProvider
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.registry.HexDebugItems
 import net.minecraft.data.PackOutput
 import net.minecraft.data.recipes.FinishedRecipe
@@ -22,6 +23,19 @@ class HexDebugRecipes(output: PackOutput) : PaucalRecipeProvider(output, HexDebu
 
         flyswatter(HexDebugItems.EVALUATOR.value, HexBlocks.SLATE_BLOCK)
             .unlockedBy("has_item", hasItem(HexTags.Items.STAVES))
+            .save(writer)
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, HexDebugBlocks.SPLICING_TABLE.value)
+            .define('P', HexBlocks.EDIFIED_PLANKS)
+            .define('C', HexItems.CHARGED_AMETHYST)
+            .define('A', Items.AMETHYST_SHARD)
+            .define('F', HexItems.FOCUS)
+            .define('S', HexBlocks.SLATE_BLOCK)
+            .define('G', Items.GOLD_INGOT)
+            .pattern("PCP")
+            .pattern("AFA")
+            .pattern("SGS")
+            .unlockedBy("has_item", hasItem(HexItems.FOCUS))
             .save(writer)
     }
 
