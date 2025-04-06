@@ -703,7 +703,6 @@ class SplicingTableScreen(
         override val iotaView get() = data.list?.getOrNull(index)
 
         override fun onPress() {
-            HexDebug.LOGGER.info("button pressed")
             onSelectIota(index)
         }
 
@@ -788,7 +787,6 @@ class SplicingTableScreen(
         }
 
         override fun onPress() {
-            HexDebug.LOGGER.info("edge pressed")
             onSelectEdge(index)
         }
     }
