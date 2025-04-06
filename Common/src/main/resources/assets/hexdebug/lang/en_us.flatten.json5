@@ -142,6 +142,34 @@
               thwonk: "$(italic)Thwonk!/$"
             },
           },
+          splicing_table: {
+            "": "Splicing Table",
+            page: {
+              "1": "As my _Hexes become more complex, I find myself spending more and more time fixing my own mistakes. Patterns such as $(l:patterns/patterns_as_iotas#hexcasting:undo)$(action)Evanition/$ and $(l:patterns/lists#hexcasting:replace)$(action)Surgeon's Exaltation/$ can suffice for simple substitutions, but I think I can do better.$(br2)\
+                The $(l:items/splicing_table)$(item)Splicing Table/$ is my solution to these woes: a full-fledged workstation for viewing and editing _Hexes.",
+              "2": "To begin, I must place an item containing a list iota (eg. a $(l:items/focus)$(item)Focus/$) in the centre of the table. This reveals the first nine iotas in the list. The small arrows at the ends can be used to move my view of the list; I can also hold $(k:sneak) to move by a full page, or $(k:sprint) to move all the way to the start or end.$(br2)\
+                If I wish to share my _Hexes with others, I can use the large button on the right side to copy the contents of the list to my \"clipboard\".",
+              "3": "I can select iotas (or the space between them) by clicking on them. Holding $(k:sneak) and clicking again allows me to select a range of iotas.$(br2)\
+                Additionally, there are dedicated buttons to select the entire list ($(thing)Select All/$) and to clear my selection ($(thing)Select None/$).$(br2)\
+                Selecting iotas allows me to unlock the true power of the $(l:items/splicing_table)$(item)Splicing Table/$: editing _Hexes.",
+              "4": "With $(l:items/splicing_table#cost)sufficient media/$, I can perform the following actions:\
+                $(li)$(thing)Nudge Left/$: Move the selected iota(s) one space to the left.\
+                $(li)$(thing)Nudge Right/$: Move the selected iota(s) one space to the right.\
+                $(li)$(thing)Delete/$: Remove the selected iota(s) from the list.\
+                $(li)$(thing)Duplicate/$: Create a copy of the selected iota(s).\
+                $(li)$(thing)Undo/$: Revert the last action performed.\
+                $(li)$(thing)Redo/$: Re-perform actions previously reverted with $(thing)Undo/$.",
+              "5": "For more advanced operations, some extra storage is required. I can place an iota-holding item in the slot to the left to unlock the following actions:\
+                $(li)$(thing)Copy/$: Write the selected iota(s) to a new list in the secondary item.\
+                $(li)$(thing)Cut/$: Same as $(thing)Copy/$, but also delete the selected iota(s).\
+                $(li)$(thing)Paste/$: Replace the selected iota(s) with the iota in the secondary item. If the iota is a list, its contents are pasted instead; I can override this by holding $(k:sneak).",
+              "6": "Finally, I can insert a $(l:items/staff)$(item)Staff/$ into the lower left slot to reveal a miniature casting grid. Patterns drawn on this grid are inserted directly into the list, overwriting any selected iotas.$(br2)\
+                There are also six general-purpose inventory slots on the right side. These have no special functionality; they're just a convenient place to store a few extra items.",
+              cost: "Unfortunately, all of this incredible versatility comes at a cost. In order to modify the contents of items, _media is required - about a tenth of one $(l:items/amethyst)$(item)Amethyst Dust/$ per action performed.$(br2)\
+                I can supply _media to the $(l:items/splicing_table)$(item)Splicing Table/$ by putting it in the lower right slot. The table will consume up to ten $(l:items/amethyst)$(item)Amethyst Dust/$ at once; any surplus is ignored until it can be consumed without wasting _media.",
+              recipe: "$(italic)She plugged in strings one after the other, the tiny metal cubes flying in and out as her fingers danced over the tray with blinding speed./$",
+            },
+          },
         },
       },
 
