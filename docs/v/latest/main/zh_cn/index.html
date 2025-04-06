@@ -77,7 +77,7 @@
       <ul class="nav navbar-nav navbar-right">
             <li>
     <a
-      href="https://github.com/object-Object/HexDebug/tree/bc56bceb6904dce905b1d32bda2c12295694a6e7"
+      href="https://github.com/object-Object/HexDebug/tree/0089aab0e8aaa6aa7dc09698699872d24a4e0af3"
         target="_blank"
       class="navbar-link"
       role="button"
@@ -146,10 +146,17 @@
       class="item-texture  texture pixelated"
     > 物品</a></summary>
       <ul>
+          <li><a href="#items/splicing_table" class="toc-elem "><img
+      title="剪接台"
+      alt="剪接台"
+      src="https://hexdebug.hexxy.media/v/latest/main/assets/hexdebug/textures/block/splicing_table.png"
+      loading="lazy"
+      class="item-texture  texture "
+    > Splicing Table</a></li>
           <li><a href="#items/debugging" class="toc-elem "><img
       title="调试杖"
       alt="调试杖"
-      src="https://raw.githubusercontent.com/object-Object/HexDebug/bc56bceb6904dce905b1d32bda2c12295694a6e7/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/0089aab0e8aaa6aa7dc09698699872d24a4e0af3/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
       loading="lazy"
       class="item-texture  texture pixelated"
     > 调试物品</a></li>
@@ -167,7 +174,7 @@
           <li><a href="#patterns/debugging" class="toc-elem "><img
       title="调试杖"
       alt="调试杖"
-      src="https://raw.githubusercontent.com/object-Object/HexDebug/bc56bceb6904dce905b1d32bda2c12295694a6e7/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/0089aab0e8aaa6aa7dc09698699872d24a4e0af3/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
       loading="lazy"
       class="item-texture  texture pixelated"
     > 调试</a></li>
@@ -193,12 +200,160 @@
     title="Permalink"
   ><i class="bi bi-link-45deg"></i></a></h2>
     <p>这部分主要介绍我在研究过程中可能要用到的魔法物品和各类神秘物品。</p>
+<div id="items/splicing_table" class="entry">
+    <h3 class="entry-title page-header">
+    <img
+      title="剪接台"
+      alt="剪接台"
+      src="https://hexdebug.hexxy.media/v/latest/main/assets/hexdebug/textures/block/splicing_table.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >Splicing Table<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#items/splicing_table"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h3>
+    <p>As my <span style="color: #b38ef3">Hexes</span> become more complex, I find myself spending more and more time fixing my own mistakes. Patterns such as <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/patterns_as_iotas@hexcasting:undo"><span style="color: #fc77be">Evanition</span></a> and <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/lists@hexcasting:replace"><span style="color: #fc77be">Surgeon&#39;s Exaltation</span></a> can suffice for simple substitutions, but I think I can do better.</p><p>The <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> is my solution to these woes: a full-fledged workstation for viewing and editing <span style="color: #b38ef3">Hexes</span>.</p>
+<br />
+    <p>To begin, I must place an item containing a list iota (eg. a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/focus"><span style="color: #b0b">Focus</span></a>) in the centre of the table. This reveals the first nine iotas in the list. The small arrows at the ends can be used to move my view of the list; I can also hold 潜行 to move by a full page, or 疾跑 to move all the way to the start or end.</p><p>If I wish to share my <span style="color: #b38ef3">Hexes</span> with others, I can use the large button on the right side to copy the contents of the list to my &#34;clipboard&#34;.</p>
+<br />
+    <p>I can select iotas (or the space between them) by clicking on them. Holding 潜行 and clicking again allows me to select a range of iotas.</p><p>Additionally, there are dedicated buttons to select the entire list (<span style="color: #8d6acc">Select All</span>) and to clear my selection (<span style="color: #8d6acc">Select None</span>).</p><p>Selecting iotas allows me to unlock the true power of the <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a>: editing <span style="color: #b38ef3">Hexes</span>.</p>
+<br />
+    <p>With <a href="#items/splicing_table@cost">sufficient media</a>, I can perform the following actions:</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Nudge Left</span>: Move the selected iota(s) one space to the left.</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Nudge Right</span>: Move the selected iota(s) one space to the right.</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Delete</span>: Remove the selected iota(s) from the list.</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Duplicate</span>: Create a copy of the selected iota(s).</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Undo</span>: Revert the last action performed.</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Redo</span>: Re-perform actions previously reverted with <span style="color: #8d6acc">Undo</span>.</p>
+<br />
+    <p>For more advanced operations, some extra storage is required. I can place an iota-holding item in the slot to the left to unlock the following actions:</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Copy</span>: Write the selected iota(s) to a new list in the secondary item.</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Cut</span>: Same as <span style="color: #8d6acc">Copy</span>, but also delete the selected iota(s).</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Paste</span>: Replace the selected iota(s) with the iota in the secondary item. If the iota is a list, its contents are pasted instead; I can override this by holding 潜行.</p>
+<br />
+    <p>Finally, I can insert a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/staff"><span style="color: #b0b">Staff</span></a> into the lower left slot to reveal a miniature casting grid. Patterns drawn on this grid are inserted directly into the list, overwriting any selected iotas.</p><p>There are also six general-purpose inventory slots on the right side. These have no special functionality; they&#39;re just a convenient place to store a few extra items.</p>
+<br />
+  <div id="items/splicing_table@cost" class="">
+    <p>Unfortunately, all of this incredible versatility comes at a cost. In order to modify the contents of items, <span style="color: #74b3f2">media</span> is required - about a tenth of one <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/amethyst"><span style="color: #b0b">Amethyst Dust</span></a> per action performed.</p><p>I can supply <span style="color: #74b3f2">media</span> to the <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> by putting it in the lower right slot. The table will consume up to ten <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/amethyst"><span style="color: #b0b">Amethyst Dust</span></a> at once; any surplus is ignored until it can be consumed without wasting <span style="color: #74b3f2">media</span>.</p>
+  </div>
+<br />
+  <div id="items/splicing_table@splicing_table" class="">
+  <details class="details-collapsible recipe-details">
+      <summary class="collapse-details">
+    <span class="collapse-recipe-show">点击以显示配方</span>
+    <span class="collapse-recipe-hide">点击以隐藏配方</span>
+  </summary>
+    <div class="crafting-tables">
+<div>
+    <h5>剪接台</h5>
+    <div class="crafting-table">
+        <img
+      title="工作台"
+      alt="工作台"
+      src="https://raw.githubusercontent.com/hexdoc-dev/hexdoc/820bf7407ce94dbd03e41b02f1d16695f8895f80/src/hexdoc/_export/resources/assets/minecraft/textures/gui/hexdoc/crafting_table.png"
+      class="texture pixelated"
+    >
+  <div class="crafting-table-grid">
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="启迪木板"
+      alt="启迪木板"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/edified_planks.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="充能紫水晶"
+      alt="充能紫水晶"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="启迪木板"
+      alt="启迪木板"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/edified_planks.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="紫水晶碎片"
+      alt="紫水晶碎片"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/amethyst_shard.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="核心"
+      alt="核心"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/cad/0_focus_empty.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="紫水晶碎片"
+      alt="紫水晶碎片"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/amethyst_shard.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="板岩块"
+      alt="板岩块"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="金锭"
+      alt="金锭"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_ingot.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="板岩块"
+      alt="板岩块"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+  </div>
+  <div class="crafting-table-result recipe-item-slot">
+    <img
+      title="剪接台"
+      alt="剪接台"
+      src="https://hexdebug.hexxy.media/v/latest/main/assets/hexdebug/textures/block/splicing_table.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >
+  </div>
+    </div>
+</div>    </div>
+  </details>
+      <p><i>She plugged in strings one after the other, the tiny metal cubes flying in and out as her fingers danced over the tray with blinding speed.</i></p>
+  </div>
+<br />
+</div>
 <div id="items/debugging" class="entry">
     <h3 class="entry-title page-header">
     <img
       title="调试杖"
       alt="调试杖"
-      src="https://raw.githubusercontent.com/object-Object/HexDebug/bc56bceb6904dce905b1d32bda2c12295694a6e7/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/0089aab0e8aaa6aa7dc09698699872d24a4e0af3/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
       loading="lazy"
       class="item-texture  texture pixelated"
     >调试物品<a
@@ -279,7 +434,7 @@
     <img
       title="调试杖"
       alt="调试杖"
-      src="https://raw.githubusercontent.com/object-Object/HexDebug/bc56bceb6904dce905b1d32bda2c12295694a6e7/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/0089aab0e8aaa6aa7dc09698699872d24a4e0af3/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
       loading="lazy"
       class="item-texture  texture pixelated"
     >
@@ -359,7 +514,7 @@
     <img
       title="运行杖"
       alt="运行杖"
-      src="https://raw.githubusercontent.com/object-Object/HexDebug/bc56bceb6904dce905b1d32bda2c12295694a6e7/Common/src/main/resources/assets/hexdebug/textures/item/evaluator.png"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/0089aab0e8aaa6aa7dc09698699872d24a4e0af3/Common/src/main/resources/assets/hexdebug/textures/item/evaluator.png"
       loading="lazy"
       class="item-texture  texture pixelated"
     >
@@ -395,7 +550,7 @@
     <img
       title="调试杖"
       alt="调试杖"
-      src="https://raw.githubusercontent.com/object-Object/HexDebug/bc56bceb6904dce905b1d32bda2c12295694a6e7/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/0089aab0e8aaa6aa7dc09698699872d24a4e0af3/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
       loading="lazy"
       class="item-texture  texture pixelated"
     >调试<a
