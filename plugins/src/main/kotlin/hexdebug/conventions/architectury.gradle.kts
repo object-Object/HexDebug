@@ -2,7 +2,6 @@ package hexdebug.conventions
 
 import hexdebug.hexdebugProperties
 import hexdebug.libs
-import kotlin.io.path.div
 
 plugins {
     id("hexdebug.conventions.kotlin")
@@ -47,17 +46,6 @@ sourceSets {
         resources {
             srcDir(file("src/generated/resources"))
         }
-    }
-}
-
-tasks {
-    val jenkinsArtifacts = register<Copy>("jenkinsArtifacts") {
-        from(remapJar)
-        into(rootDir.toPath() / "build" / "jenkinsArtifacts")
-    }
-
-    build {
-        dependsOn(jenkinsArtifacts)
     }
 }
 

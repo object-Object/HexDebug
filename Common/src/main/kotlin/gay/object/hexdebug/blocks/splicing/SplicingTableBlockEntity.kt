@@ -44,8 +44,10 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
 
     private var media by ContainerDataLongDelegate(
         containerData,
-        lowIndex = SplicingTableDataSlot.MEDIA_LOW.index,
-        highIndex = SplicingTableDataSlot.MEDIA_HIGH.index,
+        index0 = SplicingTableDataSlot.MEDIA_0.index,
+        index1 = SplicingTableDataSlot.MEDIA_1.index,
+        index2 = SplicingTableDataSlot.MEDIA_2.index,
+        index3 = SplicingTableDataSlot.MEDIA_3.index,
     )
 
     val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0

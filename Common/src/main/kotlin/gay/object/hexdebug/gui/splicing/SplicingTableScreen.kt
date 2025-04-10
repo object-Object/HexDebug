@@ -436,6 +436,14 @@ class SplicingTableScreen(
 
     private fun isEdgeSelected(index: Int) = selection?.let { it.start == index && it.end == null } ?: false
 
+    private fun isEdgeInRange(index: Int) =
+        // cell to the right is in range
+        data.isInRange(index)
+        // cell to the left is in range
+        || data.isInRange(index - 1)
+        // allow selecting leftmost edge of empty list
+        || (index == 0 && data.list?.size == 0)
+
     private fun onSelectIota(index: Int) {
         if (!data.isInRange(index)) return
 
@@ -454,7 +462,7 @@ class SplicingTableScreen(
     }
 
     private fun onSelectEdge(index: Int) {
-        if (!(data.isInRange(index) || data.isInRange(index - 1))) return
+        if (!isEdgeInRange(index)) return
 
         val selection = selection
         this.selection = if (isEdgeSelected(index)) {
@@ -481,6 +489,13 @@ class SplicingTableScreen(
         return super.mouseClicked(mouseX, mouseY, button)
     }
 
+    override fun mouseMoved(mouseX: Double, mouseY: Double) {
+        if (hasStaffItem && isInStaffGrid(mouseX, mouseY, button = null)) {
+            guiSpellcasting.mouseMoved(mouseX, mouseY)
+        }
+        super.mouseMoved(mouseX, mouseY)
+    }
+
     override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, dragX: Double, dragY: Double): Boolean {
         if (hasStaffItem && isInStaffGrid(mouseX, mouseY, button)) {
             guiSpellcasting.mouseDragged(mouseX, mouseY, button, dragX, dragY)
@@ -503,10 +518,10 @@ class SplicingTableScreen(
         super.onClose()
     }
 
-    private fun isInStaffGrid(mouseX: Double, mouseY: Double, button: Int) =
+    private fun isInStaffGrid(mouseX: Double, mouseY: Double, button: Int?) =
         staffMinX <= mouseX && mouseX <= staffMaxX && staffMinY <= mouseY && mouseY <= staffMaxY
         // avoid interacting with the grid when inserting the staff item...
-        && hasClickedOutside(mouseX, mouseY, leftPos, topPos, button)
+        && (button == null || hasClickedOutside(mouseX, mouseY, leftPos, topPos, button))
         // or when clicking the clear grid button
         && !(clearGridButton?.testHitbox(mouseX, mouseY) ?: false)
 
@@ -688,7 +703,6 @@ class SplicingTableScreen(
         override val iotaView get() = data.list?.getOrNull(index)
 
         override fun onPress() {
-            HexDebug.LOGGER.info("button pressed")
             onSelectIota(index)
         }
 
@@ -762,7 +776,7 @@ class SplicingTableScreen(
 
         private val index get() = viewStartIndex + offset
 
-        override fun testVisible() = data.isInRange(index) || data.isInRange(index - 1)
+        override fun testVisible() = isEdgeInRange(index)
 
         override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
             if (isHovered || index == (selection as? Selection.Edge)?.index) {
@@ -773,7 +787,6 @@ class SplicingTableScreen(
         }
 
         override fun onPress() {
-            HexDebug.LOGGER.info("edge pressed")
             onSelectEdge(index)
         }
     }

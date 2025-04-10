@@ -89,7 +89,7 @@ object HexDebugConfig {
             private set
 
         @Tooltip
-        var splicingTableMediaCost: Long = MediaConstants.DUST_UNIT / 20
+        var splicingTableMediaCost: Long = MediaConstants.DUST_UNIT / 10
             private set
 
         @Tooltip

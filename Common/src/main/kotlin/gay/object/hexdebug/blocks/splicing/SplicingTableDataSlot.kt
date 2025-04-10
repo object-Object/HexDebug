@@ -1,16 +1,14 @@
 package gay.`object`.hexdebug.blocks.splicing
 
-import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
-import net.minecraft.world.inventory.ContainerData
-
 enum class SplicingTableDataSlot {
     // media is a long but ContainerData stores ints :/
-    MEDIA_LOW,
-    MEDIA_HIGH;
+    // and also DataSlot serializes ints as shorts for some reason
+    MEDIA_0,
+    MEDIA_1,
+    MEDIA_2,
+    MEDIA_3;
 
     val index = ordinal
-
-    fun delegate(data: ContainerData) = ContainerDataDelegate(data, index)
 
     companion object {
         val size = entries.size
