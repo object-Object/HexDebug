@@ -28,7 +28,7 @@
           clear_grid: "清空网格",
           nudge_left: "左移",
           nudge_right: "右移",
-          duplicate: "复制",
+          duplicate: "重复",
           delete: "删除",
           undo: "撤销",
           redo: "重做",
@@ -140,6 +140,34 @@
                 调试$(hex)咒术/$时，此法杖绘制的图案会运行于$(l:items/debugging#debugger)$(item)调试杖/$当前的栈和$(l:patterns/readwrite#hexcasting:local)$(thing)渡鸦之思/$。$(br2)\
                 清空咒术网格后，$(l:items/debugging#debugger)$(item)调试杖/$似乎会回到$(l:items/debugging#evaluator)$(item)运行杖/$绘制首个图案前的状态。当然，这种操作无法撤回已造成实际影响的法术。",
               thwonk: "$(italic)哐啷！/$"
+            },
+          },
+          splicing_table: {
+            "": "剪接台",
+            page: {
+              "1": "我的$(hex)咒术/$日益复杂，修补我自己的失误也愈发耗时。$(l:patterns/patterns_as_iotas#hexcasting:undo)$(action)消隐/$，$(l:patterns/lists#hexcasting:replace)$(action)外科医师之提整/$等图案对简单的替换来说已经足够，但我认为还可精益求精。$(br2)\
+                $(l:items/splicing_table)$(item)剪接台/$就是我对这些麻烦的回应：功能完备的工作站，专为查看和编辑$(hex)咒术/$准备。",
+              "2": "开始之前，需将$(l:items/focus)$(item)核心/$等包含列表 iota 的物品放入界面中央。界面会显示列表中的前 9 个 iota。显示栏两侧的箭头可更改显示的区域；也可按住 $(k:sneak) 以按页移动，或按照 $(k:sprint) 以直接移动到开头或结尾。$(br2)\
+                如果要和其他人分享$(hex)咒术/$，可以按下右侧的大按钮，将列表内容复制到我的“剪贴板”。",
+              "3": "点击 iota 及 iota 间的空位可选择它们。按住 $(k:sneak) 再次点击则可选择一系列 iota。$(br2)\
+                此外，还有按钮专为选择整个列表（$(thing)全选/$）和清空选择区域（$(thing)取消选区/$）。$(br2)\
+                选择 iota 能解锁$(l:items/splicing_table)$(item)剪接台/$的真正力量：编辑$(hex)咒术/$。",
+              "4": "只要$(l:items/splicing_table#cost)媒质充足/$，即可执行以下操作：\
+                $(li)$(thing)左移/$：将所选 iota 向左移动一格。\
+                $(li)$(thing)右移/$：将所选 iota 向右移动一格。\
+                $(li)$(thing)删除/$：从列表中移除所选 iota。\
+                $(li)$(thing)重复/$：创建所选 iota 的副本。\
+                $(li)$(thing)撤销/$：撤回最近一次操作。\
+                $(li)$(thing)重做/$：重做$(thing)撤销/$所撤回的操作。",
+              "5": "更高级的操作需要额外存储空间。可在左侧槽位中放入可存储 iota 的物品，以解锁以下操作：\
+                $(li)$(thing)复制/$：将所选 iota 作为列表写入辅助物品。\
+                $(li)$(thing)剪切/$：与$(thing)复制/$功能一致，不过原本选择的 iota 会被删除。\
+                $(li)$(thing)粘贴/$：使用辅助物品中的 iota 覆盖所选的 iota。如果用于覆盖的 iota 是列表，则会粘贴其中内容；按住 $(k:sneak) 可改为粘贴列表本身。",
+              "6": "最后，还可向左下角槽位放入$(l:items/staff)$(item)法杖/$，以显示微缩版的咒术网格。在该网格中绘制的图案会直接插入列表，覆盖选中的 iota。$(br2)\
+                右侧还有 6 个通用物品槽。这些槽位没有特殊功能，只是方便存放物品。",
+              cost: "可惜的是，这种强大的功能有其代价。修改物品的 iota 存储空间需要消耗$(media)媒质/$——每次操作消耗大约 1/10 个$(l:items/amethyst)$(item)紫水晶粉/$。$(br2)\
+                右下角的槽位可用于向$(l:items/splicing_table)$(item)剪接台/$补充$(media)媒质/$。单次最多可补充 10 个$(l:items/amethyst)$(item)紫水晶粉/$；多出的会被忽略，直至出现足够完全接收新$(media)媒质/$物品的缺口，才会进行消耗。",
+              recipe: "$(italic)看着她一个接一个接上铭印串，随着她的手指以快得几乎看不见的速度在托盘上舞动，小金属方块飞入飞出。/$",
             },
           },
         },
