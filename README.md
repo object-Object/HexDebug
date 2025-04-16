@@ -64,4 +64,5 @@ Try to avoid using things outside of the `gay.object.hexdebug.api` package, sinc
 
 * Textures: SamsTheNerd! ([GitHub](https://github.com/SamsTheNerd), [Modrinth](https://modrinth.com/user/SamsTheNerd))
 * Translations:
+  * `ru_ru`: JustS-js ([GitHub](https://github.com/JustS-js), [Modrinth](https://modrinth.com/user/JustS-js)) 
   * `zh_cn`: ChuijkYahus ([GitHub](https://github.com/ChuijkYahus))
