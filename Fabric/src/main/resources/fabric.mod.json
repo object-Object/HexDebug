@@ -38,7 +38,8 @@
     "fabric-language-kotlin": ">=${versions.kotlin_fabric}",
     "architectury": ">=${versions.architectury}",
     "hexcasting": ">=${versions.hexcasting_dependency}",
-    "cloth-config": ">=${versions.clothConfig}"
+    "cloth-config": ">=${versions.clothConfig}",
+    "ioticblocks": ">=${versions.ioticblocks}"
   },
   "suggests": {
     "modmenu": ">=${versions.modMenu}"

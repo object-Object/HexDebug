@@ -1,3 +1,5 @@
+import hexdebug.libs
+
 plugins {
     id("hexdebug.conventions.platform")
 }
@@ -22,6 +24,7 @@ hexdebugModDependencies {
     requires("architectury-api")
     requires("cloth-config")
     requires(curseforge = "hexcasting", modrinth = "hex-casting")
+    requires("ioticblocks")
 
     requires("fabric-api")
     requires("fabric-language-kotlin")
@@ -73,6 +76,8 @@ dependencies {
     }
 
     modLocalRuntime(libs.devAuth.fabric)
+
+    modApi(libs.ioticblocks.fabric)
 }
 
 publishMods {

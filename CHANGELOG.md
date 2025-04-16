@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
   - Debug Locator's Reflection: Pushes the index of the next iota to be evaluated.
   - Cognitohazard Reflection: Pushes a cognitohazard iota to the stack, which halts debugging immediately if detected in a hex to be evaluated by a debugger.
 - Added ru_ru translations, by JustS-js in [#25](https://github.com/object-Object/HexDebug/pull/25).
+- New dependency: IoticBlocks.
 
 ### Changed
 
@@ -35,7 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Notes
 
-- This update also contains a new undocumented block (Focus Holder) and some undocumented patterns. Please don't use these for anything important, as they'll probably be moved to a separate mod at some point.
+- This update also contains a new undocumented block (Focus Holder). Please don't use this for anything important, as it'll probably be moved to a separate mod at some point.
 - I likely will not be backporting this update to 1.19.2, due to the many GUI-related changes between that version and this one. 
 
 ## `0.2.2+1.20.1` - 2024-05-28

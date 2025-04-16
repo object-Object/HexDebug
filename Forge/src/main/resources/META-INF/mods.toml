@@ -46,3 +46,10 @@ mandatory = true
 versionRange = "[${versions.hexcasting_dependency},)"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies.hexdebug]]
+modId = "ioticblocks"
+mandatory = true
+versionRange = "[${versions.ioticblocks},)"
+ordering = "NONE"
+side = "BOTH"

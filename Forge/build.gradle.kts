@@ -1,3 +1,4 @@
+import hexdebug.libs
 import hexdebug.utils.kotlinForgeRuntimeLibrary
 
 plugins {
@@ -49,6 +50,7 @@ hexdebugModDependencies {
     requires("architectury-api")
     requires("cloth-config")
     requires(curseforge = "hexcasting", modrinth = "hex-casting")
+    requires("ioticblocks")
 
     requires("kotlin-for-forge")
 }
@@ -90,6 +92,8 @@ dependencies {
     }
 
     modLocalRuntime(libs.devAuth.forge)
+
+    modApi(libs.ioticblocks.forge)
 }
 
 tasks {

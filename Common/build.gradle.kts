@@ -29,4 +29,6 @@ dependencies {
     api(libs.bundles.lsp4j)
 
     implementation(libs.bundles.ktor)
+
+    modApi(libs.ioticblocks.common)
 }

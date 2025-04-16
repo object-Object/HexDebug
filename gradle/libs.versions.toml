@@ -12,7 +12,7 @@ parchment = "2023.09.03"
 
 architectury = "9.2.14"
 architectury-plugin = { require="[3.4, 3.5[" }
-architectury-loom = { require="[1.6, 1.7[" }
+architectury-loom = { require="[1.7, 1.8[" }
 
 fabric-loader = "0.14.21"
 fabric-api = "0.85.0+1.20.1"
@@ -40,6 +40,7 @@ modMenu = "7.1.0"
 caelus = "3.1.0+1.20"
 devAuth = "1.2.0"
 inline = "1.20.1-1.0.1"
+ioticblocks = "1.0.0+1.20.1-SNAPSHOT"
 
 # other non-Minecraft dependencies
 
@@ -107,6 +108,10 @@ devAuth-forge  = { module="me.djtheredstoner:DevAuth-forge-latest", version.ref=
 
 inline-fabric = { module="com.samsthenerd.inline:inline-fabric", version.ref="inline" }
 inline-forge  = { module="com.samsthenerd.inline:inline-forge", version.ref="inline" }
+
+ioticblocks-common = { module="gay.object.ioticblocks:ioticblocks-common", version.ref="ioticblocks" }
+ioticblocks-fabric = { module="gay.object.ioticblocks:ioticblocks-fabric", version.ref="ioticblocks" }
+ioticblocks-forge  = { module="gay.object.ioticblocks:ioticblocks-forge", version.ref="ioticblocks" }
 
 findbugs-jsr305 = { module="com.google.code.findbugs:jsr305", version.ref="findbugs-jsr305" }
 
