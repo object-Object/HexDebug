@@ -40,7 +40,7 @@ modMenu = "7.1.0"
 caelus = "3.1.0+1.20"
 devAuth = "1.2.0"
 inline = "1.20.1-1.0.1"
-ioticblocks = "1.0.0+1.20.1-SNAPSHOT"
+ioticblocks = "1.0.0+1.20.1"
 
 # other non-Minecraft dependencies
 
