@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <title>咒术调试之书</title>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="description" content="咒术调试之书，辑录合一。" />
+      <meta name="author" content="object-Object" />
+        <link rel="None" type="image/ico" href="favicon.ico" />
+        <link rel="icon" type="image/png" href="favicon-16x16.png" />
+        <link rel="icon" type="image/png" href="favicon-32x32.png" />
+        <link rel="icon" type="image/png" href="favicon-64x64.png" />
+        <link rel="icon" type="image/png" href="favicon-96x96.png" />
+        <link rel="icon" type="image/png" href="favicon-180x180.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-57x57.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-60x60.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-72x72.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-76x76.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-114x114.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-120x120.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-144x144.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-152x152.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-167x167.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-180x180.png" />
+        <link rel="None" type="image/png" href="mstile-70x70.png" />
+        <link rel="None" type="image/png" href="mstile-270x270.png" />
+        <link rel="None" type="image/png" href="mstile-310x310.png" />
+        <link rel="None" type="image/png" href="mstile-310x150.png" />
+        <link rel="shortcut icon" type="image/png" href="favicon-196x196.png" />
+      <link rel="mask-icon" href="https://raw.githubusercontent.com/hexdoc-dev/hexdoc/main/media/safari-pinned-tab.svg" color="#332233">
+<meta property="og:type" content="website" />
+<meta property="og:title" content="咒术调试之书" />
+<meta property="og:image" content="https://hexdebug.hexxy.media/v/0.3.0+1.20.1/1.0/zh_cn/icon.png" />
+<meta property="og:url" content="https://hexdebug.hexxy.media/v/0.3.0+1.20.1/1.0/zh_cn" />
+<meta property="og:description" content="咒术调试之书，辑录合一。" />
+<meta property="og:site_name" content="HexDebug (0.3.0+1.20.1)" />
+      <script src="https://code.jquery.com/jquery-1.12.4.min.js"
+      integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+      <link rel="stylesheet" href="index.css">
+      <link rel="stylesheet" href="textures.css">
+      <noscript>
+        <style>
+          /* for accessibility */
+          .spoilered {
+            filter: none !important;
+          }
+        </style>
+      </noscript>
+        <script type="module" src="index.js"></script>
+  <script type="module" src="hexcasting.js"></script>
+  <script type="module" src="hexcasting_render.js"></script>
+  </head>
+  <body>
+<nav class="navbar navbar-default navbar-static-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button
+        type="button"
+        class="navbar-toggle collapsed"
+        data-toggle="collapse"
+        data-target="#navbar-collapse"
+        aria-expanded="false"
+      >
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../../../..">咒术调试之书</a>
+    </div>
+    <div class="collapse navbar-collapse" id="navbar-collapse">
+      <ul class="nav navbar-nav navbar-right">
+            <li>
+    <a
+      href="https://github.com/object-Object/HexDebug/tree/382a024d15955277f629f0cd39670f6d54126643"
+        target="_blank"
+      class="navbar-link"
+      role="button"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >GitHub <i class="bi bi-box-arrow-up-right external-link-icon"></i></a>
+  </li>
+        <li class="dropdown">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >0.3.0+1.20.1 <span class="caret"></span></a>
+          <ul class="dropdown-menu" id="version-dropdown"></ul>
+        </li>
+        <li class="dropdown">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >简体中文 (中国大陆) <span class="caret"></span></a>
+          <ul class="dropdown-menu dropdown-menu-left" id="lang-dropdown"></ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container" style="margin-top: 3em;">
+  <blockquote>
+      <h1><p>这是HexDebug文档的在线版本。</p></h1>
+      <p><strong>条目的模糊处理相当于剧透警告</strong>。点击条目即可取消模糊，不过这么做有可能破坏游戏后期的进程与体验。也可点击<a href="?nospoiler">此处</a>以取消所有模糊。</p>
+      <span id="old-version-notice" class="hidden">
+        <br />
+        <p><i>往事犹若异乡；他们在那里做的事情都不一样。</i></p>
+      </span>
+  </blockquote>
+</div>
+<div class="container">
+<div id="table-of-contents"></div>
+<nav class="toc-container">
+  <h2 class="page-header">
+    <span class="nobr">目录<a
+      href="javascript:void(0)"
+      class="permalink toggle-link small"
+      data-target="toc-category"
+      title="显示或收起全部"
+    ><i class="bi bi-list-nested"></i></a><a
+    href="#table-of-contents"
+    class="permalink small toc-permalink"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></span>
+  </h2>
+    <details class="toc-category">
+      <summary><a href="#items" class="toc-elem "><img
+      title="核心"
+      alt="核心"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/cad/0_focus_empty.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    > 物品</a></summary>
+      <ul>
+          <li><a href="#items/splicing_table" class="toc-elem "><img
+      title="剪接台"
+      alt="剪接台"
+      src="https://hexdebug.hexxy.media/v/0.3.0+1.20.1/1.0/assets/hexdebug/textures/block/splicing_table.png"
+      loading="lazy"
+      class="item-texture  texture "
+    > 剪接台</a></li>
+          <li><a href="#items/debugging" class="toc-elem "><img
+      title="调试杖"
+      alt="调试杖"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/382a024d15955277f629f0cd39670f6d54126643/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    > 调试物品</a></li>
+      </ul>
+    </details>
+    <details class="toc-category">
+      <summary><a href="#patterns" class="toc-elem "><img
+      title="书架"
+      alt="书架"
+      src="https://hexdoc-dev.github.io/hexdoc-minecraft/v/1.20.1/1.0.dev1/assets/minecraft/textures/block/bookshelf.png"
+      loading="lazy"
+      class="item-texture  texture "
+    > 图案</a></summary>
+      <ul>
+          <li><a href="#patterns/debugging" class="toc-elem "><img
+      title="调试杖"
+      alt="调试杖"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/382a024d15955277f629f0cd39670f6d54126643/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    > 调试</a></li>
+      </ul>
+    </details>
+</nav>
+  <main class="book-body">
+<section id="items">
+    <h2 class="category-title page-header">
+    <img
+      title="核心"
+      alt="核心"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/cad/0_focus_empty.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    >物品<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#items"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h2>
+    <p>这部分主要介绍我在研究过程中可能要用到的魔法物品和各类神秘物品。</p>
+<div id="items/splicing_table" class="entry">
+    <h3 class="entry-title page-header">
+    <img
+      title="剪接台"
+      alt="剪接台"
+      src="https://hexdebug.hexxy.media/v/0.3.0+1.20.1/1.0/assets/hexdebug/textures/block/splicing_table.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >剪接台<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#items/splicing_table"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h3>
+    <p>我的<span style="color: #b38ef3">咒术</span>日益复杂，修补我自己的失误也愈发耗时。<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/patterns_as_iotas@hexcasting:undo"><span style="color: #fc77be">消隐</span></a>，<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/lists@hexcasting:replace"><span style="color: #fc77be">外科医师之提整</span></a>等图案对简单的替换来说已经足够，但我认为还可精益求精。</p><p><a href="#items/splicing_table"><span style="color: #b0b">剪接台</span></a>就是我对这些麻烦的回应：功能完备的工作站，专为查看和编辑<span style="color: #b38ef3">咒术</span>准备。</p>
+<br />
+    <p>开始之前，需将<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/focus"><span style="color: #b0b">核心</span></a>等包含列表 iota 的物品放入界面中央。界面会显示列表中的前 9 个 iota。显示栏两侧的箭头可更改显示的区域；也可按住 潜行 以按页移动，或按照 疾跑 以直接移动到开头或结尾。</p><p>如果要和其他人分享<span style="color: #b38ef3">咒术</span>，可以按下右侧的大按钮，将列表内容复制到我的“剪贴板”。</p>
+<br />
+    <p>点击 iota 及 iota 间的空位可选择它们。按住 潜行 再次点击则可选择一系列 iota。</p><p>此外，还有按钮专为选择整个列表（<span style="color: #8d6acc">全选</span>）和清空选择区域（<span style="color: #8d6acc">取消选区</span>）。</p><p>选择 iota 能解锁<a href="#items/splicing_table"><span style="color: #b0b">剪接台</span></a>的真正力量：编辑<span style="color: #b38ef3">咒术</span>。</p>
+<br />
+    <p>只要<a href="#items/splicing_table@cost">媒质充足</a>，即可执行以下操作：</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">左移</span>：将所选 iota 向左移动一格。</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">右移</span>：将所选 iota 向右移动一格。</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">删除</span>：从列表中移除所选 iota。</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">重复</span>：创建所选 iota 的副本。</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">撤销</span>：撤回最近一次操作。</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">重做</span>：重做<span style="color: #8d6acc">撤销</span>所撤回的操作。</p>
+<br />
+    <p>更高级的操作需要额外存储空间。可在左侧槽位中放入可存储 iota 的物品，以解锁以下操作：</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">复制</span>：将所选 iota 作为列表写入辅助物品。</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">剪切</span>：与<span style="color: #8d6acc">复制</span>功能一致，不过原本选择的 iota 会被删除。</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">粘贴</span>：使用辅助物品中的 iota 覆盖所选的 iota。如果用于覆盖的 iota 是列表，则会粘贴其中内容；按住 潜行 可改为粘贴列表本身。</p>
+<br />
+    <p>最后，还可向左下角槽位放入<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/staff"><span style="color: #b0b">法杖</span></a>，以显示微缩版的咒术网格。在该网格中绘制的图案会直接插入列表，覆盖选中的 iota。</p><p>右侧还有 6 个通用物品槽。这些槽位没有特殊功能，只是方便存放物品。</p>
+<br />
+  <div id="items/splicing_table@cost" class="">
+    <p>可惜的是，这种强大的功能有其代价。修改物品的 iota 存储空间需要消耗<span style="color: #74b3f2">媒质</span>——每次操作消耗大约 1/10 个<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/amethyst"><span style="color: #b0b">紫水晶粉</span></a>。</p><p>右下角的槽位可用于向<a href="#items/splicing_table"><span style="color: #b0b">剪接台</span></a>补充<span style="color: #74b3f2">媒质</span>。单次最多可补充 10 个<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/amethyst"><span style="color: #b0b">紫水晶粉</span></a>；多出的会被忽略，直至出现足够完全接收新<span style="color: #74b3f2">媒质</span>物品的缺口，才会进行消耗。</p>
+  </div>
+<br />
+  <div id="items/splicing_table@splicing_table" class="">
+  <details class="details-collapsible recipe-details">
+      <summary class="collapse-details">
+    <span class="collapse-recipe-show">点击以显示配方</span>
+    <span class="collapse-recipe-hide">点击以隐藏配方</span>
+  </summary>
+    <div class="crafting-tables">
+<div>
+    <h5>剪接台</h5>
+    <div class="crafting-table">
+        <img
+      title="工作台"
+      alt="工作台"
+      src="https://raw.githubusercontent.com/hexdoc-dev/hexdoc/626dee004252a9f6fe23eac88376745d83cc2a6f/src/hexdoc/_export/resources/assets/minecraft/textures/gui/hexdoc/crafting_table.png"
+      class="texture pixelated"
+    >
+  <div class="crafting-table-grid">
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="启迪木板"
+      alt="启迪木板"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/edified_planks.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="充能紫水晶"
+      alt="充能紫水晶"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="启迪木板"
+      alt="启迪木板"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/edified_planks.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="紫水晶碎片"
+      alt="紫水晶碎片"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/amethyst_shard.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="核心"
+      alt="核心"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/cad/0_focus_empty.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="紫水晶碎片"
+      alt="紫水晶碎片"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/amethyst_shard.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="板岩块"
+      alt="板岩块"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="金锭"
+      alt="金锭"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_ingot.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="板岩块"
+      alt="板岩块"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+  </div>
+  <div class="crafting-table-result recipe-item-slot">
+    <img
+      title="剪接台"
+      alt="剪接台"
+      src="https://hexdebug.hexxy.media/v/0.3.0+1.20.1/1.0/assets/hexdebug/textures/block/splicing_table.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >
+  </div>
+    </div>
+</div>    </div>
+  </details>
+      <p><i>看着她一个接一个接上铭印串，随着她的手指以快得几乎看不见的速度在托盘上舞动，小金属方块飞入飞出。</i></p>
+  </div>
+<br />
+</div>
+<div id="items/debugging" class="entry">
+    <h3 class="entry-title page-header">
+    <img
+      title="调试杖"
+      alt="调试杖"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/382a024d15955277f629f0cd39670f6d54126643/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    >调试物品<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#items/debugging"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h3>
+    <p>部分文献中有些不太明确的描述，称古代人会使用一件奇怪的物品协助他们发现复杂<span style="color: #b38ef3">咒术</span>中的问题。我应已成功复刻出了它，定名为<span style="color: #b0b">调试杖</span>。</p><p>它的工作方式与<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/hexcasting"><span style="color: #b0b">造物</span></a>类似。不过，它还能从副手中的物品（比如<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/focus"><span style="color: #b0b">核心</span></a>）里直接施放<span style="color: #b38ef3">咒术</span>。</p><p>有些可惜的是，<span style="color: #b0b">调试杖</span>自身没有太大用处；而为发挥出它的所有潜能，需要先<a href="https://github.com/object-Object/HexDebug/wiki/Setting-up-VSCode-with-HexDebug" target="_blank">准备好</a>某种<a href="https://marketplace.visualstudio.com/items?itemName=object-Object.hex-casting" target="_blank">外部工具</a>才能正常运作。</p>
+<br />
+  <div id="items/debugging@debugger" class="">
+  <details class="details-collapsible recipe-details">
+      <summary class="collapse-details">
+    <span class="collapse-recipe-show">点击以显示配方</span>
+    <span class="collapse-recipe-hide">点击以隐藏配方</span>
+  </summary>
+    <div class="crafting-tables">
+<div>
+    <h5>调试杖</h5>
+    <div class="crafting-table">
+        <img
+      title="工作台"
+      alt="工作台"
+      src="https://raw.githubusercontent.com/hexdoc-dev/hexdoc/626dee004252a9f6fe23eac88376745d83cc2a6f/src/hexdoc/_export/resources/assets/minecraft/textures/gui/hexdoc/crafting_table.png"
+      class="texture pixelated"
+    >
+  <div class="crafting-table-grid">
+        <div></div>        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="充能紫水晶"
+      alt="充能紫水晶"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="充能紫水晶"
+      alt="充能紫水晶"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div></div>        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="造物"
+      alt="造物"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/cad/0_artifact.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="充能紫水晶"
+      alt="充能紫水晶"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="金锭"
+      alt="金锭"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_ingot.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div></div>        <div></div>  </div>
+  <div class="crafting-table-result recipe-item-slot">
+    <img
+      title="调试杖"
+      alt="调试杖"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/382a024d15955277f629f0cd39670f6d54126643/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    >
+  </div>
+    </div>
+</div>    </div>
+  </details>
+      <p><i>哐当！</i></p><p>潜行滚动滚轮还可切换<span style="color: #b0b">调试杖</span>的各种“步进模式”，操作与<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/spellbook"><span style="color: #b0b">法术书</span></a>和<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/abacus"><span style="color: #b0b">算盘</span></a>类似。</p>
+  </div>
+<br />
+    <p>我又新制造了一种法杖——<a href="#items/debugging@evaluator"><span style="color: #b0b">运行杖</span></a>，用以补充<a href="#items/debugging@debugger"><span style="color: #b0b">调试杖</span></a>的功能。</p><p>调试<span style="color: #b38ef3">咒术</span>时，此法杖绘制的图案会运行于<a href="#items/debugging@debugger"><span style="color: #b0b">调试杖</span></a>当前的栈和<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/readwrite@hexcasting:local"><span style="color: #8d6acc">渡鸦之思</span></a>。</p><p>清空咒术网格后，<a href="#items/debugging@debugger"><span style="color: #b0b">调试杖</span></a>似乎会回到<a href="#items/debugging@evaluator"><span style="color: #b0b">运行杖</span></a>绘制首个图案前的状态。当然，这种操作无法撤回已造成实际影响的法术。</p>
+<br />
+  <div id="items/debugging@evaluator" class="">
+  <details class="details-collapsible recipe-details">
+      <summary class="collapse-details">
+    <span class="collapse-recipe-show">点击以显示配方</span>
+    <span class="collapse-recipe-hide">点击以隐藏配方</span>
+  </summary>
+    <div class="crafting-tables">
+<div>
+    <h5>运行杖</h5>
+    <div class="crafting-table">
+        <img
+      title="工作台"
+      alt="工作台"
+      src="https://raw.githubusercontent.com/hexdoc-dev/hexdoc/626dee004252a9f6fe23eac88376745d83cc2a6f/src/hexdoc/_export/resources/assets/minecraft/textures/gui/hexdoc/crafting_table.png"
+      class="texture pixelated"
+    >
+  <div class="crafting-table-grid">
+        <div></div>        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="充能紫水晶"
+      alt="充能紫水晶"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="充能紫水晶"
+      alt="充能紫水晶"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div></div>        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="板岩块"
+      alt="板岩块"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="充能紫水晶"
+      alt="充能紫水晶"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="板岩块"
+      alt="板岩块"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div></div>        <div></div>  </div>
+  <div class="crafting-table-result recipe-item-slot">
+    <img
+      title="运行杖"
+      alt="运行杖"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/382a024d15955277f629f0cd39670f6d54126643/Common/src/main/resources/assets/hexdebug/textures/item/evaluator.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    >
+  </div>
+    </div>
+</div>    </div>
+  </details>
+      <p><i>哐啷！</i></p>
+  </div>
+<br />
+</div>
+</section>
+<section id="patterns">
+    <h2 class="category-title page-header">
+    <img
+      title="书架"
+      alt="书架"
+      src="https://hexdoc-dev.github.io/hexdoc-minecraft/v/1.20.1/1.0.dev1/assets/minecraft/textures/block/bookshelf.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >图案<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#patterns"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h2>
+    <p>我所发现的各式图案，和它们的功用。</p>
+<div id="patterns/debugging" class="entry">
+    <h3 class="entry-title page-header">
+    <img
+      title="调试杖"
+      alt="调试杖"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/382a024d15955277f629f0cd39670f6d54126643/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    >调试<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#patterns/debugging"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h3>
+  <div id="patterns/debugging@hexdebug:const/debugging" class="">
+<h4 class="pattern-title">调试杖之精思 (→ bool)<a
+    href="#patterns/debugging@hexdebug:const/debugging"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >渲染方式</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >配色</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="qqqqqewaa"
+        data-start="east"
+        data-per-world="False"
+      >浏览器不支持图案的可视化。图案代码见此：qqqqqewaa</canvas>
+  </details>
+      <p>若栈由<a href="#items/debugging@debugger"><span style="color: #b0b">调试杖</span></a>或<a href="#items/debugging@evaluator"><span style="color: #b0b">运行杖</span></a>执行，则返回 <span style="color: #8d6acc">True</span>；否则返回 <span style="color: #8d6acc">False</span>。</p>
+  </div>
+<br />
+  <div id="patterns/debugging@hexdebug:next_eval_index" class="">
+<h4 class="pattern-title">调试位之精思 (→ int or null)<a
+    href="#patterns/debugging@hexdebug:next_eval_index"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >渲染方式</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >配色</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="dedqdeqwaa"
+        data-start="south_west"
+        data-per-world="False"
+      >浏览器不支持图案的可视化。图案代码见此：dedqdeqwaa</canvas>
+  </details>
+      <p>若栈由<a href="#items/debugging@debugger"><span style="color: #b0b">调试杖</span></a>或<a href="#items/debugging@evaluator"><span style="color: #b0b">运行杖</span></a>执行，则返回下一个待执行 iota 的索引下标；否则返回 <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#casting/influences"><span style="color: #8d6acc">Null</span></a>。</p>
+  </div>
+<br />
+  <div id="patterns/debugging@hexdebug:const/cognitohazard" class="">
+<h4 class="pattern-title">认知危害之精思 (→ cognitohazard)<a
+    href="#patterns/debugging@hexdebug:const/cognitohazard"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >渲染方式</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >配色</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wdeaqqdqeedqadqeedqaeadeaqqeadeaqqdqdeaqqeaeedqaw"
+        data-start="north_west"
+        data-per-world="False"
+      >浏览器不支持图案的可视化。图案代码见此：wdeaqqdqeedqadqeedqaeadeaqqeadeaqqdqdeaqqeaeedqaw</canvas>
+  </details>
+      <p>向栈顶压入一个<span style="color: #8d6acc">认知危害</span>。</p>
+  </div>
+<br />
+    <p>貌似部分<a href="#items/debugging@evaluator">调试工具</a>在某些<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/meta@hexcasting:eval/cc">高等级技术</a>中容易导致安全问题。而为解决这一问题，我设计了本图案。</p><p><span style="color: #8d6acc">认知危害</span> iota 正常运行时什么都不会发生。不过，如果它出现在<a href="#items/debugging@debugger"><span style="color: #b0b">调试杖</span></a>执行的<span style="color: #b38ef3">咒术</span>里，那该<span style="color: #b38ef3">咒术</span>便会<i>立即</i>终止——甚至要先于<span style="color: #8d6acc">认知危害</span>的执行。</p>
+<br />
+  <div id="patterns/debugging@hexdebug:breakpoint/before" class="">
+<h4 class="pattern-title">在前方添加断点<a
+    href="#patterns/debugging@hexdebug:breakpoint/before"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >渲染方式</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >配色</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="awqdeew"
+        data-start="south_west"
+        data-per-world="False"
+      >浏览器不支持图案的可视化。图案代码见此：awqdeew</canvas>
+  </details>
+      <p>在运行此图案前，暂停<a href="#items/debugging@debugger"><span style="color: #b0b">调试杖</span></a>。</p>
+  </div>
+<br />
+  <div id="patterns/debugging@hexdebug:breakpoint/after" class="">
+<h4 class="pattern-title">在后方添加断点<a
+    href="#patterns/debugging@hexdebug:breakpoint/after"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >渲染方式</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >配色</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wqqaewd"
+        data-start="east"
+        data-per-world="False"
+      >浏览器不支持图案的可视化。图案代码见此：wqqaewd</canvas>
+  </details>
+      <p>在运行此图案后，也即在运行下一图案之前，暂停<a href="#items/debugging@debugger"><span style="color: #b0b">调试杖</span></a>。</p>
+  </div>
+<br />
+  <div id="patterns/debugging@hexdebug:craft/debugger" class="">
+<h4 class="pattern-title">制作调试杖 (entity, [pattern] →)<a
+    href="#patterns/debugging@hexdebug:craft/debugger"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >渲染方式</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >配色</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="aaewwwwwaqwawqwadawqwwwawwwqwwwaw"
+        data-start="south_west"
+        data-per-world="False"
+      >浏览器不支持图案的可视化。图案代码见此：aaewwwwwaqwawqwadawqwwwawwwqwwwaw</canvas>
+  </details>
+      <p>制作一支能施放<span style="color: #b38ef3">咒术</span>的<a href="#items/debugging@debugger"><span style="color: #b0b">调试杖</span></a>。这个图案和我之前用过的<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/spells/hexcasting">某些图案</a>有些相似。</p><p>消耗大约 10 个<a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/amethyst"><span style="color: #b0b">充能紫水晶</span></a>。</p>
+  </div>
+<br />
+</div>
+</section>
+  </main>
+</div>
+      <footer class="footer">
+        <div class="container text-muted">
+          <p>该页面不是Minecraft的官方产品，不隶属于Mojang和Microsoft，且不代表Mojang和Microsoft的意见。</p><p>Minecraft的游戏内容和资源均为各自所有者的知识财产。</p><p>使用<a href="https://pypi.org/project/hexdoc/" target="_blank">hexdoc</a>精心制作。❤️</p>
+        </div>
+      </footer>
+  </body>
+</html>
