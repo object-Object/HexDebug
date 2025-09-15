@@ -23,8 +23,7 @@ object HexDebugBlocks : HexDebugRegistrar<Block>(Registries.BLOCK, { BuiltInRegi
     val FOCUS_HOLDER = blockItem(
         "focus_holder",
         blockBuilder = { FocusHolderBlock(slateish.noPush()) },
-        // don't put it in the creative tab because it's probably getting moved to another mod
-        itemBuilder = { FocusHolderBlockItem(it, ItemProperties()) },
+        itemBuilder = { FocusHolderBlockItem(it, HexDebugItems.props) },
     )
 
     private val slateish get() = BlockProperties.copy(Blocks.DEEPSLATE_TILES).strength(4f, 4f)
