@@ -17,14 +17,17 @@ import java.util.function.Consumer
 
 class HexDebugRecipes(output: PackOutput) : PaucalRecipeProvider(output, HexDebug.MODID) {
     override fun buildRecipes(writer: Consumer<FinishedRecipe>) {
+        // debugger
         flyswatter(HexDebugItems.DEBUGGER.value, Items.GOLD_INGOT, HexItems.ARTIFACT)
             .unlockedBy("has_item", hasItem(HexTags.Items.STAVES))
             .save(writer)
 
+        // evaluator
         flyswatter(HexDebugItems.EVALUATOR.value, HexBlocks.SLATE_BLOCK)
             .unlockedBy("has_item", hasItem(HexTags.Items.STAVES))
             .save(writer)
 
+        // splicing table
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, HexDebugBlocks.SPLICING_TABLE.value)
             .define('P', HexBlocks.EDIFIED_PLANKS)
             .define('C', HexItems.CHARGED_AMETHYST)
@@ -35,6 +38,16 @@ class HexDebugRecipes(output: PackOutput) : PaucalRecipeProvider(output, HexDebu
             .pattern("PCP")
             .pattern("AFA")
             .pattern("SGS")
+            .unlockedBy("has_item", hasItem(HexItems.FOCUS))
+            .save(writer)
+
+        // empty focal frame
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, HexDebugBlocks.FOCUS_HOLDER.value)
+            .define('S', HexBlocks.SLATE_BLOCK)
+            .define('G', Items.GOLD_NUGGET)
+            .pattern("GSG")
+            .pattern("S S")
+            .pattern("GSG")
             .unlockedBy("has_item", hasItem(HexItems.FOCUS))
             .save(writer)
     }
