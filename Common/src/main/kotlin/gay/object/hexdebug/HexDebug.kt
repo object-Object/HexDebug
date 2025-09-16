@@ -21,6 +21,7 @@ object HexDebug {
             HexDebugBlocks,
             HexDebugBlockEntities,
             HexDebugItems,
+            HexDebugRecipeSerializers,
             HexDebugCreativeTabs,
             HexDebugMenus,
             HexDebugActions,

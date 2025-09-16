@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": {
+      "item": "minecraft:gold_nugget"
+    },
+    "S": {
+      "item": "hexcasting:slate_block"
+    }
+  },
+  "pattern": [
+    "GSG",
+    "S S",
+    "GSG"
+  ],
+  "result": {
+    "item": "hexdebug:focus_holder"
+  },
+  "show_notification": true
+}

@@ -5,6 +5,7 @@ import at.petrak.hexcasting.common.lib.HexBlocks
 import at.petrak.hexcasting.common.lib.HexItems
 import at.petrak.paucal.api.datagen.PaucalRecipeProvider
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.datagen.recipes.FocusHolderFillingShapedRecipeBuilder
 import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.registry.HexDebugItems
 import net.minecraft.data.PackOutput
@@ -41,7 +42,7 @@ class HexDebugRecipes(output: PackOutput) : PaucalRecipeProvider(output, HexDebu
             .unlockedBy("has_item", hasItem(HexItems.FOCUS))
             .save(writer)
 
-        // empty focal frame
+        // empty focus holder
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, HexDebugBlocks.FOCUS_HOLDER.value)
             .define('S', HexBlocks.SLATE_BLOCK)
             .define('G', Items.GOLD_NUGGET)
@@ -50,6 +51,30 @@ class HexDebugRecipes(output: PackOutput) : PaucalRecipeProvider(output, HexDebu
             .pattern("GSG")
             .unlockedBy("has_item", hasItem(HexItems.FOCUS))
             .save(writer)
+
+        // new focus holder with existing focus
+        FocusHolderFillingShapedRecipeBuilder.shaped(RecipeCategory.MISC, HexDebugBlocks.FOCUS_HOLDER.value)
+            .define('S', HexBlocks.SLATE_BLOCK)
+            .define('G', Items.GOLD_NUGGET)
+            .define('F', HexItems.FOCUS)
+            .pattern("GSG")
+            .pattern("SFS")
+            .pattern("GSG")
+            .unlockedBy("has_item", hasItem(HexItems.FOCUS))
+            .save(writer, HexDebug.id("focus_holder_filling_shaped/new_holder"))
+
+        // existing focus holder with new focus
+        FocusHolderFillingShapedRecipeBuilder.shaped(RecipeCategory.MISC, HexDebugBlocks.FOCUS_HOLDER.value)
+            .define('G', Items.GLOWSTONE)
+            .define('L', Items.LEATHER)
+            .define('P', Items.PAPER)
+            .define('A', HexItems.CHARGED_AMETHYST)
+            .define('H', HexDebugBlocks.FOCUS_HOLDER.value)
+            .pattern("HL ")
+            .pattern("PAP")
+            .pattern(" LG")
+            .unlockedBy("has_item", hasItem(HexItems.FOCUS))
+            .save(writer, HexDebug.id("focus_holder_filling_shaped/new_focus"))
     }
 
     @Suppress("SameParameterValue")

@@ -1,0 +1,30 @@
+{
+  "type": "hexdebug:focus_holder_filling_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "hexcasting:charged_amethyst"
+    },
+    "G": {
+      "item": "minecraft:glowstone"
+    },
+    "H": {
+      "item": "hexdebug:focus_holder"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "HL ",
+    "PAP",
+    " LG"
+  ],
+  "result": {
+    "item": "hexdebug:focus_holder"
+  },
+  "show_notification": true
+}
