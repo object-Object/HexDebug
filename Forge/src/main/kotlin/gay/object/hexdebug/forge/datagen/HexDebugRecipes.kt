@@ -8,11 +8,15 @@ import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.datagen.recipes.FocusHolderFillingShapedRecipeBuilder
 import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.registry.HexDebugItems
+import gay.`object`.hexdebug.registry.HexDebugRecipeSerializers
+import gay.`object`.hexdebug.registry.RegistrarEntry
 import net.minecraft.data.PackOutput
 import net.minecraft.data.recipes.FinishedRecipe
 import net.minecraft.data.recipes.RecipeCategory
 import net.minecraft.data.recipes.ShapedRecipeBuilder
+import net.minecraft.data.recipes.SpecialRecipeBuilder
 import net.minecraft.world.item.Items
+import net.minecraft.world.item.crafting.RecipeSerializer
 import net.minecraft.world.level.ItemLike
 import java.util.function.Consumer
 
@@ -75,6 +79,9 @@ class HexDebugRecipes(output: PackOutput) : PaucalRecipeProvider(output, HexDebu
             .pattern(" LG")
             .unlockedBy("has_item", hasItem(HexItems.FOCUS))
             .save(writer, HexDebug.id("focus_holder_filling_shaped/new_focus"))
+
+        // existing focus holder with existing focus
+        specialRecipe(writer, HexDebugRecipeSerializers.FOCUS_HOLDER_FILLING_SHAPELESS)
     }
 
     @Suppress("SameParameterValue")
@@ -89,4 +96,8 @@ class HexDebugRecipes(output: PackOutput) : PaucalRecipeProvider(output, HexDebu
             .pattern(" CC")
             .pattern(" UC")
             .pattern("L  ")
+
+    private fun specialRecipe(writer: Consumer<FinishedRecipe>, entry: RegistrarEntry<RecipeSerializer<*>>) {
+        SpecialRecipeBuilder(entry.value).save(writer, entry.id.toString())
+    }
 }

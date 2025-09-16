@@ -27,8 +27,6 @@ class FocusHolderFillingShapedRecipe(
     result: ItemStack,
     showNotification: Boolean,
 ) : ShapedRecipe(id, group, category, width, height, recipeItems, result, showNotification) {
-    override fun getSerializer() = HexDebugRecipeSerializers.FOCUS_HOLDER_FILLING_SHAPED.value
-
     override fun matches(container: CraftingContainer, level: Level): Boolean {
         if (!super.matches(container, level)) return false
         for (ingredient in container.items) {
@@ -51,6 +49,8 @@ class FocusHolderFillingShapedRecipe(
         return result
     }
 
+    override fun getSerializer() = HexDebugRecipeSerializers.FOCUS_HOLDER_FILLING_SHAPED.value
+
     companion object {
         private fun fromShapedRecipe(recipe: ShapedRecipe): FocusHolderFillingShapedRecipe {
             return recipe.run {
@@ -62,7 +62,9 @@ class FocusHolderFillingShapedRecipe(
                     width = width,
                     height = height,
                     recipeItems = ingredients,
-                    result = getResultItem(null).apply { putIotaStack(ItemStack(HexItems.FOCUS)) },
+                    result = getResultItem(null).apply {
+                        putIotaStack(ItemStack(HexItems.FOCUS))
+                    },
                     showNotification = showNotification(),
                 )
             }
