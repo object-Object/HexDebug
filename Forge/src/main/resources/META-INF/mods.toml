@@ -53,3 +53,10 @@ mandatory = true
 versionRange = "[${versions.ioticblocks},)"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies.hexdebug]]
+modId = "emi"
+mandatory = false
+versionRange = "[${versions.emi},)"
+ordering = "NONE"
+side = "CLIENT"

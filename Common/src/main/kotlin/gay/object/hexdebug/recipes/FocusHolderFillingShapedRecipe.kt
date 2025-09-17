@@ -2,6 +2,7 @@ package gay.`object`.hexdebug.recipes
 
 import at.petrak.hexcasting.common.lib.HexItems
 import com.google.gson.JsonObject
+import gay.`object`.hexdebug.items.FocusHolderBlockItem
 import gay.`object`.hexdebug.items.FocusHolderBlockItem.Companion.hasIotaStack
 import gay.`object`.hexdebug.items.FocusHolderBlockItem.Companion.setIotaStack
 import gay.`object`.hexdebug.registry.HexDebugBlocks
@@ -62,9 +63,7 @@ class FocusHolderFillingShapedRecipe(
                     width = width,
                     height = height,
                     recipeItems = ingredients,
-                    result = getResultItem(null).apply {
-                        setIotaStack(ItemStack(HexItems.FOCUS))
-                    },
+                    result = FocusHolderBlockItem.withFocus(getResultItem(null)),
                     showNotification = showNotification(),
                 )
             }

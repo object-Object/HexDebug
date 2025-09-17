@@ -29,6 +29,7 @@ hexdebugModDependencies {
     requires("fabric-api")
     requires("fabric-language-kotlin")
 
+    optional("emi")
     optional("modmenu")
 }
 
@@ -78,6 +79,8 @@ dependencies {
     modLocalRuntime(libs.devAuth.fabric)
 
     modApi(libs.ioticblocks.fabric)
+
+    modImplementation(libs.emi.fabric)
 }
 
 publishMods {

@@ -49,7 +49,7 @@ class SplicingTableScreen(
     val data get() = menu.clientView
 
     private val hasMediaItem get() = menu.mediaSlot.hasItem()
-    private val hasStaffItem get() = menu.staffSlot.hasItem()
+    val hasStaffItem get() = menu.staffSlot.hasItem()
 
     var guiSpellcasting = GuiSpellcasting(
         InteractionHand.MAIN_HAND, mutableListOf(), listOf(), null, 1
@@ -67,10 +67,45 @@ class SplicingTableScreen(
     // so offset up if taller or down if shorter
     private val staffOffsetY: Int = ((32 * 6) - staffHeight) / 2
 
-    private val staffMaxX get() = leftPos - 14
-    private val staffMinX get() = staffMaxX - staffWidth
-    private val staffMinY get() = topPos + staffOffsetY
-    private val staffMaxY get() = staffMinY + staffHeight
+    // relative to top left (for hasClickedOutside)
+    private val staffMaxXOffset = -14
+    private val staffMinXOffset = staffMaxXOffset - staffWidth
+    private val staffMinYOffset = staffOffsetY
+    private val staffMaxYOffset = staffMinYOffset + staffHeight
+
+    private val staffSlotWidth = 23
+    private val staffSlotHeight = 24
+
+    private val staffSlotMinXOffset = -24
+    private val staffSlotMaxXOffset = staffSlotMinXOffset + staffSlotWidth
+    private val staffSlotMinYOffset = 165
+    private val staffSlotMaxYOffset = staffSlotMinYOffset + staffSlotHeight
+
+    private val storageMinXOffset = 192
+    private val storageMaxXOffset = storageMinXOffset + 46
+    private val storageMinYOffset = 103
+    private val storageMaxYOffset = storageMinYOffset + 87
+
+    // absolute
+    val staffMinX get() = leftPos + staffMinXOffset
+    val staffMaxX get() = leftPos + staffMaxXOffset
+    val staffMinY get() = topPos + staffMinYOffset
+    val staffMaxY get() = topPos + staffMaxYOffset
+
+    val staffSlotMinX get() = leftPos + staffSlotMinXOffset
+    val staffSlotMaxX get() = leftPos + staffSlotMaxXOffset
+    val staffSlotMinY get() = topPos + staffSlotMinYOffset
+    val staffSlotMaxY get() = topPos + staffSlotMaxYOffset
+
+    val storageMinX get() = leftPos + storageMinXOffset
+    val storageMaxX get() = leftPos + storageMaxXOffset
+    val storageMinY get() = topPos + storageMinYOffset
+    val storageMaxY get() = topPos + storageMaxYOffset
+
+    val exportButtonX get() = leftPos + 194
+    val exportButtonY get() = topPos + 18
+    val exportButtonWidth = 24
+    val exportButtonHeight = 24
 
     private val predicateButtons = mutableListOf<Pair<AbstractButton, () -> Boolean>>()
 
@@ -124,12 +159,12 @@ class SplicingTableScreen(
         predicateButtons += listOf(
             // export hexpattern
             object : SpriteButton(
-                x = leftPos + 194,
-                y = topPos + 18,
+                x = exportButtonX,
+                y = exportButtonY,
                 uOffset = 432,
                 vOffset = 392,
-                width = 24,
-                height = 24,
+                width = exportButtonWidth,
+                height = exportButtonHeight,
                 message = buttonText("export"),
                 onPress = {
                     exportToSystemClipboard()
@@ -521,9 +556,15 @@ class SplicingTableScreen(
     private fun isInStaffGrid(mouseX: Double, mouseY: Double, button: Int?) =
         staffMinX <= mouseX && mouseX <= staffMaxX && staffMinY <= mouseY && mouseY <= staffMaxY
         // avoid interacting with the grid when inserting the staff item...
-        && (button == null || hasClickedOutside(mouseX, mouseY, leftPos, topPos, button))
+        && (button == null || isOutsideStaffItemSlot(mouseX, mouseY, leftPos, topPos))
         // or when clicking the clear grid button
         && !(clearGridButton?.testHitbox(mouseX, mouseY) ?: false)
+
+    private fun isOutsideStaffItemSlot(mouseX: Double, mouseY: Double, guiLeft: Int, guiTop: Int) =
+        mouseX < guiLeft + staffSlotMinXOffset
+        || mouseY < guiTop + staffSlotMinYOffset
+        || mouseX >= guiLeft + staffSlotMaxXOffset
+        || mouseY >= guiTop + staffSlotMaxYOffset
 
     override fun hasClickedOutside(
         mouseX: Double,
@@ -536,9 +577,14 @@ class SplicingTableScreen(
             // main gui
             super.hasClickedOutside(mouseX, mouseY, guiLeft, guiTop, mouseButton)
             // storage/media
-            && (mouseX < guiLeft + 192 || mouseY < guiTop + 103 || mouseX >= guiLeft + 192 + 46 || mouseY >= guiTop + 103 + 87)
-            // staff
-            && (mouseX < guiLeft - 22 || mouseY < guiTop + 167 || mouseX >= guiLeft - 22 + 20 || mouseY >= guiTop + 167 + 20)
+            && (
+                mouseX < guiLeft + storageMinXOffset
+                || mouseY < guiTop + storageMinYOffset
+                || mouseX >= guiLeft + storageMaxXOffset
+                || mouseY >= guiTop + storageMaxYOffset
+            )
+            // staff item slot
+            && isOutsideStaffItemSlot(mouseX, mouseY, guiLeft, guiTop)
         )
     }
 
@@ -600,10 +646,10 @@ class SplicingTableScreen(
             blitSprite(guiGraphics, x = staffMaxX - 1, y = staffMaxY - 1, uOffset = 184, vOffset = 9, width = 8, height = 9)
 
             // staff slot without icon
-            blitSprite(guiGraphics, x = leftPos - 24, y = topPos + 165, uOffset = 232, vOffset = 293, width = 23, height = 24)
+            blitSprite(guiGraphics, x = staffSlotMinX, y = staffSlotMinY, uOffset = 232, vOffset = 293, width = staffSlotWidth, height = staffSlotHeight)
         } else {
             // staff slot with icon
-            blitSprite(guiGraphics, x = leftPos - 24, y = topPos + 165, uOffset = 232, vOffset = 328, width = 23, height = 24)
+            blitSprite(guiGraphics, x = staffSlotMinX, y = staffSlotMinY, uOffset = 232, vOffset = 328, width = staffSlotWidth, height = staffSlotHeight)
         }
     }
 

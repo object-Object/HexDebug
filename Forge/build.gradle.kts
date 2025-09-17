@@ -53,6 +53,8 @@ hexdebugModDependencies {
     requires("ioticblocks")
 
     requires("kotlin-for-forge")
+
+    optional("emi")
 }
 
 dependencies {
@@ -94,6 +96,8 @@ dependencies {
     modLocalRuntime(libs.devAuth.forge)
 
     modApi(libs.ioticblocks.forge)
+
+    modImplementation(libs.emi.forge)
 }
 
 tasks {

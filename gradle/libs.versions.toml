@@ -41,6 +41,7 @@ caelus = "3.1.0+1.20"
 devAuth = "1.2.0"
 inline = "1.20.1-1.0.1"
 ioticblocks = "1.0.0+1.20.1"
+emi = "1.1.22+1.20.1"
 
 # other non-Minecraft dependencies
 
@@ -112,6 +113,10 @@ inline-forge  = { module="com.samsthenerd.inline:inline-forge", version.ref="inl
 ioticblocks-common = { module="gay.object.ioticblocks:ioticblocks-common", version.ref="ioticblocks" }
 ioticblocks-fabric = { module="gay.object.ioticblocks:ioticblocks-fabric", version.ref="ioticblocks" }
 ioticblocks-forge  = { module="gay.object.ioticblocks:ioticblocks-forge", version.ref="ioticblocks" }
+
+emi-xplat  = { module="dev.emi:emi-xplat-intermediary", version.ref="emi" }
+emi-fabric = { module="dev.emi:emi-fabric", version.ref="emi" }
+emi-forge  = { module="dev.emi:emi-forge", version.ref="emi" }
 
 findbugs-jsr305 = { module="com.google.code.findbugs:jsr305", version.ref="findbugs-jsr305" }
 

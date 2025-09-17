@@ -4,10 +4,12 @@ import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.item.IotaHolderItem
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.api.utils.getList
+import at.petrak.hexcasting.common.lib.HexItems
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.items.base.ItemPredicateProvider
 import gay.`object`.hexdebug.items.base.ModelPredicateEntry
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
+import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.utils.asItemPredicate
 import gay.`object`.hexdebug.utils.styledHoverName
 import net.minecraft.core.NonNullList
@@ -68,6 +70,13 @@ class FocusHolderBlockItem(block: Block, properties: Properties) :
 
     companion object {
         val HAS_ITEM = HexDebug.id("has_item")
+
+        fun withFocus(stack: ItemStack? = null): ItemStack {
+            val result = stack?.copy() ?: ItemStack(HexDebugBlocks.FOCUS_HOLDER.item)
+            return result.apply {
+                setIotaStack(ItemStack(HexItems.FOCUS))
+            }
+        }
 
         val ItemStack.hasIotaStack get() = getBlockEntityData(this)
             ?.getList("Items", Tag.TAG_COMPOUND)

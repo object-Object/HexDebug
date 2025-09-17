@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.recipes
 
 import at.petrak.hexcasting.common.lib.HexItems
+import gay.`object`.hexdebug.items.FocusHolderBlockItem
 import gay.`object`.hexdebug.items.FocusHolderBlockItem.Companion.hasIotaStack
 import gay.`object`.hexdebug.items.FocusHolderBlockItem.Companion.setIotaStack
 import gay.`object`.hexdebug.registry.HexDebugBlocks
@@ -16,9 +17,7 @@ import net.minecraft.world.item.crafting.Ingredient
 import net.minecraft.world.level.Level
 
 class FocusHolderFillingShapelessRecipe(id: ResourceLocation, category: CraftingBookCategory) : CustomRecipe(id, category) {
-    private val resultItem = ItemStack(HexDebugBlocks.FOCUS_HOLDER.item).apply {
-        setIotaStack(ItemStack(HexItems.FOCUS))
-    }
+    private val resultItem = FocusHolderBlockItem.withFocus()
 
     override fun matches(container: CraftingContainer, level: Level): Boolean {
         return findItems(container) != null

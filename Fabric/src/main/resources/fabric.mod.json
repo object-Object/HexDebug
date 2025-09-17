@@ -23,9 +23,13 @@
       "adapter": "kotlin",
       "value": "gay.object.hexdebug.fabric.FabricHexDebugClient"
     }],
+    "emi": [{
+      "adapter": "kotlin",
+      "value": "gay.object.hexdebug.fabric.interop.FabricHexDebugEmiPlugin"
+    }],
     "modmenu": [{
       "adapter": "kotlin",
-      "value": "gay.object.hexdebug.fabric.FabricHexDebugModMenu"
+      "value": "gay.object.hexdebug.fabric.interop.FabricHexDebugModMenu"
     }]
   },
   "mixins": [
@@ -42,6 +46,7 @@
     "ioticblocks": ">=${versions.ioticblocks}"
   },
   "suggests": {
+    "emi": ">=${versions.emi}",
     "modmenu": ">=${versions.modMenu}"
   }
 }
