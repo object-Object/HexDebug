@@ -23,7 +23,7 @@ public class ForgeHexDebugMixinConfigPlugin implements IMixinConfigPlugin {
         if (mixinClassName.equals("gay.object.hexdebug.forge.mixin.MixinDatagenMain")) {
             var shouldApply = System.getProperty("hexdebug.apply-datagen-mixin", "false").equals("true");
             if (shouldApply) {
-                HexDebug.LOGGER.error("Applying scuffed datagen mixin. This should not happen if not running datagen!");
+                HexDebug.LOGGER.warn("Applying scuffed datagen mixin. This should not happen if not running datagen!");
             }
             return shouldApply;
         }

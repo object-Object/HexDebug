@@ -33,7 +33,7 @@ patchouli-forge = "1.20.1-84-FORGE"
 
 cardinalComponents = "5.2.1"
 serializationHooks = "0.4.99999"
-mixinExtras = "0.3.6"
+mixinExtras = "0.5.0"
 trinkets = "3.7.0"
 clothConfig = "11.1.106"
 modMenu = "7.1.0"
