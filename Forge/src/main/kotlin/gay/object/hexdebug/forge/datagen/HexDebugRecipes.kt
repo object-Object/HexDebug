@@ -82,6 +82,9 @@ class HexDebugRecipes(output: PackOutput) : PaucalRecipeProvider(output, HexDebu
 
         // existing focus holder with existing focus
         specialRecipe(writer, HexDebugRecipeSerializers.FOCUS_HOLDER_FILLING_SHAPELESS)
+
+        // remove focus from holder
+        specialRecipe(writer, HexDebugRecipeSerializers.FOCUS_HOLDER_EMPTYING)
     }
 
     @Suppress("SameParameterValue")

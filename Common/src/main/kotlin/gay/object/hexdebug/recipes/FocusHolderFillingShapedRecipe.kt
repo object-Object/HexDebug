@@ -3,7 +3,7 @@ package gay.`object`.hexdebug.recipes
 import at.petrak.hexcasting.common.lib.HexItems
 import com.google.gson.JsonObject
 import gay.`object`.hexdebug.items.FocusHolderBlockItem.Companion.hasIotaStack
-import gay.`object`.hexdebug.items.FocusHolderBlockItem.Companion.putIotaStack
+import gay.`object`.hexdebug.items.FocusHolderBlockItem.Companion.setIotaStack
 import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.registry.HexDebugRecipeSerializers
 import net.minecraft.core.NonNullList
@@ -42,7 +42,7 @@ class FocusHolderFillingShapedRecipe(
         val result = super.assemble(container, registryAccess)
         for (ingredient in container.items) {
             if (ingredient.`is`(HexItems.FOCUS)) {
-                result.putIotaStack(ingredient)
+                result.setIotaStack(ingredient)
                 break
             }
         }
@@ -63,7 +63,7 @@ class FocusHolderFillingShapedRecipe(
                     height = height,
                     recipeItems = ingredients,
                     result = getResultItem(null).apply {
-                        putIotaStack(ItemStack(HexItems.FOCUS))
+                        setIotaStack(ItemStack(HexItems.FOCUS))
                     },
                     showNotification = showNotification(),
                 )

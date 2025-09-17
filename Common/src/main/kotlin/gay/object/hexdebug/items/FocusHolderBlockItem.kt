@@ -3,12 +3,11 @@ package gay.`object`.hexdebug.items
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.item.IotaHolderItem
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
-import at.petrak.hexcasting.api.utils.getCompound
 import at.petrak.hexcasting.api.utils.getList
-import at.petrak.hexcasting.api.utils.putCompound
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.items.base.ItemPredicateProvider
 import gay.`object`.hexdebug.items.base.ModelPredicateEntry
+import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import gay.`object`.hexdebug.utils.asItemPredicate
 import gay.`object`.hexdebug.utils.styledHoverName
 import net.minecraft.core.NonNullList
@@ -44,7 +43,7 @@ class FocusHolderBlockItem(block: Block, properties: Properties) :
         val (iotaStack, iotaHolder) = stack.getIotaStack()
         if (iotaHolder != null) {
             iotaHolder.writeDatum(iotaStack, iota)
-            stack.putIotaStack(iotaStack)
+            stack.setIotaStack(iotaStack)
         }
     }
 
@@ -70,13 +69,13 @@ class FocusHolderBlockItem(block: Block, properties: Properties) :
     companion object {
         val HAS_ITEM = HexDebug.id("has_item")
 
-        val ItemStack.hasIotaStack get() = getCompound(BLOCK_ENTITY_TAG)
+        val ItemStack.hasIotaStack get() = getBlockEntityData(this)
             ?.getList("Items", Tag.TAG_COMPOUND)
             ?.let { it.size > 0 }
             ?: false
 
         fun ItemStack.getIotaStack(): Pair<ItemStack, IotaHolderItem?> {
-            val blockEntityTag = getCompound(BLOCK_ENTITY_TAG) ?: CompoundTag()
+            val blockEntityTag = getBlockEntityData(this) ?: CompoundTag()
 
             val containerStacks = NonNullList.withSize(1, ItemStack.EMPTY)
             ContainerHelper.loadAllItems(blockEntityTag, containerStacks)
@@ -85,13 +84,15 @@ class FocusHolderBlockItem(block: Block, properties: Properties) :
             return Pair(iotaStack, iotaStack.item as? IotaHolderItem)
         }
 
-        fun ItemStack.putIotaStack(iotaStack: ItemStack) {
-            val blockEntityTag = getCompound(BLOCK_ENTITY_TAG) ?: CompoundTag()
+        fun ItemStack.setIotaStack(iotaStack: ItemStack) {
+            val tag = if (iotaStack.isEmpty) {
+                CompoundTag()
+            } else {
+                val containerStacks = NonNullList.of(ItemStack.EMPTY, iotaStack)
+                ContainerHelper.saveAllItems(getBlockEntityData(this) ?: CompoundTag(), containerStacks)
+            }
 
-            val containerStacks = NonNullList.of(ItemStack.EMPTY, iotaStack)
-            ContainerHelper.saveAllItems(blockEntityTag, containerStacks)
-
-            putCompound(BLOCK_ENTITY_TAG, blockEntityTag)
+            setBlockEntityData(this, HexDebugBlockEntities.FOCUS_HOLDER.value, tag)
         }
     }
 }
