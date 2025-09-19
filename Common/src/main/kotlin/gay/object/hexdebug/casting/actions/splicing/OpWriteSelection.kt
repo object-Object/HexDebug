@@ -46,6 +46,7 @@ object OpWriteSelection : SpellAction {
     private data class Spell(val table: SplicingTableBlockEntity, val selection: Selection?) : RenderedSpell {
         override fun cast(env: CastingEnvironment) {
             table.writeSelection(selection)
+            table.sync()
         }
     }
 }

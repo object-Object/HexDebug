@@ -44,8 +44,8 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
 {
     override val stacks = BaseContainer.withSize(SplicingTableItemSlot.container_size)
 
-    private var listStack by SplicingTableItemSlot.LIST.delegate
-    private var clipboardStack by SplicingTableItemSlot.CLIPBOARD.delegate
+    var listStack by SplicingTableItemSlot.LIST.delegate
+    var clipboardStack by SplicingTableItemSlot.CLIPBOARD.delegate
     private var mediaStack by SplicingTableItemSlot.MEDIA.delegate
     private var staffStack by SplicingTableItemSlot.STAFF.delegate
 

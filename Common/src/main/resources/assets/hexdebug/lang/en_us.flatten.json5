@@ -117,18 +117,43 @@
             read: "Splicer's Decomposition",
             write: "Splicer's Gambit",
           },
+          "list/": {
+            "spellbook_index/": {
+              read: "Projectionist's Purification",
+              write: "Projectionist's Gambit",
+              readable: "Shutter's Purification"
+            },
+          },
           "clipboard/": {
             read: "Compositor's Purification",
             write: "Compositor's Gambit",
             readable: "Producer's Purification",
             writable: "Director's Purification",
-          }
+            "spellbook_index/": {
+              read: "Projectionist's Purification II",
+              write: "Projectionist's Gambit II",
+              readable: "Shutter's Purification II",
+            },
+          },
         },
       },
       "book.hexdebug:": {
         "next_eval_index": "Debug Locator's Rfln.",
         "const/cognitohazard": "Cognitohazard Rfln.",
-        "splicing/clipboard/read": "Compositor's Prfn.",
+        "splicing/": {
+          "list/": {
+            "spellbook_index/": {
+              read: "Projectionist's Prfn.",
+            },
+          },
+          "clipboard/": {
+            read: "Compositor's Prfn.",
+            "spellbook_index/": {
+              read: "Projectionist's Prfn. II",
+              readable: "Shutter's Prfn. II",
+            },
+          },
+        },
       },
     },
 
@@ -136,9 +161,13 @@
       bad_block: {
         splicing_table: {
           "": "a splicing table",
+          list: {
+            spellbook: "a splicing table with a non-empty spellbook in the main item slot",
+          },
           clipboard: {
             read: "a splicing table with a readable secondary item",
             write: "a splicing table with a writable secondary item",
+            spellbook: "a splicing table with a non-empty spellbook in the secondary item slot",
           },
         },
       },
@@ -189,11 +218,11 @@
           focus_holder: {
             "": "Focal Frame",
             page: {
-              "1": "$(l:items/focus)$(thing)Foci/$ are useful for storing _Hexes and other iotas in my inventory, but I sometimes find myself in need of a way to store iotas in the world. Item frames are too fragile, and $(l:greatwork/akashiclib)other methods/$ are inefficient and... distasteful. A cleaner solution is necessary, and I've devised one in the form of the $(thing)Focal Frame/$.",
-              "2": "A $(thing)Focal Frame/$ by itself is useless; a $(l:items/focus)$(thing)Focus/$ must first be inserted. I can do that through crafting, or by right-clicking a placed $(thing)Focal Frame/$ with a $(l:items/focus)$(thing)Focus/$. Right-clicking with an empty hand removes the $(l:items/focus)$(thing)Focus/$ from the frame.$(br2)\
-                As an item, I can use a filled $(thing)Focal Frame/$ anywhere I would normally use a $(l:items/focus)$(thing)Focus/$, including patterns such as $(l:patterns/readwrite#hexcasting:read)$(action)Scribe's Reflection/$. When placed in the world, I can access it using patterns like $(l:patterns/readwrite_blocks#hexcasting:read/entity)$(action)Chronicler's Purification/$.",
+              "1": "$(l:items/focus)$(item)Foci/$ are useful for storing _Hexes and other iotas in my inventory, but I sometimes find myself in need of a way to store iotas in the world. Item frames are too fragile, and $(l:greatwork/akashiclib)other methods/$ are inefficient and... distasteful. A cleaner solution is necessary, and I've devised one in the form of the $(item)Focal Frame/$.",
+              "2": "A $(item)Focal Frame/$ by itself is useless; a $(l:items/focus)$(item)Focus/$ must first be inserted. I can do that through crafting, or by right-clicking a placed $(item)Focal Frame/$ with a $(l:items/focus)$(item)Focus/$. Right-clicking with an empty hand removes the $(l:items/focus)$(item)Focus/$ from the frame.$(br2)\
+                As an item, I can use a filled $(item)Focal Frame/$ anywhere I would normally use a $(l:items/focus)$(item)Focus/$, including patterns such as $(l:patterns/readwrite#hexcasting:read)$(action)Scribe's Reflection/$. When placed in the world, I can access it using patterns like $(l:patterns/readwrite_blocks#hexcasting:read/entity)$(action)Chronicler's Purification/$.",
               recipe: "$(italic)Two thousand movies, four thousand albums, music and words and pictures like voices whispering from a sweet, sunny past./$",
-              "3": "In addition to these recipes, I can craft an empty $(thing)Focal Frame/$ with a $(l:items/focus)$(thing)Focus/$ to insert it; and I can craft a filled $(thing)Focal Frame/$ by itself to remove the $(l:items/focus)$(thing)Focus/$ from it, leaving the empty frame behind."
+              "3": "In addition to these recipes, I can craft an empty $(item)Focal Frame/$ with a $(l:items/focus)$(item)Focus/$ to insert it; and I can craft a filled $(item)Focal Frame/$ by itself to remove the $(l:items/focus)$(item)Focus/$ from it, leaving the empty frame behind."
             },
           },
           splicing_table: {
@@ -263,12 +292,24 @@
                 },
                 write: "Remove a vector and two values from the stack, then set the selection of the $(l:items/splicing_table)$(item)Splicing Table/$ at that position as previously described.",
               },
+              "list/": {
+                "spellbook_index/": {
+                  read: "Remove a vector from the stack, then push the current page number (starting at 1) of the $(l:items/spellbook)$(item)Spellbook/$ in the main slot of the $(l:items/splicing_table)$(item)Splicing Table/$ at that position.",
+                  write: "Remove a vector and number from the stack, then flip the $(l:items/spellbook)$(item)Spellbook/$ in the main slot of the $(l:items/splicing_table)$(item)Splicing Table/$ at that position to the given page number.",
+                  readable: "Replace the vector at the top of the stack with $(thing)True/$ if there is a $(l:items/splicing_table)$(item)Splicing Table/$ at that position with a $(l:items/spellbook)$(item)Spellbook/$ in its main slot that contains at least one page, or $(thing)False/$ otherwise.",
+                },
+              },
               "clipboard/": {
                 read: "Remove a vector from the stack, then copy the contents of the secondary item in the $(l:items/splicing_table)$(item)Splicing Table/$ at that position and push it to the stack.",
                 write: "Remove a vector and iota from the stack, then save the iota into the secondary item in the $(l:items/splicing_table)$(item)Splicing Table/$ at that position.$(br)\
                   As with $(l:patterns/readwrite_blocks#hexcasting:write/entity)$(action)Chronicler's Gambit/$, I cannot write my own Name using this spell.",
-                readable: "Replace the vector at the top of the stack with True if there is a $(l:items/splicing_table)$(item)Splicing Table/$ at that position containing a secondary item that I could read, or False otherwise.",
-                writable: "Replace the vector at the top of the stack with True if there is a $(l:items/splicing_table)$(item)Splicing Table/$ at that position containing a secondary item that I could save an iota into, or False otherwise.",
+                readable: "Replace the vector at the top of the stack with $(thing)True/$ if there is a $(l:items/splicing_table)$(item)Splicing Table/$ at that position containing a secondary item that I could read, or $(thing)False/$ otherwise.",
+                writable: "Replace the vector at the top of the stack with $(thing)True/$ if there is a $(l:items/splicing_table)$(item)Splicing Table/$ at that position containing a secondary item that I could save an iota into, or $(thing)False/$ otherwise.",
+                "spellbook_index/": {
+                  read: "Like $(l:patterns/splicing_table#hexdebug:splicing/list/spellbook_index/read)$(action)Projectionist's Purification/$, but the page number of the $(l:items/spellbook)$(item)Spellbook/$ in the secondary slot is read instead of the main slot.",
+                  write: "Like $(l:patterns/splicing_table#hexdebug:splicing/list/spellbook_index/write)$(action)Projectionist's Gambit/$, but the page number of the $(l:items/spellbook)$(item)Spellbook/$ in the secondary slot is written instead of the main slot.",
+                  readable: "Like $(l:patterns/splicing_table#hexdebug:splicing/list/spellbook_index/readable)$(action)Shutter's Purification/$, but the $(l:items/spellbook)$(item)Spellbook/$ in the secondary slot is checked instead of the main slot.",
+                },
               },
             },
           },

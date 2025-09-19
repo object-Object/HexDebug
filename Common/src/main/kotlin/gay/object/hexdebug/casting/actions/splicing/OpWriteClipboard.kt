@@ -16,7 +16,7 @@ object OpWriteClipboard : SpellAction {
     override val argc = 2
 
     override fun execute(args: List<Iota>, env: CastingEnvironment): SpellAction.Result {
-        val pos = args.getBlockPos(0, OpReadSelection.argc)
+        val pos = args.getBlockPos(0, argc)
         val datum = args[1]
 
         env.assertPosInRangeForEditing(pos)
@@ -36,15 +36,16 @@ object OpWriteClipboard : SpellAction {
         }
 
         return SpellAction.Result(
-            Spell(clipboardHolder, datum),
+            Spell(table, clipboardHolder, datum),
             0,
             listOf(ParticleSpray(pos.center, Vec3(1.0, 0.0, 0.0), 0.25, 3.14, 40))
         )
     }
 
-    private data class Spell(val clipboardHolder: ADIotaHolder, val datum: Iota) : RenderedSpell {
+    private data class Spell(val table: SplicingTableBlockEntity, val clipboardHolder: ADIotaHolder, val datum: Iota) : RenderedSpell {
         override fun cast(env: CastingEnvironment) {
             clipboardHolder.writeIota(datum, false)
+            table.sync()
         }
     }
 }

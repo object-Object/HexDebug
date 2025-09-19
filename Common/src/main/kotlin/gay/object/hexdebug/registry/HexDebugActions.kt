@@ -39,10 +39,18 @@ object HexDebugActions : HexDebugRegistrar<ActionRegistryEntry>(HexRegistries.AC
     val READ_VIEW_INDEX = make("splicing/view_index/read", HexDir.NORTH_WEST, "wqaeaqwdwaqaw", OpReadViewIndex)
     val WRITE_VIEW_INDEX = make("splicing/view_index/write", HexDir.SOUTH_WEST, "wedqdewawdedw", OpWriteViewIndex)
 
+    val READ_LIST_SPELLBOOK_INDEX = make("splicing/list/spellbook_index/read", HexDir.NORTH_WEST, "wqaeaqwedqddq", OpReadSpellbookIndex(true))
+    val WRITE_LIST_SPELLBOOK_INDEX = make("splicing/list/spellbook_index/write", HexDir.SOUTH_WEST, "wedqdewqaeaae", OpWriteSpellbookIndex(true))
+    val READABLE_LIST_SPELLBOOK_INDEX = make("splicing/list/spellbook_index/readable", HexDir.NORTH_WEST, "wqaeaqwedqddqw", OpReadableSpellbookIndex(true))
+
     val READ_CLIPBOARD = make("splicing/clipboard/read", HexDir.NORTH_WEST, "wqaeaqweeeedw", OpReadClipboard)
     val WRITE_CLIPBOARD = make("splicing/clipboard/write", HexDir.SOUTH_WEST, "wedqdewqqqqaw", OpWriteClipboard)
     val READABLE_CLIPBOARD = make("splicing/clipboard/readable", HexDir.NORTH_WEST, "wqaeaqweeeedww", OpReadableClipboard)
     val WRITABLE_CLIPBOARD = make("splicing/clipboard/writable", HexDir.SOUTH_WEST, "wedqdewqqqqaww", OpWritableClipboard)
+
+    val READ_CLIPBOARD_SPELLBOOK_INDEX = make("splicing/clipboard/spellbook_index/read", HexDir.NORTH_WEST, "wqaeaqwdeaaea", OpReadSpellbookIndex(false))
+    val WRITE_CLIPBOARD_SPELLBOOK_INDEX = make("splicing/clipboard/spellbook_index/write", HexDir.SOUTH_WEST, "wedqdewaqddqd", OpWriteSpellbookIndex(false))
+    val READABLE_CLIPBOARD_SPELLBOOK_INDEX = make("splicing/clipboard/spellbook_index/readable", HexDir.NORTH_WEST, "wqaeaqwdeaaeae", OpReadableSpellbookIndex(false))
 
     private fun make(name: String, startDir: HexDir, signature: String, action: Action) =
         make(name, startDir, signature) { action }

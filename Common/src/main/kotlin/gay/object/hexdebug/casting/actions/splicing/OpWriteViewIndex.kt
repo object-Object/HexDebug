@@ -33,6 +33,7 @@ object OpWriteViewIndex : SpellAction {
     private data class Spell(val table: SplicingTableBlockEntity, val index: Int) : RenderedSpell {
         override fun cast(env: CastingEnvironment) {
             table.writeViewStartIndex(index)
+            table.sync()
         }
     }
 }
