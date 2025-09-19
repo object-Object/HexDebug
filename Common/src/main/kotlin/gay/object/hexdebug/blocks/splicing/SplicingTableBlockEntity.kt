@@ -1,7 +1,11 @@
 package gay.`object`.hexdebug.blocks.splicing
 
+import at.petrak.hexcasting.api.addldata.ADIotaHolder
+import at.petrak.hexcasting.api.block.HexBlockEntity
 import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
+import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.IotaType
+import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.casting.math.HexPattern
 import at.petrak.hexcasting.api.utils.extractMedia
@@ -29,19 +33,23 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.SimpleContainerData
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
+import kotlin.math.max
 import kotlin.math.min
 
-class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
-    HexDebugBlockEntities.SPLICING_TABLE.value, pos, state
-), ISplicingTable, BaseContainer, MenuProvider {
+class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
+    HexBlockEntity(HexDebugBlockEntities.SPLICING_TABLE.value, pos, state),
+    ISplicingTable, BaseContainer, MenuProvider, ADIotaHolder
+{
     override val stacks = BaseContainer.withSize(SplicingTableItemSlot.container_size)
 
     private var listStack by SplicingTableItemSlot.LIST.delegate
     private var clipboardStack by SplicingTableItemSlot.CLIPBOARD.delegate
     private var mediaStack by SplicingTableItemSlot.MEDIA.delegate
     private var staffStack by SplicingTableItemSlot.STAFF.delegate
+
+    private val listHolder get() = IXplatAbstractions.INSTANCE.findDataHolder(listStack)
+    private val clipboardHolder get() = IXplatAbstractions.INSTANCE.findDataHolder(clipboardStack)
 
     private val containerData = SimpleContainerData(SplicingTableDataSlot.size)
 
@@ -69,8 +77,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     // TODO: save?
     private val undoStack = UndoStack()
 
-    override fun load(tag: CompoundTag) {
-        super.load(tag)
+    override fun loadModData(tag: CompoundTag) {
         ContainerHelper.loadAllItems(tag, stacks)
         media = tag.getLong("media")
         selection = Selection.fromRawIndices(
@@ -80,8 +87,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         viewStartIndex = tag.getInt("viewStartIndex")
     }
 
-    override fun saveAdditional(tag: CompoundTag) {
-        super.saveAdditional(tag)
+    override fun saveModData(tag: CompoundTag) {
         ContainerHelper.saveAllItems(tag, stacks)
         tag.putLong("media", media)
         tag.putInt("selectionFrom", selection?.from ?: -1)
@@ -107,8 +113,8 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
             undoStack = undoStack,
             selection = selection,
             viewStartIndex = viewStartIndex,
-            listHolder = IXplatAbstractions.INSTANCE.findDataHolder(listStack),
-            clipboardHolder = IXplatAbstractions.INSTANCE.findDataHolder(clipboardStack),
+            listHolder = listHolder,
+            clipboardHolder = clipboardHolder,
         )
     }
 
@@ -140,6 +146,8 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
             undoStack.clear()
             selection = null
             viewStartIndex = 0
+        } else {
+            (level as? ServerLevel)?.let { clampView(it, null) }
         }
     }
 
@@ -158,6 +166,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     override fun runAction(action: SplicingTableAction, player: ServerPlayer?) {
         if (media < mediaCost) return
         val data = getData(player) ?: return
+        clampView(data.level, data)
         setupUndoStack(data)
         convertAndRun(action.value, data)
     }
@@ -176,6 +185,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         val data = getData(player)
             ?.let(ReadWriteList::convertOrNull)
             ?: return ResolvedPatternType.ERRORED
+        clampView(data.level, data)
         setupUndoStack(data)
         val result = drawPattern(pattern, data)
         postRunAction(data)
@@ -214,7 +224,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     }
 
     private fun selectIota(data: ReadList, index: Int, hasShiftDown: Boolean) {
-        if (!data.isInRange(index)) return
+        if (!isInRange(data.list, index)) return
 
         val selection = selection
         this.selection = if (isOnlyIotaSelected(index)) {
@@ -231,7 +241,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     }
 
     private fun selectEdge(data: ReadList, index: Int, hasShiftDown: Boolean) {
-        if (!isEdgeInRange(data, index)) return
+        if (!isEdgeInRange(data.list, index)) return
 
         val selection = selection
         this.selection = if (isEdgeSelected(index)) {
@@ -255,26 +265,54 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     private fun isEdgeSelected(index: Int) =
         selection?.let { it.start == index && it.end == null } ?: false
 
-    private fun isEdgeInRange(data: ReadList, index: Int) =
+    private fun isInRange(list: List<Iota>?, index: Int) =
+        list?.let { index in it.indices } ?: false
+
+    private fun isEdgeInRange(list: List<Iota>, index: Int) =
         // cell to the right is in range
-        data.isInRange(index)
+        isInRange(list, index)
             // cell to the left is in range
-            || data.isInRange(index - 1)
+            || isInRange(list, index - 1)
             // allow selecting leftmost edge of empty list
-            || (index == 0 && data.list.size == 0)
+            || (index == 0 && list.isEmpty())
 
     private fun postRunAction(data: SplicingTableData) {
         selection = data.selection
-
-        // if there is no list, or the list is too short to fill the screen, set the start index to 0
-        // otherwise, clamp the start index such that the end index stays in range
-        val lastIndex = data.list?.lastIndex ?: 0
-        val maxStartIndex = lastIndex - VIEW_END_INDEX_OFFSET
-        viewStartIndex = if (maxStartIndex > 0) data.viewStartIndex.coerceIn(0, maxStartIndex) else 0
+        viewStartIndex = data.viewStartIndex
+        clampView(data.level, data)
 
         if (data.shouldConsumeMedia) {
             media = (media - mediaCost).coerceIn(0, maxMedia)
             refillMedia()
+        }
+    }
+
+    private fun clampView(level: ServerLevel, data: SplicingTableData?) {
+        val list = if (data != null) {
+            data.list
+        } else {
+            listHolder?.let { it.readIota(level) as? ListIota }?.list?.toMutableList()
+        }
+
+        if (list != null) {
+            val lastIndex = list.lastIndex
+            val maxStartIndex = max(0, lastIndex - VIEW_END_INDEX_OFFSET)
+
+            // TODO: gracefully degrade rather than just wiping the whole selection?
+            when (val selection = selection) {
+                is Selection.Range -> if (!isInRange(list, selection.end)) {
+                    this.selection = null
+                }
+                is Selection.Edge -> if (!isEdgeInRange(list, selection.index)) {
+                    this.selection = null
+                }
+                null -> {}
+            }
+
+            viewStartIndex = viewStartIndex.coerceIn(0, maxStartIndex)
+        } else {
+            selection = null
+            viewStartIndex = 0
         }
     }
 
@@ -293,6 +331,18 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
             media += extracted
         }
     }
+
+    override fun readIotaTag() = listHolder?.readIotaTag()
+
+    override fun writeIota(iota: Iota?, simulate: Boolean): Boolean {
+        val success = listHolder?.writeIota(iota, simulate) ?: false
+        if (!simulate && success) {
+            sync()
+        }
+        return success
+    }
+
+    override fun writeable() = listHolder?.writeable() ?: false
 
     companion object {
         private val config get() = HexDebugConfig.server

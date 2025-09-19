@@ -63,8 +63,6 @@ open class SplicingTableData(
             viewStartIndex = value - VIEW_END_INDEX_OFFSET
         }
 
-    fun isInRange(index: Int) = list?.let { index in it.indices } ?: false
-
     fun pushUndoState(
         list: Option<List<Iota>> = None(),
         clipboard: Option<Iota?> = None(),
