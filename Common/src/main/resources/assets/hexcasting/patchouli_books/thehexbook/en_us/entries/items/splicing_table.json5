@@ -18,20 +18,24 @@
     },
     {
       type: "patchouli:text",
-      text: "hexdebug.category.items.entry.splicing_table.page.4",
+      text: "hexdebug.category.items.entry.splicing_table.page.actions",
     },
     {
       type: "patchouli:text",
-      text: "hexdebug.category.items.entry.splicing_table.page.5",
+      text: "hexdebug.category.items.entry.splicing_table.page.secondary",
     },
     {
       type: "patchouli:text",
-      text: "hexdebug.category.items.entry.splicing_table.page.6",
+      text: "hexdebug.category.items.entry.splicing_table.page.staff",
     },
     {
       type: "patchouli:text",
       anchor: "cost",
       text: "hexdebug.category.items.entry.splicing_table.page.cost",
+    },
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.items.entry.splicing_table.page.patterns",
     },
     {
       type: "patchouli:crafting",
