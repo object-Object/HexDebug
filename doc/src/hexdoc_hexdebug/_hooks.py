@@ -2,6 +2,7 @@ from importlib.resources import Package
 
 from hexdoc.plugin import (
     HookReturn,
+    LoadTaggedUnionsImpl,
     ModPlugin,
     ModPluginImpl,
     ModPluginWithBook,
@@ -11,11 +12,17 @@ from typing_extensions import override
 
 import hexdoc_hexdebug
 
+from . import recipes
 from .__gradle_version__ import FULL_VERSION, MINECRAFT_VERSION, MOD_VERSION
 from .__version__ import PY_VERSION
 
 
-class HexDebugPlugin(ModPluginImpl):
+class HexDebugPlugin(LoadTaggedUnionsImpl, ModPluginImpl):
+    @staticmethod
+    @hookimpl
+    def hexdoc_load_tagged_unions() -> HookReturn[Package]:
+        return [recipes]
+
     @staticmethod
     @hookimpl
     def hexdoc_mod_plugin(branch: str) -> ModPlugin:

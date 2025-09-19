@@ -1,0 +1,31 @@
+{
+  name: "hexdebug.category.items.entry.focus_holder",
+  category: "hexcasting:items",
+  icon: "hexdebug:focus_holder",
+  advancement: "hexcasting:root",
+  pages: [
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.items.entry.focus_holder.page.1",
+    },
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.items.entry.focus_holder.page.2",
+    },
+    {
+      type: "patchouli:crafting",
+      recipe: "hexdebug:focus_holder",
+      anchor: "focus_holder",
+      text: "hexdebug.category.items.entry.focus_holder.page.recipe",
+    },
+    {
+      type: "patchouli:crafting",
+      recipe: "hexdebug:focus_holder_filling_shaped/new_holder",
+      recipe2: "hexdebug:focus_holder_filling_shaped/new_focus",
+    },
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.items.entry.focus_holder.page.3",
+    }
+  ],
+}

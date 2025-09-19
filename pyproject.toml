@@ -40,7 +40,7 @@ dependencies = [
 
 [tool.hatch.metadata.hooks.version-catalog.optional-dependencies]
 dev = [
-    "ruff~=0.3.7",
+    "ruff~=0.13.1",
 ]
 
 # directory inclusion
@@ -103,7 +103,7 @@ exclude = [
     "**/__pycache__",
 ]
 
-typeCheckingMode = "basic"
+typeCheckingMode = "standard"
 
 strictDictionaryInference = true
 strictListInference = true
