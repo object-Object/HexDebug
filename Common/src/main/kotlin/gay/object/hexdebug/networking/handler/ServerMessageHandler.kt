@@ -15,8 +15,7 @@ fun HexDebugMessageC2S.applyOnServer(ctx: PacketContext) = ctx.queue {
 
         is MsgSplicingTableActionC2S -> {
             val menu = SplicingTableMenu.getInstance(ctx.player) ?: return@queue
-            val newSelection = menu.table.runAction(action, ctx.player as? ServerPlayer, selection)
-            MsgSplicingTableNewSelectionS2C(newSelection).sendToPlayer(ctx.player as ServerPlayer)
+            menu.table.runAction(action, ctx.player as? ServerPlayer)
         }
 
         is MsgSplicingTableGetDataC2S -> {
@@ -25,9 +24,18 @@ fun HexDebugMessageC2S.applyOnServer(ctx: PacketContext) = ctx.queue {
 
         is MsgSplicingTableNewStaffPatternC2S -> {
             val menu = SplicingTableMenu.getInstance(player) ?: return@queue
-            val (newSelection, resolutionType) = menu.table.drawPattern(player, pattern, index, selection)
-            MsgSplicingTableNewSelectionS2C(newSelection).sendToPlayer(player)
+            val resolutionType = menu.table.drawPattern(player, pattern, index)
             MsgSplicingTableNewStaffPatternS2C(resolutionType, index).sendToPlayer(player)
+        }
+
+        is MsgSplicingTableSelectIndexC2S -> {
+            val menu = SplicingTableMenu.getInstance(ctx.player) ?: return@queue
+            menu.table.selectIndex(
+                player = ctx.player as? ServerPlayer,
+                index = index,
+                hasShiftDown = hasShiftDown,
+                isIota = isIota,
+            )
         }
     }
 }

@@ -6,7 +6,10 @@ enum class SplicingTableDataSlot {
     MEDIA_0,
     MEDIA_1,
     MEDIA_2,
-    MEDIA_3;
+    MEDIA_3,
+    SELECTION_FROM,
+    SELECTION_TO,
+    VIEW_START_INDEX;
 
     val index = ordinal
 

@@ -2,7 +2,9 @@ package gay.`object`.hexdebug.gui.splicing
 
 import at.petrak.hexcasting.api.mod.HexTags
 import at.petrak.hexcasting.api.utils.isMediaItem
+import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
+import gay.`object`.hexdebug.blocks.base.ContainerDataSelectionDelegate
 import gay.`object`.hexdebug.blocks.splicing.ClientSplicingTableContainer
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableDataSlot
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableItemSlot
@@ -49,6 +51,17 @@ class SplicingTableMenu(
         index3 = SplicingTableDataSlot.MEDIA_3.index,
     )
 
+    val selection by ContainerDataSelectionDelegate(
+        data,
+        fromIndex = SplicingTableDataSlot.SELECTION_FROM.index,
+        toIndex = SplicingTableDataSlot.SELECTION_TO.index,
+    )
+
+    val viewStartIndex by ContainerDataDelegate(
+        data,
+        index = SplicingTableDataSlot.VIEW_START_INDEX.index,
+    )
+
     var clientView = SplicingTableClientView.empty()
 
     val mediaSlot: Slot
@@ -89,6 +102,7 @@ class SplicingTableMenu(
 
         addDataSlots(data)
 
+        // note: it seems like this ONLY runs on the server?
         addSlotListener(object : ContainerListener {
             override fun slotChanged(menu: AbstractContainerMenu, index: Int, stack: ItemStack) {
                 when (index) {

@@ -5,9 +5,12 @@ import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.casting.math.HexPattern
 import at.petrak.hexcasting.api.utils.extractMedia
+import at.petrak.hexcasting.api.utils.getInt
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.blocks.base.BaseContainer
+import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
+import gay.`object`.hexdebug.blocks.base.ContainerDataSelectionDelegate
 import gay.`object`.hexdebug.casting.eval.FakeCastEnv
 import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.gui.splicing.SplicingTableMenu
@@ -50,20 +53,40 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         index3 = SplicingTableDataSlot.MEDIA_3.index,
     )
 
+    private var selection by ContainerDataSelectionDelegate(
+        containerData,
+        fromIndex = SplicingTableDataSlot.SELECTION_FROM.index,
+        toIndex = SplicingTableDataSlot.SELECTION_TO.index,
+    )
+
+    private var viewStartIndex by ContainerDataDelegate(
+        containerData,
+        index = SplicingTableDataSlot.VIEW_START_INDEX.index,
+    )
+
     val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0
 
+    // TODO: save?
     private val undoStack = UndoStack()
 
     override fun load(tag: CompoundTag) {
         super.load(tag)
         ContainerHelper.loadAllItems(tag, stacks)
         media = tag.getLong("media")
+        selection = Selection.fromRawIndices(
+            from = tag.getInt("selectionFrom", -1),
+            to = tag.getInt("selectionTo", -1),
+        )
+        viewStartIndex = tag.getInt("viewStartIndex")
     }
 
     override fun saveAdditional(tag: CompoundTag) {
         super.saveAdditional(tag)
         ContainerHelper.saveAllItems(tag, stacks)
         tag.putLong("media", media)
+        tag.putInt("selectionFrom", selection?.from ?: -1)
+        tag.putInt("selectionTo", selection?.to ?: -1)
+        tag.putInt("viewStartIndex", viewStartIndex)
     }
 
     override fun createMenu(i: Int, inventory: Inventory, player: Player) =
@@ -77,18 +100,29 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     }
 
     /** Only returns null if it fails to convert `this.level` to [ServerLevel]. */
-    private fun getData(player: ServerPlayer?, selection: Selection?): SplicingTableData? {
+    private fun getData(player: ServerPlayer?): SplicingTableData? {
         return SplicingTableData(
             player = player,
             level = level as? ServerLevel ?: return null,
             undoStack = undoStack,
             selection = selection,
+            viewStartIndex = viewStartIndex,
             listHolder = IXplatAbstractions.INSTANCE.findDataHolder(listStack),
             clipboardHolder = IXplatAbstractions.INSTANCE.findDataHolder(clipboardStack),
         )
     }
 
-    override fun getClientView() = getData(null, null)?.run {
+    private fun setupUndoStack(data: SplicingTableData) {
+        if (undoStack.size == 0) {
+            data.pushUndoState(
+                list = Some(data.list.orEmpty()),
+                clipboard = Some(data.clipboard),
+                selection = Some(selection),
+            )
+        }
+    }
+
+    override fun getClientView() = getData(null)?.run {
         val env = FakeCastEnv(level)
         SplicingTableClientView(
             list = list?.map { IotaClientView(it, env) },
@@ -101,9 +135,11 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
     }
 
     override fun listStackChanged(stack: ItemStack) {
-        // when the list item is removed, clear the undo stack
+        // when the list item is removed, clear the undo stack, selection, and view index
         if (stack.isEmpty) {
             undoStack.clear()
+            selection = null
+            viewStartIndex = 0
         }
     }
 
@@ -119,65 +155,123 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(
         }
     }
 
-    override fun runAction(action: SplicingTableAction, player: ServerPlayer?, selection: Selection?): Selection? {
-        if (media < mediaCost) return selection
-        val data = getData(player, selection) ?: return selection
-        if (undoStack.size == 0) {
-            data.pushUndoState(
-                list = Some(data.list.orEmpty()),
-                clipboard = Some(data.clipboard),
-                selection = Some(selection),
-            )
-        }
-        return convertAndRun(action.value, data)
+    override fun runAction(action: SplicingTableAction, player: ServerPlayer?) {
+        if (media < mediaCost) return
+        val data = getData(player) ?: return
+        setupUndoStack(data)
+        convertAndRun(action.value, data)
     }
 
     private fun <T : SplicingTableData> convertAndRun(
         actionValue: SplicingTableAction.Value<T>,
         data: SplicingTableData,
-    ): Selection? {
-        val converted = actionValue.convert(data) ?: return data.selection
-        return actionValue.run(converted).also { consumeMedia(converted) }
+    ) {
+        val converted = actionValue.convert(data) ?: return
+        actionValue.run(converted)
+        postRunAction(converted)
     }
 
-    override fun drawPattern(
-        player: ServerPlayer?,
-        pattern: HexPattern,
-        index: Int,
-        selection: Selection?
-    ): Pair<Selection?, ResolvedPatternType> {
-        val errorResult = selection to ResolvedPatternType.ERRORED
-        if (media < mediaCost) return errorResult
-        val data = getData(player, selection)
+    override fun drawPattern(player: ServerPlayer?, pattern: HexPattern, index: Int): ResolvedPatternType {
+        if (media < mediaCost) return ResolvedPatternType.ERRORED
+        val data = getData(player)
             ?.let(ReadWriteList::convertOrNull)
-            ?: return errorResult
-        if (undoStack.size == 0) {
-            data.pushUndoState(
-                list = Some(data.list),
-                clipboard = Some(data.clipboard),
-                selection = Some(selection),
-            )
-        }
-        return drawPattern(pattern, data).also { consumeMedia(data) }
+            ?: return ResolvedPatternType.ERRORED
+        setupUndoStack(data)
+        val result = drawPattern(pattern, data)
+        postRunAction(data)
+        return result
     }
 
     private fun drawPattern(pattern: HexPattern, data: ReadWriteList) = data.run {
-        selection.mutableSubList(list).apply {
+        typedSelection.mutableSubList(list).apply {
             clear()
             add(PatternIota(pattern))
         }
         if (writeList(list)) {
             shouldConsumeMedia = true
+            selection = Selection.edge(typedSelection.start + 1)
             pushUndoState(
                 list = Some(list),
-                selection = Some(Selection.edge(selection.start + 1)),
-            ) to ResolvedPatternType.ESCAPED
+                selection = Some(selection),
+            )
+            ResolvedPatternType.ESCAPED
         } else {
-            selection to ResolvedPatternType.ERRORED
+            ResolvedPatternType.ERRORED
         }
     }
 
-    private fun consumeMedia(data: SplicingTableData) {
+    override fun selectIndex(player: ServerPlayer?, index: Int, hasShiftDown: Boolean, isIota: Boolean) {
+        // scuffed: we don't really need the player here, but the code assumes it's present
+        val data = getData(player)
+            ?.let(ReadList::convertOrNull)
+            ?: return
+
+        if (isIota) {
+            selectIota(data, index, hasShiftDown)
+        } else {
+            selectEdge(data, index, hasShiftDown)
+        }
+    }
+
+    private fun selectIota(data: ReadList, index: Int, hasShiftDown: Boolean) {
+        if (!data.isInRange(index)) return
+
+        val selection = selection
+        this.selection = if (isOnlyIotaSelected(index)) {
+            null
+        } else if (hasShiftDown && selection != null) {
+            if (selection is Selection.Edge && index < selection.from) {
+                Selection.of(selection.from - 1, index)
+            } else {
+                Selection.of(selection.from, index)
+            }
+        } else {
+            Selection.withSize(index, 1)
+        }
+    }
+
+    private fun selectEdge(data: ReadList, index: Int, hasShiftDown: Boolean) {
+        if (!isEdgeInRange(data, index)) return
+
+        val selection = selection
+        this.selection = if (isEdgeSelected(index)) {
+            null
+        } else if (hasShiftDown && selection != null) {
+            if (selection is Selection.Edge && index < selection.from) {
+                Selection.of(selection.from - 1, index)
+            } else if (index > selection.from) {
+                Selection.of(selection.from, index - 1)
+            } else {
+                Selection.of(selection.from, index)
+            }
+        } else {
+            Selection.edge(index)
+        }
+    }
+
+    private fun isOnlyIotaSelected(index: Int) =
+        selection?.let { it.size == 1 && it.from == index } ?: false
+
+    private fun isEdgeSelected(index: Int) =
+        selection?.let { it.start == index && it.end == null } ?: false
+
+    private fun isEdgeInRange(data: ReadList, index: Int) =
+        // cell to the right is in range
+        data.isInRange(index)
+            // cell to the left is in range
+            || data.isInRange(index - 1)
+            // allow selecting leftmost edge of empty list
+            || (index == 0 && data.list.size == 0)
+
+    private fun postRunAction(data: SplicingTableData) {
+        selection = data.selection
+
+        // if there is no list, or the list is too short to fill the screen, set the start index to 0
+        // otherwise, clamp the start index such that the end index stays in range
+        val lastIndex = data.list?.lastIndex ?: 0
+        val maxStartIndex = lastIndex - VIEW_END_INDEX_OFFSET
+        viewStartIndex = if (maxStartIndex > 0) data.viewStartIndex.coerceIn(0, maxStartIndex) else 0
+
         if (data.shouldConsumeMedia) {
             media = (media - mediaCost).coerceIn(0, maxMedia)
             refillMedia()

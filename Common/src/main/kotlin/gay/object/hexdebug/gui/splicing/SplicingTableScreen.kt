@@ -6,6 +6,7 @@ import at.petrak.hexcasting.common.lib.HexSounds
 import com.mojang.blaze3d.systems.RenderSystem
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.gui.splicing.widgets.*
+import gay.`object`.hexdebug.splicing.IOTA_BUTTONS
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
 import gay.`object`.hexdebug.splicing.toHexpatternSource
@@ -16,10 +17,7 @@ import gay.`object`.hexdebug.utils.fred
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
-import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Renderable
-import net.minecraft.client.gui.components.Tooltip
-import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
@@ -40,22 +38,21 @@ class SplicingTableScreen(
         imageHeight = 193
     }
 
-    var selection: Selection? = null
-        set(value) {
-            field = value
-            reloadData()
-        }
-
     val data get() = menu.clientView
+    val selection get() = menu.selection
+    val viewStartIndex get() = menu.viewStartIndex
 
     private val hasMediaItem get() = menu.mediaSlot.hasItem()
     val hasStaffItem get() = menu.staffSlot.hasItem()
+
+    private var prevSelection: Selection? = selection
+    private var prevViewStartIndex = viewStartIndex
 
     var guiSpellcasting = GuiSpellcasting(
         InteractionHand.MAIN_HAND, mutableListOf(), listOf(), null, 1
     ).apply {
         mixin.`onDrawSplicingTablePattern$hexdebug` = BiConsumer { pattern, index ->
-            menu.table.drawPattern(null, pattern, index, selection)
+            menu.table.drawPattern(null, pattern, index)
         }
     }
 
@@ -108,17 +105,6 @@ class SplicingTableScreen(
     val exportButtonHeight = 24
 
     private val predicateButtons = mutableListOf<Pair<AbstractButton, () -> Boolean>>()
-
-    private var viewStartIndex = 0
-        set(value) {
-            val clamped = if (data.list?.let { it.size > IOTA_BUTTONS } == true) {
-                value.coerceIn(0..data.lastIndex - IOTA_BUTTONS + 1)
-            } else 0
-            if (field != clamped) {
-                field = clamped
-                reloadData()
-            }
-        }
 
     private var clearGridButton: SpriteButton? = null
 
@@ -181,33 +167,43 @@ class SplicingTableScreen(
 
             // move view
 
-            SpriteButton(
-                x = leftPos + 4,
-                y = topPos + 25,
-                uOffset = 256,
-                vOffset = 0,
-                width = 10,
-                height = 10,
-                message = buttonText("view_left"),
-            ) { // onPress
-                moveView(-1)
-            } to { // test
-                viewStartIndex > 0
-            },
+            *listOf(
+                SplicingTableAction.VIEW_LEFT to { !hasShiftDown() && !hasControlDown() },
+                SplicingTableAction.VIEW_LEFT_PAGE to { hasShiftDown() && !hasControlDown() },
+                SplicingTableAction.VIEW_LEFT_FULL to { hasControlDown() },
+            ).map { (action, shouldBeVisible) ->
+                object : SpriteButton(
+                    x = leftPos + 4,
+                    y = topPos + 25,
+                    uOffset = 256,
+                    vOffset = 0,
+                    width = 10,
+                    height = 10,
+                    message = action.buttonText,
+                    onPress = action.onPress,
+                ) {
+                    override fun testVisible() = shouldBeVisible()
+                } to action.test
+            }.toTypedArray(),
 
-            SpriteButton(
-                x = leftPos + 178,
-                y = topPos + 25,
-                uOffset = 266,
-                vOffset = 0,
-                width = 10,
-                height = 10,
-                message = buttonText("view_right"),
-            ) { // onPress
-                moveView(1)
-            } to { // test
-                viewStartIndex < data.lastIndex - IOTA_BUTTONS + 1
-            },
+            *listOf(
+                SplicingTableAction.VIEW_RIGHT to { !hasShiftDown() && !hasControlDown() },
+                SplicingTableAction.VIEW_RIGHT_PAGE to { hasShiftDown() && !hasControlDown() },
+                SplicingTableAction.VIEW_RIGHT_FULL to { hasControlDown() },
+            ).map { (action, shouldBeVisible) ->
+                object : SpriteButton(
+                    x = leftPos + 178,
+                    y = topPos + 25,
+                    uOffset = 266,
+                    vOffset = 0,
+                    width = 10,
+                    height = 10,
+                    message = action.buttonText,
+                    onPress = action.onPress,
+                ) {
+                    override fun testVisible() = shouldBeVisible()
+                } to action.test
+            }.toTypedArray(),
 
             // around main item slot
 
@@ -261,33 +257,25 @@ class SplicingTableScreen(
 
             // right side
 
-            SpriteButton(
+            actionSpriteButton(
                 x = leftPos + 144,
                 y = topPos + 64,
                 uOffset = 284,
                 vOffset = 16,
                 width = 18,
                 height = 11,
-                message = buttonText("select_none"),
-            ) { // onPress
-                selection = null
-            } to { // test
-                selection != null
-            },
+                action = SplicingTableAction.SELECT_NONE,
+            ),
 
-            SpriteButton(
+            actionSpriteButton(
                 x = leftPos + 165,
                 y = topPos + 64,
                 uOffset = 305,
                 vOffset = 16,
                 width = 18,
                 height = 11,
-                message = buttonText("select_all"),
-            ) { // onPress
-                selection = Selection.range(0, data.lastIndex)
-            } to { // test
-                selection?.start != 0 || selection?.end != data.lastIndex
-            },
+                action = SplicingTableAction.SELECT_ALL,
+            ),
 
             actionSpriteButton(
                 x = leftPos + 144,
@@ -386,31 +374,19 @@ class SplicingTableScreen(
         minecraft?.keyboardHandler?.clipboard = export
     }
 
-    private fun moveView(direction: Int) {
-        viewStartIndex = if (hasControlDown()) {
-            // start/end
-            if (direction >= 0) {
-                data.lastIndex
-            } else {
-                0
-            }
-        } else if (hasShiftDown()) {
-            // full screen
-            viewStartIndex + direction * IOTA_BUTTONS
-        } else {
-            // single iota
-            viewStartIndex + direction
+    // state sync
+
+    // since we're storing these in the container data, we can't send our own packet to trigger a reload, otherwise it desyncs
+    // so just check every tick
+    private fun pollForChanges() {
+        if (selection != prevSelection || viewStartIndex != prevViewStartIndex) {
+            prevSelection = selection
+            prevViewStartIndex = viewStartIndex
+            reloadData()
         }
     }
 
-    // state sync
-
     fun reloadData() {
-        if (!data.isListReadable) {
-            // these conditions are necessary to avoid an infinite loop
-            if (selection != null) selection = null
-            if (viewStartIndex != 0) viewStartIndex = 0
-        }
         updateActiveButtons()
         for (child in children()) {
             if (child is SplicingTableButton) {
@@ -459,17 +435,11 @@ class SplicingTableScreen(
 
     private val SplicingTableAction.buttonText get() = buttonText(name.lowercase())
 
-    private val SplicingTableAction.onPress get(): () -> Unit = { menu.table.runAction(this, null, selection) }
+    private val SplicingTableAction.onPress get(): () -> Unit = { menu.table.runAction(this, null) }
 
-    private val SplicingTableAction.test get(): () -> Boolean = { value.test(data, selection) }
+    private val SplicingTableAction.test get(): () -> Boolean = { value.test(data, selection, viewStartIndex) }
 
     // GUI functionality
-
-    private fun isIotaSelected(index: Int) = selection?.let { index in it } ?: false
-
-    private fun isOnlyIotaSelected(index: Int) = selection?.let { it.size == 1 && it.from == index } ?: false
-
-    private fun isEdgeSelected(index: Int) = selection?.let { it.start == index && it.end == null } ?: false
 
     private fun isEdgeInRange(index: Int) =
         // cell to the right is in range
@@ -480,39 +450,21 @@ class SplicingTableScreen(
         || (index == 0 && data.list?.size == 0)
 
     private fun onSelectIota(index: Int) {
-        if (!data.isInRange(index)) return
-
-        val selection = selection
-        this.selection = if (isOnlyIotaSelected(index)) {
-            null
-        } else if (Screen.hasShiftDown() && selection != null) {
-            if (selection is Selection.Edge && index < selection.from) {
-                Selection.of(selection.from - 1, index)
-            } else {
-                Selection.of(selection.from, index)
-            }
-        } else {
-            Selection.withSize(index, 1)
-        }
+        menu.table.selectIndex(
+            player = null,
+            index = index,
+            hasShiftDown = hasShiftDown(),
+            isIota = true,
+        )
     }
 
     private fun onSelectEdge(index: Int) {
-        if (!isEdgeInRange(index)) return
-
-        val selection = selection
-        this.selection = if (isEdgeSelected(index)) {
-            null
-        } else if (Screen.hasShiftDown() && selection != null) {
-            if (selection is Selection.Edge && index < selection.from) {
-                Selection.of(selection.from - 1, index)
-            } else if (index > selection.from) {
-                Selection.of(selection.from, index - 1)
-            } else {
-                Selection.of(selection.from, index)
-            }
-        } else {
-            Selection.edge(index)
-        }
+        menu.table.selectIndex(
+            player = null,
+            index = index,
+            hasShiftDown = hasShiftDown(),
+            isIota = false,
+        )
     }
 
     // staff delegation stuff
@@ -591,6 +543,7 @@ class SplicingTableScreen(
     // rendering
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+        pollForChanges()
         renderBackground(guiGraphics)
         super.render(guiGraphics, mouseX, mouseY, partialTick)
         renderTooltip(guiGraphics, mouseX, mouseY)
@@ -672,8 +625,6 @@ class SplicingTableScreen(
     companion object {
         val TEXTURE = HexDebug.id("textures/gui/splicing_table.png")
 
-        const val IOTA_BUTTONS = 9
-
         const val MAX_DIGIT_LEN = 4
         val MAX_DIGIT = 10f.pow(MAX_DIGIT_LEN).toInt() - 1
 
@@ -723,13 +674,6 @@ class SplicingTableScreen(
 
         fun blitSprite(guiGraphics: GuiGraphics, x: Int, y: Int, uOffset: Int, vOffset: Int, width: Int, height: Int) {
             guiGraphics.blit(TEXTURE, x, y, uOffset.toFloat(), vOffset.toFloat(), width, height, 512, 512)
-        }
-
-        // TODO: remove when we have icons for the remaining buttons
-        fun button(name: String, onPress: Button.OnPress): Button.Builder {
-            val message = buttonKey(name).asTranslatedComponent
-            return Button.builder(message, onPress)
-                .tooltip(Tooltip.create(message))
         }
 
         fun buttonText(name: String, vararg args: Any) = buttonKey(name).asTranslatedComponent(*args)

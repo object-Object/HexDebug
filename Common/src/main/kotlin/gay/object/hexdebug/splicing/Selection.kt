@@ -1,6 +1,6 @@
 package gay.`object`.hexdebug.splicing
 
-import net.minecraft.network.FriendlyByteBuf
+import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 
@@ -26,6 +26,14 @@ sealed class Selection private constructor(val from: Int, open val to: Int?) {
     fun <T> subList(list: List<T>) = list.subList(start, end?.plus(1) ?: start).toList()
 
     fun <T> mutableSubList(list: MutableList<T>) = list.subList(start, end?.plus(1) ?: start)
+
+    override fun equals(other: Any?): Boolean {
+        return other is Selection && from == other.from && to == other.to
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(from, to)
+    }
 
     class Range private constructor(from: Int, override val to: Int) : Selection(from, to) {
         override val start = min(from, to)
@@ -72,25 +80,11 @@ sealed class Selection private constructor(val from: Int, open val to: Int?) {
         fun range(from: Int, to: Int) = Range.of(from, to)
 
         fun edge(index: Int) = Edge.of(index)
-    }
-}
 
-/** Writes an optional [Selection] to the buffer. */
-fun FriendlyByteBuf.writeSelection(selection: Selection?) {
-    writeNullable(selection) { buf, value ->
-        value.also {
-            buf.writeInt(it.from)
-            buf.writeNullable(it.to, FriendlyByteBuf::writeInt)
+        fun fromRawIndices(from: Int, to: Int) = when {
+            from < 0 -> null
+            to < 0 -> edge(from)
+            else -> range(from, to)
         }
-    }
-}
-
-/** Reads an optional [Selection] from the buffer. */
-fun FriendlyByteBuf.readSelection(): Selection? {
-    return readNullable { buf ->
-        Selection.of(
-            from = buf.readInt(),
-            to = buf.readNullable(FriendlyByteBuf::readInt),
-        )
     }
 }

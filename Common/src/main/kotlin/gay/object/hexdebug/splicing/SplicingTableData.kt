@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
 interface SplicingTableDataConverter<T : SplicingTableData> {
-    fun test(view: SplicingTableClientView, selection: Selection?): Boolean
+    fun test(view: SplicingTableClientView, selection: Selection?, viewStartIndex: Int): Boolean
 
     fun convert(data: SplicingTableData): T
 
@@ -24,11 +24,13 @@ interface SplicingTableDataConverter<T : SplicingTableData> {
     }
 }
 
+/** Server-side data used by splicing table action implementations. */
 open class SplicingTableData(
     open val player: ServerPlayer?,
     val level: ServerLevel,
     val undoStack: UndoStack,
-    open val selection: Selection?,
+    var selection: Selection?,
+    var viewStartIndex: Int,
     open val list: MutableList<Iota>?,
     open val listWriter: ADIotaHolder?,
     open val clipboard: Iota?,
@@ -40,6 +42,7 @@ open class SplicingTableData(
         level: ServerLevel,
         undoStack: UndoStack,
         selection: Selection?,
+        viewStartIndex: Int,
         listHolder: ADIotaHolder?,
         clipboardHolder: ADIotaHolder?,
     ) : this(
@@ -47,20 +50,28 @@ open class SplicingTableData(
         level,
         undoStack,
         selection,
+        viewStartIndex,
         list = listHolder?.let { it.readIota(level) as? ListIota }?.list?.toMutableList(),
         listWriter = listHolder?.takeIfWritable(),
         clipboard = clipboardHolder?.readIota(level),
         clipboardWriter = clipboardHolder?.takeIfWritable()
     )
 
+    var viewEndIndex
+        get() = viewStartIndex + VIEW_END_INDEX_OFFSET
+        set(value) {
+            viewStartIndex = value - VIEW_END_INDEX_OFFSET
+        }
+
+    fun isInRange(index: Int) = list?.let { index in it.indices } ?: false
+
     fun pushUndoState(
         list: Option<List<Iota>> = None(),
         clipboard: Option<Iota?> = None(),
         selection: Option<Selection?> = None(),
-    ): Selection? {
+    ) {
         // copy list to avoid mutability issues
         undoStack.push(UndoStack.Entry(list.map { it.toList() }, clipboard, selection))
-        return selection.getOrNull()
     }
 
     fun writeList(value: List<Iota>) = writeIota(listWriter, ListIota(value))
@@ -82,7 +93,7 @@ open class SplicingTableData(
     fun isClipboardTransferSafe(value: List<Iota>) = null == MishapOthersName.getTrueNameFromArgs(value, player)
 
     companion object : SplicingTableDataConverter<SplicingTableData> {
-        override fun test(view: SplicingTableClientView, selection: Selection?) = true
+        override fun test(view: SplicingTableClientView, selection: Selection?, viewStartIndex: Int) = true
         override fun convert(data: SplicingTableData) = data
     }
 }
@@ -92,13 +103,14 @@ open class ReadList(
     level: ServerLevel,
     undoStack: UndoStack,
     selection: Selection?,
+    viewStartIndex: Int,
     override val list: MutableList<Iota>,
     listWriter: ADIotaHolder?,
     clipboard: Iota?,
     clipboardWriter: ADIotaHolder?,
-) : SplicingTableData(player, level, undoStack, selection, list, listWriter, clipboard, clipboardWriter) {
+) : SplicingTableData(player, level, undoStack, selection, viewStartIndex, list, listWriter, clipboard, clipboardWriter) {
     companion object : SplicingTableDataConverter<ReadList> {
-        override fun test(view: SplicingTableClientView, selection: Selection?) = view.isListReadable
+        override fun test(view: SplicingTableClientView, selection: Selection?, viewStartIndex: Int) = view.isListReadable
 
         override fun convert(data: SplicingTableData) = data.run {
             ReadList(
@@ -106,6 +118,7 @@ open class ReadList(
                 level,
                 undoStack,
                 selection,
+                viewStartIndex,
                 list!!,
                 listWriter,
                 clipboard,
@@ -119,14 +132,16 @@ open class ReadWriteList(
     player: ServerPlayer,
     level: ServerLevel,
     undoStack: UndoStack,
-    override val selection: Selection,
+    // hack
+    open val typedSelection: Selection,
+    viewStartIndex: Int,
     override val list: MutableList<Iota>,
     override val listWriter: ADIotaHolder,
     clipboard: Iota?,
     clipboardWriter: ADIotaHolder?,
-) : ReadList(player, level, undoStack, selection, list, listWriter, clipboard, clipboardWriter) {
+) : ReadList(player, level, undoStack, typedSelection, viewStartIndex, list, listWriter, clipboard, clipboardWriter) {
     companion object : SplicingTableDataConverter<ReadWriteList> {
-        override fun test(view: SplicingTableClientView, selection: Selection?) =
+        override fun test(view: SplicingTableClientView, selection: Selection?, viewStartIndex: Int) =
             selection != null && view.run { isListReadable && isListWritable }
 
         override fun convert(data: SplicingTableData) = data.run {
@@ -135,6 +150,7 @@ open class ReadWriteList(
                 level,
                 undoStack,
                 selection!!,
+                viewStartIndex,
                 list!!,
                 listWriter!!,
                 clipboard,
@@ -148,14 +164,15 @@ class ReadWriteListFromClipboard(
     player: ServerPlayer,
     level: ServerLevel,
     undoStack: UndoStack,
-    selection: Selection,
+    typedSelection: Selection,
+    viewStartIndex: Int,
     list: MutableList<Iota>,
     listWriter: ADIotaHolder,
     override val clipboard: Iota,
     clipboardWriter: ADIotaHolder?,
-) : ReadWriteList(player, level, undoStack, selection, list, listWriter, clipboard, clipboardWriter) {
+) : ReadWriteList(player, level, undoStack, typedSelection, viewStartIndex, list, listWriter, clipboard, clipboardWriter) {
     companion object : SplicingTableDataConverter<ReadWriteListFromClipboard> {
-        override fun test(view: SplicingTableClientView, selection: Selection?) =
+        override fun test(view: SplicingTableClientView, selection: Selection?, viewStartIndex: Int) =
             selection != null && view.run { isListReadable && isListWritable && isClipboardReadable }
 
         override fun convert(data: SplicingTableData) = data.run {
@@ -164,6 +181,7 @@ class ReadWriteListFromClipboard(
                 level,
                 undoStack,
                 selection!!,
+                viewStartIndex,
                 list!!,
                 listWriter!!,
                 clipboard!!,
@@ -177,14 +195,15 @@ open class ReadWriteListRange(
     player: ServerPlayer,
     level: ServerLevel,
     undoStack: UndoStack,
-    override val selection: Selection.Range,
+    override val typedSelection: Selection.Range,
+    viewStartIndex: Int,
     list: MutableList<Iota>,
     listWriter: ADIotaHolder,
     clipboard: Iota?,
     clipboardWriter: ADIotaHolder?,
-) : ReadWriteList(player, level, undoStack, selection, list, listWriter, clipboard, clipboardWriter) {
+) : ReadWriteList(player, level, undoStack, typedSelection, viewStartIndex, list, listWriter, clipboard, clipboardWriter) {
     companion object : SplicingTableDataConverter<ReadWriteListRange> {
-        override fun test(view: SplicingTableClientView, selection: Selection?) =
+        override fun test(view: SplicingTableClientView, selection: Selection?, viewStartIndex: Int) =
             selection is Selection.Range && view.run { isListReadable && isListWritable }
 
         override fun convert(data: SplicingTableData) = data.run {
@@ -193,6 +212,7 @@ open class ReadWriteListRange(
                 level,
                 undoStack,
                 selection as Selection.Range,
+                viewStartIndex,
                 list!!,
                 listWriter!!,
                 clipboard,
@@ -206,14 +226,15 @@ class ReadWriteListRangeToClipboard(
     override val player: ServerPlayer,
     level: ServerLevel,
     undoStack: UndoStack,
-    selection: Selection.Range,
+    typedSelection: Selection.Range,
+    viewStartIndex: Int,
     list: MutableList<Iota>,
     listWriter: ADIotaHolder,
     clipboard: Iota?,
     override val clipboardWriter: ADIotaHolder,
-) : ReadWriteListRange(player, level, undoStack, selection, list, listWriter, clipboard, clipboardWriter) {
+) : ReadWriteListRange(player, level, undoStack, typedSelection, viewStartIndex, list, listWriter, clipboard, clipboardWriter) {
     companion object : SplicingTableDataConverter<ReadWriteListRangeToClipboard> {
-        override fun test(view: SplicingTableClientView, selection: Selection?) =
+        override fun test(view: SplicingTableClientView, selection: Selection?, viewStartIndex: Int) =
             selection is Selection.Range && view.run { isListReadable && isListWritable && isClipboardWritable }
 
         override fun convert(data: SplicingTableData) = data.run {
@@ -222,6 +243,7 @@ class ReadWriteListRangeToClipboard(
                 level,
                 undoStack,
                 selection as Selection.Range,
+                viewStartIndex,
                 list!!,
                 listWriter!!,
                 clipboard,
@@ -235,14 +257,15 @@ class ReadListRangeToClipboard(
     player: ServerPlayer,
     level: ServerLevel,
     undoStack: UndoStack,
-    override val selection: Selection.Range,
+    val typedSelection: Selection.Range,
+    viewStartIndex: Int,
     override val list: MutableList<Iota>,
     listWriter: ADIotaHolder?,
     clipboard: Iota?,
     override val clipboardWriter: ADIotaHolder,
-) : ReadList(player, level, undoStack, selection, list, listWriter, clipboard, clipboardWriter) {
+) : ReadList(player, level, undoStack, typedSelection, viewStartIndex, list, listWriter, clipboard, clipboardWriter) {
     companion object : SplicingTableDataConverter<ReadListRangeToClipboard> {
-        override fun test(view: SplicingTableClientView, selection: Selection?) =
+        override fun test(view: SplicingTableClientView, selection: Selection?, viewStartIndex: Int) =
             selection is Selection.Range && view.run { isListReadable && isClipboardWritable }
 
         override fun convert(data: SplicingTableData) = data.run {
@@ -251,6 +274,7 @@ class ReadListRangeToClipboard(
                 level,
                 undoStack,
                 selection as Selection.Range,
+                viewStartIndex,
                 list!!,
                 listWriter,
                 clipboard,

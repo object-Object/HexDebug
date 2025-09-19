@@ -76,10 +76,6 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
             }
         }
 
-        is MsgSplicingTableNewSelectionS2C -> {
-            SplicingTableScreen.getInstance()?.selection = selection
-        }
-
         is MsgSplicingTableNewStaffPatternS2C -> {
             val info = ExecutionClientView(false, resolutionType, listOf(), null)
             SplicingTableScreen.getInstance()?.guiSpellcasting?.recvServerUpdate(info, index)
