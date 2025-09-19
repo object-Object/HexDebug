@@ -22,10 +22,10 @@
       splicing_table: {
         button: {
           view_left: "Move View Left",
-          view_left_page: "Move View Left (Page)",
+          view_left_page: "Move View to Previous Page",
           view_left_full: "Move View to Start",
           view_right: "Move View Right",
-          view_right_page: "Move View Right (Page)",
+          view_right_page: "Move View to Next Page",
           view_right_full: "Move View to End",
           select_none: "Select None",
           select_all: "Select All",
