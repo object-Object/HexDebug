@@ -81,6 +81,10 @@
           showDebugClientLineNumber: {
             "": "Show Debug Client Line Number",
             "@Tooltip": "If true, show the line number (usually 1-indexed) from the debug client (eg. VSCode) in Debugger status messages; otherwise, show the list index (0-indexed)."
+          },
+          invertSplicingTableScrollDirection: {
+            "": "Invert Splicing Table Scroll Direction",
+            "@Tooltip": "Whether scrolling up (as opposed to down) will increase the view index of the splicing table, and vice versa.",
           }
         },
         server: {

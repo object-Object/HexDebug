@@ -5,6 +5,7 @@ import at.petrak.hexcasting.client.gui.GuiSpellcasting
 import at.petrak.hexcasting.common.lib.HexSounds
 import com.mojang.blaze3d.systems.RenderSystem
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.gui.splicing.widgets.*
 import gay.`object`.hexdebug.splicing.IOTA_BUTTONS
 import gay.`object`.hexdebug.splicing.Selection
@@ -24,7 +25,10 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
 import java.awt.Color
 import java.util.function.BiConsumer
+import kotlin.math.absoluteValue
+import kotlin.math.min
 import kotlin.math.pow
+import kotlin.math.roundToInt
 
 @Suppress("SameParameterValue")
 class SplicingTableScreen(
@@ -465,6 +469,41 @@ class SplicingTableScreen(
             hasShiftDown = hasShiftDown(),
             isIota = false,
         )
+    }
+
+    // TODO: limit scroll to certain regions? (let's see if anyone complains first)
+    override fun mouseScrolled(mouseX: Double, mouseY: Double, delta: Double): Boolean {
+        if (super.mouseScrolled(mouseX, mouseY, delta)) return true
+
+        val adjustedDelta = if (HexDebugConfig.client.invertSplicingTableScrollDirection) {
+            delta * -1
+        } else {
+            delta
+        }
+
+        val action = if (adjustedDelta > 0) {
+            when {
+                hasControlDown() -> SplicingTableAction.VIEW_LEFT_FULL
+                hasShiftDown() -> SplicingTableAction.VIEW_LEFT_PAGE
+                else -> SplicingTableAction.VIEW_LEFT
+            }
+        } else {
+            when {
+                hasControlDown() -> SplicingTableAction.VIEW_RIGHT_FULL
+                hasShiftDown() -> SplicingTableAction.VIEW_RIGHT_PAGE
+                else -> SplicingTableAction.VIEW_RIGHT
+            }
+        }
+
+        if (!action.test()) return false
+
+        // hack: limit scrolls per tick to 4 (arbitrary) to prevent DoS
+        // (this could be easily solved by adding a new packet, but lazy)
+        repeat(min(delta.absoluteValue.roundToInt(), 4)) {
+            menu.table.runAction(action, null)
+        }
+
+        return true
     }
 
     // staff delegation stuff

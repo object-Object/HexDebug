@@ -80,6 +80,9 @@ object HexDebugConfig {
 
         @Tooltip
         val showDebugClientLineNumber: Boolean = false
+
+        @Tooltip
+        val invertSplicingTableScrollDirection: Boolean = false
     }
 
     @Config(name = "server")
