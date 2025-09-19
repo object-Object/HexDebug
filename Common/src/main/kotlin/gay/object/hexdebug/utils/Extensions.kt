@@ -4,11 +4,10 @@ import at.petrak.hexcasting.api.HexAPI
 import at.petrak.hexcasting.api.casting.PatternShapeMatch
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import at.petrak.hexcasting.api.casting.eval.SpecialPatterns
-import at.petrak.hexcasting.api.casting.iota.GarbageIota
-import at.petrak.hexcasting.api.casting.iota.Iota
-import at.petrak.hexcasting.api.casting.iota.ListIota
-import at.petrak.hexcasting.api.casting.iota.PatternIota
+import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.api.casting.mishaps.MishapInvalidIota
+import at.petrak.hexcasting.api.casting.mishaps.MishapNotEnoughArgs
 import at.petrak.hexcasting.api.utils.*
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import at.petrak.hexcasting.xplat.IXplatAbstractions
@@ -22,7 +21,9 @@ import java.awt.Color
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.enums.enumEntries
+import kotlin.math.abs
 import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 // futures
 
@@ -187,3 +188,20 @@ val Color.fred get() = red.toFloat() / 255f
 val Color.fgreen get() = green.toFloat() / 255f
 val Color.fblue get() = blue.toFloat() / 255f
 val Color.falpha get() = alpha.toFloat() / 255f
+
+// action helpers
+
+fun List<Iota>.getPositiveIntOrNull(idx: Int, argc: Int = 0): Int? {
+    val x = this.getOrElse(idx) { throw MishapNotEnoughArgs(idx + 1, this.size) }
+    when (x) {
+        is DoubleIota -> {
+            val double = x.double
+            val rounded = double.roundToInt()
+            if (abs(double - rounded) <= DoubleIota.TOLERANCE && rounded >= 0) {
+                return rounded
+            }
+        }
+        is NullIota -> return null
+    }
+    throw MishapInvalidIota.of(x, if (argc == 0) idx else argc - (idx + 1), "int.positive_or_null")
+}

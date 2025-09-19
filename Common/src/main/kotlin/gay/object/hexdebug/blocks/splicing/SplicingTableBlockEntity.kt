@@ -33,6 +33,7 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.SimpleContainerData
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.state.BlockState
 import kotlin.math.max
 import kotlin.math.min
@@ -49,7 +50,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     private var staffStack by SplicingTableItemSlot.STAFF.delegate
 
     private val listHolder get() = IXplatAbstractions.INSTANCE.findDataHolder(listStack)
-    private val clipboardHolder get() = IXplatAbstractions.INSTANCE.findDataHolder(clipboardStack)
+    val clipboardHolder get() = IXplatAbstractions.INSTANCE.findDataHolder(clipboardStack)
 
     private val containerData = SimpleContainerData(SplicingTableDataSlot.size)
 
@@ -61,21 +62,38 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
         index3 = SplicingTableDataSlot.MEDIA_3.index,
     )
 
-    private var selection by ContainerDataSelectionDelegate(
+    var selection by ContainerDataSelectionDelegate(
         containerData,
         fromIndex = SplicingTableDataSlot.SELECTION_FROM.index,
         toIndex = SplicingTableDataSlot.SELECTION_TO.index,
     )
+        private set
 
-    private var viewStartIndex by ContainerDataDelegate(
+    var viewStartIndex by ContainerDataDelegate(
         containerData,
         index = SplicingTableDataSlot.VIEW_START_INDEX.index,
     )
+        private set
 
     val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0
 
     // TODO: save?
     private val undoStack = UndoStack()
+
+    fun getList(level: ServerLevel) =
+        listHolder?.let { it.readIota(level) as? ListIota }?.list
+
+    // for use by actions
+    // can't be called setSelection because that conflicts with the property setter
+    fun writeSelection(selection: Selection?) {
+        this.selection = selection
+        clampView(level)
+    }
+
+    fun writeViewStartIndex(viewStartIndex: Int) {
+        this.viewStartIndex = viewStartIndex
+        clampView(level)
+    }
 
     override fun loadModData(tag: CompoundTag) {
         ContainerHelper.loadAllItems(tag, stacks)
@@ -147,7 +165,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
             selection = null
             viewStartIndex = 0
         } else {
-            (level as? ServerLevel)?.let { clampView(it, null) }
+            clampView(level)
         }
     }
 
@@ -287,11 +305,15 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
         }
     }
 
+    private fun clampView(level: Level?) {
+        (level as? ServerLevel)?.let { clampView(it, null) }
+    }
+
     private fun clampView(level: ServerLevel, data: SplicingTableData?) {
         val list = if (data != null) {
             data.list
         } else {
-            listHolder?.let { it.readIota(level) as? ListIota }?.list?.toMutableList()
+            getList(level)?.toMutableList()
         }
 
         if (list != null) {

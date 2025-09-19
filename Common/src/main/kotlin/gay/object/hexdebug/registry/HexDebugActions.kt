@@ -12,8 +12,10 @@ import at.petrak.hexcasting.common.lib.hex.HexActions
 import gay.`object`.hexdebug.casting.actions.OpBreakpoint
 import gay.`object`.hexdebug.casting.actions.OpIsDebugging
 import gay.`object`.hexdebug.casting.actions.OpNextEvalIndex
+import gay.`object`.hexdebug.casting.actions.splicing.*
 import gay.`object`.hexdebug.casting.iotas.CognitohazardIota
 
+@Suppress("unused")
 object HexDebugActions : HexDebugRegistrar<ActionRegistryEntry>(HexRegistries.ACTION, { HexActions.REGISTRY }) {
     val COGNITOHAZARD = make("const/cognitohazard", HexDir.NORTH_WEST, "wdeaqqdqeedqadqeedqaeadeaqqeadeaqqdqdeaqqeaeedqaw") {
         Action.makeConstantOp(CognitohazardIota())
@@ -28,6 +30,19 @@ object HexDebugActions : HexDebugRegistrar<ActionRegistryEntry>(HexRegistries.AC
     val CRAFT_DEBUGGER = make("craft/debugger", HexDir.SOUTH_WEST, "aaewwwwwaqwawqwadawqwwwawwwqwwwaw") {
         OpMakePackagedSpell(HexDebugItems.DEBUGGER.value as ItemPackagedHex, 10 * MediaConstants.CRYSTAL_UNIT)
     }
+
+    // splicing table
+
+    val READ_SELECTION = make("splicing/selection/read", HexDir.NORTH_WEST, "wqaeaqweeeedq", OpReadSelection)
+    val WRITE_SELECTION = make("splicing/selection/write", HexDir.SOUTH_WEST, "wedqdewqqqqae", OpWriteSelection)
+
+    val READ_VIEW_INDEX = make("splicing/view_index/read", HexDir.NORTH_WEST, "wqaeaqwdwaqaw", OpReadViewIndex)
+    val WRITE_VIEW_INDEX = make("splicing/view_index/write", HexDir.SOUTH_WEST, "wedqdewawdedw", OpWriteViewIndex)
+
+    val READ_CLIPBOARD = make("splicing/clipboard/read", HexDir.NORTH_WEST, "wqaeaqweeeedw", OpReadClipboard)
+    val WRITE_CLIPBOARD = make("splicing/clipboard/write", HexDir.SOUTH_WEST, "wedqdewqqqqaw", OpWriteClipboard)
+    val READABLE_CLIPBOARD = make("splicing/clipboard/readable", HexDir.NORTH_WEST, "wqaeaqweeeedww", OpReadableClipboard)
+    val WRITABLE_CLIPBOARD = make("splicing/clipboard/writable", HexDir.SOUTH_WEST, "wedqdewqqqqaww", OpWritableClipboard)
 
     private fun make(name: String, startDir: HexDir, signature: String, action: Action) =
         make(name, startDir, signature) { action }

@@ -97,20 +97,39 @@
     },
   },
 
-  "hexcasting.action": {
-    "hexdebug:": {
-      "const/debugging": "Debugger's Reflection",
-      "next_eval_index": "Debug Locator's Reflection", // TODO: this name kinda sucks tbh
-      "const/cognitohazard": "Cognitohazard Reflection",
-      "breakpoint/": {
-        before: "Set Breakpoint Before",
-        after: "Set Breakpoint After"
+  hexcasting: {
+    action: {
+      "hexdebug:": {
+        "const/debugging": "Debugger's Reflection",
+        "next_eval_index": "Debug Locator's Reflection", // TODO: this name kinda sucks tbh
+        "const/cognitohazard": "Cognitohazard Reflection",
+        "breakpoint/": {
+          before: "Set Breakpoint Before",
+          after: "Set Breakpoint After"
+        },
+        "craft/debugger": "Craft Debugger",
       },
-      "craft/debugger": "Craft Debugger",
+      "book.hexdebug:": {
+        "next_eval_index": "Debug Locator's Rfln.",
+        "const/cognitohazard": "Cognitohazard Rfln."
+      }
     },
-    "book.hexdebug:": {
-      "next_eval_index": "Debug Locator's Rfln.",
-      "const/cognitohazard": "Cognitohazard Rfln."
+
+    mishap: {
+      bad_block: {
+        splicing_table: {
+          "": "a splicing table",
+          clipboard: {
+            read: "a splicing table with a readable secondary item",
+            write: "a splicing table with a writable secondary item",
+          },
+        },
+      },
+      invalid_value: {
+        int: {
+          positive_or_null: "a positive integer or null"
+        }
+      }
     },
   },
 
