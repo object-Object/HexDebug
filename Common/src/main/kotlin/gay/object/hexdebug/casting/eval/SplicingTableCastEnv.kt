@@ -9,9 +9,12 @@ import at.petrak.hexcasting.api.utils.extractMedia
 import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlockEntity
 import gay.`object`.hexdebug.config.HexDebugConfig
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.phys.Vec3
 import kotlin.math.min
 
@@ -20,6 +23,10 @@ class SplicingTableCastEnv(
     private val table: SplicingTableBlockEntity,
 ) : PlayerBasedCastEnv(caster, InteractionHand.MAIN_HAND) {
     private var sound = HexEvalSounds.NOTHING
+
+    val blockPos: BlockPos get() = table.blockPos
+
+    val facing: Direction get() = table.blockState.getValue(BlockStateProperties.FACING)
 
     override fun postExecution(result: CastResult) {
         super.postExecution(result)
@@ -30,11 +37,11 @@ class SplicingTableCastEnv(
         super.postCast(image)
         table.sync() // TODO: is this necessary?
         sound.sound?.let {
-            world.playSound(null, table.blockPos, it, SoundSource.PLAYERS, 1f, 1f)
+            world.playSound(null, blockPos, it, SoundSource.PLAYERS, 1f, 1f)
         }
     }
 
-    override fun mishapSprayPos(): Vec3 = table.blockPos.center
+    override fun mishapSprayPos(): Vec3 = blockPos.center
 
     override fun extractMediaEnvironment(cost: Long, simulate: Boolean): Long {
         var costLeft = cost
@@ -73,7 +80,7 @@ class SplicingTableCastEnv(
             return true
         }
 
-        return isVecInRadius(vec, table.blockPos.center, HexDebugConfig.server.splicingTableAmbit)
+        return isVecInRadius(vec, blockPos.center, HexDebugConfig.server.splicingTableAmbit)
     }
 
     override fun getCastingHand(): InteractionHand = castingHand

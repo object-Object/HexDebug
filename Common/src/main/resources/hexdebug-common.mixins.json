@@ -11,6 +11,8 @@
     "MixinDatagenMain",
     "MixinMsgShiftScrollC2S",
     "MixinOpEval",
+    "MixinOpImpetusDir",
+    "MixinOpImpetusPos",
     "MixinStaffCastEnv"
   ],
   "plugin": "gay.object.hexdebug.mixin.HexDebugMixinConfigPlugin",
