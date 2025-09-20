@@ -2,7 +2,6 @@ package gay.`object`.hexdebug.gui.splicing
 
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
-import at.petrak.hexcasting.common.lib.HexSounds
 import com.mojang.blaze3d.systems.RenderSystem
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.config.HexDebugConfig
@@ -117,7 +116,6 @@ class SplicingTableScreen(
         super.init()
 
         guiSpellcasting.init(minecraft!!, width, height)
-        Minecraft.getInstance().soundManager.stop(HexSounds.CASTING_AMBIANCE.location, null)
 
         titleLabelX = (imageWidth - font.width(title)) / 2
 
