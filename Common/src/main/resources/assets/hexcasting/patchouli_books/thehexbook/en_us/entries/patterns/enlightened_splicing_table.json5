@@ -1,0 +1,28 @@
+{
+  name: "hexdebug.category.patterns.entry.enlightened_splicing_table",
+  category: "hexcasting:patterns",
+  icon: "hexdebug:enlightened_splicing_table",
+  advancement: "hexcasting:enlightenment",
+  pages: [
+    {
+      type: "hexcasting:pattern",
+      op_id: "hexdebug:splicing/enlightened/hex/write",
+      anchor: "hexdebug:splicing/enlightened/hex/write",
+      input: "vec, list",
+      output: "",
+      text: "hexdebug.category.patterns.entry.enlightened_splicing_table.page.hex/write",
+    },
+    {
+      type: "hexcasting:pattern",
+      op_id: "hexdebug:splicing/enlightened/hex/read",
+      anchor: "hexdebug:splicing/enlightened/hex/read",
+      input: "vec",
+      output: "list | null",
+      text: "hexdebug.category.patterns.entry.enlightened_splicing_table.page.hex/read",
+    },
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.patterns.entry.enlightened_splicing_table.page.circle",
+    },
+  ],
+}

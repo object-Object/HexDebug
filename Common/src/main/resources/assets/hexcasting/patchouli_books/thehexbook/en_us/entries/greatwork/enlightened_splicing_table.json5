@@ -1,0 +1,33 @@
+{
+  name: "hexdebug.category.greatwork.entry.enlightened_splicing_table",
+  category: "hexcasting:greatwork",
+  icon: "hexdebug:enlightened_splicing_table",
+  advancement: "hexcasting:enlightenment",
+  pages: [
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.greatwork.entry.enlightened_splicing_table.page.1",
+    },
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.greatwork.entry.enlightened_splicing_table.page.2",
+    },
+    {
+      type: "hexcasting:brainsweep",
+      recipe: "hexdebug:brainsweep/enlightened_splicing_table",
+      text: "hexdebug.category.greatwork.entry.enlightened_splicing_table.page.recipe",
+    },
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.greatwork.entry.enlightened_splicing_table.page.3",
+    },
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.greatwork.entry.enlightened_splicing_table.page.4",
+    },
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.greatwork.entry.enlightened_splicing_table.page.5",
+    },
+  ],
+}

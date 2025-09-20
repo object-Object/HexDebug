@@ -283,6 +283,24 @@
         },
       },
 
+      greatwork: {
+        entry: {
+          enlightened_splicing_table: {
+            "": "Mindsplice Table",
+            page: {
+              "1": "The $(l:items/splicing_table)$(item)Splicing Table/$ is fine. Adequate. But limited, oh so limited. I have $(italic)seen/$ what is possible now, and I must have it, no matter the cost.$(br2)\
+                I shall MAKE the table think for itself.",
+              "2": "A solution. Yes. Familiar -- almost $(italic)simple/$ in its infinite complexity. As with my $(l:greatwork/impetus)previous insights/$, I can specialize a mind -- sever it from the body, redirect, connect, rewire, $(italic)transform/$ -- for the task at hand. Like an $(l:greatwork/impetus)$(item)Impetus/$... but greater, more complicated, more and more and more and more and-- I MUST FOCUS.",
+              recipe: "Another $(l:greatwork/brainsweeping)$(thing)mindflaying/$ ritual. The task demanded of the mind is almost identical to that of a $(l:greatwork/impetus)$(item)Toolsmith Impetus/$, but more experience is required for this specialized, intricate work.",
+              "3": "The resulting $(thing)Mindsplice Table/$ is almost the same as before, but transmuted, $(italic)improved/$, in a single all-important way. With a mind to channel the patterns, the table can cast $(italic)any/$ _Hex almost effortlessly, triggered by nothing more than the press of a button.$(br)\
+                A small $(l:items/splicing_table#cost)infusion/$ of media is still required to initiate the process -- wasteful, but perhaps less so than my archaic, short-sighted designs of old. For spells, media is drawn from the same source.",
+              "4": "Of course, the flayed mind has limits. It must be $(italic)taught/$; even such a skilled mind cannot predict my needs without some guidance. Unlike an $(l:greatwork/impetus)$(item)Impetus/$, however, slates are not required -- the commands are instead $(l:patterns/enlightened_splicing_table)$(thing)imbued/$ directly into the mind, rewriting its neural pathways and leaving it no choice but to carry out my will.",
+              "5": "To facilitate even more complicated operations -- one $(thing)Mindsplice Table/$ controlling, $(italic)dominating/$, the next, and so on and so on and so on and so on and so on into eternity, if I have the patience and $(l:casting/mishaps)capacity/$ to use it -- the table's influence extends a small distance (four blocks, no more and no less) from the table. Small, yes, but perfectly adequate for most purposes. If more space is needed, my $(l:patterns/great_spells/greater_sentinel#hexcasting:sentinel/create/great)$(action)Greater Sentinel/$ can be used.",
+            },
+          },
+        },
+      },
+
       patterns: {
         entry: {
           debugging: {
@@ -303,6 +321,7 @@
                 Costs about ten $(l:items/amethyst)$(item)Charged Amethyst/$.",
             },
           },
+
           splicing_table: {
             "": "Splicing Table Patterns",
             page: {
@@ -338,6 +357,17 @@
               },
             },
           },
+
+          enlightened_splicing_table: {
+            "": "Mindsplice Table Patterns",
+            page: {
+              "hex/": {
+                read: "Remove a vector from the stack, then push the _Hex currently imbued to the $(l:greatwork/enlightened_splicing_table)$(item)Mindsplice Table/$ at that position, or $(l:casting/influences)$(thing)Null/$ if it has not yet been imbued.",
+                write: "Remove a vector and list of patterns from the stack, then imbue the list of patterns into the $(l:greatwork/enlightened_splicing_table)$(item)Mindsplice Table/$ at that position.",
+              },
+              circle: "In addition to these patterns, I can also cast $(l:patterns/circle#hexcasting:circle/impetus_pos)$(action)Waystone Reflection/$ and $(l:patterns/circle#hexcasting:circle/impetus_dir)$(action)Lodestone Reflection/$ from within a $(l:greatwork/enlightened_splicing_table)$(item)Mindsplice Table/$. However, trying to cast them through a $(l:items/staff)$(item)Staff/$, or trying to cast other $(l:greatwork/spellcircles)$(item)Spell Circle/$-only patterns through a $(l:greatwork/enlightened_splicing_table)$(item)Mindsplice Table/$, will still fail rather spectacularly.",
+            },
+          }
         },
       },
     },
