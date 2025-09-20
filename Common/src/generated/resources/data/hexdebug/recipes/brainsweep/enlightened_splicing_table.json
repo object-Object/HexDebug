@@ -7,7 +7,7 @@
   "cost": 1000000,
   "entityIn": {
     "type": "villager",
-    "minLevel": 2,
+    "minLevel": 3,
     "profession": "toolsmith"
   },
   "result": {

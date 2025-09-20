@@ -55,7 +55,7 @@ class HexDebugRecipes(output: PackOutput) : PaucalRecipeProvider(output, HexDebu
         // enlightened splicing table
         BrainsweepRecipeBuilder(
             StateIngredientHelper.of(HexDebugBlocks.SPLICING_TABLE.value),
-            VillagerIngredient(VillagerProfession.TOOLSMITH, null, 2),
+            VillagerIngredient(VillagerProfession.TOOLSMITH, null, 3),
             HexDebugBlocks.ENLIGHTENED_SPLICING_TABLE.block.defaultBlockState(),
             MediaConstants.CRYSTAL_UNIT * 10,
         )
