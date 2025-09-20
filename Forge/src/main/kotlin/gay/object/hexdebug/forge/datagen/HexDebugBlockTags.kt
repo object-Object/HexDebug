@@ -18,7 +18,8 @@ class HexDebugBlockTags(
 ) : TagsProvider<Block>(output, Registries.BLOCK, registries, HexDebug.MODID, efh) {
     override fun addTags(provider: HolderLookup.Provider) {
         tag(BlockTags.MINEABLE_WITH_PICKAXE).add(
-            HexDebugBlocks.SPLICING_TABLE.key, // TODO: this feels like it should be wood instead of slate
+            HexDebugBlocks.SPLICING_TABLE.key,
+            HexDebugBlocks.ENLIGHTENED_SPLICING_TABLE.key,
             HexDebugBlocks.FOCUS_HOLDER.key,
         )
     }

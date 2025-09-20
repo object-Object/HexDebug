@@ -1,7 +1,9 @@
 package gay.`object`.hexdebug.forge
 
+import at.petrak.hexcasting.forge.datagen.TagsProviderEFHSetter
 import dev.architectury.platform.forge.EventBuses
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.datagen.HexDebugActionTags
 import gay.`object`.hexdebug.forge.datagen.*
 import net.minecraft.data.DataProvider
 import net.minecraft.data.DataProvider.Factory
@@ -31,19 +33,35 @@ class HexDebugForge {
     private fun gatherData(event: GatherDataEvent) {
         event.apply {
             val efh = existingFileHelper
-            addProvider(includeClient()) { HexDebugBlockModels(it, efh) }
-            addProvider(includeClient()) { HexDebugItemModels(it, efh) }
-            addProvider(includeServer()) { HexDebugRecipes(it) }
-            addProvider(includeServer()) { HexDebugItemTags(it, lookupProvider, efh) }
-            addProvider(includeServer()) { HexDebugBlockTags(it, lookupProvider, efh) }
-            addProvider(includeServer()) {
-                LootTableProvider(it, setOf(), listOf(
-                    SubProviderEntry(::HexDebugBlockLootTables, LootContextParamSets.BLOCK),
-                ))
+            when ("true") {
+                System.getProperty("hexdebug.common-datagen") -> {
+                    addProvider(includeClient()) { HexDebugBlockModels(it, efh) }
+                    addProvider(includeClient()) { HexDebugItemModels(it, efh) }
+
+                    addProvider(includeServer()) { HexDebugRecipes(it) }
+                    addProvider(includeServer()) { HexDebugItemTags(it, lookupProvider, efh) }
+                    addProvider(includeServer()) { HexDebugBlockTags(it, lookupProvider, efh) }
+                    addProvider(includeServer()) {
+                        LootTableProvider(it, setOf(), listOf(
+                            SubProviderEntry(::HexDebugBlockLootTables, LootContextParamSets.BLOCK),
+                        ))
+                    }
+                }
+
+                System.getProperty("hexdebug.forge-datagen") -> {
+                    addCommonProvider(includeServer()) { HexDebugActionTags(it, lookupProvider) }
+                }
             }
         }
     }
 }
 
-fun <T : DataProvider> GatherDataEvent.addProvider(run: Boolean, factory: (PackOutput) -> T) =
+private fun <T : DataProvider> GatherDataEvent.addProvider(run: Boolean, factory: (PackOutput) -> T) =
     generator.addProvider(run, Factory { factory(it) })
+
+private fun <T : DataProvider> GatherDataEvent.addCommonProvider(run: Boolean, factory: (PackOutput) -> T) =
+    addProvider(run) { packOutput ->
+        factory(packOutput).also {
+            (it as TagsProviderEFHSetter).setEFH(existingFileHelper)
+        }
+    }

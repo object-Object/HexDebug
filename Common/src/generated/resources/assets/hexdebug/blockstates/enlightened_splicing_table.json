@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "hexdebug:block/enlightened_splicing_table",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "hexdebug:block/enlightened_splicing_table"
+    },
+    "facing=south": {
+      "model": "hexdebug:block/enlightened_splicing_table",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "hexdebug:block/enlightened_splicing_table",
+      "y": 270
+    }
+  }
+}

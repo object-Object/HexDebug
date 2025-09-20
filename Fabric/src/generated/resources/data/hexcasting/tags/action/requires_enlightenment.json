@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "hexdebug:splicing/enlightened/hex/read",
+    "hexdebug:splicing/enlightened/hex/write"
+  ]
+}

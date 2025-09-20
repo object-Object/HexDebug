@@ -17,23 +17,28 @@ loom {
 
         mixinConfig(
             "hexdebug-common.mixins.json",
-            "hexdebug-forge.mixins.json",
         )
     }
 
     runs {
-        register("commonDatagen") {
-            data()
-            programArgs(
-                "--mod", hexdebugProperties.modId,
-                "--all",
-                // we're using forge to do the common datagen because fabric's datagen kind of sucks
-                "--output", project(":Common").file("src/generated/resources").absolutePath,
-                "--existing", file("src/main/resources").absolutePath,
-                "--existing", project(":Common").file("src/main/resources").absolutePath,
-                "--existing-mod", "hexcasting",
-            )
-            property("hexdebug.apply-datagen-mixin", "true")
+        for ((name, outputProject) in arrayOf(
+            // we're using forge to do the common datagen because fabric's datagen kind of sucks
+            "common" to project(":Common"),
+            "forge" to project,
+        )) {
+            register("${name}Datagen") {
+                data()
+                programArgs(
+                    "--mod", hexdebugProperties.modId,
+                    "--all",
+                    "--output", outputProject.file("src/generated/resources").absolutePath,
+                    "--existing", file("src/main/resources").absolutePath,
+                    "--existing", project(":Common").file("src/main/resources").absolutePath,
+                    "--existing-mod", "hexcasting",
+                )
+                property("hexdebug.apply-datagen-mixin", "true")
+                property("hexdebug.$name-datagen", "true")
+            }
         }
     }
 }
@@ -103,11 +108,5 @@ dependencies {
 tasks {
     shadowJar {
         exclude("fabric.mod.json")
-    }
-
-    named("runCommonDatagen") {
-        doFirst {
-            project(":Common").delete("src/generated/resources")
-        }
     }
 }

@@ -62,6 +62,11 @@ class SplicingTableMenu(
         index = SplicingTableDataSlot.VIEW_START_INDEX.index,
     )
 
+    val castingCooldown by ContainerDataDelegate(
+        data,
+        index = SplicingTableDataSlot.CASTING_COOLDOWN.index,
+    )
+
     var clientView = SplicingTableClientView.empty()
 
     val mediaSlot: Slot

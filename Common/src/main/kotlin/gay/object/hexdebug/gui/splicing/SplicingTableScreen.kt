@@ -45,6 +45,7 @@ class SplicingTableScreen(
     val data get() = menu.clientView
     val selection get() = menu.selection
     val viewStartIndex get() = menu.viewStartIndex
+    private val castingCooldown get() = menu.castingCooldown
 
     private val hasMediaItem get() = menu.mediaSlot.hasItem()
     val hasStaffItem get() = menu.staffSlot.hasItem()
@@ -368,6 +369,33 @@ class SplicingTableScreen(
                 width = 6,
                 height = 16,
             )
+        )
+
+        addRenderableWidget(
+            // cast hex (enlightened)
+            // FIXME: placeholder
+            object : SpriteButton(
+                x = leftPos + 194,
+                y = topPos + 44,
+                uOffset = 352,
+                vOffset = 0,
+                width = 18,
+                height = 21,
+                message = buttonText("cast"),
+                onPress = {
+                    menu.table.castHex(null)
+                },
+            ) {
+                override val uOffsetDisabled get() = uOffset
+                override val vOffsetDisabled get() = vOffset
+
+                override fun testVisible() = data.isEnlightened
+
+                override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+                    active = data.hasHex && castingCooldown <= 0
+                    super.render(guiGraphics, mouseX, mouseY, partialTick)
+                }
+            }
         )
 
         reloadData()

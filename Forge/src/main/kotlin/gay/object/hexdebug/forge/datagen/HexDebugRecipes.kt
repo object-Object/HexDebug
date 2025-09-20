@@ -1,8 +1,13 @@
 package gay.`object`.hexdebug.forge.datagen
 
+import at.petrak.hexcasting.api.misc.MediaConstants
 import at.petrak.hexcasting.api.mod.HexTags
 import at.petrak.hexcasting.common.lib.HexBlocks
 import at.petrak.hexcasting.common.lib.HexItems
+import at.petrak.hexcasting.common.recipe.ingredient.StateIngredientHelper
+import at.petrak.hexcasting.common.recipe.ingredient.brainsweep.VillagerIngredient
+import at.petrak.hexcasting.datagen.HexAdvancements
+import at.petrak.hexcasting.datagen.recipe.builders.BrainsweepRecipeBuilder
 import at.petrak.paucal.api.datagen.PaucalRecipeProvider
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.datagen.recipes.FocusHolderFillingShapedRecipeBuilder
@@ -15,6 +20,7 @@ import net.minecraft.data.recipes.FinishedRecipe
 import net.minecraft.data.recipes.RecipeCategory
 import net.minecraft.data.recipes.ShapedRecipeBuilder
 import net.minecraft.data.recipes.SpecialRecipeBuilder
+import net.minecraft.world.entity.npc.VillagerProfession
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.crafting.RecipeSerializer
 import net.minecraft.world.level.ItemLike
@@ -45,6 +51,16 @@ class HexDebugRecipes(output: PackOutput) : PaucalRecipeProvider(output, HexDebu
             .pattern("SGS")
             .unlockedBy("has_item", hasItem(HexItems.FOCUS))
             .save(writer)
+
+        // enlightened splicing table
+        BrainsweepRecipeBuilder(
+            StateIngredientHelper.of(HexDebugBlocks.SPLICING_TABLE.value),
+            VillagerIngredient(VillagerProfession.TOOLSMITH, null, 2),
+            HexDebugBlocks.ENLIGHTENED_SPLICING_TABLE.block.defaultBlockState(),
+            MediaConstants.CRYSTAL_UNIT * 10,
+        )
+            .unlockedBy("enlightenment", HexAdvancements.ENLIGHTEN)
+            .save(writer, HexDebug.id("brainsweep/enlightened_splicing_table"))
 
         // empty focus holder
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, HexDebugBlocks.FOCUS_HOLDER.value)

@@ -52,6 +52,9 @@ object HexDebugActions : HexDebugRegistrar<ActionRegistryEntry>(HexRegistries.AC
     val WRITE_CLIPBOARD_SPELLBOOK_INDEX = make("splicing/clipboard/spellbook_index/write", HexDir.SOUTH_WEST, "wedqdewaqddqd", OpWriteSpellbookIndex(false))
     val READABLE_CLIPBOARD_SPELLBOOK_INDEX = make("splicing/clipboard/spellbook_index/readable", HexDir.NORTH_WEST, "wqaeaqwdeaaeae", OpReadableSpellbookIndex(false))
 
+    val READ_ENLIGHTENED_HEX = make("splicing/enlightened/hex/read", HexDir.NORTH_WEST, "wqaeaqwqqqwqwqqwq", OpReadEnlightenedHex)
+    val WRITE_ENLIGHTENED_HEX = make("splicing/enlightened/hex/write", HexDir.NORTH_WEST, "wqaeaqwqqqwqwqqwwqqeaeqqeqqeaeqqw", OpWriteEnlightenedHex)
+
     private fun make(name: String, startDir: HexDir, signature: String, action: Action) =
         make(name, startDir, signature) { action }
 

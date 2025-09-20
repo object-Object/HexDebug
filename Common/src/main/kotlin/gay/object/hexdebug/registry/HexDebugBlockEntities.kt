@@ -17,7 +17,10 @@ object HexDebugBlockEntities : HexDebugRegistrar<BlockEntityType<*>>(
 ) {
     @JvmField
     val SPLICING_TABLE = register("splicing_table", ::SplicingTableBlockEntity) {
-        arrayOf(HexDebugBlocks.SPLICING_TABLE.value)
+        arrayOf(
+            HexDebugBlocks.SPLICING_TABLE.value,
+            HexDebugBlocks.ENLIGHTENED_SPLICING_TABLE.value,
+        )
     }
 
     @JvmField

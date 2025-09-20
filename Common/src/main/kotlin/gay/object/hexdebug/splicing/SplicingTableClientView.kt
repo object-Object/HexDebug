@@ -17,6 +17,8 @@ data class SplicingTableClientView(
     val clipboard: CompoundTag?,
     val isListWritable: Boolean,
     val isClipboardWritable: Boolean,
+    val isEnlightened: Boolean,
+    val hasHex: Boolean,
     val undoSize: Int,
     val undoIndex: Int,
 ) {
@@ -33,6 +35,8 @@ data class SplicingTableClientView(
             clipboard = null,
             isListWritable = false,
             isClipboardWritable = false,
+            isEnlightened = false,
+            hasHex = false,
             undoSize = 0,
             undoIndex = -1,
         )

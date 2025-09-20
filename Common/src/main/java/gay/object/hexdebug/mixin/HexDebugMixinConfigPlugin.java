@@ -1,4 +1,4 @@
-package gay.object.hexdebug.forge.mixin;
+package gay.object.hexdebug.mixin;
 
 import gay.object.hexdebug.HexDebug;
 import org.objectweb.asm.tree.ClassNode;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 // disables MixinDatagenMain if we're not running the datagen task, since it's not necessary at any other time
-public class ForgeHexDebugMixinConfigPlugin implements IMixinConfigPlugin {
+public class HexDebugMixinConfigPlugin implements IMixinConfigPlugin {
     @Override
     public void onLoad(String mixinPackage) {}
 
@@ -20,7 +20,7 @@ public class ForgeHexDebugMixinConfigPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (mixinClassName.equals("gay.object.hexdebug.forge.mixin.MixinDatagenMain")) {
+        if (mixinClassName.equals("gay.object.hexdebug.mixin.MixinDatagenMain")) {
             var shouldApply = System.getProperty("hexdebug.apply-datagen-mixin", "false").equals("true");
             if (shouldApply) {
                 HexDebug.LOGGER.warn("Applying scuffed datagen mixin. This should not happen if not running datagen!");

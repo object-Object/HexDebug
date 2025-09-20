@@ -26,6 +26,8 @@ data class MsgSplicingTableNewDataS2C(val data: SplicingTableClientView) : HexDe
                 clipboard = buf.readNbt(),
                 isListWritable = buf.readBoolean(),
                 isClipboardWritable = buf.readBoolean(),
+                isEnlightened = buf.readBoolean(),
+                hasHex = buf.readBoolean(),
                 undoSize = buf.readInt(),
                 undoIndex = buf.readInt(),
             ),
@@ -44,6 +46,8 @@ data class MsgSplicingTableNewDataS2C(val data: SplicingTableClientView) : HexDe
                 buf.writeNbt(clipboard)
                 buf.writeBoolean(isListWritable)
                 buf.writeBoolean(isClipboardWritable)
+                buf.writeBoolean(isEnlightened)
+                buf.writeBoolean(hasHex)
                 buf.writeInt(undoSize)
                 buf.writeInt(undoIndex)
             }

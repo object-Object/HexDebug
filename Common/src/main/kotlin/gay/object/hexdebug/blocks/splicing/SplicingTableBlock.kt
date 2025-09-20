@@ -1,5 +1,6 @@
 package gay.`object`.hexdebug.blocks.splicing
 
+import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerPlayer
@@ -10,13 +11,16 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.*
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityTicker
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.phys.BlockHitResult
 
 @Suppress("OVERRIDE_DEPRECATION")
-class SplicingTableBlock(properties: Properties) : BaseEntityBlock(properties) {
+class SplicingTableBlock(properties: Properties, val enlightened: Boolean) : BaseEntityBlock(properties) {
     init {
         registerDefaultState(
             getStateDefinition().any()
@@ -76,6 +80,18 @@ class SplicingTableBlock(properties: Properties) : BaseEntityBlock(properties) {
 
     override fun getAnalogOutputSignal(state: BlockState, level: Level, pos: BlockPos) =
         getBlockEntity(level, pos)?.analogOutputSignal ?: 0
+
+    override fun <T : BlockEntity> getTicker(
+        level: Level,
+        state: BlockState,
+        blockEntityType: BlockEntityType<T>,
+    ): BlockEntityTicker<T>? {
+        if (blockEntityType == HexDebugBlockEntities.SPLICING_TABLE.value && !level.isClientSide) {
+            @Suppress("UNCHECKED_CAST")
+            return BlockEntityTicker(SplicingTableBlockEntity::tickServer) as BlockEntityTicker<T>
+        }
+        return null
+    }
 
     private fun getBlockEntity(level: Level, pos: BlockPos) = level.getBlockEntity(pos) as? SplicingTableBlockEntity
 

@@ -1,0 +1,19 @@
+{
+  "type": "hexcasting:brainsweep",
+  "blockIn": {
+    "type": "block",
+    "block": "hexdebug:splicing_table"
+  },
+  "cost": 1000000,
+  "entityIn": {
+    "type": "villager",
+    "minLevel": 2,
+    "profession": "toolsmith"
+  },
+  "result": {
+    "name": "hexdebug:enlightened_splicing_table",
+    "properties": {
+      "facing": "north"
+    }
+  }
+}

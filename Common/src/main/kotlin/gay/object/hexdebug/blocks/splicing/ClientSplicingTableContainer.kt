@@ -3,6 +3,7 @@ package gay.`object`.hexdebug.blocks.splicing
 import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
 import at.petrak.hexcasting.api.casting.math.HexPattern
 import gay.`object`.hexdebug.networking.msg.MsgSplicingTableActionC2S
+import gay.`object`.hexdebug.networking.msg.MsgSplicingTableCastHexC2S
 import gay.`object`.hexdebug.networking.msg.MsgSplicingTableNewStaffPatternC2S
 import gay.`object`.hexdebug.networking.msg.MsgSplicingTableSelectIndexC2S
 import gay.`object`.hexdebug.splicing.ISplicingTable
@@ -25,5 +26,9 @@ class ClientSplicingTableContainer : SimpleContainer(SplicingTableItemSlot.conta
 
     override fun selectIndex(player: ServerPlayer?, index: Int, hasShiftDown: Boolean, isIota: Boolean) {
         MsgSplicingTableSelectIndexC2S(index, hasShiftDown = hasShiftDown, isIota = isIota).sendToServer()
+    }
+
+    override fun castHex(player: ServerPlayer?) {
+        MsgSplicingTableCastHexC2S().sendToServer()
     }
 }

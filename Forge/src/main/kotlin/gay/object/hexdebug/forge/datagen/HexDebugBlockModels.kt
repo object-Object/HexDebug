@@ -31,6 +31,21 @@ class HexDebugBlockModels(output: PackOutput, efh: ExistingFileHelper) : PaucalB
                 .texture("particle", HexAPI.modLoc("block/slate"))
         }
 
+        horizontalBlockAndItem(HexDebugBlocks.ENLIGHTENED_SPLICING_TABLE) { id ->
+            models()
+                .cube(
+                    id.path,
+                    // FIXME: placeholders
+                    HexAPI.modLoc("block/slate"), // down
+                    modLoc("block/splicing_table/top"), // up
+                    HexAPI.modLoc("block/circle/impetus/rightclick/front_lit"), // north
+                    modLoc("block/splicing_table/back"), // south
+                    modLoc("block/splicing_table/right"), // east
+                    modLoc("block/splicing_table/left"), // west
+                )
+                .texture("particle", HexAPI.modLoc("block/slate"))
+        }
+
         getVariantBuilder(HexDebugBlocks.FOCUS_HOLDER.value).also { builder ->
             val id = HexDebugBlocks.FOCUS_HOLDER.id
             val itemModel = itemModels().getBuilder(id.path)

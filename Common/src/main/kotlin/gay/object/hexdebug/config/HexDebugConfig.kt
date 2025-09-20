@@ -99,10 +99,20 @@ object HexDebugConfig {
         var splicingTableMaxMedia: Long = MediaConstants.CRYSTAL_UNIT
             private set
 
+        @Tooltip
+        var splicingTableCastingCooldown: Int = 5
+            private set
+
+        @Tooltip
+        var splicingTableAmbit: Double = 8.0
+            private set
+
         fun encode(buf: FriendlyByteBuf) {
             buf.writeInt(maxUndoStackSize)
             buf.writeLong(splicingTableMediaCost)
             buf.writeLong(splicingTableMaxMedia)
+            buf.writeInt(splicingTableCastingCooldown)
+            buf.writeDouble(splicingTableAmbit)
         }
 
         companion object {
@@ -110,6 +120,8 @@ object HexDebugConfig {
                 maxUndoStackSize = buf.readInt()
                 splicingTableMediaCost = buf.readLong()
                 splicingTableMaxMedia = buf.readLong()
+                splicingTableCastingCooldown = buf.readInt()
+                splicingTableAmbit = buf.readDouble()
             }
         }
     }

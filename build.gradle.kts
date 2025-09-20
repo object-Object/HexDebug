@@ -27,5 +27,7 @@ tasks {
 
     register("runAllDatagen") {
         dependsOn(":Forge:runCommonDatagen")
+        dependsOn(":Forge:runForgeDatagen")
+        dependsOn(":Fabric:runDatagen")
     }
 }

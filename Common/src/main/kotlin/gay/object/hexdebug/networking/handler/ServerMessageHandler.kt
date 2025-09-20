@@ -37,5 +37,10 @@ fun HexDebugMessageC2S.applyOnServer(ctx: PacketContext) = ctx.queue {
                 isIota = isIota,
             )
         }
+
+        is MsgSplicingTableCastHexC2S -> {
+            val menu = SplicingTableMenu.getInstance(ctx.player) ?: return@queue
+            menu.table.castHex(ctx.player as? ServerPlayer)
+        }
     }
 }

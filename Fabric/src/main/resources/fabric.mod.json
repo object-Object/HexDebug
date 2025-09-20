@@ -23,6 +23,10 @@
       "adapter": "kotlin",
       "value": "gay.object.hexdebug.fabric.FabricHexDebugClient"
     }],
+    "fabric-datagen": [{
+      "adapter": "kotlin",
+      "value": "gay.object.hexdebug.fabric.datagen.FabricHexDebugDatagen"
+    }],
     "emi": [{
       "adapter": "kotlin",
       "value": "gay.object.hexdebug.fabric.interop.FabricHexDebugEmiPlugin"

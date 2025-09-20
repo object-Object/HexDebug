@@ -16,7 +16,12 @@ import net.minecraft.world.level.block.state.BlockBehaviour.Properties as BlockP
 object HexDebugBlocks : HexDebugRegistrar<Block>(Registries.BLOCK, { BuiltInRegistries.BLOCK }) {
     @JvmField
     val SPLICING_TABLE = blockItem("splicing_table", HexDebugItems.props) {
-        SplicingTableBlock(slateish.noPush())
+        SplicingTableBlock(slateish.noPush(), enlightened = false)
+    }
+
+    @JvmField
+    val ENLIGHTENED_SPLICING_TABLE = blockItem("enlightened_splicing_table", HexDebugItems.props) {
+        SplicingTableBlock(slateish.noPush(), enlightened = true)
     }
 
     @JvmField

@@ -1,21 +1,28 @@
 package gay.`object`.hexdebug.blocks.splicing
 
+import at.petrak.hexcasting.api.HexAPI
 import at.petrak.hexcasting.api.addldata.ADIotaHolder
 import at.petrak.hexcasting.api.block.HexBlockEntity
+import at.petrak.hexcasting.api.casting.ParticleSpray
 import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
+import at.petrak.hexcasting.api.casting.eval.vm.CastingVM
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.api.pigment.FrozenPigment
+import at.petrak.hexcasting.api.utils.asCompound
 import at.petrak.hexcasting.api.utils.extractMedia
 import at.petrak.hexcasting.api.utils.getInt
+import at.petrak.hexcasting.api.utils.getList
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataSelectionDelegate
 import gay.`object`.hexdebug.casting.eval.FakeCastEnv
+import gay.`object`.hexdebug.casting.eval.SplicingTableCastEnv
 import gay.`object`.hexdebug.config.HexDebugConfig
 import gay.`object`.hexdebug.gui.splicing.SplicingTableMenu
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
@@ -24,6 +31,8 @@ import gay.`object`.hexdebug.utils.Option.None
 import gay.`object`.hexdebug.utils.Option.Some
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -35,6 +44,7 @@ import net.minecraft.world.inventory.SimpleContainerData
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.Vec3
 import kotlin.math.max
 import kotlin.math.min
 
@@ -46,7 +56,8 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
 
     var listStack by SplicingTableItemSlot.LIST.delegate
     var clipboardStack by SplicingTableItemSlot.CLIPBOARD.delegate
-    private var mediaStack by SplicingTableItemSlot.MEDIA.delegate
+    var mediaStack by SplicingTableItemSlot.MEDIA.delegate
+        private set
     private var staffStack by SplicingTableItemSlot.STAFF.delegate
 
     private val listHolder get() = IXplatAbstractions.INSTANCE.findDataHolder(listStack)
@@ -54,7 +65,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
 
     private val containerData = SimpleContainerData(SplicingTableDataSlot.size)
 
-    private var media by ContainerDataLongDelegate(
+    var media by ContainerDataLongDelegate(
         containerData,
         index0 = SplicingTableDataSlot.MEDIA_0.index,
         index1 = SplicingTableDataSlot.MEDIA_1.index,
@@ -75,10 +86,21 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     )
         private set
 
+    private var castingCooldown by ContainerDataDelegate(
+        containerData,
+        index = SplicingTableDataSlot.CASTING_COOLDOWN.index,
+    )
+
     val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0
 
     // TODO: save?
     private val undoStack = UndoStack()
+
+    private var hexTag: ListTag? = null
+
+    var pigment: FrozenPigment? = null
+
+    val enlightened get() = (blockState.block as? SplicingTableBlock)?.enlightened ?: false
 
     fun getList(level: ServerLevel) =
         listHolder?.let { it.readIota(level) as? ListIota }?.list
@@ -103,6 +125,8 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
             to = tag.getInt("selectionTo", -1),
         )
         viewStartIndex = tag.getInt("viewStartIndex")
+        hexTag = if (tag.contains("hex")) tag.getList("hex", Tag.TAG_COMPOUND) else null
+        pigment = if (tag.contains("pigment")) FrozenPigment.fromNBT(tag.getCompound("pigment")) else null
     }
 
     override fun saveModData(tag: CompoundTag) {
@@ -111,6 +135,8 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
         tag.putInt("selectionFrom", selection?.from ?: -1)
         tag.putInt("selectionTo", selection?.to ?: -1)
         tag.putInt("viewStartIndex", viewStartIndex)
+        hexTag?.let { tag.put("hex", it) }
+        pigment?.let { tag.put("pigment", it.serializeToNBT()) }
     }
 
     override fun createMenu(i: Int, inventory: Inventory, player: Player) =
@@ -153,6 +179,8 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
             clipboard = clipboard?.let { IotaType.serialize(it) },
             isListWritable = listWriter != null,
             isClipboardWritable = clipboardWriter != null,
+            isEnlightened = enlightened,
+            hasHex = hexTag != null,
             undoSize = undoStack.size,
             undoIndex = undoStack.index,
         )
@@ -294,14 +322,50 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
             // allow selecting leftmost edge of empty list
             || (index == 0 && list.isEmpty())
 
+    override fun castHex(player: ServerPlayer?) {
+        if (
+            player == null
+            || !enlightened
+            || media < mediaCost
+            || castingCooldown > 0
+        ) return
+
+        val level = level as? ServerLevel ?: return
+
+        val instrs = getHex(level) ?: return
+
+        // consume media first, before the hex has a chance to get at it
+        consumeMedia()
+
+        val env = SplicingTableCastEnv(player, this)
+        val vm = CastingVM.empty(env)
+
+        val clientView = vm.queueExecuteAndWrapIotas(instrs, level)
+
+        if (clientView.resolutionType.success) {
+            ParticleSpray(blockPos.center, Vec3(0.0, 1.5, 0.0), 0.4, Math.PI / 3, 30)
+                .sprayParticles(level, env.pigment)
+        }
+
+        castingCooldown = config.splicingTableCastingCooldown
+    }
+
+    fun getHex(level: ServerLevel): List<Iota>? =
+        hexTag?.map { IotaType.deserialize(it.asCompound, level) }
+
+    fun setHex(hex: List<Iota>?) {
+        hexTag = hex?.asSequence()
+            ?.map { IotaType.serialize(it) }
+            ?.toCollection(ListTag())
+    }
+
     private fun postRunAction(data: SplicingTableData) {
         selection = data.selection
         viewStartIndex = data.viewStartIndex
         clampView(data.level, data)
 
         if (data.shouldConsumeMedia) {
-            media = (media - mediaCost).coerceIn(0, maxMedia)
-            refillMedia()
+            consumeMedia()
         }
     }
 
@@ -338,8 +402,13 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
         }
     }
 
-    private fun refillMedia() {
-        val mediaHolder = IXplatAbstractions.INSTANCE.findMediaHolder(mediaStack) ?: return
+    private fun consumeMedia() {
+        media = (media - mediaCost).coerceIn(0, maxMedia)
+        refillMedia()
+    }
+
+    fun refillMedia() {
+        val mediaHolder = HexAPI.instance().findMediaHolder(mediaStack) ?: return
         while (media < maxMedia) {
             val cost = maxMedia - media
 
@@ -371,5 +440,12 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
 
         private val mediaCost get() = config.splicingTableMediaCost
         val maxMedia get() = config.splicingTableMaxMedia.coerceIn(1, null)
+
+        @Suppress("UNUSED_PARAMETER")
+        fun tickServer(level: Level, pos: BlockPos, state: BlockState, blockEntity: SplicingTableBlockEntity) {
+            if (blockEntity.castingCooldown > 0) {
+                blockEntity.castingCooldown -= 1
+            }
+        }
     }
 }

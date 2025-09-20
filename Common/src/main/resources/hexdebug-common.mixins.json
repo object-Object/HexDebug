@@ -8,10 +8,12 @@
     "MixinShiftScrollListener"
   ],
   "mixins": [
+    "MixinDatagenMain",
     "MixinMsgShiftScrollC2S",
     "MixinOpEval",
     "MixinStaffCastEnv"
   ],
+  "plugin": "gay.object.hexdebug.mixin.HexDebugMixinConfigPlugin",
   "injectors": {
     "defaultRequire": 1
   }

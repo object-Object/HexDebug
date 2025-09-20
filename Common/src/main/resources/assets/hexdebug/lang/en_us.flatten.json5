@@ -6,6 +6,7 @@
 
   "block.hexdebug": {
     splicing_table: "Splicing Table",
+    enlightened_splicing_table: "Mindsplice Table",
     focus_holder: "Focal Frame",
   },
 
@@ -41,6 +42,7 @@
           paste: "Paste (Verbatim)",
           paste_splat: "Paste (Flattened)",
           export: "Export as .hexpattern",
+          cast: "Activate Table",
         },
         tooltip: {
           index: "Index: %d",
@@ -90,9 +92,25 @@
         server: {
           maxUndoStackSize: {
             "": "Undo History Size Limit",
-            "@Tooltip": "Maximum allowed size of the splicing table's undo history. To disable the limit, set the value to 0.",
-          }
-        }
+            "@Tooltip": "Maximum allowed size of the Splicing Table's undo history. To disable the limit, set the value to 0.",
+          },
+          splicingTableMediaCost: {
+            "": "Splicing Table Media Cost",
+            "@Tooltip": "How many points of media to consume when performing an action in a Splicing Table.",
+          },
+          splicingTableMaxMedia: {
+            "": "Splicing Table Max Media",
+            "@Tooltip": "How many points of media to consume when performing an action in a Splicing Table.",
+          },
+          splicingTableCastingCooldown: {
+            "": "Mindsplice Table Casting Cooldown",
+            "@Tooltip": "Cooldown in ticks for the Mindsplice Table's casting button.",
+          },
+          splicingTableAmbit: {
+            "": "Mindsplice Table Ambit",
+            "@Tooltip": "Ambit radius in blocks for the Mindsplice Table.",
+          },
+        },
       },
     },
   },
@@ -135,6 +153,12 @@
               readable: "Shutter's Purification II",
             },
           },
+          "enlightened/": {
+            "hex/": {
+              read: "Mindsplice Purification", // TODO: bad name
+              write: "Imbue Mindsplice Table",
+            },
+          },
         },
       },
       "book.hexdebug:": {
@@ -160,14 +184,15 @@
     mishap: {
       bad_block: {
         splicing_table: {
-          "": "a splicing table",
+          "": "a Splicing Table",
+          enlightened: "a Mindsplice Table",
           list: {
-            spellbook: "a splicing table with a non-empty spellbook in the main item slot",
+            spellbook: "a Splicing Table with a non-empty spellbook in the main item slot",
           },
           clipboard: {
-            read: "a splicing table with a readable secondary item",
-            write: "a splicing table with a writable secondary item",
-            spellbook: "a splicing table with a non-empty spellbook in the secondary item slot",
+            read: "a Splicing Table with a readable secondary item",
+            write: "a Splicing Table with a writable secondary item",
+            spellbook: "a Splicing Table with a non-empty spellbook in the secondary item slot",
           },
         },
       },

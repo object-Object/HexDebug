@@ -21,4 +21,6 @@ interface ISplicingTable : Container {
     fun drawPattern(player: ServerPlayer?, pattern: HexPattern, index: Int): ResolvedPatternType
 
     fun selectIndex(player: ServerPlayer?, index: Int, hasShiftDown: Boolean, isIota: Boolean)
+
+    fun castHex(player: ServerPlayer?)
 }

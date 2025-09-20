@@ -1,3 +1,4 @@
+import hexdebug.hexdebugProperties
 import hexdebug.libs
 
 plugins {
@@ -6,6 +7,23 @@ plugins {
 
 architectury {
     fabric()
+}
+
+fabricApi {
+    configureDataGeneration {
+        outputDirectory = file("src/generated/resources")
+        modId = hexdebugProperties.modId
+        strictValidation = true
+        addToResources = false
+    }
+}
+
+loom {
+    runs {
+        named("datagen") {
+            property("hexdebug.apply-datagen-mixin", "true")
+        }
+    }
 }
 
 hexdebugModDependencies {
