@@ -363,7 +363,8 @@
             page: {
               "hex/": {
                 read: "Remove a vector from the stack, then push the _Hex currently imbued to the $(l:greatwork/enlightened_splicing_table)$(item)Mindsplice Table/$ at that position, or $(l:casting/influences)$(thing)Null/$ if it has not yet been imbued.",
-                write: "Remove a vector and list of patterns from the stack, then imbue the list of patterns into the $(l:greatwork/enlightened_splicing_table)$(item)Mindsplice Table/$ at that position.",
+                write: "Remove a vector and list of patterns from the stack, then imbue the list of patterns into the $(l:greatwork/enlightened_splicing_table)$(item)Mindsplice Table/$ at that position.$(br)\
+                  Costs about five $(l:items/amethyst)$(item)Charged Amethyst/$.",
               },
               circle: "In addition to these patterns, I can also cast $(l:patterns/circle#hexcasting:circle/impetus_pos)$(action)Waystone Reflection/$ and $(l:patterns/circle#hexcasting:circle/impetus_dir)$(action)Lodestone Reflection/$ from within a $(l:greatwork/enlightened_splicing_table)$(item)Mindsplice Table/$. However, trying to cast them through a $(l:items/staff)$(item)Staff/$, or trying to cast other $(l:greatwork/spellcircles)$(item)Spell Circle/$-only patterns through a $(l:greatwork/enlightened_splicing_table)$(item)Mindsplice Table/$, will still fail rather spectacularly.",
             },
