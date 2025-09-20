@@ -104,7 +104,7 @@ object HexDebugConfig {
             private set
 
         @Tooltip
-        var splicingTableAmbit: Double = 8.0
+        var splicingTableAmbit: Double = 4.0
             private set
 
         fun encode(buf: FriendlyByteBuf) {
