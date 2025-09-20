@@ -35,7 +35,7 @@ object OpWriteEnlightenedHex : SpellAction {
 
         return SpellAction.Result(
             Spell(table, hex),
-            10 * MediaConstants.CRYSTAL_UNIT,
+            5 * MediaConstants.CRYSTAL_UNIT,
             listOf(ParticleSpray(pos.center, Vec3(1.0, 0.0, 0.0), 0.25, 3.14, 40))
         )
     }
