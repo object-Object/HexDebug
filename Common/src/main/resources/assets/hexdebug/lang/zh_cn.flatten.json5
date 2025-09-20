@@ -128,8 +128,8 @@
         "craft/debugger": "制作调试杖",
         "splicing/": {
           "view_index/": {
-            read: "齿孔胶卷之纯化",
-            write: "齿孔胶卷之策略",
+            read: "齿孔胶片之纯化",
+            write: "齿孔胶片之策略",
           },
           "selection/": {
             read: "剪接器之分解",
