@@ -79,10 +79,10 @@ class SplicingTableMenu(
         addTableSlot(SplicingTableItemSlot.CLIPBOARD, 7, 68) {
             mayPlace = ::isIotaHolder
         }
-        mediaSlot = addTableSlot(SplicingTableItemSlot.MEDIA, 205, 169) { // FIXME: placeholder
+        mediaSlot = addTableSlot(SplicingTableItemSlot.MEDIA, 205, 169) {
             mayPlace = ::isMediaItem
         }
-        staffSlot = addTableSlot(SplicingTableItemSlot.STAFF, -20, 169) { // FIXME: placeholder
+        staffSlot = addTableSlot(SplicingTableItemSlot.STAFF, -20, 169) {
             maxStackSize = 1
             mayPlace = { it.`is`(HexTags.Items.STAVES) }
         }
