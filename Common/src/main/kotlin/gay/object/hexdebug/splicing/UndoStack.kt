@@ -47,10 +47,10 @@ data class UndoStack(
     ) {
         val isNotEmpty = list is Some || clipboard is Some || selection is Some
 
-        fun applyTo(data: SplicingTableData, defaultSelection: Selection?): Selection? = data.let {
+        fun applyTo(data: SplicingTableData) {
             list.ifPresent(data::writeList)
             clipboard.ifPresent(data::writeClipboard)
-            selection.getOrElse(defaultSelection)
+            selection.ifPresent { data.selection = it }
         }
     }
 }

@@ -51,16 +51,18 @@ class SplicingTableMenu(
         index3 = SplicingTableDataSlot.MEDIA_3.index,
     )
 
-    val selection by ContainerDataSelectionDelegate(
+    var selection by ContainerDataSelectionDelegate(
         data,
         fromIndex = SplicingTableDataSlot.SELECTION_FROM.index,
         toIndex = SplicingTableDataSlot.SELECTION_TO.index,
     )
+        private set
 
-    val viewStartIndex by ContainerDataDelegate(
+    var viewStartIndex by ContainerDataDelegate(
         data,
         index = SplicingTableDataSlot.VIEW_START_INDEX.index,
     )
+        private set
 
     var clientView = SplicingTableClientView.empty()
 
@@ -141,7 +143,16 @@ class SplicingTableMenu(
     ) = addSlot(FilteredSlot(table, slot, x, y).also(builder))
 
     fun sendData(player: ServerPlayer) {
-        table.getClientView()?.let { MsgSplicingTableNewDataS2C(it).sendToPlayer(player) }
+        table.getClientView()?.let {
+            MsgSplicingTableNewDataS2C(it, selection, viewStartIndex).sendToPlayer(player)
+        }
+    }
+
+    fun receiveData(msg: MsgSplicingTableNewDataS2C) {
+        clientView = msg.data
+        // TODO: does this make the client send a packet to the server?
+        selection = msg.selection
+        viewStartIndex = msg.viewStartIndex
     }
 
     companion object {

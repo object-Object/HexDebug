@@ -70,7 +70,28 @@ open class SplicingTableData(
         selection: Option<Selection?> = None(),
     ) {
         // copy list to avoid mutability issues
-        undoStack.push(UndoStack.Entry(list.map { it.toList() }, clipboard, selection))
+        undoStack.push(UndoStack.Entry(
+            list = list.map { it.toList() },
+            clipboard = clipboard,
+            selection = selection,
+        ))
+    }
+
+    fun makeIotaVisible(index: Int) {
+        when {
+            index < viewStartIndex -> viewStartIndex = index
+            index > viewEndIndex -> viewEndIndex = index
+        }
+    }
+
+    fun makeEdgeVisible(index: Int) {
+        // index refers to the cell to the right of this edge
+        when {
+            // an edge is visible on the LEFT side if the cell to the RIGHT is visible
+            index < viewStartIndex -> viewStartIndex = index
+            // or on the RIGHT side if the cell to the LEFT is visible
+            index - 1 > viewEndIndex -> viewEndIndex = index - 1
+        }
     }
 
     fun writeList(value: List<Iota>) = writeIota(listWriter, ListIota(value))

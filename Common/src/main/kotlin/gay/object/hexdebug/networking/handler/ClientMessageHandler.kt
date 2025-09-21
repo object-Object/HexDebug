@@ -71,7 +71,7 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
 
         is MsgSplicingTableNewDataS2C -> {
             SplicingTableMenu.getInstance(ctx.player)?.also { menu ->
-                menu.clientView = data
+                menu.receiveData(this)
                 SplicingTableScreen.getInstance()?.reloadData()
             }
         }

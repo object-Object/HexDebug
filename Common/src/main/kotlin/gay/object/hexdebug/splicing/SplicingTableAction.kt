@@ -84,10 +84,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         test = { _, _ -> undoSize > 1 && undoIndex > 0 },
         validate = { undoStack.size > 1 && undoStack.index > 0 },
     ) {
-        val state = undoStack.undo()
-        if (state != null) {
-            selection = state.applyTo(this, selection)
-        }
+        undoStack.undo()?.applyTo(this)
     }),
 
     REDO(Value(
@@ -96,10 +93,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         test = { _, _ -> undoSize > 1 && undoIndex < undoSize - 1 },
         validate = { undoStack.size > 1 && undoStack.index < undoStack.stack.lastIndex },
     ) {
-        val state = undoStack.redo()
-        if (state != null) {
-            selection = state.applyTo(this, selection)
-        }
+        undoStack.redo()?.applyTo(this)
     }),
 
     // rw list range
@@ -112,7 +106,9 @@ enum class SplicingTableAction(val value: Value<*>) {
     ) {
         list.add(typedSelection.end, list.removeAt(typedSelection.start - 1))
         if (writeList(list)) {
-            selection = typedSelection.moveBy(-1)
+            selection = typedSelection.moveBy(-1)?.also {
+                makeIotaVisible(it.start)
+            }
             pushUndoState(
                 list = Some(list),
                 selection = Some(selection),
@@ -128,7 +124,9 @@ enum class SplicingTableAction(val value: Value<*>) {
     ) {
         list.add(typedSelection.start, list.removeAt(typedSelection.end + 1))
         if (writeList(list)) {
-            selection = typedSelection.moveBy(1)
+            selection = typedSelection.moveBy(1)?.also {
+                makeIotaVisible(it.lastIndex)
+            }
             pushUndoState(
                 list = Some(list),
                 selection = Some(selection),
@@ -139,7 +137,9 @@ enum class SplicingTableAction(val value: Value<*>) {
     DUPLICATE(Value(ReadWriteListRange, consumesMedia = true) {
         list.addAll(typedSelection.end + 1, typedSelection.subList(list))
         if (writeList(list)) {
-            selection = Selection.withSize(typedSelection.end + 1, typedSelection.size)
+            selection = Selection.withSize(typedSelection.end + 1, typedSelection.size)?.also {
+                makeIotaVisible(it.end)
+            }
             pushUndoState(
                 list = Some(list),
                 selection = Some(selection),
@@ -150,7 +150,9 @@ enum class SplicingTableAction(val value: Value<*>) {
     DELETE(Value(ReadWriteListRange, consumesMedia = true) {
         typedSelection.mutableSubList(list).clear()
         if (writeList(list)) {
-            selection = Selection.edge(typedSelection.start)
+            selection = Selection.edge(typedSelection.start)?.also {
+                makeEdgeVisible(it.index)
+            }
             pushUndoState(
                 list = Some(list),
                 selection = Some(selection),
@@ -165,7 +167,9 @@ enum class SplicingTableAction(val value: Value<*>) {
         typedSelection.mutableSubList(list).clear()
         if (isClipboardTransferSafe(iota) && writeClipboard(iota)) {
             if (writeList(list)) {
-                selection = Selection.edge(typedSelection.start)
+                selection = Selection.edge(typedSelection.start)?.also {
+                    makeEdgeVisible(it.index)
+                }
                 pushUndoState(
                     list = Some(list),
                     clipboard = Some(iota),
@@ -196,7 +200,9 @@ enum class SplicingTableAction(val value: Value<*>) {
             add(clipboard)
         }
         if (isClipboardTransferSafe(clipboard) && writeList(list)) {
-            selection = Selection.edge(typedSelection.start + 1)
+            selection = Selection.edge(typedSelection.start + 1)?.also {
+                makeEdgeVisible(it.index)
+            }
             pushUndoState(
                 list = Some(list),
                 selection = Some(selection),
@@ -214,7 +220,9 @@ enum class SplicingTableAction(val value: Value<*>) {
             addAll(values)
         }
         if (isClipboardTransferSafe(clipboard) && writeList(list)) {
-            selection = Selection.edge(typedSelection.start + values.size)
+            selection = Selection.edge(typedSelection.start + values.size)?.also {
+                makeEdgeVisible(it.index)
+            }
             pushUndoState(
                 list = Some(list),
                 selection = Some(selection),

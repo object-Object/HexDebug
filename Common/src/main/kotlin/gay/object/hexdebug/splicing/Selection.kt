@@ -1,5 +1,6 @@
 package gay.`object`.hexdebug.splicing
 
+import net.minecraft.network.FriendlyByteBuf
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
@@ -86,5 +87,25 @@ sealed class Selection private constructor(val from: Int, open val to: Int?) {
             to < 0 -> edge(from)
             else -> range(from, to)
         }
+    }
+}
+
+/** Writes an optional [Selection] to the buffer. */
+fun FriendlyByteBuf.writeSelection(selection: Selection?) {
+    writeNullable(selection) { buf, value ->
+        value.also {
+            buf.writeInt(it.from)
+            buf.writeNullable(it.to, FriendlyByteBuf::writeInt)
+        }
+    }
+}
+
+/** Reads an optional [Selection] from the buffer. */
+fun FriendlyByteBuf.readSelection(): Selection? {
+    return readNullable { buf ->
+        Selection.of(
+            from = buf.readInt(),
+            to = buf.readNullable(FriendlyByteBuf::readInt),
+        )
     }
 }
