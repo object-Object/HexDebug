@@ -100,6 +100,10 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
 
     val enlightened get() = (blockState.block as? SplicingTableBlock)?.enlightened ?: false
 
+    init {
+        selection = null
+    }
+
     fun getList(level: ServerLevel) =
         listHolder?.let { it.readIota(level) as? ListIota }?.list
 
