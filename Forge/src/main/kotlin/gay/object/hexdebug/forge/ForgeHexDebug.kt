@@ -13,6 +13,7 @@ import net.minecraft.data.loot.LootTableProvider.SubProviderEntry
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets
 import net.minecraftforge.data.event.GatherDataEvent
 import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 
 /**
@@ -25,9 +26,15 @@ class HexDebugForge {
         MOD_BUS.apply {
             EventBuses.registerModEventBus(HexDebug.MODID, this)
             addListener(ForgeHexDebugClient::init)
+            addListener(::initServer)
             addListener(::gatherData)
         }
         HexDebug.init()
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun initServer(event: FMLDedicatedServerSetupEvent) {
+        HexDebug.initServer()
     }
 
     private fun gatherData(event: GatherDataEvent) {

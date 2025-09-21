@@ -1,7 +1,7 @@
 package gay.`object`.hexdebug
 
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
-import gay.`object`.hexdebug.config.HexDebugConfig
+import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.networking.HexDebugNetworking
 import gay.`object`.hexdebug.registry.*
 import net.minecraft.resources.ResourceLocation
@@ -16,7 +16,7 @@ object HexDebug {
 
     fun init() {
         LOGGER.info("HexDebug <3 HexBug")
-        HexDebugConfig.init()
+        HexDebugServerConfig.init()
         initRegistries(
             HexDebugBlocks,
             HexDebugBlockEntities,
@@ -30,6 +30,11 @@ object HexDebug {
         )
         HexDebugNetworking.init()
         DebugAdapterManager.init()
+    }
+
+    fun initServer() {
+        LOGGER.info("Infesting your server with HexBugs...")
+        HexDebugServerConfig.initServer()
     }
 
     @JvmStatic

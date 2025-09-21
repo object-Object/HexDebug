@@ -5,7 +5,7 @@ import at.petrak.hexcasting.api.utils.asTextComponent
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.api.utils.mediaBarColor
 import at.petrak.hexcasting.api.utils.styledWith
-import gay.`object`.hexdebug.config.HexDebugConfig
+import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.gui.splicing.SplicingTableMenu
 import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
 import net.minecraft.client.gui.GuiGraphics
@@ -29,7 +29,7 @@ class MediaBar(
     height: Int,
 ) : AbstractWidget(x, y, width, height, Component.empty()) {
     private val media by menu::media
-    private val maxMedia get() = HexDebugConfig.server.splicingTableMaxMedia
+    private val maxMedia get() = HexDebugServerConfig.config.splicingTableMaxMedia
     private val fullness get() = if (maxMedia > 0) media.toDouble() / maxMedia else 0.0
 
     override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {

@@ -5,10 +5,11 @@ import at.petrak.hexcasting.api.client.ScryingLensOverlayRegistry
 import at.petrak.hexcasting.api.utils.asTextComponent
 import at.petrak.hexcasting.api.utils.gray
 import at.petrak.hexcasting.api.utils.plusAssign
+import gay.`object`.hexdebug.HexDebug.LOGGER
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyClient
 import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlock
-import gay.`object`.hexdebug.config.HexDebugConfig
-import gay.`object`.hexdebug.config.HexDebugConfig.GlobalConfig
+import gay.`object`.hexdebug.config.HexDebugClientConfig
+import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.utils.styledHoverName
 import gay.`object`.hexdebug.utils.toComponent
@@ -29,13 +30,15 @@ object HexDebugClient {
     private const val MAX_IOTA_DISPLAY_LINES = 4
 
     fun init() {
-        HexDebugConfig.initClient()
+        LOGGER.info("Hiding cognitohazards in your client...")
+        HexDebugServerConfig.initClient()
+        HexDebugClientConfig.init()
         DebugProxyClient.init()
         addScryingLensOverlays()
     }
 
     fun getConfigScreen(parent: Screen): Screen {
-        return AutoConfig.getConfigScreen(GlobalConfig::class.java, parent).get()
+        return AutoConfig.getConfigScreen(HexDebugClientConfig.GlobalConfig::class.java, parent).get()
     }
 
     private fun addScryingLensOverlays() {

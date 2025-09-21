@@ -4,7 +4,8 @@ import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
 import com.mojang.blaze3d.systems.RenderSystem
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.config.HexDebugConfig
+import gay.`object`.hexdebug.config.HexDebugClientConfig
+import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.gui.splicing.widgets.*
 import gay.`object`.hexdebug.splicing.IOTA_BUTTONS
 import gay.`object`.hexdebug.splicing.Selection
@@ -46,7 +47,7 @@ class SplicingTableScreen(
     private val hasMediaItem get() = menu.mediaSlot.hasItem()
     val hasStaffItem get() = menu.staffSlot.hasItem()
 
-    private val hasMediaForAction get() = menu.media >= HexDebugConfig.server.splicingTableMediaCost
+    private val hasMediaForAction get() = menu.media >= HexDebugServerConfig.config.splicingTableMediaCost
 
     private var prevSelection: Selection? = selection
     private var prevViewStartIndex = viewStartIndex
@@ -533,11 +534,19 @@ class SplicingTableScreen(
         )
     }
 
+    override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        if (super.keyPressed(keyCode, scanCode, modifiers)) return true
+
+
+
+        return false
+    }
+
     // TODO: limit scroll to certain regions? (let's see if anyone complains first)
     override fun mouseScrolled(mouseX: Double, mouseY: Double, delta: Double): Boolean {
         if (super.mouseScrolled(mouseX, mouseY, delta)) return true
 
-        val adjustedDelta = if (HexDebugConfig.client.invertSplicingTableScrollDirection) {
+        val adjustedDelta = if (HexDebugClientConfig.config.invertSplicingTableScrollDirection) {
             delta * -1
         } else {
             delta
@@ -736,7 +745,7 @@ class SplicingTableScreen(
         const val MAX_DIGIT_LEN = 4
         val MAX_DIGIT = 10f.pow(MAX_DIGIT_LEN).toInt() - 1
 
-        private val maxCastingCooldown get() = HexDebugConfig.server.splicingTableCastingCooldown
+        private val maxCastingCooldown get() = HexDebugServerConfig.config.splicingTableCastingCooldown
 
         fun getInstance() = Minecraft.getInstance().screen as? SplicingTableScreen
 

@@ -2,7 +2,7 @@ package gay.`object`.hexdebug.adapter.proxy
 
 import dev.architectury.event.events.client.ClientPlayerEvent
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.config.HexDebugConfig
+import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.items.DebuggerItem
 import gay.`object`.hexdebug.networking.msg.MsgDebugAdapterProxy
 import io.ktor.network.selector.*
@@ -41,8 +41,8 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
         var instance: DebugProxyClient? = null
             private set
 
-        private val enabled get() = HexDebugConfig.client.openDebugPort
-        private val port get() = HexDebugConfig.client.debugPort
+        private val enabled get() = HexDebugClientConfig.config.openDebugPort
+        private val port get() = HexDebugClientConfig.config.debugPort
 
         private val executorService = Executors.newCachedThreadPool()
 
@@ -51,7 +51,7 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
         private var serverJob: Job? = null
 
         fun init() {
-            HexDebugConfig.holder.registerSaveListener { _, _ ->
+            HexDebugClientConfig.holder.registerSaveListener { _, _ ->
                 reload()
                 InteractionResult.PASS
             }

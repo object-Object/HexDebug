@@ -23,6 +23,10 @@
       "adapter": "kotlin",
       "value": "gay.object.hexdebug.fabric.FabricHexDebugClient"
     }],
+    "server": [{
+      "adapter": "kotlin",
+      "value": "gay.object.hexdebug.fabric.FabricHexDebugServer"
+    }],
     "fabric-datagen": [{
       "adapter": "kotlin",
       "value": "gay.object.hexdebug.fabric.datagen.FabricHexDebugDatagen"

@@ -23,7 +23,7 @@ import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataSelectionDelegate
 import gay.`object`.hexdebug.casting.eval.FakeCastEnv
 import gay.`object`.hexdebug.casting.eval.SplicingTableCastEnv
-import gay.`object`.hexdebug.config.HexDebugConfig
+import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.gui.splicing.SplicingTableMenu
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import gay.`object`.hexdebug.splicing.*
@@ -437,7 +437,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     override fun writeable() = listHolder?.writeable() ?: false
 
     companion object {
-        private val config get() = HexDebugConfig.server
+        private val config get() = HexDebugServerConfig.config
 
         private val mediaCost get() = config.splicingTableMediaCost
         private val maxMedia get() = config.splicingTableMaxMedia.coerceIn(1, null)

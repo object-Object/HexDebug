@@ -1,7 +1,7 @@
 package gay.object.hexdebug.mixin;
 
 import at.petrak.hexcasting.client.ShiftScrollListener;
-import gay.object.hexdebug.config.HexDebugConfig;
+import gay.object.hexdebug.config.HexDebugClientConfig;
 import gay.object.hexdebug.items.DebuggerItem;
 import gay.object.hexdebug.registry.HexDebugItems;
 import net.minecraft.client.Minecraft;
@@ -43,7 +43,7 @@ public abstract class MixinShiftScrollListener {
             && (player.isShiftKeyDown() || !needsSneaking)
             && !player.isSpectator()
             // additional logic
-            && HexDebugConfig.INSTANCE.getClient().getSmartDebuggerSneakScroll()
+            && HexDebugClientConfig.getConfig().getSmartDebuggerSneakScroll()
             && !DebuggerItem.isDebugging()
             && player.getMainHandItem().getItem() == HexDebugItems.DEBUGGER.getValue()
             && hexdebug$invokeIsScrollableItem(player.getOffhandItem().getItem())

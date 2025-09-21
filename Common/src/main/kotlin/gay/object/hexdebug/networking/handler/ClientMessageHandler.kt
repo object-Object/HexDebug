@@ -7,7 +7,8 @@ import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternS2C
 import dev.architectury.networking.NetworkManager.PacketContext
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyClient
 import gay.`object`.hexdebug.config.DebuggerDisplayMode
-import gay.`object`.hexdebug.config.HexDebugConfig
+import gay.`object`.hexdebug.config.HexDebugClientConfig
+import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.gui.splicing.SplicingTableMenu
 import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
 import gay.`object`.hexdebug.gui.splicing.mixin
@@ -50,7 +51,7 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
         }
 
         is MsgPrintDebuggerStatusS2C -> {
-            val config = HexDebugConfig.client
+            val config = HexDebugClientConfig.config
             val shouldPrint = when (config.debuggerDisplayMode) {
                 DebuggerDisplayMode.DISABLED -> false
                 DebuggerDisplayMode.NOT_CONNECTED -> !isConnected
@@ -85,7 +86,7 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
         }
 
         is MsgSyncConfigS2C -> {
-            HexDebugConfig.onSyncConfig(serverConfig)
+            HexDebugServerConfig.onSyncConfig(serverConfig)
         }
     }
 }

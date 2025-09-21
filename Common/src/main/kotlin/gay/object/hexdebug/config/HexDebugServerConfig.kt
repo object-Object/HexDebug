@@ -16,18 +16,16 @@ import me.shedaniel.autoconfig.serializer.PartitioningSerializer
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer.GlobalData
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer
 import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.world.InteractionResult
 
 // we can't use a companion object because GlobalData sees the field and throws an error :/
 
-object HexDebugConfig {
+object HexDebugServerConfig {
     @JvmStatic
     lateinit var holder: ConfigHolder<GlobalConfig>
 
     @JvmStatic
-    val client get() = holder.config.client
-
-    @JvmStatic
-    val server get() = syncedServerConfig ?: holder.config.server
+    val config get() = syncedServerConfig ?: holder.config.server
 
     // only used on the client, probably
     private var syncedServerConfig: ServerConfig? = null
@@ -38,9 +36,8 @@ object HexDebugConfig {
             PartitioningSerializer.wrap(::Toml4jConfigSerializer),
         )
 
-        PlayerEvent.PLAYER_JOIN.register { player ->
-            MsgSyncConfigS2C(holder.config.server).sendToPlayer(player)
-        }
+        // never save the server config here; that happens in the client config gui
+        holder.registerSaveListener { _, _ -> InteractionResult.FAIL }
     }
 
     fun initClient() {
@@ -49,41 +46,23 @@ object HexDebugConfig {
         }
     }
 
+    fun initServer() {
+        // don't sync the config in singleplayer, to allow changing server configs without reloading the world
+        PlayerEvent.PLAYER_JOIN.register { player ->
+            MsgSyncConfigS2C(holder.config.server).sendToPlayer(player)
+        }
+    }
+
     fun onSyncConfig(serverConfig: ServerConfig) {
         syncedServerConfig = serverConfig
     }
 
     @Config(name = HexDebug.MODID)
-    class GlobalConfig : GlobalData() {
-        @Category("client")
-        @TransitiveObject
-        val client = ClientConfig()
-
+    class GlobalConfig(
         @Category("server")
         @TransitiveObject
-        val server = ServerConfig()
-    }
-
-    @Config(name = "client")
-    class ClientConfig : ConfigData {
-        @Tooltip
-        val openDebugPort: Boolean = true
-
-        @Tooltip
-        val debugPort: Int = 4444
-
-        @Tooltip
-        val smartDebuggerSneakScroll: Boolean = true
-
-        @Tooltip
-        val debuggerDisplayMode: DebuggerDisplayMode = DebuggerDisplayMode.ENABLED
-
-        @Tooltip
-        val showDebugClientLineNumber: Boolean = false
-
-        @Tooltip
-        val invertSplicingTableScrollDirection: Boolean = false
-    }
+        val server: ServerConfig = ServerConfig(),
+    ) : GlobalData()
 
     @Config(name = "server")
     class ServerConfig : ConfigData {
@@ -115,20 +94,12 @@ object HexDebugConfig {
             buf.writeDouble(splicingTableAmbit)
         }
 
-        companion object {
-            fun decode(buf: FriendlyByteBuf) = ServerConfig().apply {
-                maxUndoStackSize = buf.readInt()
-                splicingTableMediaCost = buf.readLong()
-                splicingTableMaxMedia = buf.readLong()
-                splicingTableCastingCooldown = buf.readInt()
-                splicingTableAmbit = buf.readDouble()
-            }
+        fun decode(buf: FriendlyByteBuf) {
+            maxUndoStackSize = buf.readInt()
+            splicingTableMediaCost = buf.readLong()
+            splicingTableMaxMedia = buf.readLong()
+            splicingTableCastingCooldown = buf.readInt()
+            splicingTableAmbit = buf.readDouble()
         }
     }
-}
-
-enum class DebuggerDisplayMode {
-    DISABLED,
-    NOT_CONNECTED,
-    ENABLED,
 }

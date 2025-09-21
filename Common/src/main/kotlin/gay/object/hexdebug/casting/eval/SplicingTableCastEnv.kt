@@ -8,7 +8,7 @@ import at.petrak.hexcasting.api.pigment.FrozenPigment
 import at.petrak.hexcasting.api.utils.extractMedia
 import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlockEntity
-import gay.`object`.hexdebug.config.HexDebugConfig
+import gay.`object`.hexdebug.config.HexDebugServerConfig
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerPlayer
@@ -80,7 +80,7 @@ class SplicingTableCastEnv(
             return true
         }
 
-        return isVecInRadius(vec, blockPos.center, HexDebugConfig.server.splicingTableAmbit)
+        return isVecInRadius(vec, blockPos.center, HexDebugServerConfig.config.splicingTableAmbit)
     }
 
     override fun getCastingHand(): InteractionHand = castingHand
