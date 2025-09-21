@@ -1,0 +1,2347 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <title>HexDebug Book</title>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="description" content="The HexDebug Book, all in one place." />
+      <meta name="author" content="object-Object" />
+        <link rel="None" type="image/ico" href="favicon.ico" />
+        <link rel="icon" type="image/png" href="favicon-16x16.png" />
+        <link rel="icon" type="image/png" href="favicon-32x32.png" />
+        <link rel="icon" type="image/png" href="favicon-64x64.png" />
+        <link rel="icon" type="image/png" href="favicon-96x96.png" />
+        <link rel="icon" type="image/png" href="favicon-180x180.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-57x57.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-60x60.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-72x72.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-76x76.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-114x114.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-120x120.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-144x144.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-152x152.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-167x167.png" />
+        <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon-180x180.png" />
+        <link rel="None" type="image/png" href="mstile-70x70.png" />
+        <link rel="None" type="image/png" href="mstile-270x270.png" />
+        <link rel="None" type="image/png" href="mstile-310x310.png" />
+        <link rel="None" type="image/png" href="mstile-310x150.png" />
+        <link rel="shortcut icon" type="image/png" href="favicon-196x196.png" />
+      <link rel="mask-icon" href="https://raw.githubusercontent.com/hexdoc-dev/hexdoc/main/media/safari-pinned-tab.svg" color="#332233">
+<meta property="og:type" content="website" />
+<meta property="og:title" content="HexDebug Book" />
+<meta property="og:image" content="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/en_us/icon.png" />
+<meta property="og:url" content="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/en_us" />
+<meta property="og:description" content="The HexDebug Book, all in one place." />
+<meta property="og:site_name" content="HexDebug (0.4.0+1.20.1)" />
+      <script src="https://code.jquery.com/jquery-1.12.4.min.js"
+      integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+      <link rel="stylesheet" href="index.css">
+      <link rel="stylesheet" href="textures.css">
+      <noscript>
+        <style>
+          /* for accessibility */
+          .spoilered {
+            filter: none !important;
+          }
+        </style>
+      </noscript>
+        <script type="module" src="index.js"></script>
+  <script type="module" src="hexcasting.js"></script>
+  <script type="module" src="hexcasting_render.js"></script>
+  </head>
+  <body>
+<nav class="navbar navbar-default navbar-static-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button
+        type="button"
+        class="navbar-toggle collapsed"
+        data-toggle="collapse"
+        data-target="#navbar-collapse"
+        aria-expanded="false"
+      >
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../../../..">HexDebug Book</a>
+    </div>
+    <div class="collapse navbar-collapse" id="navbar-collapse">
+      <ul class="nav navbar-nav navbar-right">
+            <li>
+    <a
+      href="https://github.com/object-Object/HexDebug/tree/9547170784ad096fcf1d3cbf6a9850e343fdf0e5"
+        target="_blank"
+      class="navbar-link"
+      role="button"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >GitHub <i class="bi bi-box-arrow-up-right external-link-icon"></i></a>
+  </li>
+        <li class="dropdown">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >0.4.0+1.20.1 <span class="caret"></span></a>
+          <ul class="dropdown-menu" id="version-dropdown"></ul>
+        </li>
+        <li class="dropdown">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >English (United States) <span class="caret"></span></a>
+          <ul class="dropdown-menu dropdown-menu-left" id="lang-dropdown"></ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container" style="margin-top: 3em;">
+  <blockquote>
+      <h1><p>This is the online version of the HexDebug documentation.</p></h1>
+      <p><strong>Entries which are blurred are spoilers</strong>. Click to reveal them, but be aware that they may spoil endgame progression. Alternatively, click <a href="?nospoiler">here</a> to get a version with all spoilers showing.</p>
+      <span id="old-version-notice" class="hidden">
+        <br />
+        <p><i>The past is a foreign country; they do things differently there.</i></p>
+      </span>
+  </blockquote>
+</div>
+<div class="container">
+<div id="table-of-contents"></div>
+<nav class="toc-container">
+  <h2 class="page-header">
+    Table of <span class="nobr">Contents<a
+      href="javascript:void(0)"
+      class="permalink toggle-link small"
+      data-target="toc-category"
+      title="Toggle all"
+    ><i class="bi bi-list-nested"></i></a><a
+    href="#table-of-contents"
+    class="permalink small toc-permalink"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></span>
+  </h2>
+    <details class="toc-category">
+      <summary><a href="#items" class="toc-elem "><img
+      title="Focus"
+      alt="Focus"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/cad/0_focus_empty.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    > Items</a></summary>
+      <ul>
+          <li><a href="#items/debugging" class="toc-elem "><img
+      title="Debugger"
+      alt="Debugger"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/9547170784ad096fcf1d3cbf6a9850e343fdf0e5/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    > Debugging Items</a></li>
+          <li><a href="#items/focus_holder" class="toc-elem "><img
+      title="Focal Frame"
+      alt="Focal Frame"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/focus_holder/empty.png"
+      loading="lazy"
+      class="item-texture  texture "
+    > Focal Frame</a></li>
+          <li><a href="#items/splicing_table" class="toc-elem "><img
+      title="Splicing Table"
+      alt="Splicing Table"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/splicing_table.png"
+      loading="lazy"
+      class="item-texture  texture "
+    > Splicing Table</a></li>
+      </ul>
+    </details>
+    <details class="toc-category">
+      <summary><a href="#greatwork" class="toc-elem spoilered"><img
+      title="Music Disc"
+      alt="Music Disc"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/music_disc_11.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    > The Great Work</a></summary>
+      <ul>
+          <li><a href="#greatwork/enlightened_splicing_table" class="toc-elem spoilered"><img
+      title="Mindsplice Table"
+      alt="Mindsplice Table"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/enlightened_splicing_table/lit.png"
+      loading="lazy"
+      class="item-texture  texture "
+    > Mindsplice Table</a></li>
+      </ul>
+    </details>
+    <details class="toc-category">
+      <summary><a href="#patterns" class="toc-elem "><img
+      title="Bookshelf"
+      alt="Bookshelf"
+      src="https://hexdoc-dev.github.io/hexdoc-minecraft/v/1.20.1/1.0.dev1/assets/minecraft/textures/block/bookshelf.png"
+      loading="lazy"
+      class="item-texture  texture "
+    > Patterns</a></summary>
+      <ul>
+          <li><a href="#patterns/debugging" class="toc-elem "><img
+      title="Debugger"
+      alt="Debugger"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/9547170784ad096fcf1d3cbf6a9850e343fdf0e5/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    > Debugging Patterns</a></li>
+          <li><a href="#patterns/enlightened_splicing_table" class="toc-elem spoilered"><img
+      title="Mindsplice Table"
+      alt="Mindsplice Table"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/enlightened_splicing_table/lit.png"
+      loading="lazy"
+      class="item-texture  texture "
+    > Mindsplice Table Patterns</a></li>
+          <li><a href="#patterns/splicing_table" class="toc-elem "><img
+      title="Splicing Table"
+      alt="Splicing Table"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/splicing_table.png"
+      loading="lazy"
+      class="item-texture  texture "
+    > Splicing Table Patterns</a></li>
+      </ul>
+    </details>
+</nav>
+  <main class="book-body">
+<section id="items">
+    <h2 class="category-title page-header">
+    <img
+      title="Focus"
+      alt="Focus"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/cad/0_focus_empty.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    >Items<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#items"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h2>
+    <p>I devote this section to the magical and mysterious items I might encounter in my studies.</p>
+<div id="items/debugging" class="entry">
+    <h3 class="entry-title page-header">
+    <img
+      title="Debugger"
+      alt="Debugger"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/9547170784ad096fcf1d3cbf6a9850e343fdf0e5/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    >Debugging Items<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#items/debugging"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h3>
+    <p>I have read vague descriptions of a strange object used by the ancients to help discover issues in complex <span style="color: #b38ef3">Hexes</span>. I believe I have managed to reproduce this item; I call it the <a href="#items/debugging@debugger"><span style="color: #b0b">Debugger</span></a>.</p><p>It seems to work in a similar way to <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/hexcasting"><span style="color: #b0b">Artifacts</span></a>. However, I can also use it to cast a <span style="color: #b38ef3">Hex</span> right from an item (like a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/focus"><span style="color: #b0b">Focus</span></a>) in my off-hand.</p><p>Unfortunately, the <a href="#items/debugging@debugger"><span style="color: #b0b">Debugger</span></a> is not very useful on its own; to get the most out of it, I will need to <a href="https://github.com/object-Object/HexDebug/wiki/Setting-up-VSCode-with-HexDebug" target="_blank">set up</a> some sort of <a href="https://marketplace.visualstudio.com/items?itemName=object-Object.hex-casting" target="_blank">external tool</a>.</p>
+<br />
+  <div id="items/debugging@debugger" class="">
+  <details class="details-collapsible recipe-details">
+      <summary class="collapse-details">
+    <span class="collapse-recipe-show">Click to show recipes</span>
+    <span class="collapse-recipe-hide">Click to hide recipes</span>
+  </summary>
+    <div class="crafting-tables">
+<div>
+    <h5>Debugger</h5>
+    <div class="crafting-table">
+        <img
+      title="Crafting Table"
+      alt="Crafting Table"
+      src="https://raw.githubusercontent.com/hexdoc-dev/hexdoc/d543be08695dd239eb2aaff1bdc2378462f61e79/src/hexdoc/_export/resources/assets/minecraft/textures/gui/hexdoc/crafting_table.png"
+      class="texture pixelated"
+    >
+  <div class="crafting-table-grid">
+        <div></div>        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Charged Amethyst"
+      alt="Charged Amethyst"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Charged Amethyst"
+      alt="Charged Amethyst"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div></div>        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Artifact"
+      alt="Artifact"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/cad/0_artifact.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Charged Amethyst"
+      alt="Charged Amethyst"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Gold Ingot"
+      alt="Gold Ingot"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_ingot.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div></div>        <div></div>  </div>
+  <div class="crafting-table-result recipe-item-slot">
+    <img
+      title="Debugger"
+      alt="Debugger"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/9547170784ad096fcf1d3cbf6a9850e343fdf0e5/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    >
+  </div>
+    </div>
+</div>    </div>
+  </details>
+      <p><i>Thwack!</i></p><p>I can also switch between different &#34;step modes&#34; of the <span style="color: #b0b">Debugger</span> by sneak-scrolling (like with a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/spellbook"><span style="color: #b0b">Spellbook</span></a> or <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/abacus"><span style="color: #b0b">Abacus</span></a>).</p>
+  </div>
+<br />
+    <p>Complementing the <a href="#items/debugging@debugger"><span style="color: #b0b">Debugger</span></a>, I&#39;ve also created a new type of staff: the <a href="#items/debugging@evaluator"><span style="color: #b0b">Evaluator</span></a>.</p><p>While debugging a <span style="color: #b38ef3">Hex</span>, patterns drawn with this staff will be cast using the current stack and <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/readwrite@hexcasting:local"><span style="color: #8d6acc">ravenmind</span></a> of the <a href="#items/debugging@debugger"><span style="color: #b0b">Debugger</span></a>.</p><p>Clearing the grid seems to reset the <a href="#items/debugging@debugger"><span style="color: #b0b">Debugger</span></a> to just before the first pattern was drawn with the <a href="#items/debugging@evaluator"><span style="color: #b0b">Evaluator</span></a>. It will not, of course, undo any effects performed by spells on the world.</p>
+<br />
+  <div id="items/debugging@evaluator" class="">
+  <details class="details-collapsible recipe-details">
+      <summary class="collapse-details">
+    <span class="collapse-recipe-show">Click to show recipes</span>
+    <span class="collapse-recipe-hide">Click to hide recipes</span>
+  </summary>
+    <div class="crafting-tables">
+<div>
+    <h5>Evaluator</h5>
+    <div class="crafting-table">
+        <img
+      title="Crafting Table"
+      alt="Crafting Table"
+      src="https://raw.githubusercontent.com/hexdoc-dev/hexdoc/d543be08695dd239eb2aaff1bdc2378462f61e79/src/hexdoc/_export/resources/assets/minecraft/textures/gui/hexdoc/crafting_table.png"
+      class="texture pixelated"
+    >
+  <div class="crafting-table-grid">
+        <div></div>        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Charged Amethyst"
+      alt="Charged Amethyst"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Charged Amethyst"
+      alt="Charged Amethyst"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div></div>        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Block of Slate"
+      alt="Block of Slate"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Charged Amethyst"
+      alt="Charged Amethyst"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Block of Slate"
+      alt="Block of Slate"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div></div>        <div></div>  </div>
+  <div class="crafting-table-result recipe-item-slot">
+    <img
+      title="Evaluator"
+      alt="Evaluator"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/9547170784ad096fcf1d3cbf6a9850e343fdf0e5/Common/src/main/resources/assets/hexdebug/textures/item/evaluator.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    >
+  </div>
+    </div>
+</div>    </div>
+  </details>
+      <p><i>Thwonk!</i></p>
+  </div>
+<br />
+</div>
+<div id="items/focus_holder" class="entry">
+    <h3 class="entry-title page-header">
+    <img
+      title="Focal Frame"
+      alt="Focal Frame"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/focus_holder/empty.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >Focal Frame<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#items/focus_holder"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h3>
+    <p><a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/focus"><span style="color: #b0b">Foci</span></a> are useful for storing <span style="color: #b38ef3">Hexes</span> and other iotas in my inventory, but I sometimes find myself in need of a way to store iotas in the world. Item frames are too fragile, and <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#greatwork/akashiclib">other methods</a> are inefficient and... distasteful. A cleaner solution is necessary, and I&#39;ve devised one in the form of the <span style="color: #b0b">Focal Frame</span>.</p>
+<br />
+    <p>A <span style="color: #b0b">Focal Frame</span> by itself is useless; a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/focus"><span style="color: #b0b">Focus</span></a> must first be inserted. I can do that through crafting, or by right-clicking a placed <span style="color: #b0b">Focal Frame</span> with a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/focus"><span style="color: #b0b">Focus</span></a>. Right-clicking with an empty hand removes the <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/focus"><span style="color: #b0b">Focus</span></a> from the frame.</p><p>As an item, I can use a filled <span style="color: #b0b">Focal Frame</span> anywhere I would normally use a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/focus"><span style="color: #b0b">Focus</span></a>, including patterns such as <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/readwrite@hexcasting:read"><span style="color: #fc77be">Scribe&#39;s Reflection</span></a>. When placed in the world, I can access it using patterns like <a href="https://ioticblocks.hexxy.media/v/1.0.2+1.20.1/1.0/en_us#patterns/readwrite_blocks@hexcasting:read/entity"><span style="color: #fc77be">Chronicler&#39;s Purification</span></a>.</p>
+<br />
+  <div id="items/focus_holder@focus_holder" class="">
+  <details class="details-collapsible recipe-details">
+      <summary class="collapse-details">
+    <span class="collapse-recipe-show">Click to show recipes</span>
+    <span class="collapse-recipe-hide">Click to hide recipes</span>
+  </summary>
+    <div class="crafting-tables">
+<div>
+    <h5>Focal Frame</h5>
+    <div class="crafting-table">
+        <img
+      title="Crafting Table"
+      alt="Crafting Table"
+      src="https://raw.githubusercontent.com/hexdoc-dev/hexdoc/d543be08695dd239eb2aaff1bdc2378462f61e79/src/hexdoc/_export/resources/assets/minecraft/textures/gui/hexdoc/crafting_table.png"
+      class="texture pixelated"
+    >
+  <div class="crafting-table-grid">
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Gold Nugget"
+      alt="Gold Nugget"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_nugget.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Block of Slate"
+      alt="Block of Slate"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Gold Nugget"
+      alt="Gold Nugget"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_nugget.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Block of Slate"
+      alt="Block of Slate"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div></div>        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Block of Slate"
+      alt="Block of Slate"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Gold Nugget"
+      alt="Gold Nugget"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_nugget.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Block of Slate"
+      alt="Block of Slate"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Gold Nugget"
+      alt="Gold Nugget"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_nugget.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+  </div>
+  <div class="crafting-table-result recipe-item-slot">
+    <img
+      title="Focal Frame"
+      alt="Focal Frame"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/focus_holder/empty.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >
+  </div>
+    </div>
+</div>    </div>
+  </details>
+      <p><i>Two thousand movies, four thousand albums, music and words and pictures like voices whispering from a sweet, sunny past.</i></p>
+  </div>
+<br />
+  <details class="details-collapsible recipe-details">
+      <summary class="collapse-details">
+    <span class="collapse-recipe-show">Click to show recipes</span>
+    <span class="collapse-recipe-hide">Click to hide recipes</span>
+  </summary>
+    <div class="crafting-tables">
+<div>
+    <h5>Focal Frame</h5>
+    <div class="crafting-table">
+        <img
+      title="Crafting Table"
+      alt="Crafting Table"
+      src="https://raw.githubusercontent.com/hexdoc-dev/hexdoc/d543be08695dd239eb2aaff1bdc2378462f61e79/src/hexdoc/_export/resources/assets/minecraft/textures/gui/hexdoc/crafting_table.png"
+      class="texture pixelated"
+    >
+  <div class="crafting-table-grid">
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Gold Nugget"
+      alt="Gold Nugget"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_nugget.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Block of Slate"
+      alt="Block of Slate"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Gold Nugget"
+      alt="Gold Nugget"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_nugget.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Block of Slate"
+      alt="Block of Slate"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Focus"
+      alt="Focus"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/cad/0_focus_empty.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Block of Slate"
+      alt="Block of Slate"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Gold Nugget"
+      alt="Gold Nugget"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_nugget.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Block of Slate"
+      alt="Block of Slate"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Gold Nugget"
+      alt="Gold Nugget"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_nugget.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+  </div>
+  <div class="crafting-table-result recipe-item-slot">
+    <img
+      title="Focal Frame"
+      alt="Focal Frame"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/focus_holder/full.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >
+  </div>
+    </div>
+</div><div>
+    <h5>Focal Frame</h5>
+    <div class="crafting-table">
+        <img
+      title="Crafting Table"
+      alt="Crafting Table"
+      src="https://raw.githubusercontent.com/hexdoc-dev/hexdoc/d543be08695dd239eb2aaff1bdc2378462f61e79/src/hexdoc/_export/resources/assets/minecraft/textures/gui/hexdoc/crafting_table.png"
+      class="texture pixelated"
+    >
+  <div class="crafting-table-grid">
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Focal Frame"
+      alt="Focal Frame"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/focus_holder/empty.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Leather"
+      alt="Leather"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/leather.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div></div>        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Paper"
+      alt="Paper"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/paper.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Charged Amethyst"
+      alt="Charged Amethyst"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Paper"
+      alt="Paper"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/paper.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div></div>        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Leather"
+      alt="Leather"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/leather.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Glowstone"
+      alt="Glowstone"
+      src="https://hexdoc-dev.github.io/hexdoc-minecraft/v/1.20.1/1.0.dev1/assets/minecraft/textures/block/glowstone.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+  </div>
+  <div class="crafting-table-result recipe-item-slot">
+    <img
+      title="Focal Frame"
+      alt="Focal Frame"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/focus_holder/full.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >
+  </div>
+    </div>
+</div>    </div>
+  </details>
+<br />
+    <p>In addition to these recipes, I can craft an empty <span style="color: #b0b">Focal Frame</span> with a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/focus"><span style="color: #b0b">Focus</span></a> to insert it; and I can craft a filled <span style="color: #b0b">Focal Frame</span> by itself to remove the <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/focus"><span style="color: #b0b">Focus</span></a> from it, leaving the empty frame behind.</p>
+<br />
+</div>
+<div id="items/splicing_table" class="entry">
+    <h3 class="entry-title page-header">
+    <img
+      title="Splicing Table"
+      alt="Splicing Table"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/splicing_table.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >Splicing Table<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#items/splicing_table"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h3>
+    <p>As my <span style="color: #b38ef3">Hexes</span> become more complex, I find myself spending more and more time fixing my own mistakes. Patterns such as <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/patterns_as_iotas@hexcasting:undo"><span style="color: #fc77be">Evanition</span></a> and <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/lists@hexcasting:replace"><span style="color: #fc77be">Surgeon&#39;s Exaltation</span></a> can suffice for simple substitutions, but I think I can do better.</p><p>The <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> is my solution to these woes: a full-fledged workstation for viewing and editing <span style="color: #b38ef3">Hexes</span>.</p>
+<br />
+    <p>To begin, I must place an item containing a list iota (eg. a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/focus"><span style="color: #b0b">Focus</span></a>) in the centre of the table. This reveals the first nine iotas in the list. The small arrows at the ends can be used to move my view of the list; I can also hold Sneak to move by a full page, or Sprint to move all the way to the start or end.</p><p>If I wish to share my <span style="color: #b38ef3">Hexes</span> with others, I can use the large button on the right side to copy the contents of the list to my &#34;clipboard&#34;.</p>
+<br />
+    <p>I can select iotas (or the space between them) by clicking on them. Holding Sneak and clicking again allows me to select a range of iotas.</p><p>Additionally, there are dedicated buttons to select the entire list (<span style="color: #8d6acc">Select All</span>) and to clear my selection (<span style="color: #8d6acc">Select None</span>).</p><p>Selecting iotas allows me to unlock the true power of the <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a>: editing <span style="color: #b38ef3">Hexes</span>.</p>
+<br />
+    <p>With <a href="#items/splicing_table@cost">sufficient media</a>, I can perform the following actions:</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Nudge Left</span>: Move the selected iota(s) one space to the left.</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Nudge Right</span>: Move the selected iota(s) one space to the right.</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Delete</span>: Remove the selected iota(s) from the list.</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Duplicate</span>: Create a copy of the selected iota(s).</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Undo</span>: Revert the last action performed.</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Redo</span>: Re-perform actions previously reverted with <span style="color: #8d6acc">Undo</span>.</p>
+<br />
+    <p>For more advanced operations, some extra storage is required. I can place an iota-holding item in the slot to the left to unlock the following actions:</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Copy</span>: Write the selected iota(s) to a new list in the secondary item.</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Cut</span>: Same as <span style="color: #8d6acc">Copy</span>, but also delete the selected iota(s).</p><p class="fake-li " style="--level: 1;"><span style="color: #8d6acc">Paste</span>: Replace the selected iota(s) with the iota in the secondary item. If the iota is a list, its contents are pasted instead; I can override this by holding Sneak.</p>
+<br />
+    <p>Finally, I can insert a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/staff"><span style="color: #b0b">Staff</span></a> into the lower left slot to reveal a miniature casting grid. Patterns drawn on this grid are inserted directly into the list, overwriting any selected iotas.</p><p>There are also six general-purpose inventory slots on the right side. These have no special functionality; they&#39;re just a convenient place to store a few extra items.</p>
+<br />
+  <div id="items/splicing_table@cost" class="">
+    <p>Unfortunately, all of this incredible versatility comes at a cost. In order to modify the contents of items, <span style="color: #74b3f2">media</span> is required - about a tenth of one <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/amethyst"><span style="color: #b0b">Amethyst Dust</span></a> per action performed.</p><p>I can supply <span style="color: #74b3f2">media</span> to the <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> by putting it in the lower right slot. The table will consume up to ten <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/amethyst"><span style="color: #b0b">Amethyst Dust</span></a> at once; any surplus is ignored until it can be consumed without wasting <span style="color: #74b3f2">media</span>.</p>
+  </div>
+<br />
+    <p>If this small cost is prohibitive, or if I wish to perform more complicated actions than those previously described, there is another option. I can use patterns such as <a href="https://ioticblocks.hexxy.media/v/1.0.2+1.20.1/1.0/en_us#patterns/readwrite_blocks@hexcasting:read/entity"><span style="color: #fc77be">Chronicler&#39;s Purification</span></a> to manipulate the contents of the item in the main slot, and I&#39;ve devised some <a href="#patterns/splicing_table">specialized patterns</a> to control other aspects of the splicing table.</p><p>Now, if only I could make the table think for itself...</p>
+<br />
+  <div id="items/splicing_table@splicing_table" class="">
+  <details class="details-collapsible recipe-details">
+      <summary class="collapse-details">
+    <span class="collapse-recipe-show">Click to show recipes</span>
+    <span class="collapse-recipe-hide">Click to hide recipes</span>
+  </summary>
+    <div class="crafting-tables">
+<div>
+    <h5>Splicing Table</h5>
+    <div class="crafting-table">
+        <img
+      title="Crafting Table"
+      alt="Crafting Table"
+      src="https://raw.githubusercontent.com/hexdoc-dev/hexdoc/d543be08695dd239eb2aaff1bdc2378462f61e79/src/hexdoc/_export/resources/assets/minecraft/textures/gui/hexdoc/crafting_table.png"
+      class="texture pixelated"
+    >
+  <div class="crafting-table-grid">
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Edified Planks"
+      alt="Edified Planks"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/edified_planks.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Charged Amethyst"
+      alt="Charged Amethyst"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Edified Planks"
+      alt="Edified Planks"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/edified_planks.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Amethyst Shard"
+      alt="Amethyst Shard"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/amethyst_shard.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Focus"
+      alt="Focus"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/cad/0_focus_empty.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Amethyst Shard"
+      alt="Amethyst Shard"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/amethyst_shard.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Block of Slate"
+      alt="Block of Slate"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Gold Ingot"
+      alt="Gold Ingot"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/gold_ingot.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    >
+        </div>
+        <div class="texture item-texture multi-textures cycle-textures">
+                <img
+      title="Block of Slate"
+      alt="Block of Slate"
+      src="https://hexcasting.hexxy.media/v/0.11.2/1.0/assets/hexcasting/textures/block/slate_block.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture "
+    >
+        </div>
+  </div>
+  <div class="crafting-table-result recipe-item-slot">
+    <img
+      title="Splicing Table"
+      alt="Splicing Table"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/splicing_table.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >
+  </div>
+    </div>
+</div>    </div>
+  </details>
+      <p><i>She plugged in strings one after the other, the tiny metal cubes flying in and out as her fingers danced over the tray with blinding speed.</i></p>
+  </div>
+<br />
+</div>
+</section>
+<section id="greatwork">
+    <div class="spoilered">
+      <h2 class="category-title page-header">
+    <img
+      title="Music Disc"
+      alt="Music Disc"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/music_disc_11.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    >The Great Work<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#greatwork"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h2>
+    <p>I have seen... so much. I have... experienced... annihilation and deconstruction and reconstruction. I have seen the atoms of the world screaming as they were inverted and subverted and demoted to energy. I have seen I have seen I have s<span class="obfuscated">get stick bugged lmao</span></p>
+    </div>
+<div id="greatwork/enlightened_splicing_table" class="entry">
+    <div class="spoilered">
+      <h3 class="entry-title page-header">
+    <img
+      title="Mindsplice Table"
+      alt="Mindsplice Table"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/enlightened_splicing_table/lit.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >Mindsplice Table<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#greatwork/enlightened_splicing_table"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h3>
+    <p>The <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> is fine. Adequate. But limited, oh so limited. I have <i>seen</i> what is possible now, and I must have it, no matter the cost.</p><p>I shall MAKE the table think for itself.</p>
+<br />
+    <p>A solution. Yes. Familiar -- almost <i>simple</i> in its infinite complexity. As with my <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#greatwork/impetus">previous insights</a>, I can specialize a mind -- sever it from the body, redirect, connect, rewire, <i>transform</i> -- for the task at hand. Like an <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#greatwork/impetus"><span style="color: #b0b">Impetus</span></a>... but greater, more complicated, more and more and more and more and-- I MUST FOCUS.</p>
+<br />
+  <details class="details-collapsible flay-recipe-details">
+    <summary class="collapse-details">
+      <span class="collapse-recipe-show">Click to show recipes</span>
+      <span class="collapse-recipe-hide">Click to hide recipes</span>
+    </summary>
+  <div>
+<h5>Mindsplice Table</h5>
+    <div class="flay-recipe">
+        <img
+          class="flay-recipe-background"
+          alt="Flay Mind Recipe GUI"
+          src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/doc/resources/assets/hexcasting/textures/gui/hexdoc/brainsweep.png"
+        >
+<img
+      title="Journeyman Toolsmith"
+      alt="Journeyman Toolsmith"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/doc/resources/assets/minecraft/textures/entities/villagers/toolsmith.png"
+      loading="lazy"
+      class="flay-recipe-entity texture pixelated"
+    >
+<div class="flay-recipe-villager-details">
+  <img
+    class="flay-recipe-villager-detail-icon"
+    alt="Hero of the Village"
+    src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/mob_effect/hero_of_the_village.png"
+    style="width: 16px; height:16px"
+  >
+    Villager must be a Journeyman Toolsmith or higher
+</div>
+        <div class="flay-recipe-block-ingredient">
+          <img
+      title="Splicing Table"
+      alt="Splicing Table"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/splicing_table.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >
+        </div>
+        <div class="flay-recipe-cost texture item-texture multi-textures cycle-textures">
+            <div class="texture item-texture multi-texture-active">
+              <img
+      title="Amethyst Dust"
+      alt="Amethyst Dust"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/amethyst_dust.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    ><div class="badge item-texture-count">100</div>
+            </div>
+            <div class="texture item-texture ">
+              <img
+      title="Amethyst Shard"
+      alt="Amethyst Shard"
+      src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/a14c64362abe4a12c2dfd87f8d1673af9d1b09f4/data/1.20.2/items/amethyst_shard.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    ><div class="badge item-texture-count">20</div>
+            </div>
+            <div class="texture item-texture ">
+              <img
+      title="Charged Amethyst"
+      alt="Charged Amethyst"
+      src="https://raw.githubusercontent.com/FallingColors/HexMod/5831d9e2867f2369b8016aed83fbbd401fd7ad3d/Common/src/main/resources/assets/hexcasting/textures/item/charged_amethyst.png"
+      loading="lazy"
+      class="item-texture multi-texture-active texture pixelated"
+    ><div class="badge item-texture-count">10</div>
+            </div>
+        </div>
+        <div class="flay-recipe-result">
+          <img
+      title="Mindsplice Table"
+      alt="Mindsplice Table"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/enlightened_splicing_table/lit.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >
+        </div>
+    </div>
+  </div>
+</details>
+  <p>Another <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#greatwork/brainsweeping"><span style="color: #8d6acc">mindflaying</span></a> ritual. The task demanded of the mind is almost identical to that of a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#greatwork/impetus"><span style="color: #b0b">Toolsmith Impetus</span></a>, but more experience is required for this specialized, intricate work.</p>
+<br />
+    <p>The resulting <span style="color: #8d6acc">Mindsplice Table</span> is almost the same as before, but transmuted, <i>improved</i>, in a single all-important way. With a mind to channel the patterns, the table can cast <i>any</i> <span style="color: #b38ef3">Hex</span> almost effortlessly, triggered by nothing more than the press of a button.<br />A small <a href="#items/splicing_table@cost">infusion</a> of media is still required to initiate the process -- wasteful, but perhaps less so than my archaic, short-sighted designs of old. For spells, media is drawn from the same source.</p>
+<br />
+    <p>Of course, the flayed mind has limits. It must be <i>taught</i>; even such a skilled mind cannot predict my needs without some guidance. Unlike an <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#greatwork/impetus"><span style="color: #b0b">Impetus</span></a>, however, slates are not required -- the commands are instead <a href="#patterns/enlightened_splicing_table"><span style="color: #8d6acc">imbued</span></a> directly into the mind, rewriting its neural pathways and leaving it no choice but to carry out my will.</p>
+<br />
+    <p>To facilitate even more complicated operations -- one <span style="color: #8d6acc">Mindsplice Table</span> controlling, <i>dominating</i>, the next, and so on and so on and so on and so on and so on into eternity, if I have the patience and <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#casting/mishaps">capacity</a> to use it -- the table&#39;s influence extends a small distance (four blocks, no more and no less) from the table. Small, yes, but perfectly adequate for most purposes. If more space is needed, my <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/great_spells/greater_sentinel@hexcasting:sentinel/create/great"><span style="color: #fc77be">Greater Sentinel</span></a> can be used.</p>
+<br />
+    </div>
+</div>
+</section>
+<section id="patterns">
+    <h2 class="category-title page-header">
+    <img
+      title="Bookshelf"
+      alt="Bookshelf"
+      src="https://hexdoc-dev.github.io/hexdoc-minecraft/v/1.20.1/1.0.dev1/assets/minecraft/textures/block/bookshelf.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >Patterns<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#patterns"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h2>
+    <p>A list of all the patterns I&#39;ve discovered, as well as what they do.</p>
+<div id="patterns/debugging" class="entry">
+    <h3 class="entry-title page-header">
+    <img
+      title="Debugger"
+      alt="Debugger"
+      src="https://raw.githubusercontent.com/object-Object/HexDebug/9547170784ad096fcf1d3cbf6a9850e343fdf0e5/Common/src/main/resources/assets/hexdebug/textures/item/debugger.png"
+      loading="lazy"
+      class="item-texture  texture pixelated"
+    >Debugging Patterns<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#patterns/debugging"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h3>
+  <div id="patterns/debugging@hexdebug:const/debugging" class="">
+<h4 class="pattern-title">Debugger&#39;s Reflection (→ bool)<a
+    href="#patterns/debugging@hexdebug:const/debugging"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="qqqqqewaa"
+        data-start="east"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: qqqqqewaa</canvas>
+  </details>
+      <p>Add <span style="color: #8d6acc">True</span> to the top of the stack if executed by a <a href="#items/debugging@debugger"><span style="color: #b0b">Debugger</span></a> or <a href="#items/debugging@evaluator"><span style="color: #b0b">Evaluator</span></a>, or <span style="color: #8d6acc">False</span> otherwise.</p>
+  </div>
+<br />
+  <div id="patterns/debugging@hexdebug:next_eval_index" class="">
+<h4 class="pattern-title">Debug Locator&#39;s Rfln. (→ int or null)<a
+    href="#patterns/debugging@hexdebug:next_eval_index"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="dedqdeqwaa"
+        data-start="south_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: dedqdeqwaa</canvas>
+  </details>
+      <p>Add the index of the next iota to be evaluated if executed by a <a href="#items/debugging@debugger"><span style="color: #b0b">Debugger</span></a> or <a href="#items/debugging@evaluator"><span style="color: #b0b">Evaluator</span></a>, or <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#casting/influences"><span style="color: #8d6acc">Null</span></a> otherwise.</p>
+  </div>
+<br />
+  <div id="patterns/debugging@hexdebug:const/cognitohazard" class="">
+<h4 class="pattern-title">Cognitohazard Rfln. (→ cognitohazard)<a
+    href="#patterns/debugging@hexdebug:const/cognitohazard"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wdeaqqdqeedqadqeedqaeadeaqqeadeaqqdqdeaqqeaeedqaw"
+        data-start="north_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wdeaqqdqeedqadqeedqaeadeaqqeadeaqqdqdeaqqeaeedqaw</canvas>
+  </details>
+      <p>Add a <span style="color: #8d6acc">Cognitohazard</span> to the top of the stack.</p>
+  </div>
+<br />
+    <p>It seems certain <a href="#items/debugging@evaluator">debugging tools</a> may pose a security risk for some <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/meta@hexcasting:eval/cc">high-level techniques</a>. To help combat this, I have created this pattern.</p><p>When a <span style="color: #8d6acc">Cognitohazard</span> iota is executed normally, nothing happens. However, if one is present in a <span style="color: #b38ef3">Hex</span> executed by a <a href="#items/debugging@debugger"><span style="color: #b0b">Debugger</span></a>, it will cause the <span style="color: #b38ef3">Hex</span> to terminate <i>immediately</i> - even before the <span style="color: #8d6acc">Cognitohazard</span> is actually executed.</p>
+<br />
+  <div id="patterns/debugging@hexdebug:breakpoint/before" class="">
+<h4 class="pattern-title">Set Breakpoint Before<a
+    href="#patterns/debugging@hexdebug:breakpoint/before"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="awqdeew"
+        data-start="south_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: awqdeew</canvas>
+  </details>
+      <p>Pause the <a href="#items/debugging@debugger"><span style="color: #b0b">Debugger</span></a> before executing this pattern.</p>
+  </div>
+<br />
+  <div id="patterns/debugging@hexdebug:breakpoint/after" class="">
+<h4 class="pattern-title">Set Breakpoint After<a
+    href="#patterns/debugging@hexdebug:breakpoint/after"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wqqaewd"
+        data-start="east"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wqqaewd</canvas>
+  </details>
+      <p>Pause the <a href="#items/debugging@debugger"><span style="color: #b0b">Debugger</span></a> after executing this pattern (ie. before executing the next pattern).</p>
+  </div>
+<br />
+  <div id="patterns/debugging@hexdebug:craft/debugger" class="">
+<h4 class="pattern-title">Craft Debugger (entity, [pattern] →)<a
+    href="#patterns/debugging@hexdebug:craft/debugger"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="aaewwwwwaqwawqwadawqwwwawwwqwwwaw"
+        data-start="south_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: aaewwwwwaqwawqwadawqwwwawwwqwwwaw</canvas>
+  </details>
+      <p>Create a <a href="#items/debugging@debugger"><span style="color: #b0b">Debugger</span></a> that casts a <span style="color: #b38ef3">Hex</span>, similar to <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/spells/hexcasting">certain other patterns</a> I&#39;ve used in the past.</p><p>Costs about ten <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/amethyst"><span style="color: #b0b">Charged Amethyst</span></a>.</p>
+  </div>
+<br />
+</div>
+<div id="patterns/enlightened_splicing_table" class="entry">
+    <div class="spoilered">
+      <h3 class="entry-title page-header">
+    <img
+      title="Mindsplice Table"
+      alt="Mindsplice Table"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/enlightened_splicing_table/lit.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >Mindsplice Table Patterns<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#patterns/enlightened_splicing_table"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h3>
+  <div id="patterns/enlightened_splicing_table@hexdebug:splicing/enlightened/hex/write" class="">
+<h4 class="pattern-title">Imbue Mindsplice Table (vec, list →)<a
+    href="#patterns/enlightened_splicing_table@hexdebug:splicing/enlightened/hex/write"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wqaeaqwqqqwqwqqwwqqeaeqqeqqeaeqqw"
+        data-start="north_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wqaeaqwqqqwqwqqwwqqeaeqqeqqeaeqqw</canvas>
+  </details>
+      <p>Remove a vector and list of patterns from the stack, then imbue the list of patterns into the <a href="#greatwork/enlightened_splicing_table"><span style="color: #b0b">Mindsplice Table</span></a> at that position.<br />Costs about five <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/amethyst"><span style="color: #b0b">Charged Amethyst</span></a>.</p>
+  </div>
+<br />
+  <div id="patterns/enlightened_splicing_table@hexdebug:splicing/enlightened/hex/read" class="">
+<h4 class="pattern-title">Mindsplice Purification (vec → list | null)<a
+    href="#patterns/enlightened_splicing_table@hexdebug:splicing/enlightened/hex/read"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wqaeaqwqqqwqwqqwq"
+        data-start="north_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wqaeaqwqqqwqwqqwq</canvas>
+  </details>
+      <p>Remove a vector from the stack, then push the <span style="color: #b38ef3">Hex</span> currently imbued to the <a href="#greatwork/enlightened_splicing_table"><span style="color: #b0b">Mindsplice Table</span></a> at that position, or <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#casting/influences"><span style="color: #8d6acc">Null</span></a> if it has not yet been imbued.</p>
+  </div>
+<br />
+    <p>In addition to these patterns, I can also cast <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/circle@hexcasting:circle/impetus_pos"><span style="color: #fc77be">Waystone Reflection</span></a> and <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#patterns/circle@hexcasting:circle/impetus_dir"><span style="color: #fc77be">Lodestone Reflection</span></a> from within a <a href="#greatwork/enlightened_splicing_table"><span style="color: #b0b">Mindsplice Table</span></a>. However, trying to cast them through a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/staff"><span style="color: #b0b">Staff</span></a>, or trying to cast other <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#greatwork/spellcircles"><span style="color: #b0b">Spell Circle</span></a>-only patterns through a <a href="#greatwork/enlightened_splicing_table"><span style="color: #b0b">Mindsplice Table</span></a>, will still fail rather spectacularly.</p>
+<br />
+    </div>
+</div>
+<div id="patterns/splicing_table" class="entry">
+    <h3 class="entry-title page-header">
+    <img
+      title="Splicing Table"
+      alt="Splicing Table"
+      src="https://hexdebug.hexxy.media/v/0.4.0+1.20.1/1.1/assets/hexdebug/textures/block/splicing_table.png"
+      loading="lazy"
+      class="item-texture  texture "
+    >Splicing Table Patterns<a
+    href="#table-of-contents"
+    class="permalink small"
+    title="Jump to top"
+  ><i class="bi bi-box-arrow-up"></i></a><a
+    href="#patterns/splicing_table"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h3>
+  <div id="patterns/splicing_table@hexdebug:splicing/view_index/read" class="">
+<h4 class="pattern-title">Sprocket&#39;s Purification (vec → num)<a
+    href="#patterns/splicing_table@hexdebug:splicing/view_index/read"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wqaeaqwdwaqaw"
+        data-start="north_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wqaeaqwdwaqaw</canvas>
+  </details>
+      <p>Remove a vector from the stack, then push the index of the leftmost iota currently visible in the <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> at that position.</p>
+  </div>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/view_index/write" class="">
+<h4 class="pattern-title">Sprocket&#39;s Gambit (vec, num →)<a
+    href="#patterns/splicing_table@hexdebug:splicing/view_index/write"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wedqdewawdedw"
+        data-start="south_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wedqdewawdedw</canvas>
+  </details>
+      <p>Remove a vector and number from the stack, then move the view of the <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> at that position so that the given index is the leftmost one visible.</p>
+  </div>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/selection/read" class="">
+<h4 class="pattern-title">Splicer&#39;s Decomposition (vec → num | null, num | null)<a
+    href="#patterns/splicing_table@hexdebug:splicing/selection/read"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wqaeaqweeeedq"
+        data-start="north_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wqaeaqweeeedq</canvas>
+  </details>
+      <p>Remove a vector from the stack, then push two values representing the current selection in the <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> at that position.</p>
+  </div>
+<br />
+    <p>If a range of iotas is selected, two numbers are pushed, representing the start (inclusive) and end (exclusive) of the selected range. If the edge between two iotas is selected, the index of the iota to the right of the selected edge is pushed, followed by <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#casting/influences"><span style="color: #8d6acc">Null</span></a>. And if nothing is selected, <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#casting/influences"><span style="color: #8d6acc">Null</span></a> is pushed twice.</p>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/selection/write" class="">
+<h4 class="pattern-title">Splicer&#39;s Gambit (vec, num | null, num | null →)<a
+    href="#patterns/splicing_table@hexdebug:splicing/selection/write"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wedqdewqqqqae"
+        data-start="south_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wedqdewqqqqae</canvas>
+  </details>
+      <p>Remove a vector and two values from the stack, then set the selection of the <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> at that position as previously described.</p>
+  </div>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/clipboard/read" class="">
+<h4 class="pattern-title">Compositor&#39;s Prfn. (vec → any)<a
+    href="#patterns/splicing_table@hexdebug:splicing/clipboard/read"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wqaeaqweeeedw"
+        data-start="north_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wqaeaqweeeedw</canvas>
+  </details>
+      <p>Remove a vector from the stack, then copy the contents of the secondary item in the <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> at that position and push it to the stack.</p>
+  </div>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/clipboard/write" class="">
+<h4 class="pattern-title">Compositor&#39;s Gambit (vec, any →)<a
+    href="#patterns/splicing_table@hexdebug:splicing/clipboard/write"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wedqdewqqqqaw"
+        data-start="south_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wedqdewqqqqaw</canvas>
+  </details>
+      <p>Remove a vector and iota from the stack, then save the iota into the secondary item in the <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> at that position.<br />As with <a href="https://ioticblocks.hexxy.media/v/1.0.2+1.20.1/1.0/en_us#patterns/readwrite_blocks@hexcasting:write/entity"><span style="color: #fc77be">Chronicler&#39;s Gambit</span></a>, I cannot write my own Name using this spell.</p>
+  </div>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/clipboard/readable" class="">
+<h4 class="pattern-title">Producer&#39;s Purification (vec → bool)<a
+    href="#patterns/splicing_table@hexdebug:splicing/clipboard/readable"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wqaeaqweeeedww"
+        data-start="north_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wqaeaqweeeedww</canvas>
+  </details>
+      <p>Replace the vector at the top of the stack with <span style="color: #8d6acc">True</span> if there is a <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> at that position containing a secondary item that I could read, or <span style="color: #8d6acc">False</span> otherwise.</p>
+  </div>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/clipboard/writable" class="">
+<h4 class="pattern-title">Director&#39;s Purification (vec → bool)<a
+    href="#patterns/splicing_table@hexdebug:splicing/clipboard/writable"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wedqdewqqqqaww"
+        data-start="south_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wedqdewqqqqaww</canvas>
+  </details>
+      <p>Replace the vector at the top of the stack with <span style="color: #8d6acc">True</span> if there is a <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> at that position containing a secondary item that I could save an iota into, or <span style="color: #8d6acc">False</span> otherwise.</p>
+  </div>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/list/spellbook_index/read" class="">
+<h4 class="pattern-title">Projectionist&#39;s Prfn. (vec → num)<a
+    href="#patterns/splicing_table@hexdebug:splicing/list/spellbook_index/read"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wqaeaqwedqddq"
+        data-start="north_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wqaeaqwedqddq</canvas>
+  </details>
+      <p>Remove a vector from the stack, then push the current page number (starting at 1) of the <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/spellbook"><span style="color: #b0b">Spellbook</span></a> in the main slot of the <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> at that position.</p>
+  </div>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/list/spellbook_index/write" class="">
+<h4 class="pattern-title">Projectionist&#39;s Gambit (vec, num →)<a
+    href="#patterns/splicing_table@hexdebug:splicing/list/spellbook_index/write"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wedqdewqaeaae"
+        data-start="south_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wedqdewqaeaae</canvas>
+  </details>
+      <p>Remove a vector and number from the stack, then flip the <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/spellbook"><span style="color: #b0b">Spellbook</span></a> in the main slot of the <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> at that position to the given page number.</p>
+  </div>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/list/spellbook_index/readable" class="">
+<h4 class="pattern-title">Shutter&#39;s Purification (vec → bool)<a
+    href="#patterns/splicing_table@hexdebug:splicing/list/spellbook_index/readable"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wqaeaqwedqddqw"
+        data-start="north_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wqaeaqwedqddqw</canvas>
+  </details>
+      <p>Replace the vector at the top of the stack with <span style="color: #8d6acc">True</span> if there is a <a href="#items/splicing_table"><span style="color: #b0b">Splicing Table</span></a> at that position with a <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/spellbook"><span style="color: #b0b">Spellbook</span></a> in its main slot that contains at least one page, or <span style="color: #8d6acc">False</span> otherwise.</p>
+  </div>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/clipboard/spellbook_index/read" class="">
+<h4 class="pattern-title">Projectionist&#39;s Prfn. II (vec → num)<a
+    href="#patterns/splicing_table@hexdebug:splicing/clipboard/spellbook_index/read"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wqaeaqwdeaaea"
+        data-start="north_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wqaeaqwdeaaea</canvas>
+  </details>
+      <p>Like <a href="#patterns/splicing_table@hexdebug:splicing/list/spellbook_index/read"><span style="color: #fc77be">Projectionist&#39;s Purification</span></a>, but the page number of the <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/spellbook"><span style="color: #b0b">Spellbook</span></a> in the secondary slot is read instead of the main slot.</p>
+  </div>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/clipboard/spellbook_index/write" class="">
+<h4 class="pattern-title">Projectionist&#39;s Gambit II (vec, num →)<a
+    href="#patterns/splicing_table@hexdebug:splicing/clipboard/spellbook_index/write"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wedqdewaqddqd"
+        data-start="south_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wedqdewaqddqd</canvas>
+  </details>
+      <p>Like <a href="#patterns/splicing_table@hexdebug:splicing/list/spellbook_index/write"><span style="color: #fc77be">Projectionist&#39;s Gambit</span></a>, but the page number of the <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/spellbook"><span style="color: #b0b">Spellbook</span></a> in the secondary slot is written instead of the main slot.</p>
+  </div>
+<br />
+  <div id="patterns/splicing_table@hexdebug:splicing/clipboard/spellbook_index/readable" class="">
+<h4 class="pattern-title">Shutter&#39;s Prfn. II (vec → bool)<a
+    href="#patterns/splicing_table@hexdebug:splicing/clipboard/spellbook_index/readable"
+    class="permalink small"
+    title="Permalink"
+  ><i class="bi bi-link-45deg"></i></a></h4>
+  <details class="details-collapsible">
+    <summary class="collapse-details collapse-spell"></summary>
+    <div class="dropdown spell-settings-dropdown">
+      <span
+        href=""
+        class="dropdown-toggle spell-settings-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i class="bi bi-gear-fill"></i>
+      </span>
+      <ul class="dropdown-menu">
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Renders</a>
+          <ul class="dropdown-menu dropdown-menu-left render-dropdowns"></ul>
+        </li>
+        <li class="dropdown-submenu">
+          <a
+            href=""
+            class="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >Palettes</a>
+          <ul class="dropdown-menu dropdown-menu-left palette-dropdowns"></ul>
+        </li>
+      </ul>
+    </div>
+      <canvas
+        class="spell-viz"
+        width="216"
+        height="216"
+        data-string="wqaeaqwdeaaeae"
+        data-start="north_west"
+        data-per-world="False"
+      >Your browser does not support visualizing patterns. Pattern code: wqaeaqwdeaaeae</canvas>
+  </details>
+      <p>Like <a href="#patterns/splicing_table@hexdebug:splicing/list/spellbook_index/readable"><span style="color: #fc77be">Shutter&#39;s Purification</span></a>, but the <a href="https://hexcasting.hexxy.media/v/0.11.2/1.0/en_us#items/spellbook"><span style="color: #b0b">Spellbook</span></a> in the secondary slot is checked instead of the main slot.</p>
+  </div>
+<br />
+</div>
+</section>
+  </main>
+</div>
+      <footer class="footer">
+        <div class="container text-muted">
+          <p>Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p><p>Minecraft content and materials are the intellectual property of their respective owners.</p><p>Made with ❤️ using <a href="https://pypi.org/project/hexdoc/" target="_blank">hexdoc</a>.</p>
+        </div>
+      </footer>
+  </body>
+</html>
