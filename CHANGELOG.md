@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Pydantic's HISTORY.md](https://github.com/pydantic/pydantic/blob/main/HISTORY.md), and this project *mostly* adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## `0.4.0+1.20.1` - 2025-09-21
+
+### Added
+
+- New blocks:
+  - Mindsplice Table: An upgraded variant of the Splicing Table, adding a GUI button to cast a hex imbued into the table (suggested by cc-aaron in [#34](https://github.com/object-Object/HexDebug/pull/34)).
+  - Focal Frame: A cheap and lag-friendly way to store and manipulate iotas in the world. (This used to be an undocumented block called the Focus Holder, but now it's craftable and has a better name.)
+- Added support for manipulating the main item in the Splicing Table via [IoticBlocks](https://ioticblocks.hexxy.media).
+- Added several new patterns for manipulating various aspects of the Splicing Table.
+- Added several new config options related to the Splicing Table.
+
+### Changed
+
+- Updated zh_cn translations, by ChuijkYahus in [#36](https://github.com/object-Object/HexDebug/pull/36) and [#39](https://github.com/object-Object/HexDebug/pull/39).
+- The Splicing Table now stores the current view index and selected iotas server-side, so that they don't reset when closing and reopening the GUI.
+- Implemented scroll wheel handling in the Splicing Table GUI to make scrolling through the pattern view easier (suggested by abilliontrillionstars in [#35](https://github.com/object-Object/HexDebug/pull/35)).
+- The Splicing Table now moves the view position when performing actions or drawing patterns, to make sure the position being modified is visible.
+
+### Fixed
+
+- Added [EMI](https://modrinth.com/mod/emi) interop to fix an issue where EMI's item index would render on top of the Splicing Table GUI.
+- Fixed an issue where the casting grid ambience sound would sometimes play for a fraction of a second when opening the Splicing Table.
+- Fixed Splicing Table buttons that require media still being clickable when the table is out of media.
+- Added missing localizations for a few config options.
+
 ## `0.3.0+1.20.1` - 2025-04-22
 
 ### Added
