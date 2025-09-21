@@ -1,18 +1,33 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "hexdebug:block/enlightened_splicing_table",
+    "facing=east,imbued=false": {
+      "model": "hexdebug:block/enlightened_splicing_table/dim",
       "y": 90
     },
-    "facing=north": {
-      "model": "hexdebug:block/enlightened_splicing_table"
+    "facing=east,imbued=true": {
+      "model": "hexdebug:block/enlightened_splicing_table/lit",
+      "y": 90
     },
-    "facing=south": {
-      "model": "hexdebug:block/enlightened_splicing_table",
+    "facing=north,imbued=false": {
+      "model": "hexdebug:block/enlightened_splicing_table/dim"
+    },
+    "facing=north,imbued=true": {
+      "model": "hexdebug:block/enlightened_splicing_table/lit"
+    },
+    "facing=south,imbued=false": {
+      "model": "hexdebug:block/enlightened_splicing_table/dim",
       "y": 180
     },
-    "facing=west": {
-      "model": "hexdebug:block/enlightened_splicing_table",
+    "facing=south,imbued=true": {
+      "model": "hexdebug:block/enlightened_splicing_table/lit",
+      "y": 180
+    },
+    "facing=west,imbued=false": {
+      "model": "hexdebug:block/enlightened_splicing_table/dim",
+      "y": 270
+    },
+    "facing=west,imbued=true": {
+      "model": "hexdebug:block/enlightened_splicing_table/lit",
       "y": 270
     }
   }

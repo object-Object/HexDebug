@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "hexcasting:block/slate",
+    "east": "hexdebug:block/enlightened_splicing_table/right",
+    "north": "hexdebug:block/enlightened_splicing_table/front/lit",
+    "particle": "hexcasting:block/slate",
+    "south": "hexdebug:block/enlightened_splicing_table/back",
+    "up": "hexdebug:block/enlightened_splicing_table/top",
+    "west": "hexdebug:block/enlightened_splicing_table/left"
+  }
+}

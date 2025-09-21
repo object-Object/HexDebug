@@ -35,7 +35,6 @@ open class SplicingTableData(
     open val listWriter: ADIotaHolder?,
     open val clipboard: Iota?,
     open val clipboardWriter: ADIotaHolder?,
-    var shouldConsumeMedia: Boolean = false,
 ) {
     constructor(
         player: ServerPlayer?,
@@ -56,6 +55,8 @@ open class SplicingTableData(
         clipboard = clipboardHolder?.readIota(level),
         clipboardWriter = clipboardHolder?.takeIfWritable()
     )
+
+    var shouldConsumeMedia = false
 
     var viewEndIndex
         get() = viewStartIndex + VIEW_END_INDEX_OFFSET

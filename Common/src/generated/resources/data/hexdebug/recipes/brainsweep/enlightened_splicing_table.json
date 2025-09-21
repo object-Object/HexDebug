@@ -13,7 +13,8 @@
   "result": {
     "name": "hexdebug:enlightened_splicing_table",
     "properties": {
-      "facing": "north"
+      "facing": "north",
+      "imbued": "false"
     }
   }
 }

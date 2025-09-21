@@ -17,6 +17,8 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.state.properties.Property
 import java.awt.Color
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -204,4 +206,12 @@ fun List<Iota>.getPositiveIntOrNull(idx: Int, argc: Int = 0): Int? {
         is NullIota -> return null
     }
     throw MishapInvalidIota.of(x, if (argc == 0) idx else argc - (idx + 1), "int.positive_or_null")
+}
+
+// block entities
+
+fun <T : Comparable<T>, V : T> BlockEntity.setPropertyIfChanged(property: Property<T>, value: V) {
+    if (blockState.getValue(property) != value) {
+        level?.setBlockAndUpdate(blockPos, blockState.setValue(property, value))
+    }
 }

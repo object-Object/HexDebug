@@ -29,6 +29,7 @@ import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import gay.`object`.hexdebug.splicing.*
 import gay.`object`.hexdebug.utils.Option.None
 import gay.`object`.hexdebug.utils.Option.Some
+import gay.`object`.hexdebug.utils.setPropertyIfChanged
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
@@ -86,10 +87,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     )
         private set
 
-    private var castingCooldown by ContainerDataDelegate(
-        containerData,
-        index = SplicingTableDataSlot.CASTING_COOLDOWN.index,
-    )
+    private var castingCooldown = 0
 
     val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0
 
@@ -147,6 +145,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     override fun setChanged() {
         super.setChanged()
         refillMedia()
+        setPropertyIfChanged(SplicingTableBlock.IMBUED, hexTag != null)
     }
 
     /** Only returns null if it fails to convert `this.level` to [ServerLevel]. */
@@ -210,7 +209,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     }
 
     override fun runAction(action: SplicingTableAction, player: ServerPlayer?) {
-        if (media < mediaCost) return
+        if (action.value.consumesMedia && media < mediaCost) return
         val data = getData(player) ?: return
         clampView(data.level, data)
         setupUndoStack(data)
@@ -439,7 +438,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
         private val config get() = HexDebugConfig.server
 
         private val mediaCost get() = config.splicingTableMediaCost
-        val maxMedia get() = config.splicingTableMaxMedia.coerceIn(1, null)
+        private val maxMedia get() = config.splicingTableMaxMedia.coerceIn(1, null)
 
         @Suppress("UNUSED_PARAMETER")
         fun tickServer(level: Level, pos: BlockPos, state: BlockState, blockEntity: SplicingTableBlockEntity) {

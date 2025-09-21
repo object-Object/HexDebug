@@ -17,6 +17,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
+import net.minecraft.world.level.block.state.properties.BooleanProperty
+import net.minecraft.world.level.block.state.properties.DirectionProperty
 import net.minecraft.world.phys.BlockHitResult
 
 @Suppress("OVERRIDE_DEPRECATION")
@@ -25,11 +27,12 @@ class SplicingTableBlock(properties: Properties, val enlightened: Boolean) : Bas
         registerDefaultState(
             getStateDefinition().any()
                 .setValue(FACING, Direction.NORTH)
+                .setValue(IMBUED, false)
         )
     }
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
-        builder.add(FACING)
+        builder.add(FACING, IMBUED)
     }
 
     override fun getStateForPlacement(ctx: BlockPlaceContext) =
@@ -96,6 +99,7 @@ class SplicingTableBlock(properties: Properties, val enlightened: Boolean) : Bas
     private fun getBlockEntity(level: Level, pos: BlockPos) = level.getBlockEntity(pos) as? SplicingTableBlockEntity
 
     companion object {
-        val FACING = BlockStateProperties.HORIZONTAL_FACING
+        val FACING: DirectionProperty = BlockStateProperties.HORIZONTAL_FACING
+        val IMBUED: BooleanProperty = BooleanProperty.create("imbued")
     }
 }

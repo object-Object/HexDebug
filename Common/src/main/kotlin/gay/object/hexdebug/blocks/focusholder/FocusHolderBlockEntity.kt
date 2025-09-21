@@ -6,9 +6,9 @@ import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerSlotDelegate
-import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlock.Companion.HAS_ITEM
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import gay.`object`.hexdebug.utils.isNotEmpty
+import gay.`object`.hexdebug.utils.setPropertyIfChanged
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.ContainerHelper
@@ -47,8 +47,6 @@ class FocusHolderBlockEntity(pos: BlockPos, state: BlockState) :
 
     override fun setChanged() {
         super.setChanged()
-        if (blockState.getValue(HAS_ITEM) != isNotEmpty) {
-            level?.setBlockAndUpdate(blockPos, blockState.setValue(HAS_ITEM, isNotEmpty))
-        }
+        setPropertyIfChanged(FocusHolderBlock.HAS_ITEM, isNotEmpty)
     }
 }

@@ -66,6 +66,12 @@ object HexDebugEmiPlugin {
                     exportButtonHeight,
                 ))
                 consumer.accept(Bounds(
+                    castButtonX,
+                    castButtonY,
+                    castButtonWidth,
+                    castButtonHeight,
+                ))
+                consumer.accept(Bounds(
                     storageMinX,
                     storageMinY,
                     storageMaxX - storageMinX,

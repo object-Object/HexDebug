@@ -8,6 +8,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     VIEW_LEFT(Value(
         ReadList,
+        consumesMedia = false,
         test = { _, viewStartIndex -> viewStartIndex > 0 },
         validate = { viewStartIndex > 0 },
     ) {
@@ -16,6 +17,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     VIEW_LEFT_PAGE(Value(
         ReadList,
+        consumesMedia = false,
         test = { _, viewStartIndex -> viewStartIndex > 0 },
         validate = { viewStartIndex > 0 },
     ) {
@@ -24,6 +26,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     VIEW_LEFT_FULL(Value(
         ReadList,
+        consumesMedia = false,
         test = { _, viewStartIndex -> viewStartIndex > 0 },
         validate = { viewStartIndex > 0 },
     ) {
@@ -32,6 +35,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     VIEW_RIGHT(Value(
         ReadList,
+        consumesMedia = false,
         test = { _, viewStartIndex -> viewStartIndex + VIEW_END_INDEX_OFFSET < lastIndex },
         validate = { viewEndIndex < list.lastIndex },
     ) {
@@ -40,6 +44,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     VIEW_RIGHT_PAGE(Value(
         ReadList,
+        consumesMedia = false,
         test = { _, viewStartIndex -> viewStartIndex + VIEW_END_INDEX_OFFSET < lastIndex },
         validate = { viewEndIndex < list.lastIndex },
     ) {
@@ -48,6 +53,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     VIEW_RIGHT_FULL(Value(
         ReadList,
+        consumesMedia = false,
         test = { _, viewStartIndex -> viewStartIndex + VIEW_END_INDEX_OFFSET < lastIndex },
         validate = { viewEndIndex < list.lastIndex },
     ) {
@@ -56,6 +62,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     SELECT_NONE(Value(
         ReadList,
+        consumesMedia = false,
         test = { selection, _ -> selection != null },
         validate = { selection != null },
     ) {
@@ -64,6 +71,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     SELECT_ALL(Value(
         ReadList,
+        consumesMedia = false,
         test = { selection, _ -> selection != Selection.range(0, lastIndex) },
         validate = { selection != Selection.range(0, list.lastIndex) },
     ) {
@@ -72,6 +80,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     UNDO(Value(
         ReadList,
+        consumesMedia = true,
         test = { _, _ -> undoSize > 1 && undoIndex > 0 },
         validate = { undoStack.size > 1 && undoStack.index > 0 },
     ) {
@@ -83,6 +92,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     REDO(Value(
         ReadList,
+        consumesMedia = true,
         test = { _, _ -> undoSize > 1 && undoIndex < undoSize - 1 },
         validate = { undoStack.size > 1 && undoStack.index < undoStack.stack.lastIndex },
     ) {
@@ -96,6 +106,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     NUDGE_LEFT(Value(
         ReadWriteListRange,
+        consumesMedia = true,
         test = { selection, _ -> selection != null && selection.start > 0 },
         validate = { typedSelection.start > 0 },
     ) {
@@ -111,6 +122,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     NUDGE_RIGHT(Value(
         ReadWriteListRange,
+        consumesMedia = true,
         test = { selection, _ -> selection is Selection.Range && list != null && selection.end < list.lastIndex },
         validate = { typedSelection.end < list.lastIndex },
     ) {
@@ -124,7 +136,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         }
     }),
 
-    DUPLICATE(Value(ReadWriteListRange) {
+    DUPLICATE(Value(ReadWriteListRange, consumesMedia = true) {
         list.addAll(typedSelection.end + 1, typedSelection.subList(list))
         if (writeList(list)) {
             selection = Selection.withSize(typedSelection.end + 1, typedSelection.size)
@@ -135,7 +147,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         }
     }),
 
-    DELETE(Value(ReadWriteListRange) {
+    DELETE(Value(ReadWriteListRange, consumesMedia = true) {
         typedSelection.mutableSubList(list).clear()
         if (writeList(list)) {
             selection = Selection.edge(typedSelection.start)
@@ -148,7 +160,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     // rw list range, write clipboard
 
-    CUT(Value(ReadWriteListRangeToClipboard) {
+    CUT(Value(ReadWriteListRangeToClipboard, consumesMedia = true) {
         val iota = typedSelection.subList(list).let { if ((it.size) == 1) it.first() else ListIota(it) }
         typedSelection.mutableSubList(list).clear()
         if (isClipboardTransferSafe(iota) && writeClipboard(iota)) {
@@ -167,7 +179,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         }
     }),
 
-    COPY(Value(ReadListRangeToClipboard) {
+    COPY(Value(ReadListRangeToClipboard, consumesMedia = true) {
         val iota = typedSelection.subList(list).let { if ((it.size) == 1) it.first() else ListIota(it) }
         if (isClipboardTransferSafe(iota) && writeClipboard(iota)) {
             pushUndoState(
@@ -178,7 +190,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     // rw list, read clipboard
 
-    PASTE(Value(ReadWriteListFromClipboard) {
+    PASTE(Value(ReadWriteListFromClipboard, consumesMedia = true) {
         typedSelection.mutableSubList(list).apply {
             clear()
             add(clipboard)
@@ -192,7 +204,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         }
     }),
 
-    PASTE_SPLAT(Value(ReadWriteListFromClipboard) {
+    PASTE_SPLAT(Value(ReadWriteListFromClipboard, consumesMedia = true) {
         val values = when (clipboard) {
             is ListIota -> clipboard.list.toList()
             else -> listOf(clipboard)
@@ -213,6 +225,7 @@ enum class SplicingTableAction(val value: Value<*>) {
     });
 
     data class Value<T : SplicingTableData>(
+        val consumesMedia: Boolean,
         // runs on the client to check if the button should be enabled
         // arguments: selection, viewStartIndex
         val test: SplicingTableClientView.(Selection?, Int) -> Boolean,
@@ -223,15 +236,18 @@ enum class SplicingTableAction(val value: Value<*>) {
     ) {
         constructor(
             converter: SplicingTableDataConverter<T>,
+            consumesMedia: Boolean,
             run: T.() -> Unit,
-        ) : this(converter::test, converter::convertOrNull, run)
+        ) : this(consumesMedia, converter::test, converter::convertOrNull, run)
 
         constructor(
             converter: SplicingTableDataConverter<T>,
+            consumesMedia: Boolean,
             test: SplicingTableClientView.(Selection?, Int) -> Boolean,
             validate: T.() -> Boolean,
             run: T.() -> Unit,
         ) : this(
+            consumesMedia,
             test = { selection, viewStartIndex ->
                 converter.test(this, selection, viewStartIndex) && test(this, selection, viewStartIndex)
             },

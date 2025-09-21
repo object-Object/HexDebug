@@ -19,15 +19,13 @@ import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.components.Renderable
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
 import java.awt.Color
 import java.util.function.BiConsumer
-import kotlin.math.absoluteValue
-import kotlin.math.min
-import kotlin.math.pow
-import kotlin.math.roundToInt
+import kotlin.math.*
 
 @Suppress("SameParameterValue")
 class SplicingTableScreen(
@@ -44,13 +42,15 @@ class SplicingTableScreen(
     val data get() = menu.clientView
     val selection get() = menu.selection
     val viewStartIndex get() = menu.viewStartIndex
-    private val castingCooldown get() = menu.castingCooldown
 
     private val hasMediaItem get() = menu.mediaSlot.hasItem()
     val hasStaffItem get() = menu.staffSlot.hasItem()
 
+    private val hasMediaForAction get() = menu.media >= HexDebugConfig.server.splicingTableMediaCost
+
     private var prevSelection: Selection? = selection
     private var prevViewStartIndex = viewStartIndex
+    private var prevMedia = menu.media
 
     var guiSpellcasting = GuiSpellcasting(
         InteractionHand.MAIN_HAND, mutableListOf(), listOf(), null, 1
@@ -108,9 +108,16 @@ class SplicingTableScreen(
     val exportButtonWidth = 24
     val exportButtonHeight = 24
 
+    val castButtonX get() = leftPos + 194
+    val castButtonY get() = topPos + 64
+    val castButtonWidth = 24
+    val castButtonHeight = 24
+
     private val predicateButtons = mutableListOf<Pair<AbstractButton, () -> Boolean>>()
 
     private var clearGridButton: SpriteButton? = null
+
+    private var castingCooldown = 0
 
     override fun init() {
         super.init()
@@ -369,29 +376,53 @@ class SplicingTableScreen(
             )
         )
 
+        // cast hex (enlightened)
         addRenderableWidget(
-            // cast hex (enlightened)
-            // FIXME: placeholder
             object : SpriteButton(
-                x = leftPos + 194,
-                y = topPos + 44,
-                uOffset = 352,
-                vOffset = 0,
-                width = 18,
-                height = 21,
+                x = castButtonX,
+                y = castButtonY,
+                uOffset = 460,
+                vOffset = 392,
+                width = castButtonWidth,
+                height = castButtonHeight,
                 message = buttonText("cast"),
                 onPress = {
                     menu.table.castHex(null)
+                    castingCooldown = maxCastingCooldown
                 },
             ) {
+                private val canCastIgnoringCooldown get() = data.hasHex && hasMediaForAction
+
+                override val uOffsetHovered get() = uOffset
+                override val vOffsetHovered get() = vOffset + 32
+
                 override val uOffsetDisabled get() = uOffset
-                override val vOffsetDisabled get() = vOffset
+                override val vOffsetDisabled get() = vOffset + 64
 
                 override fun testVisible() = data.isEnlightened
 
                 override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-                    active = data.hasHex && castingCooldown <= 0
+                    active = canCastIgnoringCooldown && castingCooldown <= 0
                     super.render(guiGraphics, mouseX, mouseY, partialTick)
+                }
+
+                override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+                    if (castingCooldown > 0) {
+                        val (uOffset, vOffset) = when {
+                            canCastIgnoringCooldown -> Pair(uOffset, vOffset)
+                            else -> Pair(uOffsetDisabled, vOffsetDisabled)
+                        }
+                        blitSprite(guiGraphics, x, y, uOffset, vOffset, width, height)
+
+                        val cooldownPercent = ((castingCooldown - minecraft!!.frameTime) / maxCastingCooldown.toFloat()).coerceIn(0f, 1f)
+                        if (cooldownPercent > 0f) {
+                            val minY = y + floor(height * (1f - cooldownPercent)).toInt()
+                            val maxY = minY + ceil(height * cooldownPercent).toInt()
+                            guiGraphics.fill(RenderType.guiOverlay(), x, minY, x + width, maxY, Int.MAX_VALUE)
+                        }
+                    } else {
+                        super.renderWidget(guiGraphics, mouseX, mouseY, partialTick)
+                    }
                 }
             }
         )
@@ -406,13 +437,17 @@ class SplicingTableScreen(
 
     // state sync
 
-    // since we're storing these in the container data, we can't send our own packet to trigger a reload, otherwise it desyncs
+    // hack: since we're storing these in the container data, we can't send our own packet to trigger a reload, otherwise it desyncs
     // so just check every tick
     private fun pollForChanges() {
         if (selection != prevSelection || viewStartIndex != prevViewStartIndex) {
             prevSelection = selection
             prevViewStartIndex = viewStartIndex
+            prevMedia = menu.media
             reloadData()
+        } else if (prevMedia != menu.media) {
+            prevMedia = menu.media
+            updateActiveButtons()
         }
     }
 
@@ -467,7 +502,8 @@ class SplicingTableScreen(
 
     private val SplicingTableAction.onPress get(): () -> Unit = { menu.table.runAction(this, null) }
 
-    private val SplicingTableAction.test get(): () -> Boolean = { value.test(data, selection, viewStartIndex) }
+    private val SplicingTableAction.test get(): () -> Boolean =
+        { value.test(data, selection, viewStartIndex) && (!value.consumesMedia || hasMediaForAction) }
 
     // GUI functionality
 
@@ -607,8 +643,15 @@ class SplicingTableScreen(
 
     // rendering
 
-    override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+    override fun containerTick() {
+        super.containerTick()
         pollForChanges()
+        if (castingCooldown > 0) {
+            castingCooldown -= 1
+        }
+    }
+
+    override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         renderBackground(guiGraphics)
         super.render(guiGraphics, mouseX, mouseY, partialTick)
         renderTooltip(guiGraphics, mouseX, mouseY)
@@ -628,7 +671,7 @@ class SplicingTableScreen(
             // dust background
             blitSprite(guiGraphics, x = leftPos + 205, y = topPos + 169, uOffset = 461, vOffset = 328, width = 16, height = 16)
         }
-        if (menu.media > 0) {
+        if (hasMediaForAction) {
             // sparkly stars
             blitSprite(guiGraphics, x = leftPos + 193, y = topPos + 170, uOffset = 449, vOffset = 328, width = 10, height = 14)
         }
@@ -692,6 +735,8 @@ class SplicingTableScreen(
 
         const val MAX_DIGIT_LEN = 4
         val MAX_DIGIT = 10f.pow(MAX_DIGIT_LEN).toInt() - 1
+
+        private val maxCastingCooldown get() = HexDebugConfig.server.splicingTableCastingCooldown
 
         fun getInstance() = Minecraft.getInstance().screen as? SplicingTableScreen
 
