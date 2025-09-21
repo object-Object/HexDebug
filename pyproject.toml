@@ -35,7 +35,7 @@ gradle-version-regex = { regex='^(.+?)(-.+)?$', repl='\1.{minecraftVersion}\2' }
 dependencies = [
     "hexdoc>=1!0.1.0a16",
     { package="hexdoc-hexcasting", op="~=", py-version="1.0", key="hexcasting" },
-    { package="hexdoc-ioticblocks", op="~=", py-version="1.0", key="ioticblocks" },
+    { package="hexdoc-ioticblocks", op=">=", py-version="1.0", key="ioticblocks" },
 ]
 
 [tool.hatch.metadata.hooks.version-catalog.optional-dependencies]
