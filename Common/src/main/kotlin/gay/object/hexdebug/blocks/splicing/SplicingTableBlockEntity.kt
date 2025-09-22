@@ -448,11 +448,11 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
             // avoid wasting media if the item is too large
             if (extractMedia(mediaHolder, cost = cost, simulate = true) !in 1..cost) return
 
-            // stop looping as soon as we stop adding media
             val extracted = extractMedia(mediaHolder, cost = cost)
-            if (extracted <= 1) return // the Inexhaustible Phial thinks it's funny.
-
             media += extracted
+
+            // stop looping as soon as we stop adding media
+            if (extracted <= 1) return // the Inexhaustible Phial thinks it's funny.
         }
     }
 
