@@ -18,7 +18,6 @@ import at.petrak.hexcasting.api.utils.extractMedia
 import at.petrak.hexcasting.api.utils.getInt
 import at.petrak.hexcasting.api.utils.getList
 import at.petrak.hexcasting.xplat.IXplatAbstractions
-import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
@@ -68,7 +67,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
 
     private val containerData = SimpleContainerData(SplicingTableDataSlot.size)
 
-    var media by ContainerDataLongDelegate(
+    private var mediaDelegate by ContainerDataLongDelegate(
         containerData,
         index0 = SplicingTableDataSlot.MEDIA_0.index,
         index1 = SplicingTableDataSlot.MEDIA_1.index,
@@ -446,12 +445,12 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
 
     // ADMediaHolder
 
-    override fun getMedia() = media
+    override fun getMedia() = mediaDelegate
 
     override fun getMaxMedia() = SplicingTableBlockEntity.maxMedia
 
     override fun setMedia(media: Long) {
-        HexDebug.LOGGER.warn("Something attempted to call setMedia($media) on a splicing table.")
+        mediaDelegate = media
     }
 
     override fun canRecharge() = false
