@@ -142,7 +142,7 @@ object HexDebugClientConfig {
             val pasteVerbatim = ConfigModifierKey(InputConstants.KEY_V, ctrl = true, shift = true)
 
             @Tooltip
-            @CollapsibleObject
+            @CollapsibleObject(startExpanded = true)
             val enlightened = Enlightened()
 
             fun getActionMap() = mapOf(
