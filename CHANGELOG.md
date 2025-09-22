@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - Fixed an issue where newly placed splicing tables would default to having the first iota selected.
 - Fixed several bugs/exploits related to the Splicing Table's media buffer ([#40](https://github.com/object-Object/HexDebug/pull/40), [#41](https://github.com/object-Object/HexDebug/pull/41), [#44](https://github.com/object-Object/HexDebug/pull/44), [#45](https://github.com/object-Object/HexDebug/pull/45)).
 - Fixed Lodestone Reflection not working in the Mindsplice Table ([#42](https://github.com/object-Object/HexDebug/pull/42)).
+- Fixed a bug in the Splicing Table where the Select All button was enabled when the list was empty and the left edge was selected. 
 
 ## `0.4.0+1.20.1` - 2025-09-21
 

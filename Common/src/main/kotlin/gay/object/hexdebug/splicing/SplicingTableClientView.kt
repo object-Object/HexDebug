@@ -26,6 +26,7 @@ data class SplicingTableClientView(
     val isClipboardReadable = null != clipboard // thanks kotlin
 
     val lastIndex = list?.lastIndex ?: -1
+    val listSize = list?.size ?: 0
 
     fun isInRange(index: Int) = list?.let { index in it.indices } ?: false
 

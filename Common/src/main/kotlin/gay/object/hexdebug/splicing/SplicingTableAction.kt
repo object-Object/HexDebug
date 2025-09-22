@@ -149,8 +149,8 @@ enum class SplicingTableAction(val value: Value<*>) {
     SELECT_ALL(Value(
         ReadList,
         consumesMedia = false,
-        test = { selection, _ -> selection != Selection.range(0, lastIndex) },
-        validate = { selection != Selection.range(0, list.lastIndex) },
+        test = { selection, _ -> selection != Selection.range(0, lastIndex) && listSize > 0 },
+        validate = { selection != Selection.range(0, list.lastIndex) && list.size > 0 },
     ) {
         selection = Selection.range(0, list.lastIndex)
     }),
