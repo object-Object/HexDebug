@@ -538,7 +538,7 @@ class SplicingTableScreen(
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        if (HexDebugClientConfig.config.enableSplicingTableKeybinds) {
+        if (HexDebugClientConfig.config.splicingTableKeybinds.enabled) {
             // AbstractContainerScreen.keyPressed always returns true, so check our keys first
             if (keyPressedInner(keyCode, scanCode)) return true
 
@@ -556,8 +556,10 @@ class SplicingTableScreen(
     }
 
     private fun keyPressedInner(keyCode: Int, scanCode: Int): Boolean {
+        val keybinds = HexDebugClientConfig.config.splicingTableKeybinds
+
         if (
-            HexDebugClientConfig.config.enlightenedSplicingTableKeybinds.cast.matchesKey(keyCode, scanCode)
+            keybinds.enlightened.cast.matchesKey(keyCode, scanCode)
             && canCastIgnoringCooldown
             && castingCooldown <= 0
         ) {
@@ -567,7 +569,7 @@ class SplicingTableScreen(
             return true
         }
 
-        val action = HexDebugClientConfig.config.splicingTableKeybinds.getActionForKey(keyCode, scanCode)
+        val action = keybinds.getActionForKey(keyCode, scanCode)
             ?: return false
 
         if (data.isListReadable && action.test()) {

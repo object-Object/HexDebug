@@ -38,7 +38,7 @@ object HexDebugClientConfig {
                     entryBuilder.startModifierKeyCodeField(
                         when (config) {
                             is ClientConfig.SplicingTableKeybinds,
-                            is ClientConfig.EnlightenedSplicingTableKeybinds -> {
+                            is ClientConfig.SplicingTableKeybinds.Enlightened -> {
                                 SplicingTableScreen.buttonText(field.name.camelToSnakeCase())
                             }
                             else -> i18n.asTranslatedComponent
@@ -97,18 +97,14 @@ object HexDebugClientConfig {
         val invertSplicingTableScrollDirection: Boolean = false
 
         @Tooltip
-        val enableSplicingTableKeybinds: Boolean = true
-
-        @Tooltip
         @CollapsibleObject
         val splicingTableKeybinds = SplicingTableKeybinds()
 
-        @Tooltip
-        @CollapsibleObject
-        val enlightenedSplicingTableKeybinds = EnlightenedSplicingTableKeybinds()
-
         @Suppress("MemberVisibilityCanBePrivate")
         class SplicingTableKeybinds {
+            @Tooltip
+            val enabled: Boolean = true
+
             @Tooltip
             val overrideVanillaArrowKeys = true
 
@@ -145,6 +141,10 @@ object HexDebugClientConfig {
             val pasteSplat = ConfigModifierKey(InputConstants.KEY_V, ctrl = true)
             val pasteVerbatim = ConfigModifierKey(InputConstants.KEY_V, ctrl = true, shift = true)
 
+            @Tooltip
+            @CollapsibleObject
+            val enlightened = Enlightened()
+
             fun getActionForKey(keyCode: Int, scanCode: Int): SplicingTableAction? {
                 for ((key, action) in arrayOf(
                     viewLeft to SplicingTableAction.VIEW_LEFT,
@@ -179,10 +179,10 @@ object HexDebugClientConfig {
                 }
                 return null
             }
-        }
 
-        class EnlightenedSplicingTableKeybinds {
-            val cast = ConfigModifierKey(InputConstants.KEY_RETURN, ctrl = true)
+            class Enlightened {
+                val cast = ConfigModifierKey(InputConstants.KEY_RETURN, ctrl = true)
+            }
         }
     }
 }

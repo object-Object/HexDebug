@@ -95,21 +95,21 @@
             "": "Invert Splicing Table Scroll Direction",
             "@Tooltip": "Whether scrolling up (as opposed to down) will increase the view index of the splicing table, and vice versa.",
           },
-          enableSplicingTableKeybinds: {
-            "": "Enable Splicing/Mindsplice Table Keybinds",
-            "@Tooltip": "Enable custom keybinds in the Splicing Table and Mindsplice Table GUIs. If disabled, all settings in the next two categories are ignored.",
-          },
           splicingTableKeybinds: {
             "": "Splicing Table Keybinds",
             "@Tooltip": "Keybinds for actions in the Splicing Table GUI.",
+            enabled: {
+              "": "Enable Keybinds",
+              "@Tooltip": "Enable custom keybinds in the Splicing Table and Mindsplice Table GUIs. If disabled, all other settings in this category are ignored.",
+            },
             overrideVanillaArrowKeys: {
               "": "Override Vanilla Arrow Key Navigation",
               "@Tooltip": "In the Splicing Table GUI, override the vanilla feature that allows the arrow keys to be used to focus on UI elements. This setting improves usability with the default keybinds, but you may want to disable it if you rely on this feature for accessibility purposes.",
             },
-          },
-          enlightenedSplicingTableKeybinds: {
-            "": "Mindsplice Table Keybinds",
-            "@Tooltip": "Keybinds for actions in the Mindsplice Table GUI.",
+            enlightened: {
+              "": "Mindsplice Table",
+              "@Tooltip": "Keybinds for actions in the Mindsplice Table GUI.",
+            },
           },
         },
         server: {

@@ -18,7 +18,7 @@ public abstract class MixinEmiScreenManager {
     @ModifyExpressionValue(method = "keyPressed", at = @At(value = "MIXINEXTRAS:EXPRESSION"), require = 0)
     private static boolean hexdebug$cancelHardcodedKeybindInSplicingTable(boolean original) {
         if (
-            HexDebugClientConfig.getConfig().getEnableSplicingTableKeybinds()
+            HexDebugClientConfig.getConfig().getSplicingTableKeybinds().getEnabled()
             && Minecraft.getInstance().screen instanceof SplicingTableScreen
         ) {
             return false;
