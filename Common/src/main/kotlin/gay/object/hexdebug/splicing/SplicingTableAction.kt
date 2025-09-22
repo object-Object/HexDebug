@@ -2,6 +2,7 @@ package gay.`object`.hexdebug.splicing
 
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import gay.`object`.hexdebug.utils.Option.Some
+import kotlin.math.min
 
 enum class SplicingTableAction(val value: Value<*>) {
     // any data
@@ -69,7 +70,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         val newIndex = when (val selection = selection) {
             is Selection.Range -> selection.start
             is Selection.Edge -> selection.index - 1
-            null -> viewStartIndex + IOTA_BUTTONS / 2
+            null -> min(viewStartIndex + IOTA_BUTTONS / 2, list.size)
         }
         selection = Selection.edge(newIndex)?.also {
             makeEdgeVisible(it)
@@ -85,7 +86,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         val newIndex = when (val selection = selection) {
             is Selection.Range -> selection.end + 1
             is Selection.Edge -> selection.index + 1
-            null -> viewStartIndex + IOTA_BUTTONS / 2 + 1
+            null -> min(viewStartIndex + IOTA_BUTTONS / 2 + 1, list.size)
         }
         selection = Selection.edge(newIndex)?.also {
             makeEdgeVisible(it)
