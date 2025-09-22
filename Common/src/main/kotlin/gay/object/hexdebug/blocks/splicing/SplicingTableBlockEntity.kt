@@ -2,6 +2,7 @@ package gay.`object`.hexdebug.blocks.splicing
 
 import at.petrak.hexcasting.api.HexAPI
 import at.petrak.hexcasting.api.addldata.ADIotaHolder
+import at.petrak.hexcasting.api.addldata.ADMediaHolder
 import at.petrak.hexcasting.api.block.HexBlockEntity
 import at.petrak.hexcasting.api.casting.ParticleSpray
 import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
@@ -17,6 +18,7 @@ import at.petrak.hexcasting.api.utils.extractMedia
 import at.petrak.hexcasting.api.utils.getInt
 import at.petrak.hexcasting.api.utils.getList
 import at.petrak.hexcasting.xplat.IXplatAbstractions
+import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
@@ -51,7 +53,7 @@ import kotlin.math.min
 
 class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     HexBlockEntity(HexDebugBlockEntities.SPLICING_TABLE.value, pos, state),
-    ISplicingTable, BaseContainer, MenuProvider, ADIotaHolder
+    ISplicingTable, BaseContainer, MenuProvider, ADIotaHolder, ADMediaHolder
 {
     override val stacks = BaseContainer.withSize(SplicingTableItemSlot.container_size)
 
@@ -428,6 +430,8 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
         }
     }
 
+    // ADIotaHolder
+
     override fun readIotaTag() = listHolder?.readIotaTag()
 
     override fun writeIota(iota: Iota?, simulate: Boolean): Boolean {
@@ -439,6 +443,24 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     }
 
     override fun writeable() = listHolder?.writeable() ?: false
+
+    // ADMediaHolder
+
+    override fun getMedia() = media
+
+    override fun getMaxMedia() = SplicingTableBlockEntity.maxMedia
+
+    override fun setMedia(media: Long) {
+        HexDebug.LOGGER.warn("Something attempted to call setMedia($media) on a splicing table.")
+    }
+
+    override fun canRecharge() = false
+
+    override fun canProvide() = false
+
+    override fun getConsumptionPriority() = -1
+
+    override fun canConstructBattery() = false
 
     companion object {
         private val config get() = HexDebugServerConfig.config
