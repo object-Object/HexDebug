@@ -66,7 +66,10 @@ abstract class SplicingTableButton(
     open fun reload() {}
 
     override fun updateTooltip() {
-        if (HexDebugClientConfig.config.splicingTableKeybinds.overrideVanillaArrowKeys) {
+        if (
+            HexDebugClientConfig.config.enableSplicingTableKeybinds
+            && HexDebugClientConfig.config.splicingTableKeybinds.overrideVanillaArrowKeys
+        ) {
             updateFocus()
         }
         super.updateTooltip()

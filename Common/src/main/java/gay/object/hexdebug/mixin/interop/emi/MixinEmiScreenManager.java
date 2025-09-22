@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.emi.emi.screen.EmiScreenManager;
+import gay.object.hexdebug.config.HexDebugClientConfig;
 import gay.object.hexdebug.gui.splicing.SplicingTableScreen;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,7 +17,10 @@ public abstract class MixinEmiScreenManager {
     @Expression("keyCode == 89")
     @ModifyExpressionValue(method = "keyPressed", at = @At(value = "MIXINEXTRAS:EXPRESSION"), require = 0)
     private static boolean hexdebug$cancelHardcodedKeybindInSplicingTable(boolean original) {
-        if (Minecraft.getInstance().screen instanceof SplicingTableScreen) {
+        if (
+            HexDebugClientConfig.getConfig().getEnableSplicingTableKeybinds()
+            && Minecraft.getInstance().screen instanceof SplicingTableScreen
+        ) {
             return false;
         }
         return original;

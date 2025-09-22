@@ -538,15 +538,17 @@ class SplicingTableScreen(
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        // AbstractContainerScreen.keyPressed always returns true, so check our keys first
-        if (keyPressedInner(keyCode, scanCode)) return true
+        if (HexDebugClientConfig.config.enableSplicingTableKeybinds) {
+            // AbstractContainerScreen.keyPressed always returns true, so check our keys first
+            if (keyPressedInner(keyCode, scanCode)) return true
 
-        if (HexDebugClientConfig.config.splicingTableKeybinds.overrideVanillaArrowKeys) {
-            when (keyCode) {
-                GLFW.GLFW_KEY_UP,
-                GLFW.GLFW_KEY_DOWN,
-                GLFW.GLFW_KEY_LEFT,
-                GLFW.GLFW_KEY_RIGHT -> return true
+            if (HexDebugClientConfig.config.splicingTableKeybinds.overrideVanillaArrowKeys) {
+                when (keyCode) {
+                    GLFW.GLFW_KEY_UP,
+                    GLFW.GLFW_KEY_DOWN,
+                    GLFW.GLFW_KEY_LEFT,
+                    GLFW.GLFW_KEY_RIGHT -> return true
+                }
             }
         }
 

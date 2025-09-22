@@ -97,6 +97,9 @@ object HexDebugClientConfig {
         val invertSplicingTableScrollDirection: Boolean = false
 
         @Tooltip
+        val enableSplicingTableKeybinds: Boolean = true
+
+        @Tooltip
         @CollapsibleObject
         val splicingTableKeybinds = SplicingTableKeybinds()
 
