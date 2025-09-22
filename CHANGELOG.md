@@ -4,13 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Pydantic's HISTORY.md](https://github.com/pydantic/pydantic/blob/main/HISTORY.md), and this project *mostly* adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [UNRELEASED]
+## `0.5.0+1.20.1` - 2025-09-22
 
 ### Added
 
-- Added keyboard shortcuts for all buttons in the Splicing Table, configurable in HexDebug's client config menu.
+- Added keyboard shortcuts for almost all of the buttons in the Splicing Table, configurable in HexDebug's client config menu.
 - Added several new keyboard-only actions to the Splicing Table, mostly related to manipulating the active selection:
-  - Cursor Left/Right
+  - Move Cursor Left/Right
   - Expand Selection Left/Right
   - Move Selection Left/Right
   - Backspace
