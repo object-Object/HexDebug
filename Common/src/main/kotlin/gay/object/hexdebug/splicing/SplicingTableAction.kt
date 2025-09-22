@@ -194,7 +194,7 @@ enum class SplicingTableAction(val value: Value<*>) {
 
     // rw list, read clipboard
 
-    PASTE(Value(ReadWriteListFromClipboard, consumesMedia = true) {
+    PASTE_VERBATIM(Value(ReadWriteListFromClipboard, consumesMedia = true) {
         typedSelection.mutableSubList(list).apply {
             clear()
             add(clipboard)

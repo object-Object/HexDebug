@@ -39,7 +39,7 @@
           redo: "重做",
           cut: "剪切",
           copy: "复制",
-          paste: "粘贴（逐项）",
+          paste_verbatim: "粘贴（逐项）",
           paste_splat: "粘贴（扁平化）",
           export: "导出为.hexpattern文件",
           cast: "激活编辑台",

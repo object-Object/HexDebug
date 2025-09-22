@@ -13,10 +13,11 @@
     "MixinOpEval",
     "MixinOpImpetusDir",
     "MixinOpImpetusPos",
-    "MixinStaffCastEnv"
+    "MixinStaffCastEnv",
+    "interop.emi.MixinEmiScreenManager"
   ],
   "plugin": "gay.object.hexdebug.mixin.HexDebugMixinConfigPlugin",
-  "injectors": {
-    "defaultRequire": 1
+  "mixinextras": {
+    "minVersion": "0.5.0"
   }
 }

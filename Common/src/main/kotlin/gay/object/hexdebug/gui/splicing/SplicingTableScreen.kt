@@ -21,7 +21,9 @@ import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.components.Renderable
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.network.chat.Component
+import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
 import java.awt.Color
@@ -119,6 +121,8 @@ class SplicingTableScreen(
     private var clearGridButton: SpriteButton? = null
 
     private var castingCooldown = 0
+
+    private val canCastIgnoringCooldown get() = data.isEnlightened && data.hasHex && hasMediaForAction
 
     override fun init() {
         super.init()
@@ -332,7 +336,7 @@ class SplicingTableScreen(
 
             *listOf(
                 SplicingTableAction.PASTE_SPLAT to false,
-                SplicingTableAction.PASTE to true,
+                SplicingTableAction.PASTE_VERBATIM to true,
             ).map { (action, needsShiftDown) ->
                 object : SpriteButton(
                     x = leftPos + 27,
@@ -392,8 +396,6 @@ class SplicingTableScreen(
                     castingCooldown = maxCastingCooldown
                 },
             ) {
-                private val canCastIgnoringCooldown get() = data.hasHex && hasMediaForAction
-
                 override val uOffsetHovered get() = uOffset
                 override val vOffsetHovered get() = vOffset + 32
 
@@ -535,11 +537,51 @@ class SplicingTableScreen(
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        if (super.keyPressed(keyCode, scanCode, modifiers)) return true
+        // AbstractContainerScreen.keyPressed always returns true, so check our keys first
+        if (keyPressedInner(keyCode, scanCode)) return true
+        return super.keyPressed(keyCode, scanCode, modifiers)
+    }
 
+    private fun keyPressedInner(keyCode: Int, scanCode: Int): Boolean {
+        if (
+            HexDebugClientConfig.config.enlightenedSplicingTableKeybinds.cast.matchesKey(keyCode, scanCode)
+            && canCastIgnoringCooldown
+            && castingCooldown <= 0
+        ) {
+            menu.table.castHex(null)
+            castingCooldown = maxCastingCooldown
+            playButtonClick()
+            return true
+        }
 
+        val action = HexDebugClientConfig.config.splicingTableKeybinds.run {
+            when {
+                selectNone.matchesKey(keyCode, scanCode) -> SplicingTableAction.SELECT_NONE
+                selectAll.matchesKey(keyCode, scanCode) -> SplicingTableAction.SELECT_ALL
+                undo.matchesKey(keyCode, scanCode) -> SplicingTableAction.UNDO
+                redo.matchesKey(keyCode, scanCode) -> SplicingTableAction.REDO
+                nudgeLeft.matchesKey(keyCode, scanCode) -> SplicingTableAction.NUDGE_LEFT
+                nudgeRight.matchesKey(keyCode, scanCode) -> SplicingTableAction.NUDGE_RIGHT
+                duplicate.matchesKey(keyCode, scanCode) -> SplicingTableAction.DUPLICATE
+                delete.matchesKey(keyCode, scanCode) -> SplicingTableAction.DELETE
+                cut.matchesKey(keyCode, scanCode) -> SplicingTableAction.CUT
+                copy.matchesKey(keyCode, scanCode) -> SplicingTableAction.COPY
+                pasteSplat.matchesKey(keyCode, scanCode) -> SplicingTableAction.PASTE_SPLAT
+                pasteVerbatim.matchesKey(keyCode, scanCode) -> SplicingTableAction.PASTE_VERBATIM
+                else -> return false
+            }
+        }
 
+        if (data.isListReadable && action.test()) {
+            action.onPress()
+            playButtonClick()
+            return true
+        }
         return false
+    }
+
+    private fun playButtonClick() {
+        minecraft!!.soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f))
     }
 
     // TODO: limit scroll to certain regions? (let's see if anyone complains first)

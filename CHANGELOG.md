@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [UNRELEASED]
 
+### Added
+
+- Added keyboard shortcuts to the Splicing Table, configurable in HexDebug's client config menu.
+
 ### Fixed
 
 - Fixed an issue where newly placed splicing tables would default to having the first iota selected.
