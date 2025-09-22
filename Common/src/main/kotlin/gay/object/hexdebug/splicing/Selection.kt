@@ -11,18 +11,19 @@ import kotlin.math.min
 sealed class Selection private constructor(val from: Int, open val to: Int?) {
     abstract val start: Int
     abstract val end: Int?
+    /** For ranges, the end index. For edges, the index of the iota to the left. */
+    abstract val lastIndex: Int
 
     protected val isValid by lazy { start >= 0 && (end?.let { it >= start } ?: true) }
-
-    val lastIndex by lazy { end ?: start }
 
     val size by lazy { end?.let { it - start + 1 } ?: 0 }
 
     abstract operator fun contains(value: Number): Boolean
 
-    abstract fun expandRight(extra: Int): Selection?
+    /* Expand the selection. A positive value expands to the right, while a negative value expands to the left. */
+    abstract fun expandBy(extra: Int): Selection?
 
-    fun moveBy(delta: Int) = of(start + delta, end?.plus(delta))
+    abstract fun moveBy(delta: Int): Selection?
 
     fun <T> subList(list: List<T>) = list.subList(start, end?.plus(1) ?: start).toList()
 
@@ -39,15 +40,14 @@ sealed class Selection private constructor(val from: Int, open val to: Int?) {
     class Range private constructor(from: Int, override val to: Int) : Selection(from, to) {
         override val start = min(from, to)
         override val end = max(from, to)
+        override val lastIndex = end
 
         private val range = start..end
         override fun contains(value: Number) = value in range
 
-        override fun expandRight(extra: Int) = if (from <= to) {
-            of(from, to + extra)
-        } else {
-            of(from + extra, to)
-        }
+        override fun expandBy(extra: Int) = of(from, to + extra)
+
+        override fun moveBy(delta: Int) = of(from + delta, to + delta)
 
         companion object {
             fun of(from: Int, to: Int) = Range(from, to).takeIf { it.isValid }
@@ -59,14 +59,19 @@ sealed class Selection private constructor(val from: Int, open val to: Int?) {
         override val to = null
         override val start = index
         override val end = null
+        override val lastIndex = index - 1
 
         override fun contains(value: Number) = false
 
-        override fun expandRight(extra: Int) = when {
-            extra > 0 -> range(index, index + extra)
+        override fun expandBy(extra: Int) = when {
+            // eg. index = 10, extra = 1 -> range(10, 10)
+            extra > 0 -> range(index, index + extra - 1)
+            // eg. index = 10, extra = -1 -> range(9, 9)
             extra < 0 -> range(index - 1, index + extra)
             else -> this
         }
+
+        override fun moveBy(delta: Int) = of(index + delta)
 
         companion object {
             fun of(index: Int) = Edge(index).takeIf { it.isValid }

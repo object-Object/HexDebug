@@ -26,6 +26,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
+import org.lwjgl.glfw.GLFW
 import java.awt.Color
 import java.util.function.BiConsumer
 import kotlin.math.*
@@ -539,6 +540,16 @@ class SplicingTableScreen(
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         // AbstractContainerScreen.keyPressed always returns true, so check our keys first
         if (keyPressedInner(keyCode, scanCode)) return true
+
+        if (HexDebugClientConfig.config.splicingTableKeybinds.overrideVanillaArrowKeys) {
+            when (keyCode) {
+                GLFW.GLFW_KEY_UP,
+                GLFW.GLFW_KEY_DOWN,
+                GLFW.GLFW_KEY_LEFT,
+                GLFW.GLFW_KEY_RIGHT -> return true
+            }
+        }
+
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
@@ -554,23 +565,8 @@ class SplicingTableScreen(
             return true
         }
 
-        val action = HexDebugClientConfig.config.splicingTableKeybinds.run {
-            when {
-                selectNone.matchesKey(keyCode, scanCode) -> SplicingTableAction.SELECT_NONE
-                selectAll.matchesKey(keyCode, scanCode) -> SplicingTableAction.SELECT_ALL
-                undo.matchesKey(keyCode, scanCode) -> SplicingTableAction.UNDO
-                redo.matchesKey(keyCode, scanCode) -> SplicingTableAction.REDO
-                nudgeLeft.matchesKey(keyCode, scanCode) -> SplicingTableAction.NUDGE_LEFT
-                nudgeRight.matchesKey(keyCode, scanCode) -> SplicingTableAction.NUDGE_RIGHT
-                duplicate.matchesKey(keyCode, scanCode) -> SplicingTableAction.DUPLICATE
-                delete.matchesKey(keyCode, scanCode) -> SplicingTableAction.DELETE
-                cut.matchesKey(keyCode, scanCode) -> SplicingTableAction.CUT
-                copy.matchesKey(keyCode, scanCode) -> SplicingTableAction.COPY
-                pasteSplat.matchesKey(keyCode, scanCode) -> SplicingTableAction.PASTE_SPLAT
-                pasteVerbatim.matchesKey(keyCode, scanCode) -> SplicingTableAction.PASTE_VERBATIM
-                else -> return false
-            }
-        }
+        val action = HexDebugClientConfig.config.splicingTableKeybinds.getActionForKey(keyCode, scanCode)
+            ?: return false
 
         if (data.isListReadable && action.test()) {
             action.onPress()
@@ -853,6 +849,8 @@ class SplicingTableScreen(
 
         override val iotaView get() = data.list?.getOrNull(index)
 
+        private var wasLastSelection = false
+
         override fun onPress() {
             onSelectIota(index)
         }
@@ -861,6 +859,17 @@ class SplicingTableScreen(
             // skip hitbox if hovering over an edge selection
             // FIXME: hack
             return super.testHitbox(mouseX, mouseY) && mouseX >= x + 2 && mouseX < x + width - 2
+        }
+
+        override fun updateFocus() {
+            val selection = selection
+            val isLastSelection = data.isInRange(index)
+                && selection is Selection.Range
+                && index == selection.to
+            if (isLastSelection != wasLastSelection) {
+                wasLastSelection = isLastSelection
+                isFocused = isLastSelection && Minecraft.getInstance().lastInputType.isKeyboard
+            }
         }
 
         init {

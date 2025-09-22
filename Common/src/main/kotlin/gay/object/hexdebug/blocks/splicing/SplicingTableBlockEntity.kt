@@ -250,7 +250,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
         if (writeList(list)) {
             shouldConsumeMedia = true
             selection = Selection.edge(typedSelection.start + 1)?.also {
-                makeEdgeVisible(it.index)
+                makeEdgeVisible(it)
             }
             pushUndoState(
                 list = Some(list),

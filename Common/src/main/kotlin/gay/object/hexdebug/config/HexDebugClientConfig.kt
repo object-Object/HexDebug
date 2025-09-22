@@ -4,6 +4,7 @@ import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import com.mojang.blaze3d.platform.InputConstants
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
+import gay.`object`.hexdebug.splicing.SplicingTableAction
 import me.shedaniel.autoconfig.AutoConfig
 import me.shedaniel.autoconfig.ConfigData
 import me.shedaniel.autoconfig.ConfigHolder
@@ -42,7 +43,7 @@ object HexDebugClientConfig {
                             }
                             else -> i18n.asTranslatedComponent
                         },
-                        getUnsafely(field, config, ConfigModifierKey(InputConstants.UNKNOWN.name)).inner,
+                        getUnsafely(field, config, ConfigModifierKey()).inner,
                     )
                         .setModifierDefaultValue { (getUnsafely(field, defaults) as ConfigModifierKey).inner }
                         .setModifierSaveConsumer { setUnsafely(field, config, ConfigModifierKey(it)) }
@@ -103,19 +104,78 @@ object HexDebugClientConfig {
         @CollapsibleObject
         val enlightenedSplicingTableKeybinds = EnlightenedSplicingTableKeybinds()
 
+        @Suppress("MemberVisibilityCanBePrivate")
         class SplicingTableKeybinds {
+            @Tooltip
+            val overrideVanillaArrowKeys = true
+
+            val viewLeft = ConfigModifierKey(InputConstants.KEY_UP)
+            val viewLeftPage = ConfigModifierKey(InputConstants.KEY_PAGEUP)
+            val viewLeftFull = ConfigModifierKey(InputConstants.KEY_HOME)
+            val viewRight = ConfigModifierKey(InputConstants.KEY_DOWN)
+            val viewRightPage = ConfigModifierKey(InputConstants.KEY_PAGEDOWN)
+            val viewRightFull = ConfigModifierKey(InputConstants.KEY_END)
+
+            val cursorLeft = ConfigModifierKey(InputConstants.KEY_LEFT)
+            val cursorRight = ConfigModifierKey(InputConstants.KEY_RIGHT)
+
+            val expandSelectionLeft = ConfigModifierKey(InputConstants.KEY_LEFT, shift = true)
+            val expandSelectionRight = ConfigModifierKey(InputConstants.KEY_RIGHT, shift = true)
+            val moveSelectionLeft = ConfigModifierKey(InputConstants.KEY_LEFT, ctrl = true, shift = true)
+            val moveSelectionRight = ConfigModifierKey(InputConstants.KEY_RIGHT, ctrl = true, shift = true)
+
             val selectNone = ConfigModifierKey(InputConstants.KEY_A, ctrl = true, shift = true)
             val selectAll = ConfigModifierKey(InputConstants.KEY_A, ctrl = true)
+
             val undo = ConfigModifierKey(InputConstants.KEY_Z, ctrl = true)
             val redo = ConfigModifierKey(InputConstants.KEY_Y, ctrl = true)
+
             val nudgeLeft = ConfigModifierKey(InputConstants.KEY_LEFT, ctrl = true)
             val nudgeRight = ConfigModifierKey(InputConstants.KEY_RIGHT, ctrl = true)
+
             val duplicate = ConfigModifierKey(InputConstants.KEY_D, ctrl = true)
             val delete = ConfigModifierKey(InputConstants.KEY_DELETE)
+            val backspace = ConfigModifierKey(InputConstants.KEY_BACKSPACE)
+
             val cut = ConfigModifierKey(InputConstants.KEY_X, ctrl = true)
             val copy = ConfigModifierKey(InputConstants.KEY_C, ctrl = true)
             val pasteSplat = ConfigModifierKey(InputConstants.KEY_V, ctrl = true)
             val pasteVerbatim = ConfigModifierKey(InputConstants.KEY_V, ctrl = true, shift = true)
+
+            fun getActionForKey(keyCode: Int, scanCode: Int): SplicingTableAction? {
+                for ((key, action) in arrayOf(
+                    viewLeft to SplicingTableAction.VIEW_LEFT,
+                    viewLeftPage to SplicingTableAction.VIEW_LEFT_PAGE,
+                    viewLeftFull to SplicingTableAction.VIEW_LEFT_FULL,
+                    viewRight to SplicingTableAction.VIEW_RIGHT,
+                    viewRightPage to SplicingTableAction.VIEW_RIGHT_PAGE,
+                    viewRightFull to SplicingTableAction.VIEW_RIGHT_FULL,
+                    cursorLeft to SplicingTableAction.CURSOR_LEFT,
+                    cursorRight to SplicingTableAction.CURSOR_RIGHT,
+                    expandSelectionLeft to SplicingTableAction.EXPAND_SELECTION_LEFT,
+                    expandSelectionRight to SplicingTableAction.EXPAND_SELECTION_RIGHT,
+                    moveSelectionLeft to SplicingTableAction.MOVE_SELECTION_LEFT,
+                    moveSelectionRight to SplicingTableAction.MOVE_SELECTION_RIGHT,
+                    selectNone to SplicingTableAction.SELECT_NONE,
+                    selectAll to SplicingTableAction.SELECT_ALL,
+                    undo to SplicingTableAction.UNDO,
+                    redo to SplicingTableAction.REDO,
+                    nudgeLeft to SplicingTableAction.NUDGE_LEFT,
+                    nudgeRight to SplicingTableAction.NUDGE_RIGHT,
+                    duplicate to SplicingTableAction.DUPLICATE,
+                    delete to SplicingTableAction.DELETE,
+                    backspace to SplicingTableAction.BACKSPACE,
+                    cut to SplicingTableAction.CUT,
+                    copy to SplicingTableAction.COPY,
+                    pasteSplat to SplicingTableAction.PASTE_SPLAT,
+                    pasteVerbatim to SplicingTableAction.PASTE_VERBATIM,
+                )) {
+                    if (key.matchesKey(keyCode, scanCode)) {
+                        return action
+                    }
+                }
+                return null
+            }
         }
 
         class EnlightenedSplicingTableKeybinds {

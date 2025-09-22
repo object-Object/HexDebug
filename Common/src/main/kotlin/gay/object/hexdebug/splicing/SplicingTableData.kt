@@ -77,15 +77,37 @@ open class SplicingTableData(
         ))
     }
 
-    fun makeIotaVisible(index: Int) {
+    fun makeStartVisible(selection: Selection) {
+        when (selection) {
+            is Selection.Range -> makeIotaVisible(selection.start)
+            is Selection.Edge -> makeEdgeVisible(selection)
+        }
+    }
+
+    fun makeEndVisible(selection: Selection) {
+        when (selection) {
+            is Selection.Range -> makeIotaVisible(selection.end)
+            is Selection.Edge -> makeEdgeVisible(selection)
+        }
+    }
+
+    fun makeToVisible(selection: Selection) {
+        when (selection) {
+            is Selection.Range -> makeIotaVisible(selection.to)
+            is Selection.Edge -> makeEdgeVisible(selection)
+        }
+    }
+
+    private fun makeIotaVisible(index: Int) {
         when {
             index < viewStartIndex -> viewStartIndex = index
             index > viewEndIndex -> viewEndIndex = index
         }
     }
 
-    fun makeEdgeVisible(index: Int) {
+    fun makeEdgeVisible(selection: Selection.Edge) {
         // index refers to the cell to the right of this edge
+        val index = selection.index
         when {
             // an edge is visible on the LEFT side if the cell to the RIGHT is visible
             index < viewStartIndex -> viewStartIndex = index
