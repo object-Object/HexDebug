@@ -1,9 +1,12 @@
 package gay.`object`.hexdebug.gui.splicing
 
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
+import at.petrak.hexcasting.api.utils.gray
+import at.petrak.hexcasting.api.utils.italic
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
 import com.mojang.blaze3d.systems.RenderSystem
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.config.ConfigModifierKey
 import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.gui.splicing.widgets.*
@@ -141,7 +144,7 @@ class SplicingTableScreen(
             vOffset = 293,
             width = 38,
             height = 25,
-            message = buttonText("clear_grid"),
+            message = buttonText("clear_grid", null),
             onPress = {
                 guiSpellcasting.mixin.`clearPatterns$hexdebug`()
             },
@@ -167,7 +170,7 @@ class SplicingTableScreen(
                 vOffset = 392,
                 width = exportButtonWidth,
                 height = exportButtonHeight,
-                message = buttonText("export"),
+                message = buttonText("export", null),
                 onPress = {
                     exportToSystemClipboard()
                 },
@@ -391,7 +394,7 @@ class SplicingTableScreen(
                 vOffset = 392,
                 width = castButtonWidth,
                 height = castButtonHeight,
-                message = buttonText("cast"),
+                message = buttonText("cast", HexDebugClientConfig.config.splicingTableKeybinds.enlightened.cast),
                 onPress = {
                     menu.table.castHex(null)
                     castingCooldown = maxCastingCooldown
@@ -502,7 +505,8 @@ class SplicingTableScreen(
         onPress = action.onPress,
     ) to action.test
 
-    private val SplicingTableAction.buttonText get() = buttonText(name.lowercase())
+    private val SplicingTableAction.buttonText get() =
+        buttonText(name.lowercase(), HexDebugClientConfig.config.splicingTableKeybinds.getKeyForAction(this))
 
     private val SplicingTableAction.onPress get(): () -> Unit = { menu.table.runAction(this, null) }
 
@@ -559,7 +563,7 @@ class SplicingTableScreen(
         val keybinds = HexDebugClientConfig.config.splicingTableKeybinds
 
         if (
-            keybinds.enlightened.cast.matchesKey(keyCode, scanCode)
+            keybinds.enlightened.cast.inner.matchesKey(keyCode, scanCode)
             && canCastIgnoringCooldown
             && castingCooldown <= 0
         ) {
@@ -837,12 +841,17 @@ class SplicingTableScreen(
             guiGraphics.blit(TEXTURE, x, y, uOffset.toFloat(), vOffset.toFloat(), width, height, 512, 512)
         }
 
-        fun buttonText(name: String, vararg args: Any) = buttonKey(name).asTranslatedComponent(*args)
+        fun buttonText(name: String, key: ConfigModifierKey?): Component {
+            val text = buttonKey(name).asTranslatedComponent
+            if (key == null) return text
+            return text.append("\n").append(key.inner.localizedName.copy().gray.italic)
+        }
+
         fun tooltipText(name: String, vararg args: Any) = tooltipKey(name).asTranslatedComponent(*args)
 
-        fun buttonKey(name: String) = splicingTableKey("button.$name")
-        fun tooltipKey(name: String) = splicingTableKey("tooltip.$name")
-        fun splicingTableKey(name: String) = "text.hexdebug.splicing_table.$name"
+        private fun buttonKey(name: String) = splicingTableKey("button.$name")
+        private fun tooltipKey(name: String) = splicingTableKey("tooltip.$name")
+        private fun splicingTableKey(name: String) = "text.hexdebug.splicing_table.$name"
     }
 
     inner class IotaButton(val offset: Int) : BaseIotaButton(

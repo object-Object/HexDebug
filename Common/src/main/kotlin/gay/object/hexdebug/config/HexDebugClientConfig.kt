@@ -39,7 +39,7 @@ object HexDebugClientConfig {
                         when (config) {
                             is ClientConfig.SplicingTableKeybinds,
                             is ClientConfig.SplicingTableKeybinds.Enlightened -> {
-                                SplicingTableScreen.buttonText(field.name.camelToSnakeCase())
+                                SplicingTableScreen.buttonText(field.name.camelToSnakeCase(), null)
                             }
                             else -> i18n.asTranslatedComponent
                         },
@@ -145,39 +145,45 @@ object HexDebugClientConfig {
             @CollapsibleObject
             val enlightened = Enlightened()
 
+            fun getActionMap() = mapOf(
+                SplicingTableAction.VIEW_LEFT to viewLeft,
+                SplicingTableAction.VIEW_LEFT_PAGE to viewLeftPage,
+                SplicingTableAction.VIEW_LEFT_FULL to viewLeftFull,
+                SplicingTableAction.VIEW_RIGHT to viewRight,
+                SplicingTableAction.VIEW_RIGHT_PAGE to viewRightPage,
+                SplicingTableAction.VIEW_RIGHT_FULL to viewRightFull,
+                SplicingTableAction.CURSOR_LEFT to cursorLeft,
+                SplicingTableAction.CURSOR_RIGHT to cursorRight,
+                SplicingTableAction.EXPAND_SELECTION_LEFT to expandSelectionLeft,
+                SplicingTableAction.EXPAND_SELECTION_RIGHT to expandSelectionRight,
+                SplicingTableAction.MOVE_SELECTION_LEFT to moveSelectionLeft,
+                SplicingTableAction.MOVE_SELECTION_RIGHT to moveSelectionRight,
+                SplicingTableAction.SELECT_NONE to selectNone,
+                SplicingTableAction.SELECT_ALL to selectAll,
+                SplicingTableAction.UNDO to undo,
+                SplicingTableAction.REDO to redo,
+                SplicingTableAction.NUDGE_LEFT to nudgeLeft,
+                SplicingTableAction.NUDGE_RIGHT to nudgeRight,
+                SplicingTableAction.DUPLICATE to duplicate,
+                SplicingTableAction.DELETE to delete,
+                SplicingTableAction.BACKSPACE to backspace,
+                SplicingTableAction.CUT to cut,
+                SplicingTableAction.COPY to copy,
+                SplicingTableAction.PASTE_SPLAT to pasteSplat,
+                SplicingTableAction.PASTE_VERBATIM to pasteVerbatim,
+            )
+
             fun getActionForKey(keyCode: Int, scanCode: Int): SplicingTableAction? {
-                for ((key, action) in arrayOf(
-                    viewLeft to SplicingTableAction.VIEW_LEFT,
-                    viewLeftPage to SplicingTableAction.VIEW_LEFT_PAGE,
-                    viewLeftFull to SplicingTableAction.VIEW_LEFT_FULL,
-                    viewRight to SplicingTableAction.VIEW_RIGHT,
-                    viewRightPage to SplicingTableAction.VIEW_RIGHT_PAGE,
-                    viewRightFull to SplicingTableAction.VIEW_RIGHT_FULL,
-                    cursorLeft to SplicingTableAction.CURSOR_LEFT,
-                    cursorRight to SplicingTableAction.CURSOR_RIGHT,
-                    expandSelectionLeft to SplicingTableAction.EXPAND_SELECTION_LEFT,
-                    expandSelectionRight to SplicingTableAction.EXPAND_SELECTION_RIGHT,
-                    moveSelectionLeft to SplicingTableAction.MOVE_SELECTION_LEFT,
-                    moveSelectionRight to SplicingTableAction.MOVE_SELECTION_RIGHT,
-                    selectNone to SplicingTableAction.SELECT_NONE,
-                    selectAll to SplicingTableAction.SELECT_ALL,
-                    undo to SplicingTableAction.UNDO,
-                    redo to SplicingTableAction.REDO,
-                    nudgeLeft to SplicingTableAction.NUDGE_LEFT,
-                    nudgeRight to SplicingTableAction.NUDGE_RIGHT,
-                    duplicate to SplicingTableAction.DUPLICATE,
-                    delete to SplicingTableAction.DELETE,
-                    backspace to SplicingTableAction.BACKSPACE,
-                    cut to SplicingTableAction.CUT,
-                    copy to SplicingTableAction.COPY,
-                    pasteSplat to SplicingTableAction.PASTE_SPLAT,
-                    pasteVerbatim to SplicingTableAction.PASTE_VERBATIM,
-                )) {
-                    if (key.matchesKey(keyCode, scanCode)) {
+                for ((action, key) in getActionMap().entries) {
+                    if (key.inner.matchesKey(keyCode, scanCode)) {
                         return action
                     }
                 }
                 return null
+            }
+
+            fun getKeyForAction(action: SplicingTableAction): ConfigModifierKey? {
+                return getActionMap()[action]
             }
 
             class Enlightened {
@@ -228,8 +234,6 @@ data class ConfigModifierKey(
             Modifier.of(alt, ctrl, shift),
         )
     }
-
-    fun matchesKey(keyCode: Int, scanCode: Int) = inner.matchesKey(keyCode, scanCode)
 }
 
 // https://stackoverflow.com/a/60010299
