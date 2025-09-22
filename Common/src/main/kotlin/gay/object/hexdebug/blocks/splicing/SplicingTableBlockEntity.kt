@@ -18,6 +18,7 @@ import at.petrak.hexcasting.api.utils.extractMedia
 import at.petrak.hexcasting.api.utils.getInt
 import at.petrak.hexcasting.api.utils.getList
 import at.petrak.hexcasting.xplat.IXplatAbstractions
+import gay.`object`.hexdebug.api.HexDebugTags
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
@@ -58,12 +59,16 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
 
     var listStack by SplicingTableItemSlot.LIST.delegate
     var clipboardStack by SplicingTableItemSlot.CLIPBOARD.delegate
-    var mediaStack by SplicingTableItemSlot.MEDIA.delegate
-        private set
+    private var mediaStack by SplicingTableItemSlot.MEDIA.delegate
     private var staffStack by SplicingTableItemSlot.STAFF.delegate
 
     private val listHolder get() = IXplatAbstractions.INSTANCE.findDataHolder(listStack)
     val clipboardHolder get() = IXplatAbstractions.INSTANCE.findDataHolder(clipboardStack)
+    val mediaHolder get() =
+        mediaStack
+            .takeIf { !it.`is`(HexDebugTags.Items.SPLICING_TABLE_MEDIA_BLACKLIST) }
+            ?.let { HexAPI.instance().findMediaHolder(it) }
+            ?.takeIf { it.canProvide() }
 
     private val containerData = SimpleContainerData(SplicingTableDataSlot.size)
 
@@ -89,6 +94,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
         private set
 
     private var castingCooldown = 0
+    private var isCurrentlyCasting = false
 
     val analogOutputSignal get() = if (!listStack.isEmpty) 15 else 0
 
@@ -346,7 +352,16 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
         val env = SplicingTableCastEnv(player, this)
         val vm = CastingVM.empty(env)
 
-        val clientView = vm.queueExecuteAndWrapIotas(instrs, level)
+        // prevent refilling while casting
+        isCurrentlyCasting = true
+        val clientView = try {
+            vm.queueExecuteAndWrapIotas(instrs, level)
+        } finally {
+            isCurrentlyCasting = false
+        }
+
+        refillMedia()
+        sync()
 
         if (clientView.resolutionType.success) {
             ParticleSpray(blockPos.center, Vec3(0.0, 1.5, 0.0), 0.4, Math.PI / 3, 30)
@@ -413,17 +428,29 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
         refillMedia()
     }
 
-    fun refillMedia() {
-        val mediaHolder = HexAPI.instance().findMediaHolder(mediaStack) ?: return
-        while (media < maxMedia) {
-            val cost = maxMedia - media
+    private fun refillMedia() {
+        if (isCurrentlyCasting) return
+        val mediaHolder = mediaHolder ?: return
+
+        // for static media items (eg. dust), extract media from one item at a time
+        // this is necessary to avoid wasting media while still getting as much as possible out of the stack
+        val unitCost = HexAPI.instance()
+            .findMediaHolder(mediaStack.copyWithCount(1))
+            ?.withdrawMedia(-1, true)
+            ?: media
+
+        // extract media at most once for each item in the stack
+        // prevents big looping in case someone thinks they're funny
+        for (i in 0 until mediaStack.count) {
+            val cost = min(maxMedia - media, unitCost)
+            if (cost <= 0) return
 
             // avoid wasting media if the item is too large
-            if (extractMedia(mediaStack, cost = cost, simulate = true) !in 1..cost) return
+            if (extractMedia(mediaHolder, cost = cost, simulate = true) !in 1..cost) return
 
-            // avoid an infinite loop - stop looping as soon as we stop adding media
+            // stop looping as soon as we stop adding media
             val extracted = extractMedia(mediaHolder, cost = cost)
-            if (extracted < 1) return
+            if (extracted <= 1) return // the Inexhaustible Phial thinks it's funny.
 
             media += extracted
         }

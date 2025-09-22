@@ -35,7 +35,6 @@ class SplicingTableCastEnv(
 
     override fun postCast(image: CastingImage) {
         super.postCast(image)
-        table.sync() // TODO: is this necessary?
         sound.sound?.let {
             world.playSound(null, blockPos, it, SoundSource.PLAYERS, 1f, 1f)
         }
@@ -57,13 +56,9 @@ class SplicingTableCastEnv(
 
         // then, pull straight from the item in the media slot
         if (costLeft > 0) {
-            HexAPI.instance().findMediaHolder(table.mediaStack)?.let {
+            table.mediaHolder?.let {
                 costLeft -= extractMedia(it, cost = costLeft, simulate = simulate)
             }
-        }
-
-        if (!simulate) {
-            table.refillMedia()
         }
 
         return costLeft

@@ -10,10 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 - Added keyboard shortcuts to the Splicing Table, configurable in HexDebug's client config menu.
 - The Splicing Table now works with Media Purification from [Hexpose](https://miyucomics.github.io/hexpose) (requires at least build [2e90cf5b](https://github.com/miyucomics/hexpose/commit/2e90cf5babb7677a26ca211bd66ac2777e5518cd), or any version after 1.0.0).
+- Added a tag (`hexdebug:splicing_table/media_blacklist`) to prevent an item from being used to refill the Splicing Table's media buffer.  
 
 ### Fixed
 
 - Fixed an issue where newly placed splicing tables would default to having the first iota selected.
+- Fixed several bugs/exploits related to the Splicing Table's media buffer ([#40](https://github.com/object-Object/HexDebug/pull/40), [#41](https://github.com/object-Object/HexDebug/pull/41), [#44](https://github.com/object-Object/HexDebug/pull/44), [#45](https://github.com/object-Object/HexDebug/pull/45)).
 
 ## `0.4.0+1.20.1` - 2025-09-21
 
