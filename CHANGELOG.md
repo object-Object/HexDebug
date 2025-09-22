@@ -8,9 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Added
 
-- Added keyboard shortcuts to the Splicing Table, configurable in HexDebug's client config menu.
+- Added keyboard shortcuts for all buttons in the Splicing Table, configurable in HexDebug's client config menu.
+- Added several new keyboard-only actions to the Splicing Table, mostly related to manipulating the active selection:
+  - Cursor Left/Right
+  - Expand Selection Left/Right
+  - Move Selection Left/Right
+  - Backspace
+- Added a tag (`hexdebug:splicing_table/media_blacklist`) to prevent specific items from being used to refill the Splicing Table's media buffer (eg. [Oneironaut](https://oneironaut.hexxy.media)'s Inexhaustible Phial).  
+
+### Changed
+
 - The Splicing Table now works with Media Purification from [Hexpose](https://miyucomics.github.io/hexpose) (requires at least build [2e90cf5b](https://github.com/miyucomics/hexpose/commit/2e90cf5babb7677a26ca211bd66ac2777e5518cd), or any version after 1.0.0).
-- Added a tag (`hexdebug:splicing_table/media_blacklist`) to prevent an item from being used to refill the Splicing Table's media buffer.  
 
 ### Fixed
 
