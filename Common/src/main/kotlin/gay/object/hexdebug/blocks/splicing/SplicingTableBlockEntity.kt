@@ -429,7 +429,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     }
 
     private fun refillMedia() {
-        if (isCurrentlyCasting) return
+        if (isCurrentlyCasting || media >= maxMedia) return
         val mediaHolder = mediaHolder ?: return
 
         // for static media items (eg. dust), extract media from one item at a time
