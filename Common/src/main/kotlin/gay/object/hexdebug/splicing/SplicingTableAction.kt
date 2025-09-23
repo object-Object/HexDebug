@@ -2,6 +2,7 @@ package gay.`object`.hexdebug.splicing
 
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import gay.`object`.hexdebug.utils.Option.Some
+import kotlin.math.min
 
 enum class SplicingTableAction(val value: Value<*>) {
     // any data
@@ -60,6 +61,82 @@ enum class SplicingTableAction(val value: Value<*>) {
         viewEndIndex = list.lastIndex
     }),
 
+    CURSOR_LEFT(Value(
+        ReadList,
+        consumesMedia = false,
+        test = { selection, _ -> selection !is Selection.Edge || selection.index > 0 },
+        validate = { selection.let { it !is Selection.Edge || it.index > 0 } },
+    ) {
+        val newIndex = when (val selection = selection) {
+            is Selection.Range -> selection.start
+            is Selection.Edge -> selection.index - 1
+            null -> min(viewStartIndex + IOTA_BUTTONS / 2, list.size)
+        }
+        selection = Selection.edge(newIndex)?.also {
+            makeEdgeVisible(it)
+        }
+    }),
+
+    CURSOR_RIGHT(Value(
+        ReadList,
+        consumesMedia = false,
+        test = { selection, _ -> selection !is Selection.Edge || selection.index <= lastIndex },
+        validate = { selection.let { it !is Selection.Edge || it.index <= list.lastIndex } },
+    ) {
+        val newIndex = when (val selection = selection) {
+            is Selection.Range -> selection.end + 1
+            is Selection.Edge -> selection.index + 1
+            null -> min(viewStartIndex + IOTA_BUTTONS / 2 + 1, list.size)
+        }
+        selection = Selection.edge(newIndex)?.also {
+            makeEdgeVisible(it)
+        }
+    }),
+
+    EXPAND_SELECTION_LEFT(Value(
+        ReadList,
+        consumesMedia = false,
+        test = { selection, _ -> selection != null && selection.start > 0 },
+        validate = { selection.let { it != null && it.start > 0 } },
+    ) {
+        selection = selection!!.expandBy(-1)?.also {
+            makeToVisible(it)
+        }
+    }),
+
+    EXPAND_SELECTION_RIGHT(Value(
+        ReadList,
+        consumesMedia = false,
+        test = { selection, _ -> selection != null && selection.lastIndex < lastIndex },
+        validate = { selection.let { it != null && it.lastIndex < list.lastIndex } },
+    ) {
+        selection = selection!!.expandBy(1)?.also {
+            makeToVisible(it)
+        }
+    }),
+
+    MOVE_SELECTION_LEFT(Value(
+        ReadList,
+        consumesMedia = false,
+        test = { selection, _ -> selection != null && selection.start > 0 },
+        validate = { selection.let { it != null && it.start > 0 } },
+    ) {
+        selection = selection!!.moveBy(-1)?.also {
+            makeStartVisible(it)
+        }
+    }),
+
+    MOVE_SELECTION_RIGHT(Value(
+        ReadList,
+        consumesMedia = false,
+        test = { selection, _ -> selection != null && selection.lastIndex < lastIndex },
+        validate = { selection.let { it != null && it.lastIndex < list.lastIndex } },
+    ) {
+        selection = selection!!.moveBy(1)?.also {
+            makeEndVisible(it)
+        }
+    }),
+
     SELECT_NONE(Value(
         ReadList,
         consumesMedia = false,
@@ -72,8 +149,8 @@ enum class SplicingTableAction(val value: Value<*>) {
     SELECT_ALL(Value(
         ReadList,
         consumesMedia = false,
-        test = { selection, _ -> selection != Selection.range(0, lastIndex) },
-        validate = { selection != Selection.range(0, list.lastIndex) },
+        test = { selection, _ -> selection != Selection.range(0, lastIndex) && listSize > 0 },
+        validate = { selection != Selection.range(0, list.lastIndex) && list.size > 0 },
     ) {
         selection = Selection.range(0, list.lastIndex)
     }),
@@ -107,7 +184,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         list.add(typedSelection.end, list.removeAt(typedSelection.start - 1))
         if (writeList(list)) {
             selection = typedSelection.moveBy(-1)?.also {
-                makeIotaVisible(it.start)
+                makeStartVisible(it)
             }
             pushUndoState(
                 list = Some(list),
@@ -125,7 +202,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         list.add(typedSelection.start, list.removeAt(typedSelection.end + 1))
         if (writeList(list)) {
             selection = typedSelection.moveBy(1)?.also {
-                makeIotaVisible(it.lastIndex)
+                makeEndVisible(it)
             }
             pushUndoState(
                 list = Some(list),
@@ -138,7 +215,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         list.addAll(typedSelection.end + 1, typedSelection.subList(list))
         if (writeList(list)) {
             selection = Selection.withSize(typedSelection.end + 1, typedSelection.size)?.also {
-                makeIotaVisible(it.end)
+                makeEndVisible(it)
             }
             pushUndoState(
                 list = Some(list),
@@ -151,7 +228,29 @@ enum class SplicingTableAction(val value: Value<*>) {
         typedSelection.mutableSubList(list).clear()
         if (writeList(list)) {
             selection = Selection.edge(typedSelection.start)?.also {
-                makeEdgeVisible(it.index)
+                makeEdgeVisible(it)
+            }
+            pushUndoState(
+                list = Some(list),
+                selection = Some(selection),
+            )
+        }
+    }),
+
+    BACKSPACE(Value(
+        ReadWriteList,
+        consumesMedia = true,
+        test = { selection, _ -> selection !is Selection.Edge || selection.index > 0 },
+        validate = { selection.let { it !is Selection.Edge || it.index > 0 } },
+    ) {
+        val typedSelection = when (typedSelection) {
+            is Selection.Range -> typedSelection
+            is Selection.Edge -> typedSelection.expandBy(-1)!! // index > 0, so this will never be less than 0
+        }
+        typedSelection.mutableSubList(list).clear()
+        if (writeList(list)) {
+            selection = Selection.edge(typedSelection.start)?.also {
+                makeEdgeVisible(it)
             }
             pushUndoState(
                 list = Some(list),
@@ -168,7 +267,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         if (isClipboardTransferSafe(iota) && writeClipboard(iota)) {
             if (writeList(list)) {
                 selection = Selection.edge(typedSelection.start)?.also {
-                    makeEdgeVisible(it.index)
+                    makeEdgeVisible(it)
                 }
                 pushUndoState(
                     list = Some(list),
@@ -201,7 +300,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         }
         if (isClipboardTransferSafe(clipboard) && writeList(list)) {
             selection = Selection.edge(typedSelection.start + 1)?.also {
-                makeEdgeVisible(it.index)
+                makeEdgeVisible(it)
             }
             pushUndoState(
                 list = Some(list),
@@ -221,7 +320,7 @@ enum class SplicingTableAction(val value: Value<*>) {
         }
         if (isClipboardTransferSafe(clipboard) && writeList(list)) {
             selection = Selection.edge(typedSelection.start + values.size)?.also {
-                makeEdgeVisible(it.index)
+                makeEdgeVisible(it)
             }
             pushUndoState(
                 list = Some(list),

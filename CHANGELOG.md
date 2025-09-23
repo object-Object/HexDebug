@@ -4,16 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Pydantic's HISTORY.md](https://github.com/pydantic/pydantic/blob/main/HISTORY.md), and this project *mostly* adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [UNRELEASED]
+## `0.5.0+1.20.1` - 2025-09-22
 
 ### Added
 
-- Added keyboard shortcuts to the Splicing Table, configurable in HexDebug's client config menu.
+- Added keyboard shortcuts for almost all of the buttons in the Splicing Table, configurable in HexDebug's client config menu.
+- Added several new keyboard-only actions to the Splicing Table, mostly related to manipulating the active selection:
+  - Move Cursor Left/Right
+  - Expand Selection Left/Right
+  - Move Selection Left/Right
+  - Backspace
+- Added a tag (`hexdebug:splicing_table/media_blacklist`) to prevent specific items from being used to refill the Splicing Table's media buffer (eg. [Oneironaut](https://oneironaut.hexxy.media)'s Inexhaustible Phial).  
+
+### Changed
+
 - The Splicing Table now works with Media Purification from [Hexpose](https://miyucomics.github.io/hexpose) (requires at least build [2e90cf5b](https://github.com/miyucomics/hexpose/commit/2e90cf5babb7677a26ca211bd66ac2777e5518cd), or any version after 1.0.0).
 
 ### Fixed
 
 - Fixed an issue where newly placed splicing tables would default to having the first iota selected.
+- Fixed several bugs/exploits related to the Splicing Table's media buffer ([#40](https://github.com/object-Object/HexDebug/pull/40), [#41](https://github.com/object-Object/HexDebug/pull/41), [#44](https://github.com/object-Object/HexDebug/pull/44), [#45](https://github.com/object-Object/HexDebug/pull/45)).
+- Fixed Lodestone Reflection not working in the Mindsplice Table ([#42](https://github.com/object-Object/HexDebug/pull/42)).
+- Fixed a bug in the Splicing Table where the Select All button was enabled when the list was empty and the left edge was selected. 
 
 ## `0.4.0+1.20.1` - 2025-09-21
 

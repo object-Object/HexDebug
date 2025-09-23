@@ -1,9 +1,12 @@
 package gay.`object`.hexdebug.gui.splicing
 
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
+import at.petrak.hexcasting.api.utils.gray
+import at.petrak.hexcasting.api.utils.italic
 import at.petrak.hexcasting.client.gui.GuiSpellcasting
 import com.mojang.blaze3d.systems.RenderSystem
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.config.ConfigModifierKey
 import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.gui.splicing.widgets.*
@@ -26,6 +29,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Inventory
+import org.lwjgl.glfw.GLFW
 import java.awt.Color
 import java.util.function.BiConsumer
 import kotlin.math.*
@@ -140,7 +144,7 @@ class SplicingTableScreen(
             vOffset = 293,
             width = 38,
             height = 25,
-            message = buttonText("clear_grid"),
+            message = buttonText("clear_grid", null),
             onPress = {
                 guiSpellcasting.mixin.`clearPatterns$hexdebug`()
             },
@@ -166,7 +170,7 @@ class SplicingTableScreen(
                 vOffset = 392,
                 width = exportButtonWidth,
                 height = exportButtonHeight,
-                message = buttonText("export"),
+                message = buttonText("export", null),
                 onPress = {
                     exportToSystemClipboard()
                 },
@@ -390,7 +394,7 @@ class SplicingTableScreen(
                 vOffset = 392,
                 width = castButtonWidth,
                 height = castButtonHeight,
-                message = buttonText("cast"),
+                message = buttonText("cast", HexDebugClientConfig.config.splicingTableKeybinds.enlightened.cast),
                 onPress = {
                     menu.table.castHex(null)
                     castingCooldown = maxCastingCooldown
@@ -501,7 +505,8 @@ class SplicingTableScreen(
         onPress = action.onPress,
     ) to action.test
 
-    private val SplicingTableAction.buttonText get() = buttonText(name.lowercase())
+    private val SplicingTableAction.buttonText get() =
+        buttonText(name.lowercase(), HexDebugClientConfig.config.splicingTableKeybinds.getKeyForAction(this))
 
     private val SplicingTableAction.onPress get(): () -> Unit = { menu.table.runAction(this, null) }
 
@@ -537,14 +542,28 @@ class SplicingTableScreen(
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        // AbstractContainerScreen.keyPressed always returns true, so check our keys first
-        if (keyPressedInner(keyCode, scanCode)) return true
+        if (HexDebugClientConfig.config.splicingTableKeybinds.enabled) {
+            // AbstractContainerScreen.keyPressed always returns true, so check our keys first
+            if (keyPressedInner(keyCode, scanCode)) return true
+
+            if (HexDebugClientConfig.config.splicingTableKeybinds.overrideVanillaArrowKeys) {
+                when (keyCode) {
+                    GLFW.GLFW_KEY_UP,
+                    GLFW.GLFW_KEY_DOWN,
+                    GLFW.GLFW_KEY_LEFT,
+                    GLFW.GLFW_KEY_RIGHT -> return true
+                }
+            }
+        }
+
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
     private fun keyPressedInner(keyCode: Int, scanCode: Int): Boolean {
+        val keybinds = HexDebugClientConfig.config.splicingTableKeybinds
+
         if (
-            HexDebugClientConfig.config.enlightenedSplicingTableKeybinds.cast.matchesKey(keyCode, scanCode)
+            keybinds.enlightened.cast.inner.matchesKey(keyCode, scanCode)
             && canCastIgnoringCooldown
             && castingCooldown <= 0
         ) {
@@ -554,23 +573,8 @@ class SplicingTableScreen(
             return true
         }
 
-        val action = HexDebugClientConfig.config.splicingTableKeybinds.run {
-            when {
-                selectNone.matchesKey(keyCode, scanCode) -> SplicingTableAction.SELECT_NONE
-                selectAll.matchesKey(keyCode, scanCode) -> SplicingTableAction.SELECT_ALL
-                undo.matchesKey(keyCode, scanCode) -> SplicingTableAction.UNDO
-                redo.matchesKey(keyCode, scanCode) -> SplicingTableAction.REDO
-                nudgeLeft.matchesKey(keyCode, scanCode) -> SplicingTableAction.NUDGE_LEFT
-                nudgeRight.matchesKey(keyCode, scanCode) -> SplicingTableAction.NUDGE_RIGHT
-                duplicate.matchesKey(keyCode, scanCode) -> SplicingTableAction.DUPLICATE
-                delete.matchesKey(keyCode, scanCode) -> SplicingTableAction.DELETE
-                cut.matchesKey(keyCode, scanCode) -> SplicingTableAction.CUT
-                copy.matchesKey(keyCode, scanCode) -> SplicingTableAction.COPY
-                pasteSplat.matchesKey(keyCode, scanCode) -> SplicingTableAction.PASTE_SPLAT
-                pasteVerbatim.matchesKey(keyCode, scanCode) -> SplicingTableAction.PASTE_VERBATIM
-                else -> return false
-            }
-        }
+        val action = keybinds.getActionForKey(keyCode, scanCode)
+            ?: return false
 
         if (data.isListReadable && action.test()) {
             action.onPress()
@@ -837,12 +841,17 @@ class SplicingTableScreen(
             guiGraphics.blit(TEXTURE, x, y, uOffset.toFloat(), vOffset.toFloat(), width, height, 512, 512)
         }
 
-        fun buttonText(name: String, vararg args: Any) = buttonKey(name).asTranslatedComponent(*args)
+        fun buttonText(name: String, key: ConfigModifierKey?): Component {
+            val text = buttonKey(name).asTranslatedComponent
+            if (key == null) return text
+            return text.append("\n").append(key.inner.localizedName.copy().gray.italic)
+        }
+
         fun tooltipText(name: String, vararg args: Any) = tooltipKey(name).asTranslatedComponent(*args)
 
-        fun buttonKey(name: String) = splicingTableKey("button.$name")
-        fun tooltipKey(name: String) = splicingTableKey("tooltip.$name")
-        fun splicingTableKey(name: String) = "text.hexdebug.splicing_table.$name"
+        private fun buttonKey(name: String) = splicingTableKey("button.$name")
+        private fun tooltipKey(name: String) = splicingTableKey("tooltip.$name")
+        private fun splicingTableKey(name: String) = "text.hexdebug.splicing_table.$name"
     }
 
     inner class IotaButton(val offset: Int) : BaseIotaButton(
@@ -853,6 +862,8 @@ class SplicingTableScreen(
 
         override val iotaView get() = data.list?.getOrNull(index)
 
+        private var wasLastSelection = false
+
         override fun onPress() {
             onSelectIota(index)
         }
@@ -861,6 +872,17 @@ class SplicingTableScreen(
             // skip hitbox if hovering over an edge selection
             // FIXME: hack
             return super.testHitbox(mouseX, mouseY) && mouseX >= x + 2 && mouseX < x + width - 2
+        }
+
+        override fun updateFocus() {
+            val selection = selection
+            val isLastSelection = data.isInRange(index)
+                && selection is Selection.Range
+                && index == selection.to
+            if (isLastSelection != wasLastSelection) {
+                wasLastSelection = isLastSelection
+                isFocused = isLastSelection && Minecraft.getInstance().lastInputType.isKeyboard
+            }
         }
 
         init {

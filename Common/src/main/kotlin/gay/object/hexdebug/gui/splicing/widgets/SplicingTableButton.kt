@@ -1,6 +1,9 @@
 package gay.`object`.hexdebug.gui.splicing.widgets
 
+import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
+import net.minecraft.client.InputType
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.components.Tooltip
@@ -61,4 +64,17 @@ abstract class SplicingTableButton(
     override fun updateWidgetNarration(output: NarrationElementOutput) = defaultButtonNarrationText(output)
 
     open fun reload() {}
+
+    override fun updateTooltip() {
+        if (HexDebugClientConfig.config.splicingTableKeybinds.let { it.enabled && it.overrideVanillaArrowKeys }) {
+            updateFocus()
+        }
+        super.updateTooltip()
+    }
+
+    open fun updateFocus() {
+        if (Minecraft.getInstance().lastInputType == InputType.KEYBOARD_ARROW) {
+            isFocused = false
+        }
+    }
 }

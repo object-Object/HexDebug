@@ -2,6 +2,7 @@ package gay.`object`.hexdebug.gui.splicing
 
 import at.petrak.hexcasting.api.mod.HexTags
 import at.petrak.hexcasting.api.utils.isMediaItem
+import gay.`object`.hexdebug.api.HexDebugTags
 import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataSelectionDelegate
@@ -80,7 +81,7 @@ class SplicingTableMenu(
             mayPlace = ::isIotaHolder
         }
         mediaSlot = addTableSlot(SplicingTableItemSlot.MEDIA, 205, 169) {
-            mayPlace = ::isMediaItem
+            mayPlace = { isMediaItem(it) && !it.`is`(HexDebugTags.Items.SPLICING_TABLE_MEDIA_BLACKLIST) }
         }
         staffSlot = addTableSlot(SplicingTableItemSlot.STAFF, -20, 169) {
             maxStackSize = 1
