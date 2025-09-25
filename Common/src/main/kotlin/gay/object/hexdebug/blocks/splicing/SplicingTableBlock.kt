@@ -79,12 +79,13 @@ class SplicingTableBlock(properties: Properties, val enlightened: Boolean) : Bas
         newState: BlockState,
         movedByPiston: Boolean
     ) {
-        if (state.block != newState.block) {
+        // don't drop contents or remove block entity during a table upgrade
+        if (newState.block !is SplicingTableBlock) {
             getBlockEntity(level, pos)?.let {
                 Containers.dropContents(level, pos, it)
             }
+            super.onRemove(state, level, pos, newState, movedByPiston)
         }
-        super.onRemove(state, level, pos, newState, movedByPiston)
     }
 
     override fun hasAnalogOutputSignal(state: BlockState) = true
