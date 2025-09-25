@@ -7,7 +7,9 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Containers
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.*
@@ -47,6 +49,12 @@ class SplicingTableBlock(properties: Properties, val enlightened: Boolean) : Bas
     override fun newBlockEntity(pos: BlockPos, state: BlockState) = SplicingTableBlockEntity(pos, state)
 
     override fun getRenderShape(state: BlockState) = RenderShape.MODEL
+
+    override fun setPlacedBy(level: Level, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
+        if (stack.hasCustomHoverName()) {
+            getBlockEntity(level, pos)?.customName = stack.hoverName
+        }
+    }
 
     override fun use(
         state: BlockState,

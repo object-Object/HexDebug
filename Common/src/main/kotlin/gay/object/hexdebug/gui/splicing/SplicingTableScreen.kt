@@ -394,7 +394,11 @@ class SplicingTableScreen(
                 vOffset = 392,
                 width = castButtonWidth,
                 height = castButtonHeight,
-                message = buttonText("cast", HexDebugClientConfig.config.splicingTableKeybinds.enlightened.cast),
+                message = buttonText(
+                    "cast.named",
+                    HexDebugClientConfig.config.splicingTableKeybinds.enlightened.cast,
+                    title,
+                ),
                 onPress = {
                     menu.table.castHex(null)
                     castingCooldown = maxCastingCooldown
@@ -841,8 +845,8 @@ class SplicingTableScreen(
             guiGraphics.blit(TEXTURE, x, y, uOffset.toFloat(), vOffset.toFloat(), width, height, 512, 512)
         }
 
-        fun buttonText(name: String, key: ConfigModifierKey?): Component {
-            val text = buttonKey(name).asTranslatedComponent
+        fun buttonText(name: String, key: ConfigModifierKey?, vararg args: Any): Component {
+            val text = buttonKey(name).asTranslatedComponent(*args)
             if (key == null) return text
             return text.append("\n").append(key.inner.localizedName.copy().gray.italic)
         }

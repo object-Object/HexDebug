@@ -13,10 +13,7 @@ import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.casting.math.HexPattern
 import at.petrak.hexcasting.api.pigment.FrozenPigment
-import at.petrak.hexcasting.api.utils.asCompound
-import at.petrak.hexcasting.api.utils.extractMedia
-import at.petrak.hexcasting.api.utils.getInt
-import at.petrak.hexcasting.api.utils.getList
+import at.petrak.hexcasting.api.utils.*
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.api.HexDebugTags
 import gay.`object`.hexdebug.blocks.base.BaseContainer
@@ -35,12 +32,12 @@ import gay.`object`.hexdebug.utils.setPropertyIfChanged
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
-import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.MenuProvider
+import net.minecraft.world.Nameable
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.SimpleContainerData
@@ -53,7 +50,7 @@ import kotlin.math.min
 
 class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     HexBlockEntity(HexDebugBlockEntities.SPLICING_TABLE.value, pos, state),
-    ISplicingTable, BaseContainer, MenuProvider, ADIotaHolder, ADMediaHolder
+    ISplicingTable, BaseContainer, MenuProvider, Nameable, ADIotaHolder, ADMediaHolder
 {
     override val stacks = BaseContainer.withSize(SplicingTableItemSlot.container_size)
 
@@ -105,6 +102,9 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
 
     var pigment: FrozenPigment? = null
 
+    // https://youtrack.jetbrains.com/issue/KT-6653
+    private var customNameInner: Component? = null
+
     val enlightened get() = (blockState.block as? SplicingTableBlock)?.enlightened ?: false
 
     init {
@@ -134,8 +134,9 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
             to = tag.getInt("selectionTo", -1),
         )
         viewStartIndex = tag.getInt("viewStartIndex")
-        hexTag = if (tag.contains("hex")) tag.getList("hex", Tag.TAG_COMPOUND) else null
-        pigment = if (tag.contains("pigment")) FrozenPigment.fromNBT(tag.getCompound("pigment")) else null
+        hexTag = tag.get("hex")?.asList
+        pigment = tag.get("pigment")?.asCompound?.let(FrozenPigment::fromNBT)
+        customNameInner = tag.get("CustomName")?.asString?.let(Component.Serializer::fromJson)
     }
 
     override fun saveModData(tag: CompoundTag) {
@@ -146,12 +147,27 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
         tag.putInt("viewStartIndex", viewStartIndex)
         hexTag?.let { tag.put("hex", it) }
         pigment?.let { tag.put("pigment", it.serializeToNBT()) }
+        customNameInner?.let { tag.putString("CustomName", Component.Serializer.toJson(it)) }
     }
+
+    // MenuProvider
 
     override fun createMenu(i: Int, inventory: Inventory, player: Player) =
         SplicingTableMenu(i, inventory, this, containerData)
 
-    override fun getDisplayName() = Component.translatable(blockState.block.descriptionId)
+    override fun getDisplayName() = name
+
+    // Nameable
+
+    override fun getName() = customName ?: blockState.block.descriptionId.asTranslatedComponent
+
+    override fun getCustomName() = customNameInner
+
+    fun setCustomName(value: Component?) {
+        customNameInner = value
+    }
+
+    // more BE stuff
 
     override fun setChanged() {
         super.setChanged()

@@ -49,7 +49,10 @@
           paste_verbatim: "Paste (Verbatim)",
           paste_splat: "Paste (Flattened)",
           export: "Export as .hexpattern",
-          cast: "Activate Table",
+          cast: {
+            "": "Activate Mindsplice Table",
+            named: "Activate %s",
+          },
         },
         tooltip: {
           index: "Index: %d",
