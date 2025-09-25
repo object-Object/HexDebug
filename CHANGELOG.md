@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Pydantic's HISTORY.md](https://github.com/pydantic/pydantic/blob/main/HISTORY.md), and this project *mostly* adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED]
+
+### Added
+
+- Added a new resource-pack-based data-driven system for addon devs to customize how their iotas are rendered in the Splicing Table.
+
+### Changed
+
+- Updated zh_cn translations, by ChuijkYahus in [#43](https://github.com/object-Object/HexDebug/pull/43)
+- The Mindsplice Table casting button tooltip now includes the block's name (eg. from renaming it in an anvil).
+
+### Fixed
+
+- Fixed a bug where the Splicing Table's contents would be dropped on the ground when upgrading it to a Mindsplice Table ([#47](https://github.com/object-Object/HexDebug/issues/47)).
+
 ## `0.5.0+1.20.1` - 2025-09-22
 
 ### Added
@@ -23,8 +38,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Fixed
 
 - Fixed an issue where newly placed splicing tables would default to having the first iota selected.
-- Fixed several bugs/exploits related to the Splicing Table's media buffer ([#40](https://github.com/object-Object/HexDebug/pull/40), [#41](https://github.com/object-Object/HexDebug/pull/41), [#44](https://github.com/object-Object/HexDebug/pull/44), [#45](https://github.com/object-Object/HexDebug/pull/45)).
-- Fixed Lodestone Reflection not working in the Mindsplice Table ([#42](https://github.com/object-Object/HexDebug/pull/42)).
+- Fixed several bugs/exploits related to the Splicing Table's media buffer ([#40](https://github.com/object-Object/HexDebug/issues/40), [#41](https://github.com/object-Object/HexDebug/issues/41), [#44](https://github.com/object-Object/HexDebug/issues/44), [#45](https://github.com/object-Object/HexDebug/issues/45)).
+- Fixed Lodestone Reflection not working in the Mindsplice Table ([#42](https://github.com/object-Object/HexDebug/issues/42)).
 - Fixed a bug in the Splicing Table where the Select All button was enabled when the list was empty and the left edge was selected. 
 
 ## `0.4.0+1.20.1` - 2025-09-21
@@ -32,7 +47,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Added
 
 - New blocks:
-  - Mindsplice Table: An upgraded variant of the Splicing Table, adding a GUI button to cast a hex imbued into the table (suggested by cc-aaron in [#34](https://github.com/object-Object/HexDebug/pull/34)).
+  - Mindsplice Table: An upgraded variant of the Splicing Table, adding a GUI button to cast a hex imbued into the table (suggested by cc-aaron in [#34](https://github.com/object-Object/HexDebug/issues/34)).
   - Focal Frame: A cheap and lag-friendly way to store and manipulate iotas in the world. (This used to be an undocumented block called the Focus Holder, but now it's craftable and has a better name.)
 - Added support for manipulating the main item in the Splicing Table via [IoticBlocks](https://ioticblocks.hexxy.media).
 - Added several new patterns for manipulating various aspects of the Splicing Table.
@@ -42,7 +57,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 - Updated zh_cn translations, by ChuijkYahus in [#36](https://github.com/object-Object/HexDebug/pull/36) and [#39](https://github.com/object-Object/HexDebug/pull/39).
 - The Splicing Table now stores the current view index and selected iotas server-side, so that they don't reset when closing and reopening the GUI.
-- Implemented scroll wheel handling in the Splicing Table GUI to make scrolling through the pattern view easier (suggested by abilliontrillionstars in [#35](https://github.com/object-Object/HexDebug/pull/35)).
+- Implemented scroll wheel handling in the Splicing Table GUI to make scrolling through the pattern view easier (suggested by abilliontrillionstars in [#35](https://github.com/object-Object/HexDebug/issues/35)).
 - The Splicing Table now moves the view position when performing actions or drawing patterns, to make sure the position being modified is visible.
 
 ### Fixed
