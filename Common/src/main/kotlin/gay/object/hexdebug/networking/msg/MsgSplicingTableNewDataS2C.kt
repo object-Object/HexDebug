@@ -1,7 +1,10 @@
 package gay.`object`.hexdebug.networking.msg
 
-import at.petrak.hexcasting.api.casting.math.HexPattern
-import gay.`object`.hexdebug.splicing.*
+import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
+import gay.`object`.hexdebug.splicing.Selection
+import gay.`object`.hexdebug.splicing.SplicingTableClientView
+import gay.`object`.hexdebug.splicing.readSelection
+import gay.`object`.hexdebug.splicing.writeSelection
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 
@@ -19,11 +22,10 @@ data class MsgSplicingTableNewDataS2C(
             data = SplicingTableClientView(
                 list = buf.readNullable {
                     buf.readList {
-                        IotaClientView(
-                            tag = buf.readNbt() ?: CompoundTag(),
-                            name = buf.readComponent(),
-                            hexpatternSource = buf.readUtf(),
-                            pattern = buf.readNbt()?.let(HexPattern::fromNBT)
+                        SplicingTableIotaClientView(
+                            buf.readNbt() ?: CompoundTag(),
+                            buf.readComponent(),
+                            buf.readUtf(),
                         )
                     }
                 },
@@ -46,7 +48,6 @@ data class MsgSplicingTableNewDataS2C(
                         buf.writeNbt(it.tag)
                         buf.writeComponent(it.name)
                         buf.writeUtf(it.hexpatternSource)
-                        buf.writeNbt(it.pattern?.serializeToNBT())
                     }
                 }
                 buf.writeNbt(clipboard)

@@ -7,10 +7,15 @@ import at.petrak.hexcasting.api.utils.gray
 import at.petrak.hexcasting.api.utils.plusAssign
 import gay.`object`.hexdebug.HexDebug.LOGGER
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyClient
+import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderers
 import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlock
 import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.config.HexDebugServerConfig
+import gay.`object`.hexdebug.gui.splicing.renderers.ListRendererProvider
+import gay.`object`.hexdebug.gui.splicing.renderers.PatternRendererProvider
+import gay.`object`.hexdebug.gui.splicing.renderers.TextureRendererProvider
 import gay.`object`.hexdebug.registry.HexDebugBlocks
+import gay.`object`.hexdebug.resources.splicing.SplicingTableIotasResourceReloadListener
 import gay.`object`.hexdebug.utils.styledHoverName
 import gay.`object`.hexdebug.utils.toComponent
 import me.shedaniel.autoconfig.AutoConfig
@@ -35,6 +40,8 @@ object HexDebugClient {
         HexDebugClientConfig.init()
         DebugProxyClient.init()
         addScryingLensOverlays()
+        registerSplicingTableIotaRenderers()
+        registerClientResourceReloadListener(HexDebug.id("splicing_iotas"), SplicingTableIotasResourceReloadListener)
     }
 
     fun getConfigScreen(parent: Screen): Screen {
@@ -85,5 +92,11 @@ object HexDebugClient {
         }
 
         return MojangPair(stack, truncatedDisplay)
+    }
+
+    private fun registerSplicingTableIotaRenderers() {
+        SplicingTableIotaRenderers.register(HexDebug.id("list"), ListRendererProvider.PARSER)
+        SplicingTableIotaRenderers.register(HexDebug.id("pattern"), PatternRendererProvider.PARSER)
+        SplicingTableIotaRenderers.register(HexDebug.id("texture"), TextureRendererProvider.PARSER)
     }
 }

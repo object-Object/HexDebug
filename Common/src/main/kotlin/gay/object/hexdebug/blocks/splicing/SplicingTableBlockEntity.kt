@@ -16,6 +16,7 @@ import at.petrak.hexcasting.api.pigment.FrozenPigment
 import at.petrak.hexcasting.api.utils.*
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.api.HexDebugTags
+import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
@@ -201,7 +202,7 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     override fun getClientView() = getData(null)?.run {
         val env = FakeCastEnv(level)
         SplicingTableClientView(
-            list = list?.map { IotaClientView(it, env) },
+            list = list?.map { SplicingTableIotaClientView(it, env) },
             clipboard = clipboard?.let { IotaType.serialize(it) },
             isListWritable = listWriter != null,
             isClipboardWritable = clipboardWriter != null,

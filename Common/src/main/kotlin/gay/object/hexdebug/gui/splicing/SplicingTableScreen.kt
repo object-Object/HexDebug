@@ -13,11 +13,7 @@ import gay.`object`.hexdebug.gui.splicing.widgets.*
 import gay.`object`.hexdebug.splicing.IOTA_BUTTONS
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
-import gay.`object`.hexdebug.splicing.toHexpatternSource
-import gay.`object`.hexdebug.utils.falpha
-import gay.`object`.hexdebug.utils.fblue
-import gay.`object`.hexdebug.utils.fgreen
-import gay.`object`.hexdebug.utils.fred
+import gay.`object`.hexdebug.utils.*
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
@@ -851,6 +847,7 @@ class SplicingTableScreen(
             return text.append("\n").append(key.inner.localizedName.copy().gray.italic)
         }
 
+        @JvmStatic
         fun tooltipText(name: String, vararg args: Any) = tooltipKey(name).asTranslatedComponent(*args)
 
         private fun buttonKey(name: String) = splicingTableKey("button.$name")

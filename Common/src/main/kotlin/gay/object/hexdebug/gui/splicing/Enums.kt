@@ -2,11 +2,6 @@ package gay.`object`.hexdebug.gui.splicing
 
 import java.awt.Color
 
-enum class IotaBackgroundType {
-    GENERIC,
-    PATTERN,
-}
-
 enum class SelectionEndCap(val xOffset: Int, val uOffset: Int) {
     LEFT(xOffset = 0, uOffset = 1),
     RIGHT(xOffset = 19, uOffset = 0),

@@ -11,6 +11,8 @@ import at.petrak.hexcasting.api.casting.mishaps.MishapNotEnoughArgs
 import at.petrak.hexcasting.api.utils.*
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import at.petrak.hexcasting.xplat.IXplatAbstractions
+import com.google.gson.JsonObject
+import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
 import net.minecraft.network.chat.*
 import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
@@ -25,6 +27,7 @@ import java.util.concurrent.CompletableFuture
 import kotlin.enums.enumEntries
 import kotlin.math.abs
 import kotlin.math.ceil
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 // futures
@@ -130,6 +133,7 @@ fun Iota.displayWithPatternName(env: CastingEnvironment): Component = when (this
     else -> display()
 }
 
+@JvmOverloads
 fun Iota.toHexpatternSource(env: CastingEnvironment, wrapEmbedded: Boolean = true): String {
     val iotaText = when (this) {
         is PatternIota -> {
@@ -156,6 +160,25 @@ fun Iota.toHexpatternSource(env: CastingEnvironment, wrapEmbedded: Boolean = tru
         return "<$iotaText>"
     }
     return iotaText
+}
+
+fun SplicingTableIotaClientView.deserializePattern(): HexPattern? {
+    return try {
+        PatternIota.deserialize(data).pattern
+    } catch (_: Exception) {
+        null
+    }
+}
+
+fun List<SplicingTableIotaClientView>.toHexpatternSource(): String {
+    var depth = 0
+    return joinToString("\n") {
+        val pattern = it.deserializePattern()
+        if (pattern?.angles == SpecialPatterns.RETROSPECTION.angles) depth--
+        val indent = " ".repeat(max(0, 4 * depth))
+        if (pattern?.angles == SpecialPatterns.INTROSPECTION.angles) depth++
+        indent + it.hexpatternSource
+    }
 }
 
 fun HexPattern.getI18nOrNull(env: CastingEnvironment): Component? {
@@ -214,4 +237,14 @@ fun <T : Comparable<T>, V : T> BlockEntity.setPropertyIfChanged(property: Proper
     if (blockState.getValue(property) != value) {
         level?.setBlockAndUpdate(blockPos, blockState.setValue(property, value))
     }
+}
+
+// JSON
+
+fun JsonObject.addDefaultProperty(property: String, value: String) {
+    if (!has(property)) addProperty(property, value)
+}
+
+fun JsonObject.addDefaultProperty(property: String, value: Int) {
+    if (!has(property)) addProperty(property, value)
 }
