@@ -11,7 +11,6 @@ import at.petrak.hexcasting.api.casting.mishaps.MishapNotEnoughArgs
 import at.petrak.hexcasting.api.utils.*
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import at.petrak.hexcasting.xplat.IXplatAbstractions
-import com.google.gson.JsonObject
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
 import net.minecraft.network.chat.*
 import net.minecraft.world.Container
@@ -237,14 +236,4 @@ fun <T : Comparable<T>, V : T> BlockEntity.setPropertyIfChanged(property: Proper
     if (blockState.getValue(property) != value) {
         level?.setBlockAndUpdate(blockPos, blockState.setValue(property, value))
     }
-}
-
-// JSON
-
-fun JsonObject.addDefaultProperty(property: String, value: String) {
-    if (!has(property)) addProperty(property, value)
-}
-
-fun JsonObject.addDefaultProperty(property: String, value: Int) {
-    if (!has(property)) addProperty(property, value)
 }
