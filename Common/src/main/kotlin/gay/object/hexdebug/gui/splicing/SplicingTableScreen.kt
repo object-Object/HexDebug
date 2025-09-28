@@ -10,6 +10,7 @@ import gay.`object`.hexdebug.config.ConfigModifierKey
 import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.gui.splicing.widgets.*
+import gay.`object`.hexdebug.sendHexicalKeyEvent
 import gay.`object`.hexdebug.splicing.IOTA_BUTTONS
 import gay.`object`.hexdebug.splicing.Selection
 import gay.`object`.hexdebug.splicing.SplicingTableAction
@@ -542,11 +543,17 @@ class SplicingTableScreen(
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        if (HexDebugClientConfig.config.splicingTableKeybinds.enabled) {
+        val keybinds = HexDebugClientConfig.config.splicingTableKeybinds
+
+        if (keybinds.enabled) {
+            if (keybinds.sendHexicalTelepathy) {
+                sendHexicalKeyEvent(minecraft!!, keyCode, scanCode, isPressed = true)
+            }
+
             // AbstractContainerScreen.keyPressed always returns true, so check our keys first
             if (keyPressedInner(keyCode, scanCode)) return true
 
-            if (HexDebugClientConfig.config.splicingTableKeybinds.overrideVanillaArrowKeys) {
+            if (keybinds.overrideVanillaArrowKeys) {
                 when (keyCode) {
                     GLFW.GLFW_KEY_UP,
                     GLFW.GLFW_KEY_DOWN,
@@ -586,6 +593,14 @@ class SplicingTableScreen(
 
     private fun playButtonClick() {
         minecraft!!.soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f))
+    }
+
+    override fun keyReleased(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        val keybinds = HexDebugClientConfig.config.splicingTableKeybinds
+        if (keybinds.enabled && keybinds.sendHexicalTelepathy) {
+            sendHexicalKeyEvent(minecraft!!, keyCode, scanCode, isPressed = false)
+        }
+        return super.keyReleased(keyCode, scanCode, modifiers)
     }
 
     // TODO: limit scroll to certain regions? (let's see if anyone complains first)

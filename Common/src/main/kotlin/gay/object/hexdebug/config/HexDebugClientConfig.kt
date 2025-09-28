@@ -108,6 +108,9 @@ object HexDebugClientConfig {
             @Tooltip
             val overrideVanillaArrowKeys = true
 
+            @Tooltip
+            val sendHexicalTelepathy = true
+
             val viewLeft = ConfigModifierKey(InputConstants.KEY_UP)
             val viewLeftPage = ConfigModifierKey(InputConstants.KEY_PAGEUP)
             val viewLeftFull = ConfigModifierKey(InputConstants.KEY_HOME)

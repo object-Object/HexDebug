@@ -1,7 +1,9 @@
 @file:JvmName("HexDebugClientAbstractionsImpl")
+@file:Suppress("UNUSED_PARAMETER")
 
 package gay.`object`.hexdebug.forge
 
+import net.minecraft.client.Minecraft
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.PreparableReloadListener
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent
@@ -12,3 +14,5 @@ fun registerClientResourceReloadListener(id: ResourceLocation, listener: Prepara
         event.registerReloadListener(listener)
     }
 }
+
+fun sendHexicalKeyEvent(client: Minecraft, keyCode: Int, scanCode: Int, isPressed: Boolean) {}

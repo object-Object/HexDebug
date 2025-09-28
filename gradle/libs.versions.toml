@@ -14,7 +14,7 @@ architectury = "9.2.14"
 architectury-plugin = { require="[3.4, 3.5[" }
 architectury-loom = { require="[1.7, 1.8[" }
 
-fabric-loader = "0.14.21"
+fabric-loader = "0.16.7"
 fabric-api = "0.85.0+1.20.1"
 
 forge = "1.20.1-47.2.0"
@@ -42,6 +42,10 @@ devAuth = "1.2.0"
 inline = "1.20.1-1.0.1"
 ioticblocks = "1.0.0+1.20.1"
 emi = "1.1.22+1.20.1"
+hexical = "2.0.0-e0d7ef9"
+hexical-dependency = "2.0.0"
+hexpose = "1.0.0"
+playerAnimator = "1.0.2-rc1+1.20"
 
 # other non-Minecraft dependencies
 
@@ -117,6 +121,12 @@ ioticblocks-forge  = { module="gay.object.ioticblocks:ioticblocks-forge", versio
 emi-xplat  = { module="dev.emi:emi-xplat-intermediary", version.ref="emi" }
 emi-fabric = { module="dev.emi:emi-fabric", version.ref="emi" }
 emi-forge  = { module="dev.emi:emi-forge", version.ref="emi" }
+
+hexical = { module="libs:hexical", version.ref="hexical" }
+
+hexpose = { module = "miyucomics.hexpose:hexpose", version.ref="hexpose" }
+
+playerAnimator-fabric = { module="dev.kosmx.player-anim:player-animation-lib-fabric", version.ref="playerAnimator" }
 
 findbugs-jsr305 = { module="com.google.code.findbugs:jsr305", version.ref="findbugs-jsr305" }
 

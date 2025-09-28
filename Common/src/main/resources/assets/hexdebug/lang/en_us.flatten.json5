@@ -109,6 +109,10 @@
               "": "Override Vanilla Arrow Key Navigation",
               "@Tooltip": "In the Splicing Table GUI, override the vanilla feature that allows the arrow keys to be used to focus on UI elements. This setting improves usability with the default keybinds, but you may want to disable it if you rely on this feature for accessibility purposes.",
             },
+            sendHexicalTelepathy: {
+              "": "Enable Hexical Telepathy",
+              "@Tooltip": "Fabric-only. If Hexical is installed, enable all telepathy keys in the Splicing Table GUI. Note: If Hexical adds its own support for using telepathy in GUIs, disabling this feature will not disable that.",
+            },
             enlightened: {
               "": "Mindsplice Table",
               "@Tooltip": "Keybinds for actions in the Mindsplice Table GUI.",

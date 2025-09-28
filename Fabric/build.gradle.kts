@@ -67,7 +67,7 @@ dependencies {
         exclude(module = "phosphor")
     }
     modLocalRuntime(libs.paucal.fabric)
-    modLocalRuntime(libs.patchouli.fabric)
+    modImplementation(libs.patchouli.fabric)
     modLocalRuntime(libs.cardinalComponents)
     modLocalRuntime(libs.serializationHooks)
     modLocalRuntime(libs.trinkets)
@@ -99,6 +99,10 @@ dependencies {
     modApi(libs.ioticblocks.fabric)
 
     modImplementation(libs.emi.fabric)
+
+    modImplementation(libs.hexical)
+    modLocalRuntime(libs.hexpose) { isTransitive = false }
+    modLocalRuntime(libs.playerAnimator.fabric)
 }
 
 publishMods {

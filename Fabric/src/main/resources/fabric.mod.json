@@ -55,6 +55,7 @@
   },
   "suggests": {
     "emi": ">=${versions.emi}",
-    "modmenu": ">=${versions.modMenu}"
+    "modmenu": ">=${versions.modMenu}",
+    "hexical": ">=${versions.hexical_dependency}"
   }
 }

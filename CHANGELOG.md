@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Added
 
 - Added a new resource-pack-based data-driven system for addon devs to customize how their iotas are rendered in the Splicing Table.
+- Added Hexical interop to make the telepathy and notebook keys work in the Splicing/Mindsplice Table GUI.
 
 ### Changed
 
