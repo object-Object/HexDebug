@@ -170,12 +170,8 @@ fun SplicingTableIotaClientView.deserializePattern(): HexPattern? {
 }
 
 fun List<SplicingTableIotaClientView>.toHexpatternSource(): String {
-    var depth = 0
     return joinToString("\n") {
-        val pattern = it.deserializePattern()
-        if (pattern?.angles == SpecialPatterns.RETROSPECTION.angles) depth--
-        val indent = " ".repeat(max(0, 4 * depth))
-        if (pattern?.angles == SpecialPatterns.INTROSPECTION.angles) depth++
+        val indent = " ".repeat(max(0, 4 * it.depth))
         indent + it.hexpatternSource
     }
 }
@@ -207,6 +203,9 @@ fun HexPattern.simpleString() = buildString {
         append(anglesSignature())
     }
 }
+
+fun HexPattern?.sigsEqual(other: HexPattern?): Boolean =
+    this?.angles == other?.angles
 
 val Color.fred get() = red.toFloat() / 255f
 val Color.fgreen get() = green.toFloat() / 255f

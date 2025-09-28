@@ -5,5 +5,5 @@ import org.jetbrains.annotations.NotNull;
 
 @FunctionalInterface
 public interface SplicingTableIotaRenderer {
-    void render(@NotNull GuiGraphics guiGraphics, int x, int y);
+    void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick);
 }

@@ -19,7 +19,6 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
     isHorizontal = false,
     message = Component.empty(),
 ) {
-    abstract val index: Int
     abstract val iotaView: SplicingTableIotaClientView?
 
     private var renderer: SplicingTableIotaRenderer? = null
@@ -37,7 +36,7 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
             super.renderWidget(guiGraphics, mouseX, mouseY, partialTick)
             RenderSystem.disableBlend()
 
-            renderer?.render(guiGraphics, x, y)
+            renderer?.render(guiGraphics, mouseX, mouseY, partialTick)
         }
     }
 
@@ -61,8 +60,8 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
             ?: SplicingTableIotasResourceReloadListener.FALLBACK
             ?: return
 
-        renderer = provider.createRenderer(iotaType, iotaView)
+        renderer = provider.createRenderer(iotaType, iotaView, x, y)
         backgroundType = provider.getBackgroundType(iotaType, iotaView)
-        tooltip = provider.createTooltip(iotaType, iotaView, index).build()
+        tooltip = provider.createTooltip(iotaType, iotaView).build()
     }
 }

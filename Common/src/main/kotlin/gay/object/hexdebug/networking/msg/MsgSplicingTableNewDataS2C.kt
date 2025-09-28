@@ -26,6 +26,8 @@ data class MsgSplicingTableNewDataS2C(
                             buf.readNbt() ?: CompoundTag(),
                             buf.readComponent(),
                             buf.readUtf(),
+                            buf.readInt(),
+                            buf.readInt(),
                         )
                     }
                 },
@@ -48,6 +50,8 @@ data class MsgSplicingTableNewDataS2C(
                         buf.writeNbt(it.tag)
                         buf.writeComponent(it.name)
                         buf.writeUtf(it.hexpatternSource)
+                        buf.writeInt(it.index)
+                        buf.writeInt(it.depth)
                     }
                 }
                 buf.writeNbt(clipboard)

@@ -2,6 +2,7 @@ package gay.object.hexdebug.api.client.splicing;
 
 import at.petrak.hexcasting.api.casting.iota.IotaType;
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes;
+import com.google.common.collect.Lists;
 import gay.object.hexdebug.api.splicing.SplicingTableIotaClientView;
 import gay.object.hexdebug.gui.splicing.SplicingTableScreen;
 import net.minecraft.network.chat.Component;
@@ -20,7 +21,9 @@ public interface SplicingTableIotaRendererProvider {
     @NotNull
     SplicingTableIotaRenderer createRenderer(
         @NotNull IotaType<?> type,
-        @NotNull SplicingTableIotaClientView iota
+        @NotNull SplicingTableIotaClientView iota,
+        int x,
+        int y
     );
 
     /**
@@ -32,18 +35,21 @@ public interface SplicingTableIotaRendererProvider {
     @NotNull
     default SplicingTableIotaTooltip createTooltip(
         @NotNull IotaType<?> type,
-        @NotNull SplicingTableIotaClientView iota,
-        int index
+        @NotNull SplicingTableIotaClientView iota
     ) {
-        ArrayList<Component> advanced =  new ArrayList<>();
+        ArrayList<Component> advanced = new ArrayList<>();
         var typeKey = HexIotaTypes.REGISTRY.getKey(type);
         if (typeKey != null) {
             advanced.add(Component.literal(typeKey.toString()));
         }
+        advanced.add(SplicingTableScreen.tooltipText("depth", iota.depth()));
+
         return new SplicingTableIotaTooltip(
             iota.name(),
             new ArrayList<>(),
-            new ArrayList<>(List.of(SplicingTableScreen.tooltipText("index", index))),
+            Lists.newArrayList(
+                SplicingTableScreen.tooltipText("index", iota.index())
+            ),
             advanced,
             null
         );
@@ -51,6 +57,9 @@ public interface SplicingTableIotaRendererProvider {
 
     /**
      * Returns the background type for this renderer.
+     * <br>
+     * This is called every time the splicing table changes which iotas are currently visible, so
+     * don't do anything too laggy in here.
      */
     @NotNull
     default SplicingTableIotaBackgroundType getBackgroundType(

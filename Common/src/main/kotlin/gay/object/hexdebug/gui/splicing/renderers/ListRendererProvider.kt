@@ -23,9 +23,8 @@ object ListRendererProvider : TextureRendererProvider(
     override fun createTooltip(
         type: IotaType<*>,
         iota: SplicingTableIotaClientView,
-        index: Int
     ): SplicingTableIotaTooltip {
-        val tooltip = super.createTooltip(type, iota, index)
+        val tooltip = super.createTooltip(type, iota)
         val listTag = iota.data!!.downcast(ListTag.TYPE)
         tooltip.advanced += SplicingTableScreen.tooltipText("length", listTag.size)
         return tooltip

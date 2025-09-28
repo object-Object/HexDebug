@@ -6,6 +6,7 @@ import at.petrak.hexcasting.api.addldata.ADMediaHolder
 import at.petrak.hexcasting.api.block.HexBlockEntity
 import at.petrak.hexcasting.api.casting.ParticleSpray
 import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
+import at.petrak.hexcasting.api.casting.eval.SpecialPatterns
 import at.petrak.hexcasting.api.casting.eval.vm.CastingVM
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.IotaType
@@ -30,6 +31,7 @@ import gay.`object`.hexdebug.splicing.*
 import gay.`object`.hexdebug.utils.Option.None
 import gay.`object`.hexdebug.utils.Option.Some
 import gay.`object`.hexdebug.utils.setPropertyIfChanged
+import gay.`object`.hexdebug.utils.sigsEqual
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
@@ -201,8 +203,14 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
 
     override fun getClientView() = getData(null)?.run {
         val env = FakeCastEnv(level)
+        var depth = 0
         SplicingTableClientView(
-            list = list?.map { SplicingTableIotaClientView(it, env) },
+            list = list?.mapIndexed { index, iota ->
+                if ((iota as? PatternIota)?.pattern.sigsEqual(SpecialPatterns.RETROSPECTION)) depth--
+                val view = SplicingTableIotaClientView(iota, env, index, depth)
+                if ((iota as? PatternIota)?.pattern.sigsEqual(SpecialPatterns.INTROSPECTION)) depth++
+                view
+            },
             clipboard = clipboard?.let { IotaType.serialize(it) },
             isListWritable = listWriter != null,
             isClipboardWritable = clipboardWriter != null,

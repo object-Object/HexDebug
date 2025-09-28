@@ -874,7 +874,7 @@ class SplicingTableScreen(
         x = leftPos + 15 + 18 * offset,
         y = topPos + 20,
     ) {
-        override val index get() = viewStartIndex + offset
+        val index get() = viewStartIndex + offset
 
         override val iotaView get() = data.list?.getOrNull(index)
 

@@ -23,8 +23,13 @@ open class TextureRendererProvider(
     val textureHeight: Int,
     val useIotaColor: Boolean = true,
 ) : SplicingTableIotaRendererProvider {
-    override fun createRenderer(type: IotaType<*>, iota: SplicingTableIotaClientView): SplicingTableIotaRenderer {
-        return SplicingTableIotaRenderer { guiGraphics, x, y ->
+    override fun createRenderer(
+        type: IotaType<*>,
+        iota: SplicingTableIotaClientView,
+        x: Int,
+        y: Int,
+    ): SplicingTableIotaRenderer {
+        return SplicingTableIotaRenderer { guiGraphics, _, _, _ ->
             if (useIotaColor) guiGraphics.setColor(Color(type.color(), true))
             guiGraphics.blit(texture, x + xOffset, y + yOffset, uOffset.toFloat(), vOffset.toFloat(), width, height, textureWidth, textureHeight)
             if (useIotaColor) guiGraphics.setColor(1f, 1f, 1f, 1f)

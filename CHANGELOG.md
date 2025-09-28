@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 - Added a new resource-pack-based data-driven system for addon devs to customize how their iotas are rendered in the Splicing Table.
 - Added Hexical interop to make the telepathy and notebook keys work in the Splicing/Mindsplice Table GUI.
+- Added support for "rainbow brackets" (also known as bracket pair colorization) to the Splicing Table. Introspection and Retrospection are now tinted rainbow colors based on their depth. The list of colors is configurable in HexDebug's client settings, and there's also an option to disable the feature entirely.
 
 ### Changed
 

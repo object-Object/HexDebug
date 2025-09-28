@@ -3,6 +3,7 @@ package gay.`object`.hexdebug.config
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import com.mojang.blaze3d.platform.InputConstants
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.gui.config.startColorList
 import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
 import gay.`object`.hexdebug.splicing.SplicingTableAction
 import me.shedaniel.autoconfig.AutoConfig
@@ -10,6 +11,7 @@ import me.shedaniel.autoconfig.ConfigData
 import me.shedaniel.autoconfig.ConfigHolder
 import me.shedaniel.autoconfig.annotation.Config
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Category
+import me.shedaniel.autoconfig.annotation.ConfigEntry.ColorPicker
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.*
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer.GlobalData
@@ -20,6 +22,7 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder
 import me.shedaniel.clothconfig2.api.Modifier
 import me.shedaniel.clothconfig2.api.ModifierKeyCode
 import net.minecraft.world.InteractionResult
+import java.lang.reflect.ParameterizedType
 
 object HexDebugClientConfig {
     @JvmStatic
@@ -34,7 +37,7 @@ object HexDebugClientConfig {
 
             // ModifierKeyCode
             registerTypeProvider(
-                { i18n, field, config, defaults, _ -> listOf(
+                { i18n, field, config, defaults, _ ->
                     entryBuilder.startModifierKeyCodeField(
                         when (config) {
                             is ClientConfig.SplicingTableKeybinds,
@@ -48,8 +51,27 @@ object HexDebugClientConfig {
                         .setModifierDefaultValue { (getUnsafely(field, defaults) as ConfigModifierKey).inner }
                         .setModifierSaveConsumer { setUnsafely(field, config, ConfigModifierKey(it)) }
                         .build()
-                ) },
+                        .toList()
+                },
                 ConfigModifierKey::class.java,
+            )
+
+            // list of color pickers
+            registerAnnotationProvider(
+                { i18n, field, config, defaults, _ ->
+                    entryBuilder.startColorList(i18n.asTranslatedComponent, getUnsafely(field, config))
+                        .setDefaultValue { getUnsafely(field, defaults) }
+                        .setSaveConsumer { setUnsafely(field, config, it) }
+                        .build()
+                        .toList()
+                },
+                { field ->
+                    val typeArgs = (field.genericType as? ParameterizedType)?.actualTypeArguments
+                    List::class.java.isAssignableFrom(field.type)
+                        && typeArgs?.size == 1
+                        && typeArgs[0] == Integer::class.java
+                },
+                ColorPicker::class.java,
             )
         }
 
@@ -95,6 +117,21 @@ object HexDebugClientConfig {
 
         @Tooltip
         val invertSplicingTableScrollDirection: Boolean = false
+
+        @Tooltip
+        val enableSplicingTableRainbowBrackets: Boolean = true
+
+        // split Turbo into 8 samples, took the middle 6
+        @Tooltip
+        @ColorPicker
+        val rainbowBracketColors: List<Int> = listOf(
+            0xda3907,
+            0xfe9b2d,
+            0xd1e934,
+            0x62fc6b,
+            0x1bcfd5,
+            0x4676ee,
+        )
 
         @Tooltip
         @CollapsibleObject
@@ -243,3 +280,5 @@ data class ConfigModifierKey(
 private val camelRegex = "(?<=[a-zA-Z])[A-Z]".toRegex()
 
 private fun String.camelToSnakeCase() = replace(camelRegex) { "_${it.value}" }.lowercase()
+
+private fun <T> T.toList() = listOf(this)

@@ -1,5 +1,6 @@
 package gay.`object`.hexdebug.gui.splicing.renderers
 
+import at.petrak.hexcasting.api.casting.eval.SpecialPatterns
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.client.render.drawLineSeq
 import at.petrak.hexcasting.client.render.findDupIndices
@@ -9,13 +10,20 @@ import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import gay.`object`.hexdebug.api.client.splicing.*
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
+import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
 import gay.`object`.hexdebug.utils.deserializePattern
+import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.simpleString
 import net.minecraft.client.renderer.GameRenderer
 
 object PatternRendererProvider : SplicingTableIotaRendererProvider {
-    override fun createRenderer(type: IotaType<*>, iota: SplicingTableIotaClientView): SplicingTableIotaRenderer {
+    override fun createRenderer(
+        type: IotaType<*>,
+        iota: SplicingTableIotaClientView,
+        x: Int,
+        y: Int,
+    ): SplicingTableIotaRenderer {
         val pattern = iota.deserializePattern()!!
 
         val patternWidth = 16f
@@ -40,7 +48,16 @@ object PatternRendererProvider : SplicingTableIotaRendererProvider {
             seed = 0.0,
         )
 
-        return SplicingTableIotaRenderer { guiGraphics, x, y ->
+        val outer = if (
+            HexDebugClientConfig.config.enableSplicingTableRainbowBrackets
+            && (pattern.sigsEqual(SpecialPatterns.INTROSPECTION) || pattern.sigsEqual(SpecialPatterns.RETROSPECTION))
+        ) {
+            HexDebugClientConfig.config.rainbowBracketColors.getWrapping(iota.depth)
+        } else {
+            0xd2c8c8
+        } or 0xff_000000.toInt()
+
+        return SplicingTableIotaRenderer { guiGraphics, _, _, _ ->
             val ps = guiGraphics.pose()
 
             ps.pushPose()
@@ -58,7 +75,7 @@ object PatternRendererProvider : SplicingTableIotaRendererProvider {
 
             val mat = ps.last().pose()
 
-            val outer = 0xff_d2c8c8.toInt()
+            // ARGB
             val innerLight = 0xc8_aba2a2.toInt()
             val innerDark = 0xc8_322b33.toInt()
 
@@ -72,9 +89,8 @@ object PatternRendererProvider : SplicingTableIotaRendererProvider {
     override fun createTooltip(
         type: IotaType<*>,
         iota: SplicingTableIotaClientView,
-        index: Int,
     ): SplicingTableIotaTooltip {
-        val tooltip = super.createTooltip(type, iota, index)
+        val tooltip = super.createTooltip(type, iota)
         val pattern = iota.deserializePattern()!!
         tooltip.advanced += SplicingTableScreen.tooltipText("signature", pattern.simpleString())
         return tooltip

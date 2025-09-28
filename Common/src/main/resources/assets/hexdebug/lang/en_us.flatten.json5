@@ -56,6 +56,7 @@
         },
         tooltip: {
           index: "Index: %d",
+          depth: "Depth: %d",
           signature: "Signature: %s",
           length: "Length: %d",
         },
@@ -97,6 +98,14 @@
           invertSplicingTableScrollDirection: {
             "": "Invert Splicing Table Scroll Direction",
             "@Tooltip": "Whether scrolling up (as opposed to down) will increase the view index of the splicing table, and vice versa.",
+          },
+          enableSplicingTableRainbowBrackets: {
+            "": "Enable Splicing Table Rainbow Brackets",
+            "@Tooltip": "If true, tint the outline of Introspection and Retrospection with rainbow colors to help identify matching brackets.",
+          },
+          rainbowBracketColors: {
+            "": "Rainbow Bracket Colors",
+            "@Tooltip": "Colors for rainbow brackets in the Splicing Table GUI.",
           },
           splicingTableKeybinds: {
             "": "Splicing Table Keybinds",
