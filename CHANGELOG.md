@@ -8,12 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Added
 
-- Added a new resource-pack-based data-driven system for addon devs to customize how their iotas are rendered in the Splicing Table.
+- Added a new resource-pack-based data-driven system for addon devs to customize how their iotas are rendered in the Splicing Table. ([Docs](https://github.com/object-Object/HexDebug/wiki/Splicing-Table-Iota-Rendering))
 - Added Hexical interop to make the telepathy and notebook keys work in the Splicing/Mindsplice Table GUI.
 - Added support for "rainbow brackets" (also known as bracket pair colorization) to the Splicing Table. Introspection and Retrospection are now tinted rainbow colors based on their depth. The list of colors is configurable in HexDebug's client settings, and there's also an option to disable the feature entirely.
+- Added a config option to disable showing pattern names in embedded lists.
 
 ### Changed
 
+- ⚠️ Rearranged the client config. In particular, the `invertSplicingTableScrollDirection` option has been moved to `splicingTable.invertScrollDirection`, so you'll have to set this option again after updating if you've changed it from the default.
 - Updated zh_cn translations, by ChuijkYahus in [#43](https://github.com/object-Object/HexDebug/pull/43)
 - The Mindsplice Table casting button tooltip now includes the block's name (eg. from renaming it in an anvil).
 
