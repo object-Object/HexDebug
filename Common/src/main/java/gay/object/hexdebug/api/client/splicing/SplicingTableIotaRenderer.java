@@ -3,6 +3,7 @@ package gay.object.hexdebug.api.client.splicing;
 import at.petrak.hexcasting.api.casting.iota.IotaType;
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes;
 import gay.object.hexdebug.api.splicing.SplicingTableIotaClientView;
+import gay.object.hexdebug.config.HexDebugClientConfig;
 import gay.object.hexdebug.gui.splicing.SplicingTableScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
@@ -75,7 +76,17 @@ public abstract class SplicingTableIotaRenderer {
      */
     @NotNull
     protected SplicingTableIotaTooltipBuilder buildTooltip() {
-        var builder = new SplicingTableIotaTooltipBuilder(iota.name())
+        Component name;
+        if (
+            type == HexIotaTypes.PATTERN
+            || HexDebugClientConfig.getConfig().getSplicingTable().getShowNestedPatternNames()
+        ) {
+            name = iota.display();
+        } else {
+            name = type.display(iota.getData());
+        }
+
+        var builder = new SplicingTableIotaTooltipBuilder(name)
             .addDetailsLine(SplicingTableScreen.tooltipText("index", iota.index()));
 
         var typeKey = HexIotaTypes.REGISTRY.getKey(type);

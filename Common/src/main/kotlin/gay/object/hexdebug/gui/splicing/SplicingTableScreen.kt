@@ -607,7 +607,7 @@ class SplicingTableScreen(
     override fun mouseScrolled(mouseX: Double, mouseY: Double, delta: Double): Boolean {
         if (super.mouseScrolled(mouseX, mouseY, delta)) return true
 
-        val adjustedDelta = if (HexDebugClientConfig.config.invertSplicingTableScrollDirection) {
+        val adjustedDelta = if (HexDebugClientConfig.config.splicingTable.invertScrollDirection) {
             delta * -1
         } else {
             delta

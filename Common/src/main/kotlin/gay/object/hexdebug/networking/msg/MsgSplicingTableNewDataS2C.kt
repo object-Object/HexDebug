@@ -48,7 +48,7 @@ data class MsgSplicingTableNewDataS2C(
                 buf.writeNullable(list) { _, list ->
                     buf.writeCollection(list) { _, it ->
                         buf.writeNbt(it.tag)
-                        buf.writeComponent(it.name)
+                        buf.writeComponent(it.display)
                         buf.writeUtf(it.hexpatternSource)
                         buf.writeInt(it.index)
                         buf.writeInt(it.depth)

@@ -95,17 +95,21 @@
             "": "Show Debug Client Line Number",
             "@Tooltip": "If true, show the line number (usually 1-indexed) from the debug client (eg. VSCode) in Debugger status messages; otherwise, show the list index (0-indexed)."
           },
-          invertSplicingTableScrollDirection: {
-            "": "Invert Splicing Table Scroll Direction",
-            "@Tooltip": "Whether scrolling up (as opposed to down) will increase the view index of the splicing table, and vice versa.",
-          },
-          enableSplicingTableRainbowBrackets: {
-            "": "Enable Splicing Table Rainbow Brackets",
-            "@Tooltip": "If true, tint the outline of Introspection and Retrospection with rainbow colors to help identify matching brackets.",
-          },
-          rainbowBracketColors: {
-            "": "Rainbow Bracket Colors",
-            "@Tooltip": "Colors for rainbow brackets in the Splicing Table GUI.",
+          splicingTable: {
+            "": "General Splicing Table Options",
+            invertScrollDirection: {
+              "": "Invert Scroll Direction",
+              "@Tooltip": "Whether scrolling up (as opposed to down) will increase the view index of the Splicing Table, and vice versa.",
+            },
+            enableRainbowBrackets: {
+              "": "Enable Rainbow Brackets",
+              "@Tooltip": "If true, tint the outline of Introspection and Retrospection with rainbow colors to help identify matching brackets.",
+            },
+            rainbowBracketColors: "Rainbow Bracket Colors",
+            showNestedPatternNames: {
+              "": "Show Nested Pattern Names",
+              "@Tooltip": "If true, for patterns inside of embedded lists, show pattern names in the tooltip instead of the built-in inline pattern display.",
+            },
           },
           splicingTableKeybinds: {
             "": "Splicing Table Keybinds",

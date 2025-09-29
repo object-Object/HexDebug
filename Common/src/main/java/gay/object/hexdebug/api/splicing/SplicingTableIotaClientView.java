@@ -18,14 +18,17 @@ import org.jetbrains.annotations.Nullable;
  * NOTE: Consumers should not construct this class themselves, as its fields may change at any time.
  * All constructors are annotated with {@link ApiStatus.Internal} to indicate this.
  * @param tag The raw iota NBT.
- * @param name The formatted name of the iota for use in tooltips.
+ * @param display The formatted iota for use in tooltips. For patterns (including those nested in
+ *                lists), this is the pattern's name as calculated on the server, so that per-world
+ *                patterns and special handlers can be displayed with their actual names instead of
+ *                just the raw angle signature.
  * @param hexpatternSource The iota converted to a plain string in {@code .hexpattern} format.
  * @param index The index of this iota in the list.
  * @param depth The number of unclosed Introspection patterns preceding this iota.
  */
 public record SplicingTableIotaClientView(
     @NotNull CompoundTag tag,
-    @NotNull Component name,
+    @NotNull Component display,
     @NotNull String hexpatternSource,
     int index,
     int depth

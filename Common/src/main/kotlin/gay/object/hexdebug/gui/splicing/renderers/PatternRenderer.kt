@@ -53,10 +53,10 @@ class PatternRenderer(
     )
 
     private val outer = if (
-        HexDebugClientConfig.config.enableSplicingTableRainbowBrackets
+        HexDebugClientConfig.config.splicingTable.enableRainbowBrackets
         && (pattern.sigsEqual(SpecialPatterns.INTROSPECTION) || pattern.sigsEqual(SpecialPatterns.RETROSPECTION))
     ) {
-        HexDebugClientConfig.config.rainbowBracketColors.getWrapping(iota.depth)
+        HexDebugClientConfig.config.splicingTable.rainbowBracketColors.getWrapping(iota.depth)
     } else {
         0xd2c8c8
     } or 0xff_000000.toInt()

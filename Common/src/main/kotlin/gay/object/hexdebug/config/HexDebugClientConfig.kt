@@ -115,27 +115,34 @@ object HexDebugClientConfig {
         @Tooltip
         val showDebugClientLineNumber: Boolean = false
 
-        @Tooltip
-        val invertSplicingTableScrollDirection: Boolean = false
-
-        @Tooltip
-        val enableSplicingTableRainbowBrackets: Boolean = true
-
-        // split Turbo into 8 samples, took the middle 6
-        @Tooltip
-        @ColorPicker
-        val rainbowBracketColors: List<Int> = listOf(
-            0xda3907,
-            0xfe9b2d,
-            0xd1e934,
-            0x62fc6b,
-            0x1bcfd5,
-            0x4676ee,
-        )
+        @CollapsibleObject(startExpanded = true)
+        val splicingTable = SplicingTable()
 
         @Tooltip
         @CollapsibleObject
         val splicingTableKeybinds = SplicingTableKeybinds()
+
+        class SplicingTable {
+            @Tooltip
+            val invertScrollDirection: Boolean = false
+
+            @Tooltip
+            val enableRainbowBrackets: Boolean = true
+
+            // split Turbo into 8 samples, took the middle 6
+            @ColorPicker
+            val rainbowBracketColors: List<Int> = listOf(
+                0xda3907,
+                0xfe9b2d,
+                0xd1e934,
+                0x62fc6b,
+                0x1bcfd5,
+                0x4676ee,
+            )
+
+            @Tooltip
+            val showNestedPatternNames: Boolean = true
+        }
 
         @Suppress("MemberVisibilityCanBePrivate")
         class SplicingTableKeybinds {
