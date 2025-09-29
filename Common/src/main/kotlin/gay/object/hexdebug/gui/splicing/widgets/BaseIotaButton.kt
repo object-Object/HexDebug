@@ -3,6 +3,7 @@ package gay.`object`.hexdebug.gui.splicing.widgets
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
 import com.mojang.blaze3d.systems.RenderSystem
+import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderer
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
 import gay.`object`.hexdebug.resources.splicing.SplicingTableIotasResourceReloadListener
@@ -35,7 +36,12 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
             super.renderWidget(guiGraphics, mouseX, mouseY, partialTick)
             RenderSystem.disableBlend()
 
-            renderer.render(guiGraphics, mouseX, mouseY, partialTick)
+            try {
+                renderer.render(guiGraphics, mouseX, mouseY, partialTick)
+            } catch (e: Exception) {
+                HexDebug.LOGGER.error("Caught exception while rendering ${renderer.type.typeName().string}", e)
+                this.renderer = null
+            }
         }
     }
 
@@ -53,12 +59,17 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
 
         active = true
 
-        renderer = iotaType
-            ?.let { SplicingTableIotasResourceReloadListener.PROVIDERS[it] }
-            ?.createRenderer(iotaType, iotaView, x, y)
-            ?: SplicingTableIotasResourceReloadListener.FALLBACK
+        try {
+            renderer = iotaType
+                ?.let { SplicingTableIotasResourceReloadListener.PROVIDERS[it] }
                 ?.createRenderer(iotaType, iotaView, x, y)
+                ?: SplicingTableIotasResourceReloadListener.FALLBACK
+                    ?.createRenderer(iotaType, iotaView, x, y)
 
-        tooltip = renderer?.createTooltip()
+            tooltip = renderer?.createTooltip()
+        } catch (e: Exception) {
+            HexDebug.LOGGER.error("Caught exception while preparing renderer for ${iotaType.typeName().string}", e)
+            renderer = null
+        }
     }
 }
