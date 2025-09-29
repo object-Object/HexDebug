@@ -62,6 +62,6 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
 
         renderer = provider.createRenderer(iotaType, iotaView, x, y)
         backgroundType = provider.getBackgroundType(iotaType, iotaView)
-        tooltip = provider.createTooltip(iotaType, iotaView).build()
+        tooltip = provider.createTooltip(iotaType, iotaView)
     }
 }
