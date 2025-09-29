@@ -1,0 +1,6 @@
+{
+  "type": "hexdebug:item",
+  "itemPath": "moreiotas:stack_id",
+  "countPath": "moreiotas:stack_count",
+  "tagPath": "moreiotas:stack_tag"
+}

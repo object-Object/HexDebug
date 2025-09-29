@@ -7,6 +7,7 @@ import gay.object.hexdebug.gui.splicing.SplicingTableScreen;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A factory for {@link SplicingTableIotaRenderer} instances.
@@ -15,8 +16,13 @@ import org.jetbrains.annotations.NotNull;
  * currently visible, so don't do anything too laggy in here.
  */
 public interface SplicingTableIotaRendererProvider {
-    /** Creates and returns a new {@link SplicingTableIotaRenderer} for the provided iota. */
-    @NotNull
+    /**
+     * Creates and returns a new {@link SplicingTableIotaRenderer} for the provided iota.
+     * <br>
+     * May return null if unable to create a renderer for the given iota; in that case, the default
+     * renderer will be used instead.
+     */
+    @Nullable
     SplicingTableIotaRenderer createRenderer(
         @NotNull IotaType<?> type,
         @NotNull SplicingTableIotaClientView iota,

@@ -1,0 +1,71 @@
+package gay.`object`.hexdebug.gui.splicing.renderers
+
+import at.petrak.hexcasting.api.casting.iota.IotaType
+import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderer
+import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRendererParser
+import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRendererProvider
+import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
+import gay.`object`.hexdebug.utils.*
+import net.minecraft.client.Minecraft
+import net.minecraft.commands.arguments.NbtPathArgument.NbtPath
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.util.GsonHelper
+import net.minecraft.world.item.ItemStack
+
+class ItemRendererProvider(
+    val itemPath: NbtPath,
+    val blockPath: NbtPath?,
+    val countPath: NbtPath?,
+    val tagPath: NbtPath?,
+    val xOffset: Float,
+    val yOffset: Float,
+    val scale: Float,
+) : SplicingTableIotaRendererProvider {
+    override fun createRenderer(
+        type: IotaType<*>,
+        iota: SplicingTableIotaClientView,
+        x: Int,
+        y: Int
+    ): SplicingTableIotaRenderer? {
+        val data = iota.data ?: return null
+
+        val item = itemPath.getResourceLocationOrNull(data)?.let(BuiltInRegistries.ITEM::getOrNull)
+            ?: blockPath?.getResourceLocationOrNull(data)?.let(BuiltInRegistries.BLOCK::getOrNull)
+            ?: return null
+
+        val count = countPath?.getIntOrNull(data) ?: 1
+
+        val tag = tagPath?.getOrNull(data) as? CompoundTag
+
+        val stack = ItemStack(item, count)
+        stack.tag = tag
+
+        return SplicingTableIotaRenderer { guiGraphics, _, _, _ ->
+            val ps = guiGraphics.pose()
+            ps.pushPose {
+                // align to center of iota display
+                ps.translate(x + (18f / 2f) + xOffset, y + (21f / 2f) + yOffset, 0f)
+                ps.scale(scale)
+                // renderItem wants the top left corner, but it'll calculate it after the scale has been applied
+                ps.translate(-8f, -8f, 0f)
+                guiGraphics.renderItem(stack, 0, 0)
+                guiGraphics.renderItemDecorations(Minecraft.getInstance().font, stack, 0, 0)
+            }
+        }
+    }
+
+    companion object {
+        val PARSER = SplicingTableIotaRendererParser<ItemRendererProvider> { _, json, parent ->
+            ItemRendererProvider(
+                itemPath = json.getAsNbtPath("itemPath", parent?.itemPath),
+                blockPath = json.getAsNbtPathOrNull("blockPath", parent?.blockPath),
+                countPath = json.getAsNbtPathOrNull("countPath", parent?.countPath),
+                tagPath = json.getAsNbtPathOrNull("tagPath", parent?.tagPath),
+                xOffset = GsonHelper.getAsFloat(json, "xOffset", 0f),
+                yOffset = GsonHelper.getAsFloat(json, "yOffset", 0f),
+                scale = GsonHelper.getAsFloat(json, "scale", 0.75f),
+            )
+        }
+    }
+}

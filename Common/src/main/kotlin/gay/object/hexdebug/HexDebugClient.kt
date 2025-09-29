@@ -11,6 +11,7 @@ import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderers
 import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlock
 import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.config.HexDebugServerConfig
+import gay.`object`.hexdebug.gui.splicing.renderers.ItemRendererProvider
 import gay.`object`.hexdebug.gui.splicing.renderers.ListRendererProvider
 import gay.`object`.hexdebug.gui.splicing.renderers.PatternRendererProvider
 import gay.`object`.hexdebug.gui.splicing.renderers.TextureRendererProvider
@@ -95,8 +96,13 @@ object HexDebugClient {
     }
 
     private fun registerSplicingTableIotaRenderers() {
-        SplicingTableIotaRenderers.register(HexDebug.id("list"), ListRendererProvider.PARSER)
-        SplicingTableIotaRenderers.register(HexDebug.id("pattern"), PatternRendererProvider.PARSER)
-        SplicingTableIotaRenderers.register(HexDebug.id("texture"), TextureRendererProvider.PARSER)
+        for ((name, parser) in arrayOf(
+            "item" to ItemRendererProvider.PARSER,
+            "list" to ListRendererProvider.PARSER,
+            "pattern" to PatternRendererProvider.PARSER,
+            "texture" to TextureRendererProvider.PARSER,
+        )) {
+            SplicingTableIotaRenderers.register(HexDebug.id(name), parser)
+        }
     }
 }

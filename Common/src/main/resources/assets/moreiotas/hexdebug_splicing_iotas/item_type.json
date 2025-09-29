@@ -1,3 +1,5 @@
 {
-  "parent": "hexdebug:builtin/type"
+  "type": "hexdebug:item",
+  "itemPath": "item",
+  "blockPath": "block"
 }

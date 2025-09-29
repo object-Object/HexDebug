@@ -12,7 +12,13 @@ import at.petrak.hexcasting.api.utils.*
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
+import net.minecraft.commands.arguments.NbtPathArgument.NbtPath
+import net.minecraft.core.Registry
+import net.minecraft.nbt.NumericTag
+import net.minecraft.nbt.StringTag
+import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.*
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity
@@ -235,4 +241,35 @@ fun <T : Comparable<T>, V : T> BlockEntity.setPropertyIfChanged(property: Proper
     if (blockState.getValue(property) != value) {
         level?.setBlockAndUpdate(blockPos, blockState.setValue(property, value))
     }
+}
+
+// registries
+
+fun <T> Registry<T>.getOrNull(name: ResourceLocation): T? {
+    if (containsKey(name)) {
+        return get(name)
+    }
+    return null
+}
+
+// nbt paths
+
+fun NbtPath.getOrNull(tag: Tag): List<Tag>? {
+    return try {
+        get(tag)
+    } catch (e: Exception) {
+        null
+    }
+}
+
+fun NbtPath.getIntOrNull(tag: Tag): Int? {
+    return (getOrNull(tag)?.first() as? NumericTag)?.asInt
+}
+
+fun NbtPath.getStringOrNull(tag: Tag): String? {
+    return (getOrNull(tag)?.first() as? StringTag)?.asString
+}
+
+fun NbtPath.getResourceLocationOrNull(tag: Tag): ResourceLocation? {
+    return getStringOrNull(tag)?.let(ResourceLocation::tryParse)
 }
