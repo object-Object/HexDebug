@@ -96,11 +96,17 @@ dependencies {
 
     modLocalRuntime(libs.devAuth.fabric)
 
-    modApi(libs.ioticblocks.fabric)
+    modImplementation(libs.ioticblocks.fabric)
 
-    modImplementation(libs.emi.fabric)
+    libs.emi.fabric.also {
+        modCompileOnly(it)
+        modLocalRuntime(it)
+    }
 
-    modImplementation(libs.hexical)
+    libs.hexical.also {
+        modCompileOnly(it)
+        modLocalRuntime(it)
+    }
     modLocalRuntime(libs.hexpose) { isTransitive = false }
     modLocalRuntime(libs.playerAnimator.fabric)
 }

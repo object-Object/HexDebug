@@ -56,6 +56,6 @@
   "suggests": {
     "emi": ">=${versions.emi}",
     "modmenu": ">=${versions.modMenu}",
-    "hexical": ">=${versions.hexical_dependency}"
+    "hexical": ">=${versions.hexical}"
   }
 }

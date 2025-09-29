@@ -100,9 +100,12 @@ dependencies {
 
     modLocalRuntime(libs.devAuth.forge)
 
-    modApi(libs.ioticblocks.forge)
+    modImplementation(libs.ioticblocks.forge)
 
-    modImplementation(libs.emi.forge)
+    libs.emi.forge.also {
+        modCompileOnly(it)
+        modLocalRuntime(it)
+    }
 }
 
 tasks {

@@ -30,7 +30,7 @@ dependencies {
 
     implementation(libs.bundles.ktor)
 
-    modApi(libs.ioticblocks.common)
+    modImplementation(libs.ioticblocks.common)
 
-    modImplementation(libs.emi.xplat)
+    modCompileOnly(libs.emi.xplat)
 }
