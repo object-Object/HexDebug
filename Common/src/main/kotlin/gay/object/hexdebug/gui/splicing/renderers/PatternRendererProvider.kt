@@ -86,14 +86,13 @@ object PatternRendererProvider : SplicingTableIotaRendererProvider {
         }
     }
 
-    override fun createTooltip(
+    override fun getTooltipBuilder(
         type: IotaType<*>,
         iota: SplicingTableIotaClientView,
-    ): SplicingTableIotaTooltip {
-        val tooltip = super.createTooltip(type, iota)
+    ): SplicingTableIotaTooltipBuilder {
         val pattern = iota.deserializePattern()!!
-        tooltip.advanced += SplicingTableScreen.tooltipText("signature", pattern.simpleString())
-        return tooltip
+        return super.getTooltipBuilder(type, iota)
+            .addAdvancedLine(SplicingTableScreen.tooltipText("signature", pattern.simpleString()))
     }
 
     override fun getBackgroundType(

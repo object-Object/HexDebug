@@ -4,7 +4,7 @@ import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.utils.downcast
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRendererParser
-import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaTooltip
+import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaTooltipBuilder
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
 import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
 import net.minecraft.nbt.ListTag
@@ -20,14 +20,13 @@ object ListRendererProvider : TextureRendererProvider(
     textureWidth = 512,
     textureHeight = 512,
 ) {
-    override fun createTooltip(
+    override fun getTooltipBuilder(
         type: IotaType<*>,
         iota: SplicingTableIotaClientView,
-    ): SplicingTableIotaTooltip {
-        val tooltip = super.createTooltip(type, iota)
+    ): SplicingTableIotaTooltipBuilder {
         val listTag = iota.data!!.downcast(ListTag.TYPE)
-        tooltip.advanced += SplicingTableScreen.tooltipText("length", listTag.size)
-        return tooltip
+        return super.getTooltipBuilder(type, iota)
+            .addAdvancedLine(SplicingTableScreen.tooltipText("length", listTag.size))
     }
 
     val PARSER = SplicingTableIotaRendererParser.of(this)
