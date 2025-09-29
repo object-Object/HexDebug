@@ -9,18 +9,17 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * A factory for {@link SplicingTableIotaRenderer} instances.
- * <br>
- * Every method in this interface is called every time the splicing table changes which iotas are
- * currently visible, so don't do anything too laggy in here.
- */
+/** A factory for {@link SplicingTableIotaRenderer} instances. */
+@FunctionalInterface
 public interface SplicingTableIotaRendererProvider {
     /**
      * Creates and returns a new {@link SplicingTableIotaRenderer} for the provided iota.
      * <br>
      * May return null if unable to create a renderer for the given iota; in that case, the default
      * renderer will be used instead.
+     * <br>
+     * This is called every time the splicing table changes which iotas are currently visible, so
+     * don't do anything too laggy in here.
      */
     @Nullable
     SplicingTableIotaRenderer createRenderer(
@@ -29,49 +28,4 @@ public interface SplicingTableIotaRendererProvider {
         int x,
         int y
     );
-
-    /**
-     * Creates and returns a new {@link Tooltip} for the provided iota.
-     * <br>
-     * In most cases, you'll likely want to override
-     * {@link SplicingTableIotaRendererProvider#getTooltipBuilder} instead.
-     */
-    @NotNull
-    default Tooltip createTooltip(
-        @NotNull IotaType<?> type,
-        @NotNull SplicingTableIotaClientView iota
-    ) {
-        return getTooltipBuilder(type, iota).build();
-    }
-
-    /**
-     * Creates and returns a new {@link SplicingTableIotaTooltipBuilder} for the provided iota.
-     * <br>
-     * If you want to provide a tooltip directly instead of using this builder, you can override
-     * {@link SplicingTableIotaRendererProvider#createTooltip} instead.
-     */
-    @NotNull
-    default SplicingTableIotaTooltipBuilder getTooltipBuilder(
-        @NotNull IotaType<?> type,
-        @NotNull SplicingTableIotaClientView iota
-    ) {
-        var builder = new SplicingTableIotaTooltipBuilder(iota.name())
-            .addDetailsLine(SplicingTableScreen.tooltipText("index", iota.index()));
-
-        var typeKey = HexIotaTypes.REGISTRY.getKey(type);
-        if (typeKey != null) {
-            builder.addAdvancedLine(Component.literal(typeKey.toString()));
-        }
-
-        return builder.addAdvancedLine(SplicingTableScreen.tooltipText("depth", iota.depth()));
-    }
-
-    /** Returns the background type for this renderer. */
-    @NotNull
-    default SplicingTableIotaBackgroundType getBackgroundType(
-        @NotNull IotaType<?> type,
-        @NotNull SplicingTableIotaClientView iota
-    ) {
-        return SplicingTableIotaBackgroundType.GOLD;
-    }
 }

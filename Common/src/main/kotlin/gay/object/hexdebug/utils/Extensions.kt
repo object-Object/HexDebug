@@ -167,14 +167,6 @@ fun Iota.toHexpatternSource(env: CastingEnvironment, wrapEmbedded: Boolean = tru
     return iotaText
 }
 
-fun SplicingTableIotaClientView.deserializePattern(): HexPattern? {
-    return try {
-        PatternIota.deserialize(data).pattern
-    } catch (_: Exception) {
-        null
-    }
-}
-
 fun List<SplicingTableIotaClientView>.toHexpatternSource(): String {
     return joinToString("\n") {
         val indent = " ".repeat(max(0, 4 * it.depth))

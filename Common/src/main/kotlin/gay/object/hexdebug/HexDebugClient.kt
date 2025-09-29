@@ -13,7 +13,7 @@ import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.gui.splicing.renderers.ItemRendererProvider
 import gay.`object`.hexdebug.gui.splicing.renderers.ListRendererProvider
-import gay.`object`.hexdebug.gui.splicing.renderers.PatternRendererProvider
+import gay.`object`.hexdebug.gui.splicing.renderers.PatternRenderer
 import gay.`object`.hexdebug.gui.splicing.renderers.TextureRendererProvider
 import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.resources.splicing.SplicingTableIotasResourceReloadListener
@@ -99,7 +99,7 @@ object HexDebugClient {
         for ((name, parser) in arrayOf(
             "item" to ItemRendererProvider.PARSER,
             "list" to ListRendererProvider.PARSER,
-            "pattern" to PatternRendererProvider.PARSER,
+            "pattern" to PatternRenderer.PARSER,
             "texture" to TextureRendererProvider.PARSER,
         )) {
             SplicingTableIotaRenderers.register(HexDebug.id(name), parser)

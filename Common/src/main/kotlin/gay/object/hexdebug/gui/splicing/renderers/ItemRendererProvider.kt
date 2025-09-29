@@ -7,6 +7,7 @@ import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRendererProvid
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
 import gay.`object`.hexdebug.utils.*
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.commands.arguments.NbtPathArgument.NbtPath
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
@@ -41,9 +42,18 @@ class ItemRendererProvider(
         val stack = ItemStack(item, count)
         stack.tag = tag
 
-        return SplicingTableIotaRenderer { guiGraphics, _, _, _ ->
-            val ps = guiGraphics.pose()
-            ps.pushPose {
+        return ItemRenderer(type, iota, x, y, stack)
+    }
+
+    inner class ItemRenderer(
+        type: IotaType<*>,
+        iota: SplicingTableIotaClientView,
+        x: Int,
+        y: Int,
+        val stack: ItemStack,
+    ) : SplicingTableIotaRenderer(type, iota, x, y) {
+        override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+            guiGraphics.pose().letPushPose { ps ->
                 // align to center of iota display
                 ps.translate(x + (18f / 2f) + xOffset, y + (21f / 2f) + yOffset, 0f)
                 ps.scale(scale)

@@ -7,6 +7,7 @@ import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRendererProvid
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
 import gay.`object`.hexdebug.gui.splicing.setColor
 import gay.`object`.hexdebug.utils.getAsResourceLocation
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.GsonHelper
 import java.awt.Color
@@ -29,7 +30,16 @@ open class TextureRendererProvider(
         x: Int,
         y: Int,
     ): SplicingTableIotaRenderer {
-        return SplicingTableIotaRenderer { guiGraphics, _, _, _ ->
+        return TextureRenderer(type, iota, x, y)
+    }
+
+    open inner class TextureRenderer(
+        type: IotaType<*>,
+        iota: SplicingTableIotaClientView,
+        x: Int,
+        y: Int,
+    ) : SplicingTableIotaRenderer(type, iota, x, y) {
+        override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
             if (useIotaColor) guiGraphics.setColor(Color(type.color(), true))
             guiGraphics.blit(texture, x + xOffset, y + yOffset, uOffset.toFloat(), vOffset.toFloat(), width, height, textureWidth, textureHeight)
             if (useIotaColor) guiGraphics.setColor(1f, 1f, 1f, 1f)

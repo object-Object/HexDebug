@@ -3,7 +3,6 @@ package gay.`object`.hexdebug.gui.splicing.widgets
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
 import com.mojang.blaze3d.systems.RenderSystem
-import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaBackgroundType
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderer
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
 import gay.`object`.hexdebug.resources.splicing.SplicingTableIotasResourceReloadListener
@@ -22,21 +21,21 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
     abstract val iotaView: SplicingTableIotaClientView?
 
     private var renderer: SplicingTableIotaRenderer? = null
-    private var backgroundType: SplicingTableIotaBackgroundType? = null
 
-    override val uOffset get() = 352 + 20 * (backgroundType?.ordinal ?: 0)
+    override val uOffset get() = 352 + 20 * (renderer?.backgroundType?.ordinal ?: 0)
     override val vOffset = 0
 
     override val uOffsetDisabled get() = uOffset
     override val vOffsetDisabled get() = vOffset
 
     override fun renderWidget(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
-        if (iotaView != null && backgroundType != null) {
+        val renderer = renderer
+        if (iotaView != null && renderer != null) {
             RenderSystem.enableBlend()
             super.renderWidget(guiGraphics, mouseX, mouseY, partialTick)
             RenderSystem.disableBlend()
 
-            renderer?.render(guiGraphics, mouseX, mouseY, partialTick)
+            renderer.render(guiGraphics, mouseX, mouseY, partialTick)
         }
     }
 
@@ -45,7 +44,6 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
 
         active = false
         renderer = null
-        backgroundType = null
         tooltip = null
 
         // don't enable the button or display anything if this index is out of range
@@ -55,14 +53,12 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
 
         active = true
 
-        val provider = iotaType
+        renderer = iotaType
             ?.let { SplicingTableIotasResourceReloadListener.PROVIDERS[it] }
+            ?.createRenderer(iotaType, iotaView, x, y)
             ?: SplicingTableIotasResourceReloadListener.FALLBACK
-            ?: return
+                ?.createRenderer(iotaType, iotaView, x, y)
 
-        renderer = provider.createRenderer(iotaType, iotaView, x, y)
-            ?: SplicingTableIotasResourceReloadListener.FALLBACK?.createRenderer(iotaType, iotaView, x, y)
-        backgroundType = provider.getBackgroundType(iotaType, iotaView)
-        tooltip = provider.createTooltip(iotaType, iotaView)
+        tooltip = renderer?.createTooltip()
     }
 }

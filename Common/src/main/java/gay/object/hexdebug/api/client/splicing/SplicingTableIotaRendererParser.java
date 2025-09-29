@@ -2,6 +2,8 @@ package gay.object.hexdebug.api.client.splicing;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Function3;
+import com.mojang.datafixers.util.Function4;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,11 +17,9 @@ public interface SplicingTableIotaRendererParser<T extends SplicingTableIotaRend
     @NotNull
     T parse(@NotNull Gson gson, @NotNull JsonObject jsonObject, @Nullable T parent);
 
-    /**
-     * Creates a parser that always returns the given instance.
-     */
+    /** Creates a parser that always returns the given provider. */
     @NotNull
-    static <T extends SplicingTableIotaRendererProvider> SplicingTableIotaRendererParser<T> of(T instance) {
-        return (gson, jsonObject, parent) -> instance;
+    static SplicingTableIotaRendererParser<?> simple(SplicingTableIotaRendererProvider provider) {
+        return (gson, jsonObject, parent) -> provider;
     }
 }

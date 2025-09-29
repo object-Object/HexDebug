@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class SplicingTableIotaTooltipBuilder {
+public final class SplicingTableIotaTooltipBuilder {
     private final Component name;
     private final ArrayList<Component> body;
     private final ArrayList<Component> details;
@@ -51,29 +51,34 @@ public class SplicingTableIotaTooltipBuilder {
     }
 
     /** Append a line to the tooltip's body. */
+    @NotNull
     public SplicingTableIotaTooltipBuilder addBodyLine(@NotNull Component line) {
         body.add(line);
         return this;
     }
 
     /** Append a line to the tooltip's details. */
+    @NotNull
     public SplicingTableIotaTooltipBuilder addDetailsLine(@NotNull Component line) {
         details.add(line);
         return this;
     }
 
     /** Append a line to the tooltip's "advanced tooltips" section. */
+    @NotNull
     public SplicingTableIotaTooltipBuilder addAdvancedLine(@NotNull Component line) {
         advanced.add(line);
         return this;
     }
 
     /** Set the tooltip's narration. */
+    @NotNull
     public SplicingTableIotaTooltipBuilder setNarration(@Nullable Component narration) {
         this.narration = narration;
         return this;
     }
 
+    @NotNull
     public Tooltip build() {
         var lines = new ArrayList<Component>();
         lines.add(name);

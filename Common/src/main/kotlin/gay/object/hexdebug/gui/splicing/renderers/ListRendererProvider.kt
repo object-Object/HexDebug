@@ -3,6 +3,7 @@ package gay.`object`.hexdebug.gui.splicing.renderers
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.utils.downcast
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderer
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRendererParser
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaTooltipBuilder
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
@@ -20,14 +21,27 @@ object ListRendererProvider : TextureRendererProvider(
     textureWidth = 512,
     textureHeight = 512,
 ) {
-    override fun getTooltipBuilder(
+    override fun createRenderer(
         type: IotaType<*>,
         iota: SplicingTableIotaClientView,
-    ): SplicingTableIotaTooltipBuilder {
-        val listTag = iota.data!!.downcast(ListTag.TYPE)
-        return super.getTooltipBuilder(type, iota)
-            .addAdvancedLine(SplicingTableScreen.tooltipText("length", listTag.size))
+        x: Int,
+        y: Int
+    ): SplicingTableIotaRenderer {
+        return ListRenderer(type, iota, x, y)
     }
 
-    val PARSER = SplicingTableIotaRendererParser.of(this)
+    class ListRenderer(
+        type: IotaType<*>,
+        iota: SplicingTableIotaClientView,
+        x: Int,
+        y: Int,
+    ) : TextureRenderer(type, iota, x, y) {
+        override fun buildTooltip(): SplicingTableIotaTooltipBuilder {
+            val listTag = iota.data!!.downcast(ListTag.TYPE)
+            return super.buildTooltip()
+                .addAdvancedLine(SplicingTableScreen.tooltipText("length", listTag.size))
+        }
+    }
+
+    val PARSER = SplicingTableIotaRendererParser.simple(::ListRenderer)
 }
