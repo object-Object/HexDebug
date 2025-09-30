@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Changed
 
 - ⚠️ Rearranged the client config. In particular, the `invertSplicingTableScrollDirection` option has been moved to `splicingTable.invertScrollDirection`, so you'll have to set this option again after updating if you've changed it from the default.
-- Updated zh_cn translations, by ChuijkYahus in [#43](https://github.com/object-Object/HexDebug/pull/43)
+- Updated zh_cn translations, by ChuijkYahus in [#43](https://github.com/object-Object/HexDebug/pull/43).
 - The Mindsplice Table casting button tooltip now includes the block's name (eg. from renaming it in an anvil).
 - Item Type and Item Stack iotas from MoreIotas now render as the item they represent in the Splicing Table.
 
