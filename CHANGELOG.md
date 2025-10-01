@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Pydantic's HISTORY.md](https://github.com/pydantic/pydantic/blob/main/HISTORY.md), and this project *mostly* adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED]
+
+### Added
+
+- Added a tag (`hexdebug:focus_holder/blacklist`) to prevent specific items from being inserted into the Focal Frame.
+
+### Fixed
+
+- Fixed a few bugs allowing arbitrary items to be inserted into the Splicing Table and Focal Frame using hoppers or modded item transportation ([#38](https://github.com/object-Object/HexDebug/issues/38), [#53](https://github.com/object-Object/HexDebug/issues/38)).
+
 ## `0.6.0+1.20.1` - 2025-09-29
 
 ### Added

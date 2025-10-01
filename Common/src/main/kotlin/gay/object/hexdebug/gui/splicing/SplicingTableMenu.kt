@@ -1,12 +1,10 @@
 package gay.`object`.hexdebug.gui.splicing
 
-import at.petrak.hexcasting.api.mod.HexTags
-import at.petrak.hexcasting.api.utils.isMediaItem
-import gay.`object`.hexdebug.api.HexDebugTags
 import gay.`object`.hexdebug.blocks.base.ContainerDataDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataLongDelegate
 import gay.`object`.hexdebug.blocks.base.ContainerDataSelectionDelegate
 import gay.`object`.hexdebug.blocks.splicing.ClientSplicingTableContainer
+import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlockEntity
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableDataSlot
 import gay.`object`.hexdebug.blocks.splicing.SplicingTableItemSlot
 import gay.`object`.hexdebug.gui.BaseContainerMenu
@@ -16,7 +14,6 @@ import gay.`object`.hexdebug.networking.msg.MsgSplicingTableNewDataS2C
 import gay.`object`.hexdebug.registry.HexDebugMenus
 import gay.`object`.hexdebug.splicing.ISplicingTable
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
-import gay.`object`.hexdebug.utils.isIotaHolder
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
@@ -75,17 +72,17 @@ class SplicingTableMenu(
 
         // table
         addTableSlot(SplicingTableItemSlot.LIST, 88, 68) {
-            mayPlace = ::isIotaHolder
+            mayPlace = SplicingTableBlockEntity.Companion::isValidList
         }
         addTableSlot(SplicingTableItemSlot.CLIPBOARD, 7, 68) {
-            mayPlace = ::isIotaHolder
+            mayPlace = SplicingTableBlockEntity.Companion::isValidClipboard
         }
         mediaSlot = addTableSlot(SplicingTableItemSlot.MEDIA, 205, 169) {
-            mayPlace = { isMediaItem(it) && !it.`is`(HexDebugTags.Items.SPLICING_TABLE_MEDIA_BLACKLIST) }
+            mayPlace = SplicingTableBlockEntity.Companion::isValidMedia
         }
         staffSlot = addTableSlot(SplicingTableItemSlot.STAFF, -20, 169) {
             maxStackSize = 1
-            mayPlace = { it.`is`(HexTags.Items.STAVES) }
+            mayPlace = SplicingTableBlockEntity.Companion::isValidStaff
         }
         for ((index, x, y) in SplicingTableItemSlot.STORAGE) {
             addTableSlot(index, 196 + x * 18, 111 + y * 18)

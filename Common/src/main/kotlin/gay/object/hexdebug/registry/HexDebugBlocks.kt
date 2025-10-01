@@ -54,5 +54,6 @@ object HexDebugBlocks : HexDebugRegistrar<Block>(Registries.BLOCK, { BuiltInRegi
     ) : Entry<B>(blockEntry) {
         val block by ::value
         val item by itemEntry::value
+        val itemKey by itemEntry::key
     }
 }

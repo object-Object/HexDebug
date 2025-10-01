@@ -8,6 +8,8 @@ import net.minecraft.world.item.Item;
 @SuppressWarnings("SameParameterValue")
 public final class HexDebugTags {
     public static final class Items {
+        public static final TagKey<Item> FOCUS_HOLDER_BLACKLIST = create("focus_holder/blacklist");
+
         public static final TagKey<Item> SPLICING_TABLE_MEDIA_BLACKLIST = create("splicing_table/media_blacklist");
 
         private static TagKey<Item> create(String name) {

@@ -1,4 +1,4 @@
-package gay.`object`.hexdebug.datagen
+package gay.`object`.hexdebug.datagen.tags
 
 import at.petrak.hexcasting.api.casting.ActionRegistryEntry
 import at.petrak.hexcasting.api.mod.HexTags
@@ -14,11 +14,9 @@ class HexDebugActionTags(output: PackOutput, provider: CompletableFuture<HolderL
 {
     override fun addTags(provider: HolderLookup.Provider) {
         // regular pattern, but requires enlightenment
-        for (entry in arrayOf(
-            HexDebugActions.READ_ENLIGHTENED_HEX,
-            HexDebugActions.WRITE_ENLIGHTENED_HEX,
-        )) {
-            tag(HexTags.Actions.REQUIRES_ENLIGHTENMENT).add(entry.key)
-        }
+        tag(HexTags.Actions.REQUIRES_ENLIGHTENMENT).add(
+            HexDebugActions.READ_ENLIGHTENED_HEX.key,
+            HexDebugActions.WRITE_ENLIGHTENED_HEX.key,
+        )
     }
 }

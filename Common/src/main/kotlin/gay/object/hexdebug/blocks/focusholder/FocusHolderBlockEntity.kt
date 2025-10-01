@@ -4,14 +4,17 @@ import at.petrak.hexcasting.api.addldata.ADIotaHolder
 import at.petrak.hexcasting.api.block.HexBlockEntity
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.xplat.IXplatAbstractions
+import gay.`object`.hexdebug.api.HexDebugTags
 import gay.`object`.hexdebug.blocks.base.BaseContainer
 import gay.`object`.hexdebug.blocks.base.ContainerSlotDelegate
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
+import gay.`object`.hexdebug.utils.isIotaHolder
 import gay.`object`.hexdebug.utils.isNotEmpty
 import gay.`object`.hexdebug.utils.setPropertyIfChanged
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.ContainerHelper
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.state.BlockState
 
 class FocusHolderBlockEntity(pos: BlockPos, state: BlockState) :
@@ -48,5 +51,12 @@ class FocusHolderBlockEntity(pos: BlockPos, state: BlockState) :
     override fun setChanged() {
         super.setChanged()
         setPropertyIfChanged(FocusHolderBlock.HAS_ITEM, isNotEmpty)
+    }
+
+    override fun canPlaceItem(index: Int, stack: ItemStack): Boolean = isValidItem(stack)
+
+    companion object {
+        fun isValidItem(stack: ItemStack): Boolean =
+            isIotaHolder(stack) && !stack.`is`(HexDebugTags.Items.FOCUS_HOLDER_BLACKLIST)
     }
 }

@@ -3,8 +3,13 @@ package gay.`object`.hexdebug.forge
 import at.petrak.hexcasting.forge.datagen.TagsProviderEFHSetter
 import dev.architectury.platform.forge.EventBuses
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.datagen.HexDebugActionTags
-import gay.`object`.hexdebug.forge.datagen.*
+import gay.`object`.hexdebug.datagen.tags.HexDebugActionTags
+import gay.`object`.hexdebug.datagen.tags.HexDebugBlockTags
+import gay.`object`.hexdebug.datagen.tags.HexDebugItemTags
+import gay.`object`.hexdebug.forge.datagen.HexDebugBlockLootTables
+import gay.`object`.hexdebug.forge.datagen.HexDebugBlockModels
+import gay.`object`.hexdebug.forge.datagen.HexDebugItemModels
+import gay.`object`.hexdebug.forge.datagen.HexDebugRecipes
 import net.minecraft.data.DataProvider
 import net.minecraft.data.DataProvider.Factory
 import net.minecraft.data.PackOutput
@@ -46,8 +51,6 @@ class HexDebugForge {
                     addProvider(includeClient()) { HexDebugItemModels(it, efh) }
 
                     addProvider(includeServer()) { HexDebugRecipes(it) }
-                    addProvider(includeServer()) { HexDebugItemTags(it, lookupProvider, efh) }
-                    addProvider(includeServer()) { HexDebugBlockTags(it, lookupProvider, efh) }
                     addProvider(includeServer()) {
                         LootTableProvider(it, setOf(), listOf(
                             SubProviderEntry(::HexDebugBlockLootTables, LootContextParamSets.BLOCK),
@@ -57,6 +60,8 @@ class HexDebugForge {
 
                 System.getProperty("hexdebug.forge-datagen") -> {
                     addCommonProvider(includeServer()) { HexDebugActionTags(it, lookupProvider) }
+                    addCommonProvider(includeServer()) { HexDebugBlockTags(it, lookupProvider) }
+                    addCommonProvider(includeServer()) { HexDebugItemTags(it, lookupProvider) }
                 }
             }
         }

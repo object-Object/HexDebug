@@ -13,6 +13,7 @@ import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.api.mod.HexTags
 import at.petrak.hexcasting.api.pigment.FrozenPigment
 import at.petrak.hexcasting.api.utils.*
 import at.petrak.hexcasting.xplat.IXplatAbstractions
@@ -30,9 +31,11 @@ import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import gay.`object`.hexdebug.splicing.*
 import gay.`object`.hexdebug.utils.Option.None
 import gay.`object`.hexdebug.utils.Option.Some
+import gay.`object`.hexdebug.utils.isIotaHolder
 import gay.`object`.hexdebug.utils.setPropertyIfChanged
 import gay.`object`.hexdebug.utils.sigsEqual
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.network.chat.Component
@@ -41,6 +44,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.Nameable
+import net.minecraft.world.WorldlyContainer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.SimpleContainerData
@@ -53,7 +57,7 @@ import kotlin.math.min
 
 class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     HexBlockEntity(HexDebugBlockEntities.SPLICING_TABLE.value, pos, state),
-    ISplicingTable, BaseContainer, MenuProvider, Nameable, ADIotaHolder, ADMediaHolder
+    ISplicingTable, BaseContainer, WorldlyContainer, MenuProvider, Nameable, ADIotaHolder, ADMediaHolder
 {
     override val stacks = BaseContainer.withSize(SplicingTableItemSlot.container_size)
 
@@ -169,6 +173,38 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
     fun setCustomName(value: Component?) {
         customNameInner = value
     }
+
+    // Container
+
+    override fun canPlaceItem(index: Int, stack: ItemStack): Boolean {
+        return when (index) {
+            SplicingTableItemSlot.LIST.index -> isValidList(stack)
+            SplicingTableItemSlot.CLIPBOARD.index -> isValidClipboard(stack)
+            SplicingTableItemSlot.MEDIA.index -> isValidMedia(stack)
+            SplicingTableItemSlot.STAFF.index -> isValidStaff(stack)
+            else -> true
+        }
+    }
+
+    // WorldlyContainer
+
+    override fun getSlotsForFace(side: Direction): IntArray {
+        return when (side) {
+            Direction.UP, Direction.DOWN -> intArrayOf(
+                SplicingTableItemSlot.LIST.index,
+                SplicingTableItemSlot.CLIPBOARD.index,
+            )
+            else -> intArrayOf(
+                SplicingTableItemSlot.MEDIA.index,
+            )
+        }
+    }
+
+    override fun canPlaceItemThroughFace(index: Int, stack: ItemStack, side: Direction?): Boolean =
+        canPlaceItem(index, stack) && (side == null || index in getSlotsForFace(side))
+
+    override fun canTakeItemThroughFace(index: Int, stack: ItemStack, side: Direction): Boolean =
+        index in getSlotsForFace(side)
 
     // more BE stuff
 
@@ -525,5 +561,14 @@ class SplicingTableBlockEntity(pos: BlockPos, state: BlockState) :
                 blockEntity.castingCooldown -= 1
             }
         }
+
+        fun isValidList(stack: ItemStack): Boolean = isIotaHolder(stack)
+
+        fun isValidClipboard(stack: ItemStack): Boolean = isIotaHolder(stack)
+
+        fun isValidMedia(stack: ItemStack): Boolean =
+            isMediaItem(stack) && !stack.`is`(HexDebugTags.Items.SPLICING_TABLE_MEDIA_BLACKLIST)
+
+        fun isValidStaff(stack: ItemStack): Boolean = stack.`is`(HexTags.Items.STAVES)
     }
 }
