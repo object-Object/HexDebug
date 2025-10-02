@@ -9,6 +9,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Added
 
 - Added a tag (`hexdebug:focus_holder/blacklist`) to prevent specific items from being inserted into the Focal Frame.
+- Added new methods to the `SplicingTableIotaRenderers` class to allow iota renderers to contain or reference other renderers.
+- New Splicing Table iota renderer types:
+  - `hexdebug:conditional/if_path_exists`
+  - `hexdebug:layers`
+  - `hexdebug:sub_iota`
+- New built-in iota icons:
+  - `hexdebug:builtin/wide/list`
+  - `hexdebug:builtin/wide/type`
+
+### Changed
+
+- ⚠️ Breaking: The `hexdebug:list` renderer type now has a required field `renderer` to render the iota; the list renderer now only provides the tooltip.
+- List iotas now render their first iota (if any) in the Splicing Table.
+- MoreIotas' item type iotas now render brackets around the item to distinguish them from item stack iotas.
 
 ### Fixed
 
