@@ -39,7 +39,19 @@ fun JsonObject.getAsNbtPath(memberName: String, fallback: NbtPath? = null): NbtP
     }
 }
 
-fun JsonObject.getAsIotaRendererProvider(memberName: String): SplicingTableIotaRendererProvider {
+fun JsonObject.getAsIotaRendererProviderOrNull(
+    memberName: String,
+    fallback: SplicingTableIotaRendererProvider? = null
+): SplicingTableIotaRendererProvider? {
+    if (memberName !in this) return fallback
+    return getAsIotaRendererProvider(memberName)
+}
+
+fun JsonObject.getAsIotaRendererProvider(
+    memberName: String,
+    fallback: SplicingTableIotaRendererProvider? = null
+): SplicingTableIotaRendererProvider {
+    if (memberName !in this && fallback != null) return fallback
     return when {
         GsonHelper.isStringValue(this, memberName) -> {
             SplicingTableIotaRenderers.loadProvider(getAsResourceLocation(memberName))

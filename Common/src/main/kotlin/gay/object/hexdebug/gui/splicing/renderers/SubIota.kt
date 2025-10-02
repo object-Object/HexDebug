@@ -3,13 +3,12 @@ import at.petrak.hexcasting.api.casting.iota.IotaType
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderer
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRendererParser
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRendererProvider
+import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderers
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
-import gay.`object`.hexdebug.resources.splicing.SplicingTableIotasResourceReloadListener
 import gay.`object`.hexdebug.utils.getAsNbtPath
 import gay.`object`.hexdebug.utils.getOrNull
 import net.minecraft.commands.arguments.NbtPathArgument.NbtPath
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.chat.Component
 
 class SubIotaRendererProvider(private val path: NbtPath) : SplicingTableIotaRendererProvider {
     override fun createRenderer(
@@ -21,14 +20,8 @@ class SubIotaRendererProvider(private val path: NbtPath) : SplicingTableIotaRend
         val data = iota.data ?: return null
         val subIotaTag = path.getOrNull(data)?.first() as? CompoundTag ?: return null
         val subIotaType = IotaType.getTypeFromTag(subIotaTag) ?: return null
-        val provider = SplicingTableIotasResourceReloadListener.getProvider(subIotaType) ?: return null
-        val subIota = SplicingTableIotaClientView(
-            subIotaTag,
-            Component.empty(),
-            "",
-            0,
-            0,
-        )
+        val provider = SplicingTableIotaRenderers.getProvider(subIotaType) ?: return null
+        val subIota = SplicingTableIotaClientView.subIota(subIotaTag)
         return provider.createRenderer(subIotaType, subIota, x, y)
     }
 

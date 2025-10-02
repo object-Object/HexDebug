@@ -5,8 +5,8 @@ import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
 import com.mojang.blaze3d.systems.RenderSystem
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderer
+import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderers
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
-import gay.`object`.hexdebug.resources.splicing.SplicingTableIotasResourceReloadListener
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
 
@@ -60,11 +60,8 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
         active = true
 
         try {
-            renderer = iotaType
-                ?.let { SplicingTableIotasResourceReloadListener.getProvider(it) }
+            renderer = SplicingTableIotaRenderers.getProvider(iotaType)
                 ?.createRenderer(iotaType, iotaView, x, y)
-                ?: SplicingTableIotasResourceReloadListener.fallback
-                    ?.createRenderer(iotaType, iotaView, x, y)
 
             tooltip = renderer?.createTooltip()
         } catch (e: Exception) {

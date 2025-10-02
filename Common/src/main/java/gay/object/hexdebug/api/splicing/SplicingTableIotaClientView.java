@@ -31,10 +31,22 @@ public record SplicingTableIotaClientView(
     @NotNull Component display,
     @NotNull String hexpatternSource,
     int index,
-    int depth
+    int depth,
+    boolean isSubIota
 ) {
     @ApiStatus.Internal
     public SplicingTableIotaClientView {}
+
+    @ApiStatus.Internal
+    public SplicingTableIotaClientView(
+        @NotNull CompoundTag tag,
+        @NotNull Component display,
+        @NotNull String hexpatternSource,
+        int index,
+        int depth
+    ) {
+        this(tag, display, hexpatternSource, index, depth, false);
+    }
 
     @ApiStatus.Internal
     public SplicingTableIotaClientView(
@@ -55,5 +67,18 @@ public record SplicingTableIotaClientView(
     @Nullable
     public Tag getData() {
         return tag.get(HexIotaTypes.KEY_DATA);
+    }
+
+    @ApiStatus.Internal
+    @NotNull
+    public static SplicingTableIotaClientView subIota(@NotNull CompoundTag tag) {
+        return new SplicingTableIotaClientView(
+            tag,
+            IotaType.getDisplay(tag),
+            "",
+            0,
+            0,
+            true
+        );
     }
 }

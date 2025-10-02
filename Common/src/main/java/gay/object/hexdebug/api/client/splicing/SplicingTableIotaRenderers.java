@@ -1,5 +1,6 @@
 package gay.object.hexdebug.api.client.splicing;
 
+import at.petrak.hexcasting.api.casting.iota.IotaType;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import gay.object.hexdebug.HexDebug;
@@ -49,6 +50,29 @@ public final class SplicingTableIotaRenderers {
     @NotNull
     public static SplicingTableIotaRendererProvider parseProvider(@NotNull JsonObject jsonObject) {
         return SplicingTableIotasResourceReloadListener.parseProvider(jsonObject);
+    }
+
+    /**
+     * Get a previously loaded provider for a given iota type.
+     * <br>
+     * Returns the fallback provider if the type is {@code null} or no provider was found for that
+     * type, or {@code null} if the fallback provider has not yet been loaded.
+     */
+    @Nullable
+    public static SplicingTableIotaRendererProvider getProvider(@Nullable IotaType<?> iotaType) {
+        return getProvider(iotaType, true);
+    }
+
+    /**
+     * Get a previously loaded provider for a given iota type.
+     * <br>
+     * Returns the fallback provider if {@code useFallback} is {@code true} and either the type is
+     * {@code null} or no provider was found for that type, or {@code null} if {@code useFallback}
+     * is {@code false} or the fallback provider has not yet been loaded.
+     */
+    @Nullable
+    public static SplicingTableIotaRendererProvider getProvider(@Nullable IotaType<?> iotaType, boolean useFallback) {
+        return SplicingTableIotasResourceReloadListener.getProvider(iotaType, useFallback);
     }
 
     @ApiStatus.Internal

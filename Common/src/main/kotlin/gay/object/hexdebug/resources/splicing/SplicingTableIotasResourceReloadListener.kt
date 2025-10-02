@@ -30,9 +30,7 @@ private val GSON = GsonBuilder()
 object SplicingTableIotasResourceReloadListener :
     SimpleJsonResourceReloadListener(GSON, "hexdebug_splicing_iotas")
 {
-    var fallback: RendererProvider? = null
-        private set
-
+    private var fallback: RendererProvider? = null
     private val providersByType = mutableMapOf<IotaType<*>, RendererProvider>()
 
     private val objects = mutableMapOf<ResourceLocation, JsonObject>()
@@ -41,7 +39,9 @@ object SplicingTableIotasResourceReloadListener :
     private val visitingProviders = linkedSetOf<ResourceLocation>() // use a linked set so the error message is ordered
     private val failedProviders = mutableSetOf<ResourceLocation>()
 
-    fun getProvider(iotaType: IotaType<*>): RendererProvider? = providersByType[iotaType]
+    @JvmStatic
+    fun getProvider(iotaType: IotaType<*>?, useFallback: Boolean = true): RendererProvider? =
+        providersByType[iotaType] ?: fallback.takeIf { useFallback }
 
     @JvmStatic
     fun loadProvider(providerId: ResourceLocation): RendererProvider {
