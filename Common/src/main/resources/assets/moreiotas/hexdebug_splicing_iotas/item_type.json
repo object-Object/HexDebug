@@ -1,5 +1,19 @@
 {
-  "type": "hexdebug:item",
-  "itemPath": "item",
-  "blockPath": "block"
+  "type": "hexdebug:layers",
+  "layers": [
+    {
+      "renderer": {
+        "parent": "hexdebug:builtin/wide/type",
+        "useIotaColor": false
+      }
+    },
+    {
+      "renderer": {
+        "type": "hexdebug:item",
+        "itemPath": "item",
+        "blockPath": "block"
+      },
+      "scale": 0.75
+    }
+  ]
 }

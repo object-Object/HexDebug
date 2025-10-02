@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.GsonHelper
 import java.awt.Color
 
-open class TextureRendererProvider(
+data class TextureRendererProvider(
     val texture: ResourceLocation,
     val xOffset: Int,
     val yOffset: Int,
@@ -33,7 +33,7 @@ open class TextureRendererProvider(
         return TextureRenderer(type, iota, x, y)
     }
 
-    open inner class TextureRenderer(
+    inner class TextureRenderer(
         type: IotaType<*>,
         iota: SplicingTableIotaClientView,
         x: Int,

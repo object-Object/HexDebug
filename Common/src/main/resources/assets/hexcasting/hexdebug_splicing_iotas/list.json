@@ -1,3 +1,23 @@
 {
-  "type": "hexdebug:list"
+  "type": "hexdebug:list",
+  "renderer": {
+    "type": "hexdebug:conditional/if_path_exists",
+    "path": "[0]",
+    "if": {
+      "type": "hexdebug:layers",
+      "layers": [
+        {
+          "renderer": "hexdebug:builtin/wide/list"
+        },
+        {
+          "renderer": {
+            "type": "hexdebug:sub_iota",
+            "path": "[0]"
+          },
+          "scale": 0.75
+        }
+      ]
+    },
+    "else": "hexdebug:builtin/list"
+  }
 }

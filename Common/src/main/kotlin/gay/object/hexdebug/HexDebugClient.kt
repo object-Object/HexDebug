@@ -11,10 +11,8 @@ import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderers
 import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlock
 import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.config.HexDebugServerConfig
-import gay.`object`.hexdebug.gui.splicing.renderers.ItemRendererProvider
-import gay.`object`.hexdebug.gui.splicing.renderers.ListRendererProvider
-import gay.`object`.hexdebug.gui.splicing.renderers.PatternRenderer
-import gay.`object`.hexdebug.gui.splicing.renderers.TextureRendererProvider
+import gay.`object`.hexdebug.gui.splicing.renderers.*
+import gay.`object`.hexdebug.gui.splicing.renderers.conditional.IfPathExistsRendererProvider
 import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.resources.splicing.SplicingTableIotasResourceReloadListener
 import gay.`object`.hexdebug.utils.styledHoverName
@@ -97,9 +95,12 @@ object HexDebugClient {
 
     private fun registerSplicingTableIotaRenderers() {
         for ((name, parser) in arrayOf(
+            "conditional/if_path_exists" to IfPathExistsRendererProvider.PARSER,
             "item" to ItemRendererProvider.PARSER,
+            "layers" to LayersRendererProvider.PARSER,
             "list" to ListRendererProvider.PARSER,
             "pattern" to PatternRenderer.PARSER,
+            "sub_iota" to SubIotaRendererProvider.PARSER,
             "texture" to TextureRendererProvider.PARSER,
         )) {
             SplicingTableIotaRenderers.register(HexDebug.id(name), parser)
