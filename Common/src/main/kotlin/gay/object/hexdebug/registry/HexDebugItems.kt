@@ -10,13 +10,14 @@ import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.Rarity
+import net.minecraft.world.level.ItemLike
 
 object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistries.ITEM }) {
     @JvmField
-    val DEBUGGER = register("debugger") { DebuggerItem(unstackable.noTab()) }
+    val DEBUGGER = item("debugger") { DebuggerItem(unstackable.noTab()) }
 
     @JvmField
-    val EVALUATOR = register("evaluator") { EvaluatorItem(unstackable.rarity(Rarity.UNCOMMON)) }
+    val EVALUATOR = item("evaluator") { EvaluatorItem(unstackable.rarity(Rarity.UNCOMMON)) }
 
     val props: Properties get() = Properties().`arch$tab`(HexDebugCreativeTabs.HEX_DEBUG.key)
 
@@ -34,5 +35,11 @@ object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistr
                 ItemPropertiesRegistry.register(entry.value, it.id, it.predicate)
             }
         }
+    }
+
+    private fun <V : Item> item(name: String, builder: () -> V) = ItemEntry(register(name, builder))
+
+    class ItemEntry<V : Item>(entry: Entry<V>) : Entry<V>(entry), ItemLike {
+        override fun asItem() = value
     }
 }

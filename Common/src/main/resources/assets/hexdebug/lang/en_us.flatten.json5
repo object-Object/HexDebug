@@ -286,11 +286,10 @@
           focus_holder: {
             "": "Focal Frame",
             page: {
-              "1": "$(l:items/focus)$(item)Foci/$ are useful for storing _Hexes and other iotas in my inventory, but I sometimes find myself in need of a way to store iotas in the world. Item frames are too fragile, and $(l:greatwork/akashiclib)other methods/$ are inefficient and... distasteful. A cleaner solution is necessary, and I've devised one in the form of the $(item)Focal Frame/$.",
-              "2": "A $(item)Focal Frame/$ by itself is useless; a $(l:items/focus)$(item)Focus/$ must first be inserted. I can do that through crafting, or by right-clicking a placed $(item)Focal Frame/$ with a $(l:items/focus)$(item)Focus/$. Right-clicking with an empty hand removes the $(l:items/focus)$(item)Focus/$ from the frame.$(br2)\
-                As an item, I can use a filled $(item)Focal Frame/$ anywhere I would normally use a $(l:items/focus)$(item)Focus/$, including patterns such as $(l:patterns/readwrite#hexcasting:read)$(action)Scribe's Reflection/$. When placed in the world, I can access it using patterns like $(l:patterns/readwrite_blocks#hexcasting:read/entity)$(action)Chronicler's Purification/$.",
-              recipe: "$(italic)Two thousand movies, four thousand albums, music and words and pictures like voices whispering from a sweet, sunny past./$",
-              "3": "In addition to these recipes, I can craft an empty $(item)Focal Frame/$ with a $(l:items/focus)$(item)Focus/$ to insert it; and I can craft a filled $(item)Focal Frame/$ by itself to remove the $(l:items/focus)$(item)Focus/$ from it, leaving the empty frame behind."
+              "1": "$(l:items/focus)$(item)Foci/$ are useful for storing _Hexes and other iotas in my inventory, but I sometimes find myself in need of a way to store iotas in the world. $(item)Item Frames/$ are too fragile, and $(l:greatwork/akashiclib)other methods/$ are inefficient and... distasteful. A cleaner solution is necessary, and I've devised one in the form of the $(item)Focal Frame/$.",
+              "2": "A $(item)Focal Frame/$ by itself is useless. An $(l:items/focus)iota-holding item/$ must first be inserted by right-clicking a placed $(item)Frame/$ with the item, or by using a single $(item)Frame/$ in my inventory in a manner akin to a $(item)Bundle/$. Right-clicking with an empty hand extracts the item.$(br2)\
+                As an item, I can use a filled $(item)Focal Frame/$ with any $(l:patterns/readwrite#hexcasting:read)patterns/$ or $(l:items/splicing_table)blocks/$ that would accept the contained item. When placed in the world, I can access it using patterns like $(l:patterns/readwrite_blocks#hexcasting:read/entity)$(action)Chronicler's Purification/$.",
+              "3": "$(italic)Two thousand movies, four thousand albums, music and words and pictures like voices whispering from a sweet, sunny past./$",
             },
           },
           splicing_table: {

@@ -15,13 +15,8 @@
     {
       type: "patchouli:crafting",
       recipe: "hexdebug:focus_holder",
+      recipe2: "hexdebug:focus_holder_filling_shaped/focus",
       anchor: "focus_holder",
-      text: "hexdebug.category.items.entry.focus_holder.page.recipe",
-    },
-    {
-      type: "patchouli:crafting",
-      recipe: "hexdebug:focus_holder_filling_shaped/new_holder",
-      recipe2: "hexdebug:focus_holder_filling_shaped/new_focus",
     },
     {
       type: "patchouli:text",

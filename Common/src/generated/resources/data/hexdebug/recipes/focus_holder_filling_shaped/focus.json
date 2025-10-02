@@ -26,5 +26,8 @@
   "result": {
     "item": "hexdebug:focus_holder"
   },
+  "result_inner": {
+    "item": "hexcasting:focus"
+  },
   "show_notification": true
 }

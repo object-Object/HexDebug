@@ -4,13 +4,11 @@ import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.item.IotaHolderItem
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.api.utils.getList
-import at.petrak.hexcasting.common.lib.HexItems
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlockEntity
 import gay.`object`.hexdebug.items.base.ItemPredicateProvider
 import gay.`object`.hexdebug.items.base.ModelPredicateEntry
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
-import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.utils.asItemPredicate
 import gay.`object`.hexdebug.utils.isNotEmpty
 import gay.`object`.hexdebug.utils.styledHoverName
@@ -124,13 +122,6 @@ class FocusHolderBlockItem(block: Block, properties: Properties) :
     companion object {
         val HAS_ITEM = HexDebug.id("has_item")
 
-        fun withFocus(stack: ItemStack? = null): ItemStack {
-            val result = stack?.copy() ?: ItemStack(HexDebugBlocks.FOCUS_HOLDER.item)
-            return result.apply {
-                setIotaStack(ItemStack(HexItems.FOCUS))
-            }
-        }
-
         val ItemStack.hasIotaStack get() = getBlockEntityData(this)
             ?.getList("Items", Tag.TAG_COMPOUND)
             ?.let { it.size > 0 }
@@ -146,7 +137,7 @@ class FocusHolderBlockItem(block: Block, properties: Properties) :
             return Pair(iotaStack, iotaStack.item as? IotaHolderItem)
         }
 
-        fun ItemStack.setIotaStack(iotaStack: ItemStack) {
+        fun ItemStack.setIotaStack(iotaStack: ItemStack): ItemStack {
             val tag = if (iotaStack.isEmpty) {
                 CompoundTag()
             } else {
@@ -155,6 +146,7 @@ class FocusHolderBlockItem(block: Block, properties: Properties) :
             }
 
             setBlockEntityData(this, HexDebugBlockEntities.FOCUS_HOLDER.value, tag)
+            return this
         }
     }
 }

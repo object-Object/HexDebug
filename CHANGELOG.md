@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Added
 
+- Added (official) support for inserting iota-holding items other than foci into the Focal Frame.
 - Added a tag (`hexdebug:focus_holder/blacklist`) to prevent specific items from being inserted into the Focal Frame.
 - Added new methods to the `SplicingTableIotaRenderers` class to allow iota renderers to contain or reference other renderers.
 - New Splicing Table iota renderer types:
@@ -28,6 +29,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Fixed
 
 - Fixed a few bugs allowing arbitrary items to be inserted into the Splicing Table and Focal Frame using hoppers or modded item transportation ([#38](https://github.com/object-Object/HexDebug/issues/38), [#53](https://github.com/object-Object/HexDebug/issues/38)).
+
+### Removed
+
+- Removed most recipes related to filling/emptying Focal Frames, other than the recipe to fill empty frames with new foci using stackable ingredients.
 
 ## `0.6.0+1.20.1` - 2025-09-29
 

@@ -1,16 +1,14 @@
 package gay.`object`.hexdebug.recipes
 
-import at.petrak.hexcasting.common.lib.HexItems
 import com.google.gson.JsonObject
-import gay.`object`.hexdebug.items.FocusHolderBlockItem
 import gay.`object`.hexdebug.items.FocusHolderBlockItem.Companion.hasIotaStack
 import gay.`object`.hexdebug.items.FocusHolderBlockItem.Companion.setIotaStack
 import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.registry.HexDebugRecipeSerializers
 import net.minecraft.core.NonNullList
-import net.minecraft.core.RegistryAccess
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.GsonHelper
 import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.CraftingBookCategory
@@ -26,6 +24,7 @@ class FocusHolderFillingShapedRecipe(
     height: Int,
     recipeItems: NonNullList<Ingredient>,
     result: ItemStack,
+    val resultInner: ItemStack,
     showNotification: Boolean,
 ) : ShapedRecipe(id, group, category, width, height, recipeItems, result, showNotification) {
     override fun matches(container: CraftingContainer, level: Level): Boolean {
@@ -39,23 +38,11 @@ class FocusHolderFillingShapedRecipe(
         return true
     }
 
-    override fun assemble(container: CraftingContainer, registryAccess: RegistryAccess): ItemStack {
-        val result = super.assemble(container, registryAccess)
-        for (ingredient in container.items) {
-            if (ingredient.`is`(HexItems.FOCUS)) {
-                result.setIotaStack(ingredient)
-                break
-            }
-        }
-        return result
-    }
-
     override fun getSerializer() = HexDebugRecipeSerializers.FOCUS_HOLDER_FILLING_SHAPED.value
 
     companion object {
-        private fun fromShapedRecipe(recipe: ShapedRecipe): FocusHolderFillingShapedRecipe {
+        private fun fromShapedRecipe(recipe: ShapedRecipe, resultInner: ItemStack): FocusHolderFillingShapedRecipe {
             return recipe.run {
-                @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS") // it's fiiiiiiiiiiiine
                 FocusHolderFillingShapedRecipe(
                     id = id,
                     group = group,
@@ -63,7 +50,8 @@ class FocusHolderFillingShapedRecipe(
                     width = width,
                     height = height,
                     recipeItems = ingredients,
-                    result = FocusHolderBlockItem.withFocus(getResultItem(null)),
+                    result = ItemStack(HexDebugBlocks.FOCUS_HOLDER.item).setIotaStack(resultInner),
+                    resultInner = resultInner,
                     showNotification = showNotification(),
                 )
             }
@@ -72,11 +60,20 @@ class FocusHolderFillingShapedRecipe(
 
     class Serializer : ShapedRecipe.Serializer() {
         override fun fromJson(recipeId: ResourceLocation, json: JsonObject): ShapedRecipe {
-            return fromShapedRecipe(super.fromJson(recipeId, json))
+            val recipe = super.fromJson(recipeId, json)
+            val resultInner = itemStackFromJson(GsonHelper.getAsJsonObject(json, "result_inner"))
+            return fromShapedRecipe(recipe, resultInner)
         }
 
-        override fun fromNetwork(recipeId: ResourceLocation, buffer: FriendlyByteBuf): ShapedRecipe {
-            return fromShapedRecipe(super.fromNetwork(recipeId, buffer))
+        override fun fromNetwork(recipeId: ResourceLocation, buf: FriendlyByteBuf): ShapedRecipe {
+            val recipe = super.fromNetwork(recipeId, buf)
+            val resultInner = buf.readItem()
+            return fromShapedRecipe(recipe, resultInner)
+        }
+
+        override fun toNetwork(buf: FriendlyByteBuf, recipe: ShapedRecipe) {
+            super.toNetwork(buf, recipe)
+            buf.writeItem((recipe as FocusHolderFillingShapedRecipe).resultInner)
         }
     }
 }

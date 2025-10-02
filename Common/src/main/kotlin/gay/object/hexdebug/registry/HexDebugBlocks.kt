@@ -7,6 +7,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.Item
+import net.minecraft.world.level.ItemLike
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.material.PushReaction
@@ -51,9 +52,11 @@ object HexDebugBlocks : HexDebugRegistrar<Block>(Registries.BLOCK, { BuiltInRegi
     class BlockItemEntry<B : Block, I : Item>(
         blockEntry: Entry<B>,
         val itemEntry: HexDebugRegistrar<Item>.Entry<I>,
-    ) : Entry<B>(blockEntry) {
+    ) : Entry<B>(blockEntry), ItemLike {
         val block by ::value
         val item by itemEntry::value
         val itemKey by itemEntry::key
+
+        override fun asItem() = item
     }
 }

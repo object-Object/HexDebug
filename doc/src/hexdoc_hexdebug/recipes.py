@@ -7,6 +7,8 @@ from pydantic import field_validator
 class FocusHolderFillingShapedRecipe(
     CraftingShapedRecipe, type="hexdebug:focus_holder_filling_shaped"
 ):
+    result_inner: ItemResult
+
     @field_validator("result", mode="before")
     @classmethod
     def _replace_result(cls, value: Any):
