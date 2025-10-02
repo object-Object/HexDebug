@@ -8,7 +8,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Added
 
-- Added (official) support for inserting iota-holding items other than foci into the Focal Frame.
 - Added a tag (`hexdebug:focus_holder/blacklist`) to prevent specific items from being inserted into the Focal Frame.
 - Added new methods to the `SplicingTableIotaRenderers` class to allow iota renderers to contain or reference other renderers.
 - New Splicing Table iota renderer types:
@@ -25,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - ⚠️ Breaking: Changed all Splicing Table iota renderer JSON fields from camelCase to snake_case.
 - List iotas now render their first iota (if any) in the Splicing Table.
 - MoreIotas' item type iotas now render brackets around the item to distinguish them from item stack iotas.
+- Added (official) support for inserting iota-holding items other than foci into the Focal Frame.
 - A single Focal Frame item can now be used like a bundle to insert/remove items in your inventory.
 - The Focal Frame now gives comparator output and can be broken by pushing it with a piston.
 
