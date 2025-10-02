@@ -2,8 +2,7 @@ package gay.object.hexdebug.api.client.splicing;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.util.Function3;
-import com.mojang.datafixers.util.Function4;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,6 +13,7 @@ public interface SplicingTableIotaRendererParser<T extends SplicingTableIotaRend
      * Throws {@link IllegalArgumentException} or {@link com.google.gson.JsonParseException} if
      * the input is invalid.
      */
+    @ApiStatus.OverrideOnly
     @NotNull
     T parse(@NotNull Gson gson, @NotNull JsonObject jsonObject, @Nullable T parent);
 

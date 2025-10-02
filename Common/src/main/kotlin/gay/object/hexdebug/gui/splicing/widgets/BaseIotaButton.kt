@@ -61,9 +61,9 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
 
         try {
             renderer = iotaType
-                ?.let { SplicingTableIotasResourceReloadListener.PROVIDERS[it] }
+                ?.let { SplicingTableIotasResourceReloadListener.getProvider(it) }
                 ?.createRenderer(iotaType, iotaView, x, y)
-                ?: SplicingTableIotasResourceReloadListener.FALLBACK
+                ?: SplicingTableIotasResourceReloadListener.fallback
                     ?.createRenderer(iotaType, iotaView, x, y)
 
             tooltip = renderer?.createTooltip()

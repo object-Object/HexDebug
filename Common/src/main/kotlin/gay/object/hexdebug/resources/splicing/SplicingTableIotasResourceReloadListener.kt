@@ -5,24 +5,61 @@ import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.google.gson.JsonParseException
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRendererParser
-import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRendererProvider
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderers
+import gay.`object`.hexdebug.utils.contains
+import gay.`object`.hexdebug.utils.getAsResourceLocation
+import gay.`object`.hexdebug.utils.getOrNull
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
+import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRendererParser as RendererParser
+import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRendererProvider as RendererProvider
+
+private typealias AnyRendererParser = RendererParser<RendererProvider>
 
 private val GSON = GsonBuilder()
     .registerTypeAdapter(ResourceLocation::class.java, ResourceLocation.Serializer())
     .create()
 
+// this is effectively a topological sorting algorithm using depth-first search
+// https://en.wikipedia.org/wiki/Topological_sorting#Depth-first_search
+
 object SplicingTableIotasResourceReloadListener :
     SimpleJsonResourceReloadListener(GSON, "hexdebug_splicing_iotas")
 {
-    val PROVIDERS = mutableMapOf<IotaType<*>, SplicingTableIotaRendererProvider>()
-    var FALLBACK: SplicingTableIotaRendererProvider? = null
+    var fallback: RendererProvider? = null
+        private set
+
+    private val providersByType = mutableMapOf<IotaType<*>, RendererProvider>()
+
+    private val objects = mutableMapOf<ResourceLocation, JsonObject>()
+    private val parsersByProviderId = mutableMapOf<ResourceLocation, AnyRendererParser>()
+    private val providersById = mutableMapOf<ResourceLocation, RendererProvider>()
+    private val visitingProviders = linkedSetOf<ResourceLocation>() // use a linked set so the error message is ordered
+    private val failedProviders = mutableSetOf<ResourceLocation>()
+
+    fun getProvider(iotaType: IotaType<*>): RendererProvider? = providersByType[iotaType]
+
+    @JvmStatic
+    fun loadProvider(providerId: ResourceLocation): RendererProvider {
+        check(visitingProviders.isNotEmpty()) {
+            "Tried to call loadProvider outside of SplicingTableIotaRendererParser#parse"
+        }
+        val jsonObject = objects[providerId]
+            ?: throw IllegalArgumentException("Provider $providerId not found")
+        return visit(providerId, jsonObject)
+    }
+
+    @JvmStatic
+    fun parseProvider(jsonObject: JsonObject): RendererProvider {
+        check(visitingProviders.isNotEmpty()) {
+            "Tried to call parseProvider outside of SplicingTableIotaRendererParser#parse"
+        }
+        return visit(jsonObject).second
+    }
 
     override fun apply(
         map: MutableMap<ResourceLocation, JsonElement>,
@@ -30,105 +67,94 @@ object SplicingTableIotasResourceReloadListener :
         profiler: ProfilerFiller
     ) {
         HexDebug.LOGGER.info("Loading splicing table iota renderers...")
-        PROVIDERS.clear()
-        FALLBACK = null
 
-        // first, filter out any weird non-object files
-        val objects = mutableMapOf<ResourceLocation, JsonObject>()
+        fallback = null
+        providersByType.clear()
+
+        objects.clear()
+        parsersByProviderId.clear()
+        providersById.clear()
+        visitingProviders.clear()
+        failedProviders.clear()
+
+        // filter out any weird non-object files
         for ((id, jsonElement) in map) {
             if (!jsonElement.isJsonObject) continue
             objects[id] = jsonElement.asJsonObject
         }
 
-        // next, find a topological order to load the providers
-        val stack = mutableListOf<ResourceLocation>()
-        val parsers = mutableMapOf<ResourceLocation, SplicingTableIotaRendererParser<SplicingTableIotaRendererProvider>>()
-        for (id in objects.keys) {
-            findParents(objects, id)?.let { (toAdd, parser) ->
-                for (it in toAdd) {
-                    stack.add(it)
-                    @Suppress("UNCHECKED_CAST")
-                    parsers[it] = parser as SplicingTableIotaRendererParser<SplicingTableIotaRendererProvider>
-                }
-            }
-        }
-
-        // finally, actually load the providers
-        val providers = mutableMapOf<ResourceLocation, SplicingTableIotaRendererProvider>()
-        val failed = mutableSetOf<ResourceLocation>()
-        for (id in stack.asReversed()) {
-            if (id in providers || id in failed) continue
-
-            val provider = try {
-                val parser = parsers[id]!!
-                val jsonObject = objects[id]!!
-                val parent = if (jsonObject.has("parent")) {
-                    val parentId = ResourceLocation(jsonObject.getAsJsonPrimitive("parent").asString)
-                    // we're loading parents first, so this should always be present unless the parent failed
-                    providers[parentId] ?: continue
-                } else null
-                parser.parse(GSON, jsonObject, parent)
+        // visit all providers
+        for ((id, jsonObject) in objects) {
+            if (id in failedProviders) continue
+            try {
+                visit(id, jsonObject)
             } catch (e: Exception) {
-                HexDebug.LOGGER.error("Caught exception while parsing $id, ignoring", e)
-                failed.add(id)
-                continue
-            }
-
-            providers[id] = provider
-            if (HexIotaTypes.REGISTRY.containsKey(id)) {
-                PROVIDERS[HexIotaTypes.REGISTRY.get(id)!!] = provider
-            }
-            if (id == HexDebug.id("builtin/generic")) {
-                FALLBACK = provider
+                HexDebug.LOGGER.error("Caught exception while loading renderer for $id, skipping", e)
+                failedProviders.add(id)
+                failedProviders.addAll(visitingProviders)
+                visitingProviders.clear()
             }
         }
 
-        HexDebug.LOGGER.info("Loaded ${providers.size} splicing table iota renderers for ${PROVIDERS.size} iota types")
+        HexDebug.LOGGER.info("Loaded ${providersById.size} splicing table iota renderers for ${providersByType.size} iota types")
     }
 
-    private fun findParents(
-        objects: Map<ResourceLocation, JsonObject>,
-        id: ResourceLocation,
-    ): Pair<List<ResourceLocation>, SplicingTableIotaRendererParser<*>>? {
-        var jsonObject = objects[id]!!
-        val knownIds = mutableSetOf(id)
-        val stack = mutableListOf(id)
+    private fun visit(providerId: ResourceLocation, jsonObject: JsonObject): RendererProvider {
+        providersById[providerId]?.let { return it }
 
-        while (jsonObject.has("parent")) {
-            val parentId = try {
-                ResourceLocation(jsonObject.getAsJsonPrimitive("parent").asString)
-            } catch (e: Exception) {
-                HexDebug.LOGGER.error("Failed to parse parent field of ${stack.last()} while loading $id, ignoring", e)
-                return null
-            }
-
-            if (!knownIds.add(parentId)) {
-                HexDebug.LOGGER.error("Loop found in parents of $id ($parentId appears twice), ignoring")
-                return null
-            }
-
-            if (parentId !in objects) {
-                HexDebug.LOGGER.error("Parent id $parentId not found while loading $id, ignoring")
-                return null
-            }
-
-            stack.add(parentId)
-            jsonObject = objects[parentId]!!
+        if (!visitingProviders.add(providerId)) {
+            throw IllegalStateException("Cycle detected: ${visitingProviders.joinToString()}, $providerId")
         }
 
-        val typeId = try {
-            ResourceLocation(jsonObject.getAsJsonPrimitive("type").asString)
+        val (parser, provider) = try {
+            visit(jsonObject)
+        } catch (e: ProviderVisitException) {
+            throw e // don't make a huge unnecessary stack trace
         } catch (e: Exception) {
-            HexDebug.LOGGER.error("Failed to parse type field of ${stack.last()} while loading $id, ignoring", e)
-            return null
+            throw ProviderVisitException("Failed to parse provider $providerId", e)
         }
 
-        val parser = SplicingTableIotaRenderers.getParser(typeId)
-        if (parser == null) {
-            HexDebug.LOGGER.error("Unrecognized type $typeId for ${stack.last()} while loading $id, ignoring")
-            return null
+        visitingProviders.remove(providerId)
+
+        parsersByProviderId[providerId] = parser
+        providersById[providerId] = provider
+        HexIotaTypes.REGISTRY.getOrNull(providerId)?.let {
+            providersByType[it] = provider
+        }
+        if (providerId == HexDebug.id("builtin/generic")) {
+            fallback = provider
         }
 
-        return stack to parser
+        return provider
+    }
+
+    private fun visit(jsonObject: JsonObject): Pair<AnyRendererParser, RendererProvider> {
+        val (parser, parent) = when {
+            "parent" in jsonObject -> {
+                val parentId = jsonObject.getAsResourceLocation("parent")
+                val parentObject = objects[parentId]
+                    ?: throw JsonParseException("Parent $parentId not found")
+
+                // DFS recursion - ensure the parent has been loaded first
+                val provider = visit(parentId, parentObject)
+
+                parsersByProviderId[parentId]!! to provider
+            }
+
+            "type" in jsonObject -> {
+                val typeId = jsonObject.getAsResourceLocation("type")
+                val parser = SplicingTableIotaRenderers.getParser(typeId)
+                    ?: throw JsonParseException("Parser type $typeId not found")
+                @Suppress("UNCHECKED_CAST") // shhhhhhh
+                parser as AnyRendererParser to null
+            }
+
+            else -> throw JsonParseException("Expected parent or type field but got neither")
+        }
+
+        // there may be more recursion here if the parser calls loadProvider or parseProvider
+        return parser to parser.parse(GSON, jsonObject, parent)
     }
 }
+
+class ProviderVisitException(message: String? = null, cause: Throwable? = null) : IllegalStateException(message, cause)
