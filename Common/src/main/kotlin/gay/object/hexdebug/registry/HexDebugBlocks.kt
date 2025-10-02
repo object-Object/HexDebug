@@ -28,7 +28,7 @@ object HexDebugBlocks : HexDebugRegistrar<Block>(Registries.BLOCK, { BuiltInRegi
     @JvmField
     val FOCUS_HOLDER = blockItem(
         "focus_holder",
-        blockBuilder = { FocusHolderBlock(slateish.noPush()) },
+        blockBuilder = { FocusHolderBlock(slateish.pushReaction(PushReaction.DESTROY)) },
         itemBuilder = { FocusHolderBlockItem(it, HexDebugItems.props) },
     )
 

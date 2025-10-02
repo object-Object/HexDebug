@@ -119,6 +119,11 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
         return mutableListOf(stack)
     }
 
+    override fun hasAnalogOutputSignal(state: BlockState) = true
+
+    override fun getAnalogOutputSignal(state: BlockState, level: Level, pos: BlockPos) =
+        getBlockEntity(level, pos)?.analogOutputSignal ?: 0
+
     companion object {
         val HAS_ITEM: BooleanProperty = BooleanProperty.create("has_item")
 

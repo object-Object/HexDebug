@@ -27,6 +27,8 @@ class FocusHolderBlockEntity(pos: BlockPos, state: BlockState) :
 
     private val iotaHolder get() = IXplatAbstractions.INSTANCE.findDataHolder(iotaStack)
 
+    val analogOutputSignal get() = if (isEmpty) 0 else 15
+
     override fun loadModData(tag: CompoundTag) {
         stacks.clear() // without this, removing the item on the server doesn't remove it on the client
         ContainerHelper.loadAllItems(tag, stacks)

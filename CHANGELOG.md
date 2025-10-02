@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - List iotas now render their first iota (if any) in the Splicing Table.
 - MoreIotas' item type iotas now render brackets around the item to distinguish them from item stack iotas.
 - A single Focal Frame item can now be used like a bundle to insert/remove items in your inventory.
+- The Focal Frame now gives comparator output and can be broken by pushing it with a piston.
 
 ### Fixed
 
