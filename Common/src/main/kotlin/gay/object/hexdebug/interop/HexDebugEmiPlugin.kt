@@ -34,12 +34,14 @@ object HexDebugEmiPlugin {
                     exportButtonWidth,
                     exportButtonHeight,
                 ))
-                consumer.accept(Bounds(
-                    castButtonX,
-                    castButtonY,
-                    castButtonWidth,
-                    castButtonHeight,
-                ))
+                if (data.isEnlightened) {
+                    consumer.accept(Bounds(
+                        castButtonX,
+                        castButtonY,
+                        castButtonWidth,
+                        castButtonHeight,
+                    ))
+                }
                 consumer.accept(Bounds(
                     storageMinX,
                     storageMinY,
