@@ -6,17 +6,23 @@ import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.api.utils.getList
 import at.petrak.hexcasting.common.lib.HexItems
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.blocks.focusholder.FocusHolderBlockEntity
 import gay.`object`.hexdebug.items.base.ItemPredicateProvider
 import gay.`object`.hexdebug.items.base.ModelPredicateEntry
 import gay.`object`.hexdebug.registry.HexDebugBlockEntities
 import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.utils.asItemPredicate
+import gay.`object`.hexdebug.utils.isNotEmpty
 import gay.`object`.hexdebug.utils.styledHoverName
 import net.minecraft.core.NonNullList
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
 import net.minecraft.world.ContainerHelper
+import net.minecraft.world.entity.SlotAccess
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.ClickAction
+import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.TooltipFlag
@@ -67,6 +73,53 @@ class FocusHolderBlockItem(block: Block, properties: Properties) :
             stack.hasIotaStack.asItemPredicate
         },
     )
+
+    // bundle behaviour
+
+    override fun overrideStackedOnOther(stack: ItemStack, slot: Slot, action: ClickAction, player: Player): Boolean {
+        val other = slot.item
+        if (action != ClickAction.SECONDARY || stack.count != 1 || other.count > 1) return false
+
+        if (other.isEmpty) {
+            val (iotaStack, _) = stack.getIotaStack()
+            if (iotaStack.isNotEmpty) {
+                stack.setIotaStack(slot.safeInsert(iotaStack))
+            }
+        } else if (FocusHolderBlockEntity.isValidItem(other) && !stack.hasIotaStack) {
+            stack.setIotaStack(slot.safeTake(1, 1, player))
+        }
+
+        return true
+    }
+
+    override fun overrideOtherStackedOnMe(
+        stack: ItemStack,
+        other: ItemStack,
+        slot: Slot,
+        action: ClickAction,
+        player: Player,
+        access: SlotAccess
+    ): Boolean {
+        if (
+            action != ClickAction.SECONDARY
+            || stack.count != 1
+            || other.count > 1
+            || !slot.allowModification(player)
+        ) return false
+
+        if (other.isEmpty) {
+            val (iotaStack, _) = stack.getIotaStack()
+            if (iotaStack.isNotEmpty) {
+                access.set(iotaStack)
+                stack.setIotaStack(ItemStack.EMPTY)
+            }
+        } else if (FocusHolderBlockEntity.isValidItem(other) && !stack.hasIotaStack) {
+            stack.setIotaStack(other)
+            other.shrink(1)
+        }
+
+        return true
+    }
 
     companion object {
         val HAS_ITEM = HexDebug.id("has_item")
