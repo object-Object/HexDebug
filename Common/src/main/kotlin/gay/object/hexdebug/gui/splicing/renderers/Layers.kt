@@ -66,7 +66,7 @@ class LayersRendererProvider(
                     RendererLayer(
                         renderer = layerObject.getAsIotaRendererProvider("renderer"),
                         scale = GsonHelper.getAsFloat(layerObject, "scale", 1f),
-                        useTooltip = GsonHelper.getAsBoolean(layerObject, "useTooltip", true),
+                        useTooltip = GsonHelper.getAsBoolean(layerObject, "use_tooltip", true),
                     )
                 },
             )

@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Changed
 
 - ⚠️ Breaking: The `hexdebug:list` renderer type now has a required field `renderer` to render the iota; the list renderer now only provides the tooltip.
+- ⚠️ Breaking: Changed all Splicing Table iota renderer JSON fields from camelCase to snake_case.
 - List iotas now render their first iota (if any) in the Splicing Table.
 - MoreIotas' item type iotas now render brackets around the item to distinguish them from item stack iotas.
 - A single Focal Frame item can now be used like a bundle to insert/remove items in your inventory.

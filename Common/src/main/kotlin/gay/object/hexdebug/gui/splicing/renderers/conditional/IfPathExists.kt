@@ -34,7 +34,7 @@ class IfPathExistsRendererProvider(
                 path = jsonObject.getAsNbtPath("path", parent?.path),
                 providerIf = jsonObject.getAsIotaRendererProvider("if", parent?.providerIf),
                 providerElse = jsonObject.getAsIotaRendererProvider("else", parent?.providerElse),
-                allowInSubIota = GsonHelper.getAsBoolean(jsonObject, "allowInSubIota", parent?.allowInSubIota ?: false)
+                allowInSubIota = GsonHelper.getAsBoolean(jsonObject, "allow_in_sub_iota", parent?.allowInSubIota ?: false)
             )
         }
     }

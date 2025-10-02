@@ -1,7 +1,7 @@
 {
   "parent": "hexdebug:builtin/base",
-  "xOffset": 1,
-  "yOffset": 4,
+  "x_offset": 1,
+  "y_offset": 4,
   "width": 16,
   "height": 12
 }

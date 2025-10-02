@@ -1,5 +1,5 @@
 {
   "parent": "hexdebug:builtin/base",
-  "uOffset": 385,
-  "vOffset": 73
+  "u_offset": 385,
+  "v_offset": 73
 }

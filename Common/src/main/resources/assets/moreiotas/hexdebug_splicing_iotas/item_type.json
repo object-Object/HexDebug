@@ -4,14 +4,14 @@
     {
       "renderer": {
         "parent": "hexdebug:builtin/wide/type",
-        "useIotaColor": false
+        "use_iota_color": false
       }
     },
     {
       "renderer": {
         "type": "hexdebug:item",
-        "itemPath": "item",
-        "blockPath": "block"
+        "item_path": "item",
+        "block_path": "block"
       },
       "scale": 0.75
     }

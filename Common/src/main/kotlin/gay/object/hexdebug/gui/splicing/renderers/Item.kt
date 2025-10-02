@@ -68,12 +68,12 @@ class ItemRendererProvider(
     companion object {
         val PARSER = SplicingTableIotaRendererParser<ItemRendererProvider> { _, json, parent ->
             ItemRendererProvider(
-                itemPath = json.getAsNbtPath("itemPath", parent?.itemPath),
-                blockPath = json.getAsNbtPathOrNull("blockPath", parent?.blockPath),
-                countPath = json.getAsNbtPathOrNull("countPath", parent?.countPath),
-                tagPath = json.getAsNbtPathOrNull("tagPath", parent?.tagPath),
-                xOffset = GsonHelper.getAsFloat(json, "xOffset", 0f),
-                yOffset = GsonHelper.getAsFloat(json, "yOffset", 0f),
+                itemPath = json.getAsNbtPath("item_path", parent?.itemPath),
+                blockPath = json.getAsNbtPathOrNull("block_path", parent?.blockPath),
+                countPath = json.getAsNbtPathOrNull("count_path", parent?.countPath),
+                tagPath = json.getAsNbtPathOrNull("tag_path", parent?.tagPath),
+                xOffset = GsonHelper.getAsFloat(json, "x_offset", 0f),
+                yOffset = GsonHelper.getAsFloat(json, "y_offset", 0f),
                 scale = GsonHelper.getAsFloat(json, "scale", 0.75f),
             )
         }

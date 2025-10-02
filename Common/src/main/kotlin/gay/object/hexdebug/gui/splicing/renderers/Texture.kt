@@ -50,15 +50,15 @@ data class TextureRendererProvider(
         val PARSER = SplicingTableIotaRendererParser<TextureRendererProvider> { _, json, parent ->
             TextureRendererProvider(
                 texture = json.getAsResourceLocation("texture", parent?.texture),
-                xOffset = GsonHelper.getAsInt(json, "xOffset", parent?.xOffset ?: 0),
-                yOffset = GsonHelper.getAsInt(json, "yOffset", parent?.yOffset ?: 0),
-                uOffset = GsonHelper.getAsInt(json, "uOffset", parent?.uOffset ?: 0),
-                vOffset = GsonHelper.getAsInt(json, "vOffset", parent?.vOffset ?: 0),
+                xOffset = GsonHelper.getAsInt(json, "x_offset", parent?.xOffset ?: 0),
+                yOffset = GsonHelper.getAsInt(json, "y_offset", parent?.yOffset ?: 0),
+                uOffset = GsonHelper.getAsInt(json, "u_offset", parent?.uOffset ?: 0),
+                vOffset = GsonHelper.getAsInt(json, "v_offset", parent?.vOffset ?: 0),
                 width = GsonHelper.getAsInt(json, "width", parent?.width ?: 18),
                 height = GsonHelper.getAsInt(json, "height", parent?.height ?: 21),
-                textureWidth = GsonHelper.getAsInt(json, "textureWidth", parent?.textureWidth ?: 18),
-                textureHeight = GsonHelper.getAsInt(json, "textureHeight", parent?.textureHeight ?: 21),
-                useIotaColor = GsonHelper.getAsBoolean(json, "useIotaColor", true),
+                textureWidth = GsonHelper.getAsInt(json, "texture_width", parent?.textureWidth ?: 18),
+                textureHeight = GsonHelper.getAsInt(json, "texture_height", parent?.textureHeight ?: 21),
+                useIotaColor = GsonHelper.getAsBoolean(json, "use_iota_color", true),
             )
         }
     }
