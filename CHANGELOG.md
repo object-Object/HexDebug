@@ -31,6 +31,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Fixed
 
 - Fixed a few bugs allowing arbitrary items to be inserted into the Splicing Table and Focal Frame using hoppers or modded item transportation ([#38](https://github.com/object-Object/HexDebug/issues/38), [#53](https://github.com/object-Object/HexDebug/issues/38)).
+- Fixed the EMI integration failing to load on Forge.
+- Fixed Splicing Table iota renderer resources not being loaded when the game launches on Forge. 
 
 ### Removed
 

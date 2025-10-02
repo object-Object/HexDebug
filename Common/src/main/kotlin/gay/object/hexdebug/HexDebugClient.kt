@@ -14,7 +14,6 @@ import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.gui.splicing.renderers.*
 import gay.`object`.hexdebug.gui.splicing.renderers.conditional.IfPathExistsRendererProvider
 import gay.`object`.hexdebug.registry.HexDebugBlocks
-import gay.`object`.hexdebug.resources.splicing.SplicingTableIotasResourceReloadListener
 import gay.`object`.hexdebug.utils.styledHoverName
 import gay.`object`.hexdebug.utils.toComponent
 import me.shedaniel.autoconfig.AutoConfig
@@ -40,7 +39,6 @@ object HexDebugClient {
         DebugProxyClient.init()
         addScryingLensOverlays()
         registerSplicingTableIotaRenderers()
-        registerClientResourceReloadListener(HexDebug.id("splicing_iotas"), SplicingTableIotasResourceReloadListener)
     }
 
     fun getConfigScreen(parent: Screen): Screen {

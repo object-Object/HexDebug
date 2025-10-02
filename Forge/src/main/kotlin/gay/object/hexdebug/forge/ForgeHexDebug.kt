@@ -31,6 +31,7 @@ class HexDebugForge {
         MOD_BUS.apply {
             EventBuses.registerModEventBus(HexDebug.MODID, this)
             addListener(ForgeHexDebugClient::init)
+            addListener(ForgeHexDebugClient::registerClientReloadListeners)
             addListener(::initServer)
             addListener(::gatherData)
         }
