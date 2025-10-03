@@ -22,19 +22,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 - ⚠️ Breaking: The `hexdebug:list` renderer type now has a required field `renderer` to render the iota; the list renderer now only provides the tooltip.
 - ⚠️ Breaking: Changed all Splicing Table iota renderer JSON fields from camelCase to snake_case.
-- List iotas now render their first iota (if any) in the Splicing Table.
+- List iotas now render their first iota (if any) in the Splicing Table ([#48](https://github.com/object-Object/HexDebug/issues/48)).
 - MoreIotas' item type iotas now render brackets around the item to distinguish them from item stack iotas.
-- Added (official) support for inserting iota-holding items other than foci into the Focal Frame.
-- A single Focal Frame item can now be used like a bundle to insert/remove items in your inventory.
+- Added (official) support for inserting iota-holding items other than foci into the Focal Frame ([#52](https://github.com/object-Object/HexDebug/issues/52)).
+- A single Focal Frame item can now be used like a bundle to insert/remove items in your inventory ([#49](https://github.com/object-Object/HexDebug/issues/49)).
 - The Focal Frame now gives comparator output and can be broken by pushing it with a piston.
 - Splicing Table iota renderers are now cached to improve performance.
 
 ### Fixed
 
-- Fixed a few bugs allowing arbitrary items to be inserted into the Splicing Table and Focal Frame using hoppers or modded item transportation ([#38](https://github.com/object-Object/HexDebug/issues/38), [#53](https://github.com/object-Object/HexDebug/issues/38)).
+- Fixed a few bugs allowing arbitrary items to be inserted into the Splicing Table and Focal Frame using hoppers or modded item transportation ([#38](https://github.com/object-Object/HexDebug/issues/38), [#53](https://github.com/object-Object/HexDebug/issues/53)).
 - Fixed the EMI integration failing to load on Forge.
 - Fixed EMI not using the space where the cast button would be in a regular Splicing Table.
-- Fixed Splicing Table iota renderer resources not being loaded when the game launches on Forge. 
+- Fixed Splicing Table iota renderer resources not being loaded when the game launches on Forge ([#58](https://github.com/object-Object/HexDebug/issues/58)).
 
 ### Removed
 
