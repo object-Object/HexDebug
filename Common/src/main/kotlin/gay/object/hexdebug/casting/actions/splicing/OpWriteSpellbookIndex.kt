@@ -1,5 +1,6 @@
 package gay.`object`.hexdebug.casting.actions.splicing
 
+import at.petrak.hexcasting.api.block.HexBlockEntity
 import at.petrak.hexcasting.api.casting.ParticleSpray
 import at.petrak.hexcasting.api.casting.RenderedSpell
 import at.petrak.hexcasting.api.casting.castables.SpellAction
@@ -7,13 +8,10 @@ import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import at.petrak.hexcasting.api.casting.getBlockPos
 import at.petrak.hexcasting.api.casting.getIntBetween
 import at.petrak.hexcasting.api.casting.iota.Iota
-import at.petrak.hexcasting.api.casting.mishaps.MishapBadBlock
 import at.petrak.hexcasting.api.utils.getCompound
 import at.petrak.hexcasting.api.utils.getString
 import at.petrak.hexcasting.api.utils.putInt
 import at.petrak.hexcasting.common.items.storage.ItemSpellbook
-import at.petrak.hexcasting.common.lib.HexItems
-import gay.`object`.hexdebug.blocks.splicing.SplicingTableBlockEntity
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
@@ -28,22 +26,16 @@ class OpWriteSpellbookIndex(private val useListItem: Boolean) : SpellAction {
 
         env.assertPosInRangeForEditing(pos)
 
-        val table = env.world.getBlockEntity(pos) as? SplicingTableBlockEntity
-            ?: throw MishapBadBlock.of(pos, "splicing_table")
-
-        val stack = if (useListItem) table.listStack else table.clipboardStack
-        if (!stack.`is`(HexItems.SPELLBOOK) || ItemSpellbook.arePagesEmpty(stack)) {
-            throw MishapBadBlock.of(pos, "splicing_table.${if (useListItem) "list" else "clipboard"}.spellbook")
-        }
+        val (blockEntity, stack) = OpReadSpellbookIndex.getSpellbook(env, pos, useListItem)
 
         return SpellAction.Result(
-            Spell(table, stack, index),
+            Spell(blockEntity, stack, index),
             0,
             listOf(ParticleSpray(pos.center, Vec3(1.0, 0.0, 0.0), 0.25, 3.14, 40))
         )
     }
 
-    private data class Spell(val table: SplicingTableBlockEntity, val stack: ItemStack, val index: Int) : RenderedSpell {
+    private data class Spell(val blockEntity: HexBlockEntity, val stack: ItemStack, val index: Int) : RenderedSpell {
         override fun cast(env: CastingEnvironment) {
             // copied from ItemSpellbook.rotatePageIdx with modifications
             stack.putInt(ItemSpellbook.TAG_SELECTED_PAGE, index)
@@ -58,7 +50,7 @@ class OpWriteSpellbookIndex(private val useListItem: Boolean) : SpellAction {
                 stack.resetHoverName()
             }
 
-            table.sync()
+            blockEntity.sync()
         }
     }
 }

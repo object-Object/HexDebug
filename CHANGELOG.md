@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - A single Focal Frame item can now be used like a bundle to insert/remove items in your inventory ([#49](https://github.com/object-Object/HexDebug/issues/49)).
 - The Focal Frame now gives comparator output and can be broken by pushing it with a piston.
 - Splicing Table iota renderers are now cached to improve performance.
+- Projectionist's Purification, Projectionist's Gambit, and Shutter's Purification (but not the II variants) now work on Focal Frames in addition to Splicing Tables.
 
 ### Fixed
 

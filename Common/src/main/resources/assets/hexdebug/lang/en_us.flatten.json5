@@ -229,14 +229,15 @@
         splicing_table: {
           "": "a Splicing Table",
           enlightened: "a Mindsplice Table",
-          list: {
-            spellbook: "a Splicing Table with a non-empty spellbook in the main item slot",
-          },
           clipboard: {
             read: "a Splicing Table with a readable secondary item",
             write: "a Splicing Table with a writable secondary item",
             spellbook: "a Splicing Table with a non-empty spellbook in the secondary item slot",
           },
+        },
+        splicing_table_or_focus_holder: {
+          "": "a Splicing Table or Focal Frame",
+          spellbook: "a Splicing Table or Focal Frame with a non-empty spellbook in the main item slot",
         },
       },
       invalid_value: {
@@ -380,9 +381,9 @@
               },
               "list/": {
                 "spellbook_index/": {
-                  read: "Remove a vector from the stack, then push the current page number (starting at 1) of the $(l:items/spellbook)$(item)Spellbook/$ in the main slot of the $(l:items/splicing_table)$(item)Splicing Table/$ at that position.",
-                  write: "Remove a vector and number from the stack, then flip the $(l:items/spellbook)$(item)Spellbook/$ in the main slot of the $(l:items/splicing_table)$(item)Splicing Table/$ at that position to the given page number.",
-                  readable: "Replace the vector at the top of the stack with $(thing)True/$ if there is a $(l:items/splicing_table)$(item)Splicing Table/$ at that position with a $(l:items/spellbook)$(item)Spellbook/$ in its main slot that contains at least one page, or $(thing)False/$ otherwise.",
+                  read: "Remove a vector from the stack, then push the current page number (starting at 1) of the $(l:items/spellbook)$(item)Spellbook/$ in the main slot of the $(l:items/splicing_table)$(item)Splicing Table/$ or $(l:items/focus_holder)$(item)Focal Frame/$ at that position.",
+                  write: "Remove a vector and number from the stack, then flip the $(l:items/spellbook)$(item)Spellbook/$ in the main slot of the $(l:items/splicing_table)$(item)Splicing Table/$ or $(l:items/focus_holder)$(item)Focal Frame/$ at that position to the given page number.",
+                  readable: "Replace the vector at the top of the stack with $(thing)True/$ if there is a $(l:items/splicing_table)$(item)Splicing Table/$ or $(l:items/focus_holder)$(item)Focal Frame/$ at that position with a $(l:items/spellbook)$(item)Spellbook/$ in its main slot that contains at least one page, or $(thing)False/$ otherwise.",
                 },
               },
               "clipboard/": {
