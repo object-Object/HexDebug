@@ -28,6 +28,16 @@ class ListRenderer(
         return super.buildTooltip()
             .addAdvancedLine(SplicingTableScreen.tooltipText("length", listTag.size))
     }
+
+    override fun setX(x: Int) {
+        super.setX(x)
+        inner?.x = x
+    }
+
+    override fun setY(y: Int) {
+        super.setY(y)
+        inner?.y = y
+    }
 }
 
 class ListRendererProvider(private val inner: SplicingTableIotaRendererProvider) : SplicingTableIotaRendererProvider {

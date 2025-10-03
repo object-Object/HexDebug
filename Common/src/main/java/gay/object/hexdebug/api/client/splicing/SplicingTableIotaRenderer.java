@@ -8,6 +8,7 @@ import gay.object.hexdebug.gui.splicing.SplicingTableScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class SplicingTableIotaRenderer {
@@ -15,8 +16,8 @@ public abstract class SplicingTableIotaRenderer {
     private final IotaType<?> type;
     @NotNull
     private final SplicingTableIotaClientView iota;
-    private final int x;
-    private final int y;
+    private int x;
+    private int y;
 
     public SplicingTableIotaRenderer(
         @NotNull IotaType<?> type,
@@ -44,8 +45,18 @@ public abstract class SplicingTableIotaRenderer {
         return x;
     }
 
+    @ApiStatus.OverrideOnly
+    public void setX(int x) {
+        this.x = x;
+    }
+
     public final int getY() {
         return y;
+    }
+
+    @ApiStatus.OverrideOnly
+    public void setY(int y) {
+        this.y = y;
     }
 
     /** Renders one frame of this iota. */

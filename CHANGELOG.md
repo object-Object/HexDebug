@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - Added (official) support for inserting iota-holding items other than foci into the Focal Frame.
 - A single Focal Frame item can now be used like a bundle to insert/remove items in your inventory.
 - The Focal Frame now gives comparator output and can be broken by pushing it with a piston.
+- Splicing Table iota renderers are now cached to improve performance.
 
 ### Fixed
 

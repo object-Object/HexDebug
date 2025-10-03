@@ -2,12 +2,14 @@ package gay.`object`.hexdebug.gui.splicing.widgets
 
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes
+import com.google.common.cache.CacheBuilder
 import com.mojang.blaze3d.systems.RenderSystem
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderer
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderers
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.network.chat.Component
 
 abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
@@ -59,14 +61,25 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
 
         active = true
 
-        try {
-            renderer = SplicingTableIotaRenderers.getProvider(iotaType)
-                ?.createRenderer(iotaType, iotaView, x, y)
-
-            tooltip = renderer?.createTooltip()
-        } catch (e: Exception) {
-            HexDebug.LOGGER.error("Caught exception while preparing renderer for ${iotaType.typeName().string}", e)
-            renderer = null
+        val (renderer, tooltip) = rendererCache.get(iotaView) {
+            try {
+                val renderer = SplicingTableIotaRenderers.getProvider(iotaType)
+                    ?.createRenderer(iotaType, iotaView, x, y)
+                renderer to renderer?.createTooltip()
+            } catch (e: Exception) {
+                HexDebug.LOGGER.error("Caught exception while preparing renderer for ${iotaType.typeName().string}", e)
+                null to null
+            }
         }
+        renderer?.x = x
+        renderer?.y = y
+        this.renderer = renderer
+        this.tooltip = tooltip
+    }
+
+    companion object {
+        private val rendererCache = CacheBuilder.newBuilder()
+            .maximumSize(HexIotaTypes.MAX_SERIALIZATION_TOTAL * 2L)
+            .build<SplicingTableIotaClientView, Pair<SplicingTableIotaRenderer?, Tooltip?>>()
     }
 }
