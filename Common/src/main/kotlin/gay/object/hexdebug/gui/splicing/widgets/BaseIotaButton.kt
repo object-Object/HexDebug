@@ -9,8 +9,9 @@ import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderer
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderers
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
 import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.network.chat.Component
+import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
     x = x,
@@ -61,25 +62,30 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
 
         active = true
 
-        val (renderer, tooltip) = rendererCache.get(iotaView) {
-            try {
-                val renderer = SplicingTableIotaRenderers.getProvider(iotaType)
-                    ?.createRenderer(iotaType, iotaView, x, y)
-                renderer to renderer?.createTooltip()
-            } catch (e: Exception) {
-                HexDebug.LOGGER.error("Caught exception while preparing renderer for ${iotaType.typeName().string}", e)
-                null to null
-            }
+        try {
+            val renderer = rendererCache.get(iotaView) {
+                Optional.ofNullable(
+                    SplicingTableIotaRenderers.getProvider(iotaType)
+                        ?.createRenderer(iotaType, iotaView, x, y)
+                )
+            }.getOrNull()
+            renderer?.x = x
+            renderer?.y = y
+            this.renderer = renderer
+            this.tooltip = renderer?.createTooltip()
+        } catch (e: Exception) {
+            HexDebug.LOGGER.error("Caught exception while preparing renderer for ${iotaType.typeName().string}", e)
+            renderer = null
         }
-        renderer?.x = x
-        renderer?.y = y
-        this.renderer = renderer
-        this.tooltip = tooltip
     }
 
     companion object {
         private val rendererCache = CacheBuilder.newBuilder()
             .maximumSize(HexIotaTypes.MAX_SERIALIZATION_TOTAL * 2L)
-            .build<SplicingTableIotaClientView, Pair<SplicingTableIotaRenderer?, Tooltip?>>()
+            .build<SplicingTableIotaClientView, Optional<SplicingTableIotaRenderer>>()
+
+        fun invalidateRendererCache() {
+            rendererCache.invalidateAll()
+        }
     }
 }

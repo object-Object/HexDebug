@@ -8,6 +8,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderers
+import gay.`object`.hexdebug.gui.splicing.widgets.BaseIotaButton
 import gay.`object`.hexdebug.utils.contains
 import gay.`object`.hexdebug.utils.getAsResourceLocation
 import gay.`object`.hexdebug.utils.getOrNull
@@ -67,6 +68,8 @@ object SplicingTableIotasResourceReloadListener :
         profiler: ProfilerFiller
     ) {
         HexDebug.LOGGER.info("Loading splicing table iota renderers...")
+
+        BaseIotaButton.invalidateRendererCache()
 
         fallback = null
         providersByType.clear()

@@ -5,6 +5,7 @@ import at.petrak.hexcasting.api.client.ScryingLensOverlayRegistry
 import at.petrak.hexcasting.api.utils.asTextComponent
 import at.petrak.hexcasting.api.utils.gray
 import at.petrak.hexcasting.api.utils.plusAssign
+import dev.architectury.event.events.client.ClientPlayerEvent
 import gay.`object`.hexdebug.HexDebug.LOGGER
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyClient
 import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaRenderers
@@ -13,6 +14,7 @@ import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.gui.splicing.renderers.*
 import gay.`object`.hexdebug.gui.splicing.renderers.conditional.IfPathExistsRendererProvider
+import gay.`object`.hexdebug.gui.splicing.widgets.BaseIotaButton
 import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.utils.styledHoverName
 import gay.`object`.hexdebug.utils.toComponent
@@ -22,6 +24,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
+import net.minecraft.world.InteractionResult
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -39,6 +42,7 @@ object HexDebugClient {
         DebugProxyClient.init()
         addScryingLensOverlays()
         registerSplicingTableIotaRenderers()
+        invalidateIotaRendererCacheWhenThingsHappenThatShouldInvalidateIt()
     }
 
     fun getConfigScreen(parent: Screen): Screen {
@@ -102,6 +106,19 @@ object HexDebugClient {
             "texture" to TextureRendererProvider.PARSER,
         )) {
             SplicingTableIotaRenderers.register(HexDebug.id(name), parser)
+        }
+    }
+
+    private fun invalidateIotaRendererCacheWhenThingsHappenThatShouldInvalidateIt() {
+        // for rainbow bracket configs
+        HexDebugClientConfig.holder.registerSaveListener { _, _ ->
+            BaseIotaButton.invalidateRendererCache()
+            InteractionResult.PASS
+        }
+
+        // cached iotas from one world are probably not applicable to others
+        ClientPlayerEvent.CLIENT_PLAYER_QUIT.register {
+            BaseIotaButton.invalidateRendererCache()
         }
     }
 }
