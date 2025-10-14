@@ -57,5 +57,8 @@
     "emi": ">=${versions.emi}",
     "modmenu": ">=${versions.modMenu}",
     "hexical": ">=${versions.hexical}"
+  },
+  "conflicts": {
+    "hexical": "<${versions.hexical}"
   }
 }
