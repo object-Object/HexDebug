@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [UNRELEASED]
 
+### Changed
+
+- Update zh_cn translations, by ChuijkYahus in [#60](https://github.com/object-Object/HexDebug/pull/60).
+
 ### Fixed
 
 - Fixed a crash when closing the Splicing Table with Hexical 1.5.0 installed ([#62](https://github.com/object-Object/HexDebug/issues/62)).
