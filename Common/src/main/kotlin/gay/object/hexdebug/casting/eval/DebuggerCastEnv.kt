@@ -16,6 +16,8 @@ class DebuggerCastEnv(
 ) : PackagedItemCastEnv(caster, castingHand), IDebugCastEnv {
     private val item = caster.getItemInHand(castingHand).item
 
+    override var threadId: Int? = null
+
     override var lastEvaluatedAction: Action? = null
     override var lastDebugStepType: DebugStepType? = null
 

@@ -13,6 +13,8 @@ import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory
 interface IDebugCastEnv {
     val isDebugging get() = true
 
+    var threadId: Int?
+
     var lastEvaluatedAction: Action?
     var lastDebugStepType: DebugStepType?
 
@@ -27,7 +29,9 @@ interface IDebugCastEnv {
         category: String = OutputEventArgumentsCategory.STDOUT,
         withSource: Boolean = true,
     ) {
-        DebugAdapterManager[caster]?.print(message.string + "\n", category, withSource)
+        threadId?.let {
+            DebugAdapterManager[caster]?.print(it, message.string + "\n", category, withSource)
+        }
     }
 
     fun printDebugMishap(env: CastingEnvironment, caster: ServerPlayer, mishap: OperatorSideEffect.DoMishap) {

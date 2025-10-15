@@ -15,7 +15,7 @@
   text: {
     hexdebug: {
       connected: "Debug client connected!",
-      no_session: "Debug session is not running.",
+      no_session: "Debug session is not running for thread %d.",
       thwack: "Thwack!",
       // Next Iota: [{index}] {iota}
       debugger_stopped: "Next Iota: [%d] %s",
@@ -162,7 +162,6 @@
     action: {
       "hexdebug:": {
         "const/debugging": "Debugger's Reflection",
-        "next_eval_index": "Debug Locator's Reflection", // TODO: this name kinda sucks tbh
         "const/cognitohazard": "Cognitohazard Reflection",
         "breakpoint/": {
           before: "Set Breakpoint Before",
@@ -205,7 +204,6 @@
         },
       },
       "book.hexdebug:": {
-        "next_eval_index": "Debug Locator's Rfln.",
         "const/cognitohazard": "Cognitohazard Rfln.",
         "splicing/": {
           "list/": {
@@ -250,15 +248,15 @@
 
   hexdebug: {
     tooltip: {
+      thread_id: "Thread: %d",
       debugger: {
         step_mode: {
-          "": "Mode: %s",
-          continue: "Continue",
-          over: "Step Over",
-          in: "Step In",
-          out: "Step Out",
-          restart: "Restart",
-          stop: "Stop"
+          continue: "Mode: Continue",
+          over:     "Mode: Step Over",
+          in:       "Mode: Step In",
+          out:      "Mode: Step Out",
+          restart:  "Mode: Restart",
+          stop:     "Mode: Stop"
         },
       },
       focus_holder: {
@@ -350,7 +348,6 @@
             "": "Debugging Patterns",
             page: {
               "const/debugging": "Add $(thing)True/$ to the top of the stack if executed by a $(l:items/debugging#debugger)$(item)Debugger/$ or $(l:items/debugging#evaluator)$(item)Evaluator/$, or $(thing)False/$ otherwise.",
-              "next_eval_index": "Add the index of the next iota to be evaluated if executed by a $(l:items/debugging#debugger)$(item)Debugger/$ or $(l:items/debugging#evaluator)$(item)Evaluator/$, or $(l:casting/influences)$(thing)Null/$ otherwise.",
               "const/cognitohazard": {
                 "1": "Add a $(thing)Cognitohazard/$ to the top of the stack.",
                 "2": "It seems certain $(l:items/debugging#evaluator)debugging tools/$ may pose a security risk for some $(l:patterns/meta#hexcasting:eval/cc)high-level techniques/$. To help combat this, I have created this pattern.$(br2)\

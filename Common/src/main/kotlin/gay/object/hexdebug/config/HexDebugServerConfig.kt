@@ -9,6 +9,7 @@ import me.shedaniel.autoconfig.AutoConfig
 import me.shedaniel.autoconfig.ConfigData
 import me.shedaniel.autoconfig.ConfigHolder
 import me.shedaniel.autoconfig.annotation.Config
+import me.shedaniel.autoconfig.annotation.ConfigEntry.BoundedDiscrete
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Category
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.TransitiveObject
@@ -21,6 +22,9 @@ import net.minecraft.world.InteractionResult
 // we can't use a companion object because GlobalData sees the field and throws an error :/
 
 object HexDebugServerConfig {
+    const val THREAD_BITS = 4
+    const val MAX_DEBUG_THREADS_LIMIT = 1 shl THREAD_BITS
+
     @JvmStatic
     lateinit var holder: ConfigHolder<GlobalConfig>
 
@@ -86,12 +90,18 @@ object HexDebugServerConfig {
         var splicingTableAmbit: Double = 4.0
             private set
 
+        @Tooltip
+        @BoundedDiscrete(min = 1, max = MAX_DEBUG_THREADS_LIMIT.toLong())
+        var maxDebugThreads: Int = 4
+            private set
+
         fun encode(buf: FriendlyByteBuf) {
             buf.writeInt(maxUndoStackSize)
             buf.writeLong(splicingTableMediaCost)
             buf.writeLong(splicingTableMaxMedia)
             buf.writeInt(splicingTableCastingCooldown)
             buf.writeDouble(splicingTableAmbit)
+            buf.writeInt(maxDebugThreads)
         }
 
         fun decode(buf: FriendlyByteBuf) {
@@ -100,6 +110,7 @@ object HexDebugServerConfig {
             splicingTableMaxMedia = buf.readLong()
             splicingTableCastingCooldown = buf.readInt()
             splicingTableAmbit = buf.readDouble()
+            maxDebugThreads = buf.readInt()
         }
     }
 }

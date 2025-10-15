@@ -27,9 +27,11 @@ import net.minecraft.server.level.ServerLevel
 import org.eclipse.lsp4j.debug.*
 import java.util.*
 import kotlin.math.min
+import kotlin.reflect.jvm.jvmName
 import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceReason
 
 class HexDebugger(
+    threadId: Int,
     var initArgs: InitializeRequestArguments,
     var launchArgs: LaunchArgs,
     private val defaultEnv: CastingEnvironment,
@@ -39,22 +41,28 @@ class HexDebugger(
     private var image: CastingImage = CastingImage(),
 ) {
     constructor(
+        threadId: Int,
         initArgs: InitializeRequestArguments,
         launchArgs: LaunchArgs,
         castArgs: CastArgs,
         image: CastingImage = CastingImage(),
-    ) : this(initArgs, launchArgs, castArgs.env, castArgs.world, castArgs.onExecute, castArgs.iotas, image)
+    ) : this(threadId, initArgs, launchArgs, castArgs.env, castArgs.world, castArgs.onExecute, castArgs.iotas, image)
 
     var lastEvaluatedMetadata: IotaMetadata? = null
         private set
 
-    // ensure we passed a debug cast env to help catch errors early
     init {
+        // ensure we passed a debug cast env to help catch errors early
         defaultEnv as IDebugCastEnv
+        // tell the env which thread it's now debugging
+        defaultEnv.threadId = threadId
     }
 
+    val envType get() = defaultEnv::class.simpleName ?: defaultEnv::class.jvmName
+
     private val variablesAllocator = VariablesAllocator()
-    private val sourceAllocator = SourceAllocator(iotas.hashCode())
+    // hack: if multiple threads are debugging the same input and we don't include the thread id in the hash, some of the threads don't show the source
+    private val sourceAllocator = SourceAllocator(Objects.hash(threadId, iotas))
 
     private val iotaMetadata = IdentityHashMap<Iota, IotaMetadata>()
     // FIXME: this is really terrible and gross and i don't like it
@@ -328,36 +336,33 @@ class HexDebugger(
 
     // TODO: gross.
     // TODO: there's probably a bug here somewhere - shouldn't we be using the metadata?
-    fun setBreakpoints(sourceReference: Int, sourceBreakpoints: Array<SourceBreakpoint>): List<Breakpoint> {
+    fun setBreakpoint(sourceReference: Int, breakpoint: SourceBreakpoint): Breakpoint {
         val (source, iotas) = sourceAllocator[sourceReference] ?: (null to null)
         val breakpointLines = breakpoints.getOrPut(sourceReference, ::mutableMapOf).apply { clear() }
-        return sourceBreakpoints.map {
-            Breakpoint().apply {
-                isVerified = false
-                if (source == null || iotas == null) {
-                    message = "Unknown source"
-                    reason = BreakpointNotVerifiedReason.PENDING  // TODO: send Breakpoint event later
-                } else if (it.line > initArgs.indexToLine(iotas.lastIndex)) {
-                    message = "Line number out of range"
-                    reason = BreakpointNotVerifiedReason.FAILED
-                } else {
-                    isVerified = true
-                    this.source = source
-                    line = it.line
+        return Breakpoint().apply {
+            isVerified = false
+            if (source == null || iotas == null) {
+                message = "Unknown source"
+                reason = BreakpointNotVerifiedReason.PENDING  // TODO: send Breakpoint event later
+            } else if (breakpoint.line > initArgs.indexToLine(iotas.lastIndex)) {
+                message = "Line number out of range"
+                reason = BreakpointNotVerifiedReason.FAILED
+            } else {
+                isVerified = true
+                this.source = source
+                line = breakpoint.line
 
-                    breakpointLines[it.line] = it.mode
-                        ?.let(SourceBreakpointMode::valueOf)
-                        ?: SourceBreakpointMode.EVALUATED
-                }
+                breakpointLines[breakpoint.line] = breakpoint.mode
+                    ?.let(SourceBreakpointMode::valueOf)
+                    ?: SourceBreakpointMode.EVALUATED
             }
         }
     }
 
-    fun setExceptionBreakpoints(typeNames: Array<String>): List<Breakpoint> {
+    fun setExceptionBreakpoints(typeNames: Array<String>) {
         exceptionBreakpoints.clear()
-        return typeNames.map {
-            exceptionBreakpoints.add(ExceptionBreakpointType.valueOf(it))
-            Breakpoint().apply { isVerified = true }
+        for (typeName in typeNames) {
+            exceptionBreakpoints.add(ExceptionBreakpointType.valueOf(typeName))
         }
     }
 
@@ -429,13 +434,16 @@ class HexDebugger(
     }
 
     fun start(): DebugStepResult {
-        return if (launchArgs.stopOnEntry) {
-            DebugStepResult(StopReason.STARTED)
-        } else if (isAtBreakpoint()) {
-            DebugStepResult(StopReason.BREAKPOINT)
-        } else {
-            executeUntilStopped()
-        }.withLoadedSource(initialSource, LoadedSourceReason.NEW)
+        // i hate kotlin
+        return (
+            if (launchArgs.stopOnEntry) {
+                DebugStepResult(StopReason.STARTED)
+            } else if (isAtBreakpoint()) {
+                DebugStepResult(StopReason.BREAKPOINT)
+            } else {
+                executeUntilStopped()
+            }
+        ).withLoadedSource(initialSource, LoadedSourceReason.NEW)
     }
 
     fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult {

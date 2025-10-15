@@ -11,7 +11,6 @@ import at.petrak.hexcasting.common.lib.HexRegistries
 import at.petrak.hexcasting.common.lib.hex.HexActions
 import gay.`object`.hexdebug.casting.actions.OpBreakpoint
 import gay.`object`.hexdebug.casting.actions.OpIsDebugging
-import gay.`object`.hexdebug.casting.actions.OpNextEvalIndex
 import gay.`object`.hexdebug.casting.actions.splicing.*
 import gay.`object`.hexdebug.casting.iotas.CognitohazardIota
 
@@ -21,7 +20,6 @@ object HexDebugActions : HexDebugRegistrar<ActionRegistryEntry>(HexRegistries.AC
         Action.makeConstantOp(CognitohazardIota())
     }
     val IS_DEBUGGING = make("const/debugging", HexDir.EAST, "qqqqqewaa", OpIsDebugging)
-    val NEXT_EVAL_INDEX = make("next_eval_index", HexDir.SOUTH_WEST, "dedqdeqwaa", OpNextEvalIndex)
 
     val BREAKPOINT_BEFORE = make("breakpoint/before", HexDir.SOUTH_WEST, "awqdeew", OpBreakpoint(true))
     val BREAKPOINT_AFTER = make("breakpoint/after", HexDir.EAST, "wqqaewd", OpBreakpoint(false))

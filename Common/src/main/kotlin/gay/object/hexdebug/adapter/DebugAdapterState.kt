@@ -8,30 +8,31 @@ sealed interface DebugAdapterState {
     var isConnected: Boolean
     var initArgs: InitializeRequestArguments
     var launchArgs: LaunchArgs
-    val restartArgs: CastArgs?
+    val restartArgs: MutableMap<Int, CastArgs>
 
     data class NotDebugging(
         override var isConnected: Boolean = false,
         override var initArgs: InitializeRequestArguments = defaultInitArgs(),
         override var launchArgs: LaunchArgs = LaunchArgs(),
-        override val restartArgs: CastArgs? = null,
+        override val restartArgs: MutableMap<Int, CastArgs> = mutableMapOf(),
     ) : DebugAdapterState {
         constructor(state: DebugAdapterState) : this(state.isConnected, state.initArgs, state.launchArgs, state.restartArgs)
     }
 
     data class Debugging(
         override var isConnected: Boolean,
-        override val restartArgs: CastArgs,
-        val debugger: HexDebugger,
+        override var initArgs: InitializeRequestArguments,
+        override var launchArgs: LaunchArgs,
+        override val restartArgs: MutableMap<Int, CastArgs>,
+        val debuggers: MutableMap<Int, HexDebugger>,
     ) : DebugAdapterState {
-        constructor(state: DebugAdapterState, castArgs: CastArgs) : this(
+        constructor(state: DebugAdapterState, castArgs: CastArgs, threadId: Int = 0) : this(
             state.isConnected,
-            castArgs,
-            HexDebugger(state.initArgs, state.launchArgs, castArgs),
+            state.initArgs,
+            state.launchArgs,
+            mutableMapOf(threadId to castArgs),
+            mutableMapOf(threadId to HexDebugger(threadId, state.initArgs, state.launchArgs, castArgs)),
         )
-
-        override var initArgs by debugger::initArgs
-        override var launchArgs by debugger::launchArgs
     }
 }
 

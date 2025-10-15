@@ -12,6 +12,8 @@ class EvaluatorCastEnv(
     caster: ServerPlayer,
     castingHand: InteractionHand,
 ) : StaffCastEnv(caster, castingHand), IDebugCastEnv {
+    override var threadId: Int? = null
+
     override var lastEvaluatedAction: Action? = null
     override var lastDebugStepType: DebugStepType? = null
 

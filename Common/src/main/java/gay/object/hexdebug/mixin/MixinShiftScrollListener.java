@@ -28,7 +28,11 @@ public abstract class MixinShiftScrollListener {
 
     @Inject(method = "IsScrollableItem", at = @At("RETURN"), cancellable = true)
     private static void hexdebug$IsScrollableItem(Item item, CallbackInfoReturnable<Boolean> cir) {
-        if (item == HexDebugItems.DEBUGGER.getValue()) {
+        if (
+            item == HexDebugItems.DEBUGGER.getValue()
+            // evaluator only scrolls thread id, so don't consume the scroll if we're not holding sprint
+            || (item == HexDebugItems.EVALUATOR.getValue() && Minecraft.getInstance().options.keySprint.isDown())
+        ) {
             cir.setReturnValue(true);
         }
     }
@@ -44,8 +48,8 @@ public abstract class MixinShiftScrollListener {
             && !player.isSpectator()
             // additional logic
             && HexDebugClientConfig.getConfig().getSmartDebuggerSneakScroll()
-            && !DebuggerItem.isDebugging()
             && player.getMainHandItem().getItem() == HexDebugItems.DEBUGGER.getValue()
+            && !DebuggerItem.isDebugging(player.getMainHandItem())
             && hexdebug$invokeIsScrollableItem(player.getOffhandItem().getItem())
         ) {
             offHandDelta += delta;

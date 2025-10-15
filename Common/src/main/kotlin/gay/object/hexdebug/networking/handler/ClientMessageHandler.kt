@@ -16,6 +16,7 @@ import gay.`object`.hexdebug.items.DebuggerItem
 import gay.`object`.hexdebug.items.DebuggerItem.DebugState
 import gay.`object`.hexdebug.items.EvaluatorItem
 import gay.`object`.hexdebug.items.EvaluatorItem.EvalState
+import gay.`object`.hexdebug.items.base.getThreadId
 import gay.`object`.hexdebug.networking.msg.*
 import gay.`object`.hexdebug.registry.HexDebugItems
 import net.minecraft.client.Minecraft
@@ -28,21 +29,23 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
         }
 
         is MsgDebuggerStateS2C -> {
-            DebuggerItem.debugState = debuggerState
-            if (debuggerState == DebugState.NOT_DEBUGGING) {
-                EvaluatorItem.evalState = EvalState.DEFAULT
+            for ((threadId, debugState) in debugStates) {
+                DebuggerItem.debugStates[threadId] = debugState
+                if (debugState == DebugState.NOT_DEBUGGING) {
+                    EvaluatorItem.evalStates[threadId] = EvalState.DEFAULT
+                }
             }
         }
 
         is MsgEvaluatorStateS2C -> {
-            EvaluatorItem.evalState = evalState
+            EvaluatorItem.evalStates[threadId] = evalState
         }
 
         is MsgEvaluatorClientInfoS2C -> {
             (Minecraft.getInstance().screen as? GuiSpellcasting)?.let { screen ->
-                // only apply the message if the screen was opened with an evaluator
+                // only apply the message if the screen was opened with an evaluator configured for this thread
                 val heldItem = ctx.player.getItemInHand(screen.mixin.handOpenedWith)
-                if (heldItem.`is`(HexDebugItems.EVALUATOR.value)) {
+                if (heldItem.`is`(HexDebugItems.EVALUATOR.value) && getThreadId(heldItem) == threadId) {
                     // just delegate to the existing handler instead of copying the functionality here
                     // we use an index of -1 because we don't want to update the resolution type of any patterns
                     MsgNewSpellPatternS2C.handle(MsgNewSpellPatternS2C(info, -1))

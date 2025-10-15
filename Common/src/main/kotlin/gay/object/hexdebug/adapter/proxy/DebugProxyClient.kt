@@ -56,7 +56,7 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
                 InteractionResult.PASS
             }
             ClientPlayerEvent.CLIENT_PLAYER_JOIN.register {
-                DebuggerItem.debugState = DebuggerItem.DebugState.NOT_DEBUGGING
+                DebuggerItem.debugStates.clear()
                 start()
             }
             ClientPlayerEvent.CLIENT_PLAYER_QUIT.register {

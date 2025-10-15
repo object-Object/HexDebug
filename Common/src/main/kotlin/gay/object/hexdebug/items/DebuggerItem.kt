@@ -2,10 +2,7 @@ package gay.`object`.hexdebug.items
 
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.mod.HexConfig
-import at.petrak.hexcasting.api.utils.getBoolean
-import at.petrak.hexcasting.api.utils.getInt
-import at.petrak.hexcasting.api.utils.putBoolean
-import at.petrak.hexcasting.api.utils.putInt
+import at.petrak.hexcasting.api.utils.*
 import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
@@ -14,6 +11,8 @@ import gay.`object`.hexdebug.casting.eval.DebuggerCastEnv
 import gay.`object`.hexdebug.debugger.CastArgs
 import gay.`object`.hexdebug.items.base.ItemPredicateProvider
 import gay.`object`.hexdebug.items.base.ModelPredicateEntry
+import gay.`object`.hexdebug.items.base.getThreadId
+import gay.`object`.hexdebug.items.base.rotateThreadId
 import gay.`object`.hexdebug.utils.asItemPredicate
 import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.otherHand
@@ -30,6 +29,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.Level
+import org.eclipse.lsp4j.debug.*
 
 class DebuggerItem(properties: Properties) : ItemPackagedHex(properties), ItemPredicateProvider {
     override fun canDrawMediaFromInventory(stack: ItemStack?) = true
@@ -63,17 +63,35 @@ class DebuggerItem(properties: Properties) : ItemPackagedHex(properties), ItemPr
         val serverPlayer = player as ServerPlayer
         val serverLevel = world as ServerLevel
 
-        val debugAdapter = DebugAdapterManager[player] ?: return InteractionResultHolder.fail(stack)
-        if (debugAdapter.isDebugging) {
+        val threadId = getThreadId(stack)
+
+        val debugAdapter = DebugAdapterManager[player]
+            ?: return InteractionResultHolder.fail(stack)
+
+        if (debugAdapter.isDebugging(threadId)) {
             // step the ongoing debug session
             debugAdapter.apply {
                 when (getStepMode(stack)) {
-                    StepMode.CONTINUE -> continue_(null)
-                    StepMode.OVER -> next(null)
-                    StepMode.IN -> stepIn(null)
-                    StepMode.OUT -> stepOut(null)
-                    StepMode.RESTART -> restart(null)
-                    StepMode.STOP -> terminate(null)
+                    StepMode.CONTINUE -> continue_(ContinueArguments().also {
+                        it.threadId = threadId
+                        it.singleThread = true
+                    })
+                    StepMode.OVER -> next(NextArguments().also {
+                        it.threadId = threadId
+                        it.singleThread = true
+                    })
+                    StepMode.IN -> stepIn(StepInArguments().also {
+                        it.threadId = threadId
+                        it.singleThread = true
+                    })
+                    StepMode.OUT -> stepOut(StepOutArguments().also {
+                        it.threadId = threadId
+                        it.singleThread = true
+                    })
+                    StepMode.RESTART -> restartThread(threadId)
+                    StepMode.STOP -> terminateThreads(TerminateThreadsArguments().also {
+                        it.threadIds = intArrayOf(threadId)
+                    })
                 }
             }
         } else {
@@ -91,7 +109,7 @@ class DebuggerItem(properties: Properties) : ItemPackagedHex(properties), ItemPr
             val ctx = DebuggerCastEnv(serverPlayer, usedHand)
             val args = CastArgs(instrs, ctx, serverLevel)
 
-            if (!debugAdapter.startDebugging(args)) {
+            if (!debugAdapter.startDebugging(threadId, args)) {
                 // already debugging (how??)
                 return InteractionResultHolder.fail(stack)
             }
@@ -111,25 +129,15 @@ class DebuggerItem(properties: Properties) : ItemPackagedHex(properties), ItemPr
         return super.hurtEnemy(stack, target, attacker)
     }
 
-    fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double) {
-        val newMode = rotateStepMode(stack, delta < 0)
-        val component = Component.translatable(
-            "hexdebug.tooltip.debugger.step_mode",
-            Component.translatable("hexdebug.tooltip.debugger.step_mode.${newMode.name.lowercase()}"),
-        )
+    fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double, isCtrl: Boolean) {
+        val increase = delta < 0
+        val component = if (isCtrl) {
+            rotateThreadId(stack, increase)
+        } else {
+            rotateStepMode(stack, increase)
+        }
         sender.displayClientMessage(component, true)
     }
-
-    private fun rotateStepMode(stack: ItemStack, increase: Boolean): StepMode {
-        val idx = getStepModeIdx(stack) + (if (increase) 1 else -1)
-        return StepMode.entries.getWrapping(idx).also {
-            stack.putInt(STEP_MODE_TAG, it.ordinal)
-        }
-    }
-
-    private fun getStepMode(stack: ItemStack) = StepMode.entries.getWrapping(getStepModeIdx(stack))
-
-    private fun getStepModeIdx(stack: ItemStack) = stack.getInt(STEP_MODE_TAG)
 
     val noIconsInstance get() = ItemStack(this).also { setHideIcons(it, true) }
 
@@ -139,9 +147,9 @@ class DebuggerItem(properties: Properties) : ItemPackagedHex(properties), ItemPr
     private fun getHideIcons(stack: ItemStack) = stack.getBoolean(HIDE_ICONS_TAG)
 
     override fun getModelPredicates() = listOf(
-        ModelPredicateEntry(DEBUG_STATE_PREDICATE) { _, _, entity, _ ->
+        ModelPredicateEntry(DEBUG_STATE_PREDICATE) { stack, _, entity, _ ->
             // don't show the active icon for debuggers held by other players, on the ground, etc
-            val state = if (entity is LocalPlayer) debugState else DebugState.NOT_DEBUGGING
+            val state = if (entity is LocalPlayer) getDebugState(stack) else DebugState.NOT_DEBUGGING
             state.asItemPredicate
         },
 
@@ -167,17 +175,34 @@ class DebuggerItem(properties: Properties) : ItemPackagedHex(properties), ItemPr
         val HAS_HEX_PREDICATE = HexDebug.id("has_hex")
         val HIDE_ICONS_PREDICATE = HexDebug.id("hide_icons")
 
-        var debugState: DebugState = DebugState.NOT_DEBUGGING
+        var debugStates = mutableMapOf<Int, DebugState>()
 
         @JvmStatic
-        fun isDebugging(): Boolean {
-            return debugState == DebugState.DEBUGGING
+        fun isDebugging(stack: ItemStack): Boolean {
+            return getDebugState(stack) == DebugState.DEBUGGING
+        }
+
+        private fun getDebugState(stack: ItemStack) = debugStates[getThreadId(stack)] ?: DebugState.NOT_DEBUGGING
+
+        private fun getStepMode(stack: ItemStack) = StepMode.entries.getWrapping(getStepModeIdx(stack))
+
+        private fun getStepModeIdx(stack: ItemStack) = stack.getInt(STEP_MODE_TAG)
+
+        private fun rotateStepMode(stack: ItemStack, increase: Boolean): Component {
+            val idx = getStepModeIdx(stack) + (if (increase) 1 else -1)
+            val mode = StepMode.entries.getWrapping(idx)
+            stack.putInt(STEP_MODE_TAG, mode.ordinal)
+            return "hexdebug.tooltip.debugger.step_mode.${mode.name.lowercase()}".asTranslatedComponent
         }
     }
 
     enum class DebugState {
         NOT_DEBUGGING,
-        DEBUGGING,
+        DEBUGGING;
+
+        companion object {
+            fun of(value: Boolean) = if (value) DEBUGGING else NOT_DEBUGGING
+        }
     }
 
     enum class StepMode {
