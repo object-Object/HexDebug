@@ -18,7 +18,6 @@ import gay.`object`.hexdebug.items.EvaluatorItem
 import gay.`object`.hexdebug.items.EvaluatorItem.EvalState
 import gay.`object`.hexdebug.items.base.getThreadId
 import gay.`object`.hexdebug.networking.msg.*
-import gay.`object`.hexdebug.registry.HexDebugItems
 import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.Component
 
@@ -45,7 +44,7 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
             (Minecraft.getInstance().screen as? GuiSpellcasting)?.let { screen ->
                 // only apply the message if the screen was opened with an evaluator configured for this thread
                 val heldItem = ctx.player.getItemInHand(screen.mixin.handOpenedWith)
-                if (heldItem.`is`(HexDebugItems.EVALUATOR.value) && getThreadId(heldItem) == threadId) {
+                if (heldItem.item is EvaluatorItem && getThreadId(heldItem) == threadId) {
                     // just delegate to the existing handler instead of copying the functionality here
                     // we use an index of -1 because we don't want to update the resolution type of any patterns
                     MsgNewSpellPatternS2C.handle(MsgNewSpellPatternS2C(info, -1))

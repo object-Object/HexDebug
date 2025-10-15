@@ -6,7 +6,6 @@ import at.petrak.hexcasting.api.casting.math.HexDir
 import at.petrak.hexcasting.api.casting.math.HexPattern
 import at.petrak.hexcasting.api.misc.MediaConstants
 import at.petrak.hexcasting.common.casting.actions.spells.OpMakePackagedSpell
-import at.petrak.hexcasting.common.items.magic.ItemPackagedHex
 import at.petrak.hexcasting.common.lib.HexRegistries
 import at.petrak.hexcasting.common.lib.hex.HexActions
 import gay.`object`.hexdebug.casting.actions.OpBreakpoint
@@ -24,9 +23,11 @@ object HexDebugActions : HexDebugRegistrar<ActionRegistryEntry>(HexRegistries.AC
     val BREAKPOINT_BEFORE = make("breakpoint/before", HexDir.SOUTH_WEST, "awqdeew", OpBreakpoint(true))
     val BREAKPOINT_AFTER = make("breakpoint/after", HexDir.EAST, "wqqaewd", OpBreakpoint(false))
 
-    // kotlin, why do i have to cast this??
     val CRAFT_DEBUGGER = make("craft/debugger", HexDir.SOUTH_WEST, "aaewwwwwaqwawqwadawqwwwawwwqwwwaw") {
-        OpMakePackagedSpell(HexDebugItems.DEBUGGER.value as ItemPackagedHex, 10 * MediaConstants.CRYSTAL_UNIT)
+        OpMakePackagedSpell(HexDebugItems.DEBUGGER.value, 10 * MediaConstants.CRYSTAL_UNIT)
+    }
+    val CRAFT_QUENCHED_DEBUGGER = make("craft/quenched_debugger", HexDir.SOUTH_EAST, "ddwwwwwwedwewdweqewdwwwewwwdwwwew") {
+        OpMakePackagedSpell(HexDebugItems.QUENCHED_DEBUGGER.value, 10 * MediaConstants.CRYSTAL_UNIT)
     }
 
     // splicing table

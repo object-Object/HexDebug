@@ -14,10 +14,24 @@ import net.minecraft.world.level.ItemLike
 
 object HexDebugItems : HexDebugRegistrar<Item>(Registries.ITEM, { BuiltInRegistries.ITEM }) {
     @JvmField
-    val DEBUGGER = item("debugger") { DebuggerItem(unstackable.noTab()) }
+    val DEBUGGER = item("debugger") {
+        DebuggerItem(unstackable.rarity(Rarity.UNCOMMON).noTab(), isQuenched = false)
+    }
 
     @JvmField
-    val EVALUATOR = item("evaluator") { EvaluatorItem(unstackable.rarity(Rarity.UNCOMMON)) }
+    val QUENCHED_DEBUGGER = item("quenched_debugger") {
+        DebuggerItem(unstackable.rarity(Rarity.RARE).noTab(), isQuenched = true)
+    }
+
+    @JvmField
+    val EVALUATOR = item("evaluator") {
+        EvaluatorItem(unstackable.rarity(Rarity.UNCOMMON), isQuenched = false)
+    }
+
+    @JvmField
+    val QUENCHED_EVALUATOR = item("quenched_evaluator") {
+        EvaluatorItem(unstackable.rarity(Rarity.RARE), isQuenched = true)
+    }
 
     val props: Properties get() = Properties().`arch$tab`(HexDebugCreativeTabs.HEX_DEBUG.key)
 

@@ -4,6 +4,12 @@ from hexdoc.minecraft.recipe import CraftingShapedRecipe, ItemResult
 from pydantic import field_validator
 
 
+class FlyswatterQuenchingShapedRecipe(
+    CraftingShapedRecipe, type="hexdebug:flyswatter_quenching"
+):
+    pass
+
+
 class FocusHolderFillingShapedRecipe(
     CraftingShapedRecipe, type="hexdebug:focus_holder_filling_shaped"
 ):

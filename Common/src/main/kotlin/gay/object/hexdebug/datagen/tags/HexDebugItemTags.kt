@@ -21,6 +21,7 @@ class HexDebugItemTags(output: PackOutput, provider: CompletableFuture<HolderLoo
 
         tag(HexTags.Items.STAVES).add(
             HexDebugItems.EVALUATOR.key,
+            HexDebugItems.QUENCHED_EVALUATOR.key,
         )
     }
 }

@@ -10,6 +10,7 @@ import at.petrak.hexcasting.datagen.HexAdvancements
 import at.petrak.hexcasting.datagen.recipe.builders.BrainsweepRecipeBuilder
 import at.petrak.paucal.api.datagen.PaucalRecipeProvider
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.datagen.recipes.FlyswatterQuenchingShapedRecipeBuilder
 import gay.`object`.hexdebug.datagen.recipes.FocusHolderFillingShapedRecipeBuilder
 import gay.`object`.hexdebug.registry.HexDebugBlocks
 import gay.`object`.hexdebug.registry.HexDebugItems
@@ -29,9 +30,17 @@ class HexDebugRecipes(output: PackOutput) : PaucalRecipeProvider(output, HexDebu
             .unlockedBy("has_item", hasItem(HexTags.Items.STAVES))
             .save(writer)
 
+        quenchedFlyswatter(HexDebugItems.QUENCHED_DEBUGGER, HexDebugItems.DEBUGGER)
+            .unlockedBy("enlightenment", HexAdvancements.ENLIGHTEN)
+            .save(writer)
+
         // evaluator
         flyswatter(HexDebugItems.EVALUATOR, HexBlocks.SLATE_BLOCK)
             .unlockedBy("has_item", hasItem(HexTags.Items.STAVES))
+            .save(writer)
+
+        quenchedFlyswatter(HexDebugItems.QUENCHED_EVALUATOR, HexDebugItems.EVALUATOR)
+            .unlockedBy("enlightenment", HexAdvancements.ENLIGHTEN)
             .save(writer)
 
         // splicing table
@@ -94,4 +103,12 @@ class HexDebugRecipes(output: PackOutput) : PaucalRecipeProvider(output, HexDebu
             .pattern(" CC")
             .pattern(" UC")
             .pattern("L  ")
+
+    private fun quenchedFlyswatter(result: ItemLike, flyswatter: ItemLike) =
+        FlyswatterQuenchingShapedRecipeBuilder(RecipeCategory.TOOLS, result)
+            .define('F', flyswatter)
+            .define('Q', HexItems.QUENCHED_SHARD)
+            .pattern(" Q ")
+            .pattern("QFQ")
+            .pattern(" Q ")
 }

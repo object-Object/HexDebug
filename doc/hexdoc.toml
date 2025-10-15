@@ -21,7 +21,9 @@ export_dir = "src/hexdoc_hexdebug/_export/generated"
 [textures]
 missing = [
     "hexdebug:debugger/*",
+    "hexdebug:quenched_debugger/*",
     "hexdebug:evaluator/*",
+    "hexdebug:quenched_evaluator/*",
 ]
 
 [template]

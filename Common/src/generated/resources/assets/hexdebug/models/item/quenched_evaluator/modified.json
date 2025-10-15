@@ -1,0 +1,6 @@
+{
+  "parent": "hexdebug:item/quenched_evaluator",
+  "textures": {
+    "layer1": "hexdebug:item/evaluator/eval_state/modified"
+  }
+}

@@ -19,15 +19,15 @@ import net.minecraftforge.common.data.ExistingFileHelper
 class HexDebugItemModels(output: PackOutput, efh: ExistingFileHelper) : ItemModelProvider(output, HexDebug.MODID, efh) {
     override fun registerModels() {
         debugger(HexDebugItems.DEBUGGER.id)
+        debugger(HexDebugItems.QUENCHED_DEBUGGER.id)
 
         evaluator(HexDebugItems.EVALUATOR.id)
+        evaluator(HexDebugItems.QUENCHED_EVALUATOR.id)
     }
 
     private fun debugger(item: ResourceLocation) {
         val baseModel = basicItem(item)
             .parent(getExistingFile(mcLoc("item/handheld_rod")))
-
-        val basePath = baseModel.location.path
 
         for (debugState in DebugState.entries) {
             val debugStateName = debugState.name.lowercase()
@@ -36,13 +36,13 @@ class HexDebugItemModels(output: PackOutput, efh: ExistingFileHelper) : ItemMode
                 val stepModeName = stepMode.name.lowercase()
 
                 for ((hasHex, hasHexName) in mapOf(0f to "empty", 1f to "full")) {
-                    val model = getBuilder("$basePath/$debugStateName/$stepModeName/$hasHexName")
+                    val model = getBuilder("${baseModel.location.path}/$debugStateName/$stepModeName/$hasHexName")
                         .parent(baseModel)
                         .layers(
                             start = 1,
-                            "$basePath/step_mode/$debugStateName/$stepModeName",
-                            "$basePath/has_hex/$hasHexName".takeIf { hasHex > 0 },
-                            "$basePath/debug_state/$debugStateName".takeIf { debugState == DebugState.DEBUGGING },
+                            "item/debugger/step_mode/$debugStateName/$stepModeName",
+                            "item/debugger/has_hex/$hasHexName".takeIf { hasHex > 0 },
+                            "item/debugger/debug_state/$debugStateName".takeIf { debugState == DebugState.DEBUGGING },
                         )
 
                     baseModel.override()
@@ -64,16 +64,14 @@ class HexDebugItemModels(output: PackOutput, efh: ExistingFileHelper) : ItemMode
         val baseModel = basicItem(item)
             .parent(getExistingFile(mcLoc("item/handheld_rod")))
 
-        val basePath = baseModel.location.path
-
         for (evalState in EvalState.entries) {
             val evalStateName = evalState.name.lowercase()
 
-            val model = getBuilder("$basePath/$evalStateName")
+            val model = getBuilder("${baseModel.location.path}/$evalStateName")
                 .parent(baseModel)
                 .layers(
                     start = 1,
-                    "$basePath/eval_state/$evalStateName".takeIf { evalState == EvalState.MODIFIED },
+                    "item/evaluator/eval_state/$evalStateName".takeIf { evalState == EvalState.MODIFIED },
                 )
 
             baseModel.override()

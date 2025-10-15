@@ -5,7 +5,14 @@ import at.petrak.hexcasting.api.utils.getInt
 import at.petrak.hexcasting.api.utils.putInt
 import gay.`object`.hexdebug.config.HexDebugServerConfig
 import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
+
+interface ShiftScrollable {
+    fun canShiftScroll(isCtrl: Boolean): Boolean
+
+    fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double, isCtrl: Boolean)
+}
 
 // for items that can ctrl+shift+scroll through debug threads
 

@@ -1,5 +1,6 @@
 {
   "values": [
-    "hexdebug:evaluator"
+    "hexdebug:evaluator",
+    "hexdebug:quenched_evaluator"
   ]
 }

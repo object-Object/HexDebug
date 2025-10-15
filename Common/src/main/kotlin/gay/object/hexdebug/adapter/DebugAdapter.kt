@@ -79,7 +79,8 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     fun startDebugging(threadId: Int, args: CastArgs, notifyClient: Boolean = true): Boolean {
-        if (threadId >= HexDebugServerConfig.config.maxDebugThreads) return false
+        val threadLimit = if (args.env.isEnlightened) HexDebugServerConfig.config.maxDebugThreads else 1
+        if (threadId >= threadLimit) return false
 
         val debugger = when (val state = state) {
             is Debugging -> {

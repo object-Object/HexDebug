@@ -40,6 +40,14 @@
       anchor: "hexdebug:craft/debugger",
       input: "entity, [pattern]",
       text: "hexdebug.category.patterns.entry.debugging.page.craft/debugger",
-    }
+    },
+    {
+      type: "hexcasting:pattern",
+      advancement: "hexcasting:enlightenment",
+      op_id: "hexdebug:craft/quenched_debugger",
+      anchor: "hexdebug:craft/quenched_debugger",
+      input: "entity, [pattern]",
+      text: "hexdebug.category.patterns.entry.debugging.page.craft/quenched_debugger",
+    },
   ],
 }

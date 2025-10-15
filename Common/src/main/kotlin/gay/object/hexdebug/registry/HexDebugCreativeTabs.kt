@@ -14,6 +14,7 @@ object HexDebugCreativeTabs : HexDebugRegistrar<CreativeModeTab>(
         icon { HexDebugItems.DEBUGGER.value.noIconsInstance }
         displayItems { _, output ->
             output.accept(HexDebugItems.DEBUGGER.value.defaultInstance)
+            output.accept(HexDebugItems.QUENCHED_DEBUGGER.value.defaultInstance)
         }
     }
 

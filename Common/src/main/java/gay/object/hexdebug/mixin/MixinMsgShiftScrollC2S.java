@@ -3,6 +3,7 @@ package gay.object.hexdebug.mixin;
 import at.petrak.hexcasting.common.msgs.MsgShiftScrollC2S;
 import gay.object.hexdebug.items.DebuggerItem;
 import gay.object.hexdebug.items.EvaluatorItem;
+import gay.object.hexdebug.items.base.ShiftScrollable;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import org.spongepowered.asm.mixin.Final;
@@ -24,10 +25,8 @@ public class MixinMsgShiftScrollC2S {
         if (delta != 0) {
             var stack = sender.getItemInHand(hand);
             var item = stack.getItem();
-            if (item instanceof DebuggerItem debugger) {
-                debugger.handleShiftScroll(sender, stack, delta, isCtrl);
-            } else if (item instanceof EvaluatorItem evaluator) {
-                evaluator.handleShiftScroll(sender, stack, delta, isCtrl);
+            if (item instanceof ShiftScrollable scrollable && scrollable.canShiftScroll(isCtrl)) {
+                scrollable.handleShiftScroll(sender, stack, delta, isCtrl);
             }
         }
     }

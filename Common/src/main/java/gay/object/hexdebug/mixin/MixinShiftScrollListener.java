@@ -3,6 +3,7 @@ package gay.object.hexdebug.mixin;
 import at.petrak.hexcasting.client.ShiftScrollListener;
 import gay.object.hexdebug.config.HexDebugClientConfig;
 import gay.object.hexdebug.items.DebuggerItem;
+import gay.object.hexdebug.items.base.ShiftScrollable;
 import gay.object.hexdebug.registry.HexDebugItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.Item;
@@ -28,11 +29,8 @@ public abstract class MixinShiftScrollListener {
 
     @Inject(method = "IsScrollableItem", at = @At("RETURN"), cancellable = true)
     private static void hexdebug$IsScrollableItem(Item item, CallbackInfoReturnable<Boolean> cir) {
-        if (
-            item == HexDebugItems.DEBUGGER.getValue()
-            // evaluator only scrolls thread id, so don't consume the scroll if we're not holding sprint
-            || (item == HexDebugItems.EVALUATOR.getValue() && Minecraft.getInstance().options.keySprint.isDown())
-        ) {
+        var isCtrl = Minecraft.getInstance().options.keySprint.isDown();
+        if (item instanceof ShiftScrollable scrollable && scrollable.canShiftScroll(isCtrl)) {
             cir.setReturnValue(true);
         }
     }

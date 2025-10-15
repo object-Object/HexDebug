@@ -9,10 +9,7 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.EvaluatorCastEnv
-import gay.`object`.hexdebug.items.base.ItemPredicateProvider
-import gay.`object`.hexdebug.items.base.ModelPredicateEntry
-import gay.`object`.hexdebug.items.base.getThreadId
-import gay.`object`.hexdebug.items.base.rotateThreadId
+import gay.`object`.hexdebug.items.base.*
 import gay.`object`.hexdebug.utils.asItemPredicate
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.server.level.ServerPlayer
@@ -24,7 +21,10 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
 
-class EvaluatorItem(properties: Properties) : ItemStaff(properties), ItemPredicateProvider {
+class EvaluatorItem(
+    properties: Properties,
+    val isQuenched: Boolean,
+) : ItemStaff(properties), ItemPredicateProvider, ShiftScrollable {
     override fun use(world: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
         val itemStack = player.getItemInHand(hand)
         val threadId = getThreadId(itemStack)
@@ -72,11 +72,12 @@ class EvaluatorItem(properties: Properties) : ItemStaff(properties), ItemPredica
         }
     )
 
-    fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double, isCtrl: Boolean) {
-        if (isCtrl) {
-            val component = rotateThreadId(stack, delta < 0)
-            sender.displayClientMessage(component, true)
-        }
+    // only allow shift+ctrl scrolling, and only if it's quenched
+    override fun canShiftScroll(isCtrl: Boolean) = isCtrl && isQuenched
+
+    override fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double, isCtrl: Boolean) {
+        val component = rotateThreadId(stack, delta < 0)
+        sender.displayClientMessage(component, true)
     }
 
     companion object {

@@ -1,0 +1,19 @@
+{
+  name: "hexdebug.category.greatwork.entry.quenching_debuggers",
+  category: "hexcasting:greatwork",
+  icon: "hexdebug:quenched_debugger",
+  advancement: "hexcasting:enlightenment",
+  sortnum: 5,
+  pages: [
+    {
+      type: "patchouli:text",
+      text: "hexdebug.category.greatwork.entry.quenching_debuggers.page.1",
+    },
+    {
+      type: "patchouli:crafting",
+      recipe: "hexdebug:quenched_debugger",
+      recipe2: "hexdebug:quenched_evaluator",
+      anchor: "debugger_evaluator",
+    },
+  ],
+}

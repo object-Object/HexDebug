@@ -9,10 +9,7 @@ import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.DebuggerCastEnv
 import gay.`object`.hexdebug.debugger.CastArgs
-import gay.`object`.hexdebug.items.base.ItemPredicateProvider
-import gay.`object`.hexdebug.items.base.ModelPredicateEntry
-import gay.`object`.hexdebug.items.base.getThreadId
-import gay.`object`.hexdebug.items.base.rotateThreadId
+import gay.`object`.hexdebug.items.base.*
 import gay.`object`.hexdebug.utils.asItemPredicate
 import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.otherHand
@@ -27,11 +24,16 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
+import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.Level
 import org.eclipse.lsp4j.debug.*
+import kotlin.math.max
 
-class DebuggerItem(properties: Properties) : ItemPackagedHex(properties), ItemPredicateProvider {
+class DebuggerItem(
+    properties: Properties,
+    val isQuenched: Boolean,
+) : ItemPackagedHex(properties), ItemPredicateProvider, ShiftScrollable {
     override fun canDrawMediaFromInventory(stack: ItemStack?) = true
 
     override fun breakAfterDepletion() = false
@@ -40,7 +42,7 @@ class DebuggerItem(properties: Properties) : ItemPackagedHex(properties), ItemPr
 
     override fun isFoil(stack: ItemStack) = false
 
-    override fun getRarity(stack: ItemStack) = Rarity.RARE
+    override fun getRarity(stack: ItemStack) = if (isQuenched) Rarity.RARE else Rarity.UNCOMMON
 
     override fun getDefaultInstance() = applyDefaults(ItemStack(this))
 
@@ -49,8 +51,12 @@ class DebuggerItem(properties: Properties) : ItemPackagedHex(properties), ItemPr
         applyDefaults(stack)
     }
 
-    private fun applyDefaults(stack: ItemStack) = stack.apply {
-        enchant(Enchantments.BANE_OF_ARTHROPODS, 1)
+    private fun applyDefaults(stack: ItemStack) = stack.also {
+        val enchantments = EnchantmentHelper.getEnchantments(stack)
+        enchantments.compute(Enchantments.BANE_OF_ARTHROPODS) { _, level ->
+            max(level ?: 0, if (isQuenched) 2 else 1)
+        }
+        EnchantmentHelper.setEnchantments(enchantments, stack)
     }
 
     override fun use(world: Level, player: Player, usedHand: InteractionHand): InteractionResultHolder<ItemStack> {
@@ -129,7 +135,10 @@ class DebuggerItem(properties: Properties) : ItemPackagedHex(properties), ItemPr
         return super.hurtEnemy(stack, target, attacker)
     }
 
-    fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double, isCtrl: Boolean) {
+    // always allow shift, only allow ctrl if quenched
+    override fun canShiftScroll(isCtrl: Boolean) = !isCtrl || isQuenched
+
+    override fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double, isCtrl: Boolean) {
         val increase = delta < 0
         val component = if (isCtrl) {
             rotateThreadId(stack, increase)
