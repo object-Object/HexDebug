@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Fixed
 
 - Fixed a crash when closing the Splicing Table with Hexical 1.5.0 installed ([#62](https://github.com/object-Object/HexDebug/issues/62)).
+- Fixed exceptions not being caught by exception breakpoints after the first hex in a debug session.
 
 ## `0.7.0+1.20.1` - 2025-10-02
 

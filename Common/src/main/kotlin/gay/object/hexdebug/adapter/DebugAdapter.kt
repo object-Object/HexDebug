@@ -39,6 +39,8 @@ import java.util.concurrent.CompletionException
 class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     private var state: DebugAdapterState = NotDebugging()
 
+    private val exceptionBreakpoints = mutableSetOf<ExceptionBreakpointType>()
+
     private val debuggers get() = (state as? Debugging)?.debuggers
 
     val launcher: IHexDebugLauncher by lazy {
@@ -85,12 +87,12 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         val debugger = when (val state = state) {
             is Debugging -> {
                 state.restartArgs[threadId] = args
-                HexDebugger(threadId, state.initArgs, state.launchArgs, args).also {
+                HexDebugger(threadId, exceptionBreakpoints, state.initArgs, state.launchArgs, args).also {
                     state.debuggers[threadId] = it
                 }
             }
             is NotDebugging -> {
-                val newState = Debugging(state, args, threadId)
+                val newState = Debugging(threadId, exceptionBreakpoints, state, args)
                 this.state = newState
                 newState.debuggers[threadId]!!
             }
@@ -293,14 +295,21 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun setExceptionBreakpoints(args: SetExceptionBreakpointsArguments): CompletableFuture<SetExceptionBreakpointsResponse> {
+        exceptionBreakpoints.clear()
+        val responseBreakpoints = mutableListOf<Breakpoint>()
+
+        for (name in args.filters) {
+            val verified = try {
+                exceptionBreakpoints.add(ExceptionBreakpointType.valueOf(name))
+                true
+            } catch (_: IllegalArgumentException) {
+                false
+            }
+            responseBreakpoints.add(Breakpoint().apply { isVerified = verified })
+        }
+
         return SetExceptionBreakpointsResponse().apply {
-            // FIXME: we need to save this somewhere and pass it to the debuggers on creation
-            debuggers?.values?.forEach {
-                it.setExceptionBreakpoints(args.filters)
-            }
-            breakpoints = Array(args.filters.size) {
-                Breakpoint().apply { isVerified = true }
-            }
+            breakpoints = responseBreakpoints.toTypedArray()
         }.toFuture()
     }
 

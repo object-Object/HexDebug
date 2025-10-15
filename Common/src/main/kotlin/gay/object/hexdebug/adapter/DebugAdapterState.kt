@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.adapter
 
 import gay.`object`.hexdebug.debugger.CastArgs
+import gay.`object`.hexdebug.debugger.ExceptionBreakpointType
 import gay.`object`.hexdebug.debugger.HexDebugger
 import org.eclipse.lsp4j.debug.InitializeRequestArguments
 
@@ -26,12 +27,17 @@ sealed interface DebugAdapterState {
         override val restartArgs: MutableMap<Int, CastArgs>,
         val debuggers: MutableMap<Int, HexDebugger>,
     ) : DebugAdapterState {
-        constructor(state: DebugAdapterState, castArgs: CastArgs, threadId: Int = 0) : this(
+        constructor(
+            threadId: Int,
+            exceptionBreakpoints: Set<ExceptionBreakpointType>,
+            state: DebugAdapterState,
+            castArgs: CastArgs,
+        ) : this(
             state.isConnected,
             state.initArgs,
             state.launchArgs,
             mutableMapOf(threadId to castArgs),
-            mutableMapOf(threadId to HexDebugger(threadId, state.initArgs, state.launchArgs, castArgs)),
+            mutableMapOf(threadId to HexDebugger(threadId, exceptionBreakpoints, state.initArgs, state.launchArgs, castArgs)),
         )
     }
 }

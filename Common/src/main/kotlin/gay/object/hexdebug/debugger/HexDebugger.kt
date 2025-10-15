@@ -32,6 +32,7 @@ import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceR
 
 class HexDebugger(
     threadId: Int,
+    private val exceptionBreakpoints: Set<ExceptionBreakpointType>,
     var initArgs: InitializeRequestArguments,
     var launchArgs: LaunchArgs,
     private val defaultEnv: CastingEnvironment,
@@ -42,11 +43,12 @@ class HexDebugger(
 ) {
     constructor(
         threadId: Int,
+        exceptionBreakpoints: Set<ExceptionBreakpointType>,
         initArgs: InitializeRequestArguments,
         launchArgs: LaunchArgs,
         castArgs: CastArgs,
         image: CastingImage = CastingImage(),
-    ) : this(threadId, initArgs, launchArgs, castArgs.env, castArgs.world, castArgs.onExecute, castArgs.iotas, image)
+    ) : this(threadId, exceptionBreakpoints, initArgs, launchArgs, castArgs.env, castArgs.world, castArgs.onExecute, castArgs.iotas, image)
 
     var lastEvaluatedMetadata: IotaMetadata? = null
         private set
@@ -70,7 +72,6 @@ class HexDebugger(
     private val virtualFrames = IdentityHashMap<SpellContinuation, MutableList<StackFrame>>()
 
     private val breakpoints = mutableMapOf<Int, MutableMap<Int, SourceBreakpointMode>>() // source id -> line number
-    private val exceptionBreakpoints = mutableSetOf<ExceptionBreakpointType>()
 
     // this gets set to true by registerNewSource if a frame is loaded that contains a cognitohazard iota
     private var isPoisoned = false
@@ -356,13 +357,6 @@ class HexDebugger(
                     ?.let(SourceBreakpointMode::valueOf)
                     ?: SourceBreakpointMode.EVALUATED
             }
-        }
-    }
-
-    fun setExceptionBreakpoints(typeNames: Array<String>) {
-        exceptionBreakpoints.clear()
-        for (typeName in typeNames) {
-            exceptionBreakpoints.add(ExceptionBreakpointType.valueOf(typeName))
         }
     }
 
