@@ -9,5 +9,4 @@ data class CastArgs(
     val env: CastingEnvironment,
     val world: ServerLevel,
     val onExecute: ((Iota) -> Unit)? = null,
-
 )

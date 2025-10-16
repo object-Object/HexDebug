@@ -8,8 +8,6 @@ import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.casting.math.HexPattern
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.adapter.DebugAdapterState.Debugging
-import gay.`object`.hexdebug.adapter.DebugAdapterState.NotDebugging
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyServerLauncher
 import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.debugger.*
@@ -37,11 +35,11 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 
 class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
-    private var state: DebugAdapterState = NotDebugging()
-
-    private val exceptionBreakpoints = mutableSetOf<ExceptionBreakpointType>()
-
-    private val debuggers get() = (state as? Debugging)?.debuggers
+    private var isConnected = false
+    private var lastDebugger: HexDebugger? = null // for resolving sources after exit
+    private val debuggers = mutableMapOf<Int, HexDebugger>()
+    private val restartArgs = mutableMapOf<Int, CastArgs>()
+    private val state = SharedDebugState()
 
     val launcher: IHexDebugLauncher by lazy {
         DebugProxyServerLauncher.createLauncher(this, ::messageWrapper, ::exceptionHandler)
@@ -51,7 +49,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     fun isDebugging(threadId: Int) = debugger(threadId) != null
 
-    fun debugger(threadId: Int) = debuggers?.get(threadId)
+    fun debugger(threadId: Int) = debuggers[threadId]
 
     private fun packId(threadId: Int, reference: Int): Int =
         (threadId shl THREAD_ID_SHIFT) or (reference and REFERENCE_MASK)
@@ -76,7 +74,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             iota = iota,
             index = index,
             line = state.initArgs.indexToLine(index),
-            isConnected = state.isConnected,
+            isConnected = isConnected,
         ).sendToPlayer(player)
     }
 
@@ -84,19 +82,10 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         val threadLimit = if (args.env.isEnlightened) HexDebugServerConfig.config.maxDebugThreads else 1
         if (threadId >= threadLimit) return false
 
-        val debugger = when (val state = state) {
-            is Debugging -> {
-                state.restartArgs[threadId] = args
-                HexDebugger(threadId, exceptionBreakpoints, state.initArgs, state.launchArgs, args).also {
-                    state.debuggers[threadId] = it
-                }
-            }
-            is NotDebugging -> {
-                val newState = Debugging(threadId, exceptionBreakpoints, state, args)
-                this.state = newState
-                newState.debuggers[threadId]!!
-            }
-        }
+        val debugger = HexDebugger(threadId, state, args)
+        lastDebugger = debugger
+        debuggers[threadId] = debugger
+        restartArgs[threadId] = args
 
         remoteProxy.thread(ThreadEventArguments().also {
             it.reason = ThreadEventArgumentsReason.STARTED
@@ -113,9 +102,9 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     fun disconnectClient() {
-        if (state.isConnected) {
+        if (isConnected) {
             remoteProxy.terminated(TerminatedEventArguments())
-            state.isConnected = false
+            isConnected = false
         }
     }
 
@@ -161,7 +150,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             it.reason = ThreadEventArgumentsReason.EXITED
             it.threadId = threadId
         })
-        state.restartArgs[threadId]?.let { startDebugging(threadId, it) }
+        restartArgs[threadId]?.let { startDebugging(threadId, it) }
     }
 
     private fun messageWrapper(consumer: MessageConsumer) = MessageConsumer { message ->
@@ -193,9 +182,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
         for ((source, reason) in result.loadedSources) {
             remoteProxy.loadedSource(LoadedSourceEventArguments().also {
-                it.source = source.apply {
-                    sourceReference = packId(threadId, sourceReference)
-                }
+                it.source = source
                 it.reason = reason
             })
         }
@@ -211,7 +198,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     private fun sendStoppedEvent(threadId: Int?, reason: StopReason) {
         if (threadId == null) {
-            debuggers?.keys?.forEach { sendStoppedEvent(it, reason) }
+            debuggers.keys.forEach { sendStoppedEvent(it, reason) }
         } else {
             remoteProxy.stopped(StoppedEventArguments().also {
                 it.threadId = threadId
@@ -267,10 +254,8 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun attach(args: MutableMap<String, Any>): CompletableFuture<Void> {
-        state.apply {
-            isConnected = true
-            launchArgs = LaunchArgs(args)
-        }
+        isConnected = true
+        state.launchArgs = LaunchArgs(args)
         remoteProxy.initialized()
         player.displayClientMessage(Component.translatable("text.hexdebug.connected"), true)
         return futureOf()
@@ -282,12 +267,8 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         return SetBreakpointsResponse().apply {
             // source prefixes generally invalidate when the server restarts
             // so remove all breakpoints if we haven't seen this player before
-            val (threadId, sourceReference) = unpackId(args.source.sourceReference)
-            val debugger = debugger(threadId)
-            breakpoints = if (debugger != null && player.uuid in knownPlayers) {
-                args.breakpoints
-                    .map { debugger.setBreakpoint(sourceReference, it) }
-                    .toTypedArray()
+            breakpoints = if (player.uuid in knownPlayers) {
+                state.setBreakpoints(args.source.sourceReference, args.breakpoints).toTypedArray()
             } else {
                 invalidateBreakpoints(args.breakpoints.size)
             }
@@ -295,12 +276,12 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun setExceptionBreakpoints(args: SetExceptionBreakpointsArguments): CompletableFuture<SetExceptionBreakpointsResponse> {
-        exceptionBreakpoints.clear()
+        state.exceptionBreakpoints.clear()
         val responseBreakpoints = mutableListOf<Breakpoint>()
 
         for (name in args.filters) {
             val verified = try {
-                exceptionBreakpoints.add(ExceptionBreakpointType.valueOf(name))
+                state.exceptionBreakpoints.add(ExceptionBreakpointType.valueOf(name))
                 true
             } catch (_: IllegalArgumentException) {
                 false
@@ -315,7 +296,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     override fun configurationDone(args: ConfigurationDoneArguments?): CompletableFuture<Void> {
         knownPlayers.add(player.uuid)
-        if (state is Debugging) sendStoppedEvent(null, StopReason.STEP)
+        if (debuggers.isNotEmpty()) sendStoppedEvent(null, StopReason.STEP)
         return futureOf()
     }
 
@@ -374,9 +355,9 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun restart(args: RestartArguments?): CompletableFuture<Void> {
-        state = NotDebugging(state)
+        debuggers.clear()
 
-        for ((threadId, castArgs) in state.restartArgs) {
+        for ((threadId, castArgs) in restartArgs) {
             startDebugging(threadId, castArgs, false)
         }
 
@@ -392,23 +373,12 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun terminateThreads(args: TerminateThreadsArguments): CompletableFuture<Void> {
-        val state = (state as? Debugging) ?: return futureOf()
-
         for (threadId in args.threadIds) {
-            // notify the client
             remoteProxy.thread(ThreadEventArguments().also {
                 it.reason = ThreadEventArgumentsReason.EXITED
                 it.threadId = threadId
             })
-
-            state.debuggers.remove(threadId)?.let { debugger ->
-                for (source in debugger.getSources()) {
-                    remoteProxy.loadedSource(LoadedSourceEventArguments().also {
-                        it.source = source
-                        it.reason = LoadedSourceEventArgumentsReason.REMOVED
-                    })
-                }
-            }
+            debuggers.remove(threadId)
         }
 
         MsgDebuggerStateS2C(
@@ -417,9 +387,13 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             }
         ).sendToPlayer(player)
 
-        if (state.debuggers.isEmpty()) {
-            remoteProxy.exited(ExitedEventArguments().also { it.exitCode = 0 })
-            this.state = NotDebugging(state)
+        if (debuggers.isEmpty()) {
+            if (isConnected) {
+                remoteProxy.exited(ExitedEventArguments().also { it.exitCode = 0 })
+            } else {
+                lastDebugger = null
+                state.sourceAllocator.clear()
+            }
             closeEvaluator(null)
         } else {
             for (threadId in args.threadIds) {
@@ -431,15 +405,19 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun terminate(args: TerminateArguments?): CompletableFuture<Void> {
-        return debuggers?.let { debuggers ->
-            terminateThreads(TerminateThreadsArguments().also {
-                it.threadIds = debuggers.keys.toIntArray()
-            })
-        } ?: futureOf()
+        return terminateThreads(TerminateThreadsArguments().also {
+            it.threadIds = debuggers.keys.toIntArray()
+        })
     }
 
     override fun disconnect(args: DisconnectArguments?): CompletableFuture<Void> {
-        state.isConnected = false
+        isConnected = false
+        state.onDisconnect()
+        // if there's an active debug session, we need to keep the sources in case the client reconnects
+        if (debuggers.isEmpty()) {
+            lastDebugger = null
+            state.sourceAllocator.clear()
+        }
         return futureOf()
     }
 
@@ -448,15 +426,14 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     override fun threads(): CompletableFuture<ThreadsResponse> {
         return ThreadsResponse().apply {
             threads = debuggers
-                ?.map { (threadId, debugger) ->
+                .map { (threadId, debugger) ->
                     Thread().apply {
                         id = threadId
                         name = "Thread $threadId (${debugger.envType})"
                     }
                 }
-                ?.sortedBy { it.id }
-                ?.toTypedArray()
-                ?: arrayOf()
+                .sortedBy { it.id }
+                .toTypedArray()
         }.toFuture()
     }
 
@@ -465,12 +442,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         return ScopesResponse().apply {
             scopes = debugger(threadId)
                 ?.getScopes(frameId)
-                ?.onEach {
-                    it.variablesReference = packId(threadId, it.variablesReference)
-                    if (it.source != null) {
-                        it.source.sourceReference = packId(threadId, it.source.sourceReference)
-                    }
-                }
+                ?.onEach { it.variablesReference = packId(threadId, it.variablesReference) }
                 ?.toTypedArray()
                 ?: arrayOf()
         }.toFuture()
@@ -491,34 +463,23 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         return StackTraceResponse().apply {
             stackFrames = debugger(args.threadId)
                 ?.getStackFrames()
-                ?.onEach {
-                    it.id = packId(args.threadId, it.id)
-                    if (it.source != null) {
-                        it.source.sourceReference = packId(args.threadId, it.source.sourceReference)
-                    }
-                }
+                ?.onEach { it.id = packId(args.threadId, it.id) }
                 ?.paginate(args.startFrame, args.levels)
                 ?: arrayOf()
         }.toFuture()
     }
 
     override fun source(args: SourceArguments): CompletableFuture<SourceResponse> {
-        val (threadId, sourceReference) = unpackId(args.source?.sourceReference ?: args.sourceReference)
+        val debugger = (args.source?.adapterData as? Int)?.let(::debugger) ?: lastDebugger
+        val sourceReference = args.source?.sourceReference ?: args.sourceReference
         return SourceResponse().apply {
-            content = debugger(threadId)?.getSourceContents(sourceReference) ?: ""
+            content = debugger?.getSourceContents(sourceReference) ?: ""
         }.toFuture()
     }
 
     override fun loadedSources(args: LoadedSourcesArguments?): CompletableFuture<LoadedSourcesResponse> {
         return LoadedSourcesResponse().apply {
-            sources = debuggers
-                ?.flatMap { (threadId, debugger) ->
-                    debugger.getSources().onEach {
-                        it.sourceReference = packId(threadId, it.sourceReference)
-                    }
-                }
-                ?.toTypedArray()
-                ?: arrayOf()
+            sources = state.getSources().toTypedArray()
         }.toFuture()
     }
 

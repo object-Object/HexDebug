@@ -13,12 +13,10 @@ import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.api.casting.mishaps.MishapStackSize
 import at.petrak.hexcasting.common.casting.actions.eval.OpEval
 import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
-import gay.`object`.hexdebug.adapter.LaunchArgs
 import gay.`object`.hexdebug.casting.eval.FrameBreakpoint
 import gay.`object`.hexdebug.casting.eval.IDebugCastEnv
 import gay.`object`.hexdebug.casting.eval.debugCastEnv
 import gay.`object`.hexdebug.casting.iotas.CognitohazardIota
-import gay.`object`.hexdebug.debugger.allocators.SourceAllocator
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
 import gay.`object`.hexdebug.utils.ceilToPow
 import gay.`object`.hexdebug.utils.displayWithPatternName
@@ -31,10 +29,8 @@ import kotlin.reflect.jvm.jvmName
 import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceReason
 
 class HexDebugger(
-    threadId: Int,
-    private val exceptionBreakpoints: Set<ExceptionBreakpointType>,
-    var initArgs: InitializeRequestArguments,
-    var launchArgs: LaunchArgs,
+    private val threadId: Int,
+    private val state: SharedDebugState,
     private val defaultEnv: CastingEnvironment,
     private val world: ServerLevel,
     private val onExecute: ((Iota) -> Unit)? = null,
@@ -43,12 +39,10 @@ class HexDebugger(
 ) {
     constructor(
         threadId: Int,
-        exceptionBreakpoints: Set<ExceptionBreakpointType>,
-        initArgs: InitializeRequestArguments,
-        launchArgs: LaunchArgs,
+        sharedState: SharedDebugState,
         castArgs: CastArgs,
         image: CastingImage = CastingImage(),
-    ) : this(threadId, exceptionBreakpoints, initArgs, launchArgs, castArgs.env, castArgs.world, castArgs.onExecute, castArgs.iotas, image)
+    ) : this(threadId, sharedState, castArgs.env, castArgs.world, castArgs.onExecute, castArgs.iotas, image)
 
     var lastEvaluatedMetadata: IotaMetadata? = null
         private set
@@ -62,16 +56,20 @@ class HexDebugger(
 
     val envType get() = defaultEnv::class.simpleName ?: defaultEnv::class.jvmName
 
+    private val initArgs by state::initArgs
+    private val launchArgs by state::launchArgs
+
+    private val breakpoints by state::breakpoints
+    private val exceptionBreakpoints by state::exceptionBreakpoints
+
+    private val sourceAllocator by state::sourceAllocator
+
     private val variablesAllocator = VariablesAllocator()
-    // hack: if multiple threads are debugging the same input and we don't include the thread id in the hash, some of the threads don't show the source
-    private val sourceAllocator = SourceAllocator(Objects.hash(threadId, iotas))
 
     private val iotaMetadata = IdentityHashMap<Iota, IotaMetadata>()
     // FIXME: this is really terrible and gross and i don't like it
     private val frameInvocationMetadata = IdentityHashMap<SpellContinuation, () -> Pair<Iota, IotaMetadata?>?>()
     private val virtualFrames = IdentityHashMap<SpellContinuation, MutableList<StackFrame>>()
-
-    private val breakpoints = mutableMapOf<Int, MutableMap<Int, SourceBreakpointMode>>() // source id -> line number
 
     // this gets set to true by registerNewSource if a frame is loaded that contains a cognitohazard iota
     private var isPoisoned = false
@@ -125,7 +123,7 @@ class HexDebugger(
         val unregisteredIotas = iotas.filter { it !in iotaMetadata }
         if (unregisteredIotas.isEmpty()) return null
 
-        val source = sourceAllocator.add(unregisteredIotas)
+        val source = sourceAllocator.add(threadId, unregisteredIotas)
         for ((index, iota) in unregisteredIotas.withIndex()) {
             if (iota is CognitohazardIota) {
                 isPoisoned = true
@@ -322,8 +320,6 @@ class HexDebugger(
 
     private fun allocateVariables(iotas: Iterable<Iota>) = variablesAllocator.add(toVariables(iotas))
 
-    fun getSources() = sourceAllocator.map { it.first }
-
     fun getSourceContents(reference: Int): String? = sourceAllocator[reference]?.second?.let(::getSourceContents)
 
     private fun getSourceContents(iotas: Iterable<Iota>): String {
@@ -334,31 +330,6 @@ class HexDebugger(
     }
 
     private fun getContinuation(frameId: Int) = callStack.elementAtOrNull(frameId - 1)
-
-    // TODO: gross.
-    // TODO: there's probably a bug here somewhere - shouldn't we be using the metadata?
-    fun setBreakpoint(sourceReference: Int, breakpoint: SourceBreakpoint): Breakpoint {
-        val (source, iotas) = sourceAllocator[sourceReference] ?: (null to null)
-        val breakpointLines = breakpoints.getOrPut(sourceReference, ::mutableMapOf).apply { clear() }
-        return Breakpoint().apply {
-            isVerified = false
-            if (source == null || iotas == null) {
-                message = "Unknown source"
-                reason = BreakpointNotVerifiedReason.PENDING  // TODO: send Breakpoint event later
-            } else if (breakpoint.line > initArgs.indexToLine(iotas.lastIndex)) {
-                message = "Line number out of range"
-                reason = BreakpointNotVerifiedReason.FAILED
-            } else {
-                isVerified = true
-                this.source = source
-                line = breakpoint.line
-
-                breakpointLines[breakpoint.line] = breakpoint.mode
-                    ?.let(SourceBreakpointMode::valueOf)
-                    ?: SourceBreakpointMode.EVALUATED
-            }
-        }
-    }
 
     private fun isAtBreakpoint(): Boolean {
         val nextIota = when (val frame = nextFrame) {

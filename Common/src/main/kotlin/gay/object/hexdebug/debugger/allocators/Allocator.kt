@@ -1,7 +1,5 @@
 package gay.`object`.hexdebug.debugger.allocators
 
-import kotlin.math.pow
-
 open class Allocator<T> : Iterable<T> {
     protected val values = mutableListOf<T>()
 
@@ -17,11 +15,9 @@ open class Allocator<T> : Iterable<T> {
         return values.getOrNull(toIndex(reference))
     }
 
-    fun clear() = values.clear()
+    open fun clear() {
+        values.clear()
+    }
 
     override fun iterator() = values.iterator()
-
-    companion object {
-        val MAX_REFERENCE = (2f.pow(31) - 1).toInt()
-    }
 }
