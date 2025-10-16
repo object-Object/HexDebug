@@ -6,7 +6,8 @@ import org.eclipse.lsp4j.debug.Source
 import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceReason
 
 data class DebugStepResult(
-    val reason: StopReason,
+    /** If null, the debuggee has continued instead of stopping.  */
+    val reason: StopReason?,
     val type: DebugStepType? = null,
     val clientInfo: ExecutionClientView? = null,
     val loadedSources: Map<Source, LoadedSourceReason> = mapOf(),

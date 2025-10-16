@@ -9,6 +9,7 @@
     "MixinShiftScrollListener"
   ],
   "mixins": [
+    "MixinCastingEnvironment",
     "MixinDatagenMain",
     "MixinMsgShiftScrollC2S",
     "MixinOpBrainsweepSpell",

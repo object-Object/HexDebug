@@ -38,6 +38,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     private var isConnected = false
     private var lastDebugger: HexDebugger? = null // for resolving sources after exit
     private val debuggers = mutableMapOf<Int, HexDebugger>()
+    private val threadIds = mutableMapOf<UUID, Int>()
     private val restartArgs = mutableMapOf<Int, CastArgs>()
     private val state = SharedDebugState()
 
@@ -48,6 +49,11 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     private val remoteProxy: IDebugProtocolClient get() = launcher.remoteProxy
 
     fun isDebugging(threadId: Int) = debugger(threadId) != null
+
+    fun debugger(sessionId: UUID) =
+        threadIds[sessionId]
+            ?.let(debuggers::get)
+            ?.takeIf { it.sessionId == sessionId }
 
     fun debugger(threadId: Int) = debuggers[threadId]
 
@@ -85,6 +91,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         val debugger = HexDebugger(threadId, state, args)
         lastDebugger = debugger
         debuggers[threadId] = debugger
+        threadIds[args.debugEnv.sessionId] = threadId
         restartArgs[threadId] = args
 
         remoteProxy.thread(ThreadEventArguments().also {
@@ -109,16 +116,17 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     fun print(
-        threadId: Int,
+        sessionId: UUID,
         value: String,
         category: String = OutputEventArgumentsCategory.STDOUT,
         withSource: Boolean = true,
     ) {
+        val debugger = debugger(sessionId) ?: return
         remoteProxy.output(OutputEventArguments().also {
             it.category = category
             it.output = value
             if (withSource) {
-                it.setSourceAndPosition(state.initArgs, debugger(threadId)?.lastEvaluatedMetadata)
+                it.setSourceAndPosition(state.initArgs, debugger.lastEvaluatedMetadata)
             }
         })
     }
@@ -187,10 +195,18 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             })
         }
 
-        sendStoppedEvent(threadId, result.reason)
+        if (result.reason != null) {
+            // stopped
+            sendStoppedEvent(threadId, result.reason)
 
-        debugger(threadId)?.getNextIotaToEvaluate()?.also { (iota, index) ->
-            printDebuggerStatus(iota, index)
+            debugger(threadId)?.getNextIotaToEvaluate()?.also { (iota, index) ->
+                printDebuggerStatus(iota, index)
+            }
+        } else {
+            // running
+            remoteProxy.continued(ContinuedEventArguments().also {
+                it.threadId = threadId
+            })
         }
 
         return view
@@ -356,6 +372,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     override fun restart(args: RestartArguments?): CompletableFuture<Void> {
         debuggers.clear()
+        threadIds.clear()
 
         for ((threadId, castArgs) in restartArgs) {
             startDebugging(threadId, castArgs, false)
@@ -378,7 +395,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
                 it.reason = ThreadEventArgumentsReason.EXITED
                 it.threadId = threadId
             })
-            debuggers.remove(threadId)
+            debuggers.remove(threadId)?.let { threadIds.remove(it.sessionId) }
         }
 
         MsgDebuggerStateS2C(

@@ -1,0 +1,96 @@
+package gay.object.hexdebug.core.api.debugging;
+
+import at.petrak.hexcasting.api.casting.castables.Action;
+import at.petrak.hexcasting.api.casting.eval.CastingEnvironment;
+import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect;
+import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
+import gay.object.hexdebug.core.api.HexDebugCoreAPI;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
+
+/**
+ * Like {@link CastingEnvironment}, but for debugging.
+ */
+public abstract class DebugEnvironment {
+    @NotNull
+    private final ServerPlayer caster;
+    @NotNull
+    private final UUID sessionId = UUID.randomUUID();
+    @Nullable
+    private DebugStepType lastDebugStepType = null;
+    @Nullable
+    private Action lastEvaluatedAction = null;
+
+    protected DebugEnvironment(@NotNull ServerPlayer caster) {
+        this.caster = caster;
+    }
+
+    /**
+     * Attempts to resume execution of this debug session. This is called by the debugger after the
+     * current continuation is successfully evaluated to completion.
+     * @return true if the debug session can continue, or false if the debuggee has been terminated.
+     */
+    public abstract boolean continueCast(@NotNull CastingEnvironment env, @NotNull CastingImage image);
+
+    public void printDebugMessage(@NotNull Component message) {
+        printDebugMessage(message, DebugOutputCategory.STDOUT, true);
+    }
+
+    public void printDebugMessage(
+        @NotNull Component message,
+        @NotNull DebugOutputCategory category
+    ) {
+        printDebugMessage(message, category, true);
+    }
+
+    public void printDebugMessage(
+        @NotNull Component message,
+        @NotNull DebugOutputCategory category,
+        boolean withSource
+    ) {
+        HexDebugCoreAPI.INSTANCE.printDebugMessage(caster, sessionId, message, category, withSource);
+    }
+
+    public void printDebugMishap(
+        @NotNull CastingEnvironment env,
+        @NotNull OperatorSideEffect.DoMishap sideEffect
+    ) {
+        var message = sideEffect.getMishap().errorMessageWithName(env, sideEffect.getErrorCtx());
+        if (message != null) {
+            printDebugMessage(message, DebugOutputCategory.STDERR);
+        }
+    }
+
+    @ApiStatus.Internal
+    @NotNull
+    public UUID getSessionId() {
+        return sessionId;
+    }
+
+    @ApiStatus.Internal
+    @Nullable
+    public DebugStepType getLastDebugStepType() {
+        return lastDebugStepType;
+    }
+
+    @ApiStatus.Internal
+    public void setLastDebugStepType(@Nullable DebugStepType lastDebugStepType) {
+        this.lastDebugStepType = lastDebugStepType;
+    }
+
+    @ApiStatus.Internal
+    @Nullable
+    public Action getLastEvaluatedAction() {
+        return lastEvaluatedAction;
+    }
+
+    @ApiStatus.Internal
+    public void setLastEvaluatedAction(@Nullable Action lastEvaluatedAction) {
+        this.lastEvaluatedAction = lastEvaluatedAction;
+    }
+}
