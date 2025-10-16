@@ -13,22 +13,29 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public interface HexDebugCoreAPI {
-    @Nullable
-    DebugEnvironment getDebugEnv(@NotNull CastingEnvironment env);
+    // required methods
 
-    void printDebugMessage(
+    @Nullable
+    default DebugEnvironment getDebugEnv(@NotNull CastingEnvironment env) {
+        return null;
+    }
+
+    default void printDebugMessage(
         @NotNull ServerPlayer caster,
         @NotNull UUID sessionId,
         @NotNull Component message,
         @NotNull DebugOutputCategory category,
         boolean withSource
-    );
+    ) {}
+
+    // singleton service loading
 
     HexDebugCoreAPI INSTANCE = findInstance();
 
     private static HexDebugCoreAPI findInstance() {
         var providers = ServiceLoader.load(HexDebugCoreAPI.class).stream().toList();
         if (providers.size() > 1) {
+            // this should be impossible, barring shenanigans by other addons
             var names = providers.stream()
                 .map(p -> p.type().getName())
                 .collect(Collectors.joining(",", "[", "]"));
@@ -36,9 +43,11 @@ public interface HexDebugCoreAPI {
                 "Expected at most one HexDebugCoreAPI implementation on the classpath. Found: " + names
             );
         } else if (providers.size() == 1) {
+            // use HexDebug's full API implementation
             return providers.get(0).get();
         } else {
-            return new HexDebugCoreAPIStubImpl();
+            // fall back to stub implementation if HexDebug isn't present
+            return new HexDebugCoreAPI() {};
         }
     }
 }
