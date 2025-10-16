@@ -46,6 +46,10 @@ configurations {
 dependencies {
     "common"(project(":Common", "namedElements")) { isTransitive = false }
     "shadowCommon"(project(":Common", "transformProduction$platformCapitalized")) { isTransitive = false }
+
+    // include, not shadow
+    api(project(":Core", "namedElements")) { isTransitive = false }
+    include(project(":Core")) { isTransitive = false }
 }
 
 // FIXME: find a less broken way to include common resources in platform devenv - this one breaks mixin refmaps

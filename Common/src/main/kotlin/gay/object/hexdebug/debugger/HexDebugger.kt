@@ -17,6 +17,7 @@ import gay.`object`.hexdebug.casting.eval.FrameBreakpoint
 import gay.`object`.hexdebug.casting.eval.IDebugCastEnv
 import gay.`object`.hexdebug.casting.eval.debugCastEnv
 import gay.`object`.hexdebug.casting.iotas.CognitohazardIota
+import gay.`object`.hexdebug.core.api.debugging.DebugStepType
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
 import gay.`object`.hexdebug.utils.ceilToPow
 import gay.`object`.hexdebug.utils.displayWithPatternName

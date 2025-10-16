@@ -5,7 +5,7 @@ import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect
 import at.petrak.hexcasting.api.casting.eval.vm.CastingVM
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
-import gay.`object`.hexdebug.debugger.DebugStepType
+import gay.`object`.hexdebug.core.api.debugging.DebugStepType
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory

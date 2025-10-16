@@ -8,13 +8,6 @@ enum class StopReason(val value: String, val stopImmediately: Boolean) {
     TERMINATED("terminated", true),
 }
 
-enum class DebugStepType {
-    IN,
-    OUT,
-    JUMP,
-    ESCAPE,
-}
-
 enum class SourceBreakpointMode(val label: String, val description: String) {
     EVALUATED("Evaluated", "Stop if this iota would be evaluated. (default)"),
     ESCAPED("Escaped", "Stop if this iota would be escaped."),

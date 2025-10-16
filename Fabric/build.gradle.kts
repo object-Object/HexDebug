@@ -1,5 +1,4 @@
 import hexdebug.hexdebugProperties
-import hexdebug.libs
 
 plugins {
     id("hexdebug.conventions.platform")

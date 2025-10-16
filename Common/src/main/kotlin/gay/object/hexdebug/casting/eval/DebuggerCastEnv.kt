@@ -3,7 +3,7 @@ package gay.`object`.hexdebug.casting.eval
 import at.petrak.hexcasting.api.casting.castables.Action
 import at.petrak.hexcasting.api.casting.eval.env.PackagedItemCastEnv
 import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect
-import gay.`object`.hexdebug.debugger.DebugStepType
+import gay.`object`.hexdebug.core.api.debugging.DebugStepType
 import gay.`object`.hexdebug.utils.findMediaHolderInHand
 import gay.`object`.hexdebug.utils.otherHand
 import net.minecraft.network.chat.Component

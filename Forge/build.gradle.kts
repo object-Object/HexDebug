@@ -1,4 +1,3 @@
-import hexdebug.libs
 import hexdebug.utils.kotlinForgeRuntimeLibrary
 
 plugins {

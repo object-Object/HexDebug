@@ -1,5 +1,3 @@
-import hexdebug.libs
-
 plugins {
     id("hexdebug.conventions.architectury")
 }
@@ -33,4 +31,6 @@ dependencies {
     modImplementation(libs.ioticblocks.common)
 
     modCompileOnly(libs.emi.xplat)
+
+    api(project(":Core"))
 }

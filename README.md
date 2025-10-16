@@ -58,7 +58,7 @@ modImplementation("gay.object.hexdebug:hexdebug-fabric:0.2.0+1.20.1-SNAPSHOT")
 modImplementation("gay.object.hexdebug:hexdebug-forge:0.2.0+1.20.1-SNAPSHOT")
 ```
 
-Try to avoid using things outside of the `gay.object.hexdebug.api` package, since they may change at any time.
+Note that anything outside of the `gay.object.hexdebug.api` and `gay.object.hexdebug.core.api` packages may be changed, renamed, or removed at any time without warning. 
 
 ## Attribution
 
