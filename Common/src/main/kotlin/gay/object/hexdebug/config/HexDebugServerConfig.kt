@@ -5,6 +5,7 @@ import dev.architectury.event.events.client.ClientPlayerEvent
 import dev.architectury.event.events.common.PlayerEvent
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.networking.msg.MsgSyncConfigS2C
+import gay.`object`.hexdebug.utils.isEnlightened
 import me.shedaniel.autoconfig.AutoConfig
 import me.shedaniel.autoconfig.ConfigData
 import me.shedaniel.autoconfig.ConfigHolder
@@ -17,6 +18,7 @@ import me.shedaniel.autoconfig.serializer.PartitioningSerializer
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer.GlobalData
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer
 import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionResult
 
 // we can't use a companion object because GlobalData sees the field and throws an error :/
@@ -94,6 +96,10 @@ object HexDebugServerConfig {
         @BoundedDiscrete(min = 1, max = MAX_DEBUG_THREADS_LIMIT.toLong())
         var maxDebugThreads: Int = 4
             private set
+
+        fun maxDebugThreads(caster: ServerPlayer): Int {
+            return if (caster.isEnlightened) maxDebugThreads else 1
+        }
 
         fun encode(buf: FriendlyByteBuf) {
             buf.writeInt(maxUndoStackSize)

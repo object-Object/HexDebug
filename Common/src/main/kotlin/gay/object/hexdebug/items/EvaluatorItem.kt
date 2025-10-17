@@ -9,6 +9,7 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.EvaluatorCastEnv
+import gay.`object`.hexdebug.debugger.DebuggerState
 import gay.`object`.hexdebug.items.base.*
 import gay.`object`.hexdebug.utils.asItemPredicate
 import net.minecraft.client.player.LocalPlayer
@@ -45,6 +46,11 @@ class EvaluatorItem(
             return InteractionResultHolder.fail(itemStack)
         }
 
+        if (debugger.state != DebuggerState.PAUSED) {
+            player.displayClientMessage("text.hexdebug.not_paused".asTranslatedComponent(threadId), true)
+            return InteractionResultHolder.fail(itemStack)
+        }
+
         if (player.isShiftKeyDown) {
             debugAdapter.resetEvaluator(threadId)
             MsgClearSpiralPatternsS2C(player.uuid).also {
@@ -54,10 +60,11 @@ class EvaluatorItem(
         }
 
         val patterns = debugger.evaluatorUIPatterns
-        val (stack, ravenmind) = debugger.generateDescs()
-        IXplatAbstractions.INSTANCE.sendPacketToPlayer(
-            player, MsgOpenSpellGuiS2C(hand, patterns, stack, ravenmind, 0)
-        )
+        debugger.generateDescs()?.let { (stack, ravenmind) ->
+            IXplatAbstractions.INSTANCE.sendPacketToPlayer(
+                player, MsgOpenSpellGuiS2C(hand, patterns, stack, ravenmind, 0)
+            )
+        }
 
         player.awardStat(Stats.ITEM_USED[this])
 

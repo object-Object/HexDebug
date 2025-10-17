@@ -22,7 +22,6 @@ import gay.`object`.hexdebug.impl.IDebugEnvAccessor
 import gay.`object`.hexdebug.utils.ceilToPow
 import gay.`object`.hexdebug.utils.displayWithPatternName
 import gay.`object`.hexdebug.utils.toHexpatternSource
-import net.minecraft.server.level.ServerLevel
 import org.eclipse.lsp4j.debug.*
 import java.util.*
 import kotlin.math.min
@@ -30,46 +29,34 @@ import kotlin.reflect.jvm.jvmName
 import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceReason
 
 class HexDebugger(
-    private val threadId: Int,
-    private val state: SharedDebugState,
-    private val debugEnv: DebugEnvironment,
-    startingEnv: CastingEnvironment,
-    private val world: ServerLevel,
-    private val onExecute: ((Iota) -> Unit)? = null,
-    iotas: List<Iota>,
-    private var image: CastingImage = CastingImage(),
+    private val sharedState: SharedDebugState,
+    val debugEnv: DebugEnvironment,
+    val threadId: Int,
 ) {
-    constructor(
-        threadId: Int,
-        sharedState: SharedDebugState,
-        castArgs: CastArgs,
-        image: CastingImage = CastingImage(),
-    ) : this(threadId, sharedState, castArgs.debugEnv, castArgs.env, castArgs.world, castArgs.onExecute, castArgs.iotas, image)
+    var state = DebuggerState.RUNNING
+        private set
 
-    init {
-        (startingEnv as IDebugEnvAccessor).`debugEnv$hexdebug` = debugEnv
-    }
-
-    private var currentEnv: CastingEnvironment = startingEnv
+    private var currentEnv: CastingEnvironment? = null
         set(value) {
-            (value as IDebugEnvAccessor).`debugEnv$hexdebug` = debugEnv
             field = value
+            (value as? IDebugEnvAccessor)?.`debugEnv$hexdebug` = debugEnv
         }
 
     var lastEvaluatedMetadata: IotaMetadata? = null
         private set
 
-    val envType get() = currentEnv::class.simpleName ?: currentEnv::class.jvmName
+    // TODO: delegate to debug env?
+    val envName: String? get() = currentEnv?.let { it::class.simpleName ?: it::class.jvmName }
 
     val sessionId get() = debugEnv.sessionId
 
-    private val initArgs by state::initArgs
-    private val launchArgs by state::launchArgs
+    private val initArgs by sharedState::initArgs
+    private val launchArgs by sharedState::launchArgs
 
-    private val breakpoints by state::breakpoints
-    private val exceptionBreakpoints by state::exceptionBreakpoints
+    private val breakpoints by sharedState::breakpoints
+    private val exceptionBreakpoints by sharedState::exceptionBreakpoints
 
-    private val sourceAllocator by state::sourceAllocator
+    private val sourceAllocator by sharedState::sourceAllocator
 
     private val variablesAllocator = VariablesAllocator()
 
@@ -78,22 +65,15 @@ class HexDebugger(
     private val frameInvocationMetadata = IdentityHashMap<SpellContinuation, () -> Pair<Iota, IotaMetadata?>?>()
     private val virtualFrames = IdentityHashMap<SpellContinuation, MutableList<StackFrame>>()
 
-    private var isRunning = false
-
-    // this gets set to true by registerNewSource if a frame is loaded that contains a cognitohazard iota
-    private var isPoisoned = false
-
-    private val initialSource = registerNewSource(iotas)!!
-
     private var callStack = listOf<NotDone>()
 
     val evaluatorUIPatterns = mutableListOf<ResolvedPattern>()
 
     private var evaluatorResetData: EvaluatorResetData? = null
 
-    private var isAtCaughtMishap = false
-
     private var lastResolutionType = ResolvedPatternType.UNRESOLVED
+
+    private var image = CastingImage()
 
     // Initialize the continuation stack to a single top-level eval for all iotas.
     private var nextContinuation: SpellContinuation = Done
@@ -102,29 +82,9 @@ class HexDebugger(
             callStack = getCallStack(value)
         }
 
-    init {
-        nextContinuation = nextContinuation
-            .run {
-                if (launchArgs.stopOnExit) {
-                    // FIXME: scuffed as hell
-                    val lastIota = iotas.lastOrNull()
-                    val columnIndex = lastIota?.let {
-                        // +1 so it goes *after* the last character
-                        iotaToString(it, isSource = true).lastIndex + 1
-                    }
-                    pushFrame(FrameBreakpoint(stopBefore = true)).also { newCont ->
-                        frameInvocationMetadata[newCont] = {
-                            lastIota?.let { it to iotaMetadata[it]?.copy(columnIndex = columnIndex) }
-                        }
-                    }
-                } else this
-            }
-            .pushFrame(FrameEvaluate(SpellList.LList(0, iotas), false))
-    }
-
     private val nextFrame get() = (nextContinuation as? NotDone)?.frame
 
-    private fun getVM(env: CastingEnvironment? = null) = CastingVM(image, env ?: currentEnv)
+    private fun getVM(env: CastingEnvironment? = null) = (env ?: currentEnv)?.let { CastingVM(image, it) }
 
     private fun registerNewSource(frame: ContinuationFrame): Source? = getIotas(frame)?.let(::registerNewSource)
 
@@ -135,7 +95,7 @@ class HexDebugger(
         val source = sourceAllocator.add(threadId, unregisteredIotas)
         for ((index, iota) in unregisteredIotas.withIndex()) {
             if (iota is CognitohazardIota) {
-                isPoisoned = true
+                state = DebuggerState.TERMINATED
             }
             iotaMetadata[iota] = IotaMetadata(source, index)
         }
@@ -283,9 +243,10 @@ class HexDebugger(
         }
     }
 
-    private fun getRavenmind() = image.userData.let {
-        if (it.contains(HexAPI.RAVENMIND_USERDATA)) {
-            IotaType.deserialize(it.getCompound(HexAPI.RAVENMIND_USERDATA), currentEnv.world)
+    private fun getRavenmind(): Iota {
+        val env = currentEnv
+        return if (env != null && image.userData.contains(HexAPI.RAVENMIND_USERDATA)) {
+            IotaType.deserialize(image.userData.getCompound(HexAPI.RAVENMIND_USERDATA), env.world)
         } else {
             NullIota()
         }
@@ -361,7 +322,7 @@ class HexDebugger(
         }
     }
 
-    fun generateDescs() = getVM().generateDescs()
+    fun generateDescs() = getVM()?.generateDescs()
 
     private fun getClientView(vm: CastingVM): ExecutionClientView {
         val (stackDescs, ravenmind) = vm.generateDescs()
@@ -372,10 +333,10 @@ class HexDebugger(
     /**
      * Use [DebugAdapter.evaluate][gay.object.hexdebug.adapter.DebugAdapter.evaluate] instead.
      */
-    internal fun evaluate(env: CastingEnvironment, list: SpellList): DebugStepResult {
-        val vm = getVM(env)
+    internal fun evaluate(env: CastingEnvironment, list: SpellList): DebugStepResult? {
+        val vm = getVM(env) ?: return null
 
-        if (isAtCaughtMishap) {
+        if (state == DebuggerState.CAUGHT_MISHAP) {
             // manually trigger the mishap sound
             // TODO: this feels scuffed.
             env.postExecution(
@@ -386,7 +347,7 @@ class HexDebugger(
 
         val startedEvaluating = evaluatorResetData == null
         if (startedEvaluating) {
-            evaluatorResetData = EvaluatorResetData(nextContinuation, image, lastResolutionType, isAtCaughtMishap)
+            evaluatorResetData = EvaluatorResetData(nextContinuation, image, lastResolutionType, state)
         }
 
         nextContinuation = nextContinuation.pushFrame(FrameEvaluate(list, false))
@@ -401,27 +362,55 @@ class HexDebugger(
             nextContinuation = it.continuation
             image = it.image
             lastResolutionType = it.lastResolutionType
-            isAtCaughtMishap = it.isAtCaughtMishap
+            state = it.state
         }
         evaluatorResetData = null
         evaluatorUIPatterns.clear()
     }
 
-    fun start(): DebugStepResult {
-        // i hate kotlin
-        return (
-            if (launchArgs.stopOnEntry) {
-                DebugStepResult(StopReason.STARTED)
-            } else if (isAtBreakpoint()) {
-                DebugStepResult(StopReason.BREAKPOINT)
-            } else {
-                executeUntilStopped()
+    fun startExecuting(env: CastingEnvironment, iotas: List<Iota>): DebugStepResult? {
+        if (state != DebuggerState.RUNNING) {
+            return null
+        }
+
+        // if currentEnv is null, we haven't executed anything yet
+        val isEntry = currentEnv == null
+
+        state = DebuggerState.PAUSED
+        currentEnv = env
+
+        var newContinuation: SpellContinuation = Done
+        if (launchArgs.stopOnExit) {
+            // FIXME: scuffed as hell
+            val lastIota = iotas.lastOrNull()
+            val columnIndex = lastIota?.let {
+                // +1 so it goes *after* the last character
+                iotaToString(it, isSource = true).lastIndex + 1
             }
-        ).withLoadedSource(initialSource, LoadedSourceReason.NEW)
+            newContinuation = newContinuation.pushFrame(FrameBreakpoint(stopBefore = true))
+            frameInvocationMetadata[newContinuation] = {
+                lastIota?.let { it to iotaMetadata[it]?.copy(columnIndex = columnIndex) }
+            }
+        }
+        nextContinuation = newContinuation.pushFrame(FrameEvaluate(SpellList.LList(0, iotas), false))
+
+        var result = if (isEntry && launchArgs.stopOnEntry) {
+            DebugStepResult(StopReason.STARTED)
+        } else if (isAtBreakpoint()) {
+            DebugStepResult(StopReason.BREAKPOINT)
+        } else {
+            executeUntilStopped()
+        }
+
+        registerNewSource(iotas)?.let {
+            result = result.withLoadedSource(it, LoadedSourceReason.NEW)
+        }
+
+        return result
     }
 
     fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult {
-        val vm = getVM()
+        val vm = getVM() ?: return DebugStepResult(null)
         var lastResult: DebugStepResult? = null
         var isEscaping: Boolean? = null
         var stepDepth = 0
@@ -475,7 +464,7 @@ class HexDebugger(
         }
     }
 
-    fun executeOnce() = executeNextDebugStep(getVM())
+    fun executeOnce() = getVM()?.let { executeNextDebugStep(it) } ?: DebugStepResult(null)
 
     /**
      * Copy of [CastingVM.queueExecuteAndWrapIotas] to allow stepping by one pattern at a time.
@@ -487,7 +476,7 @@ class HexDebugger(
     ): DebugStepResult {
         var stepResult = DebugStepResult(StopReason.STEP)
 
-        if (isRunning) return stepResult.copy(reason = null)
+        if (state == DebuggerState.RUNNING) return stepResult.copy(reason = null)
 
         var continuation = nextContinuation // bind locally so we can do smart casting
         if (continuation !is NotDone) return stepResult.done()
@@ -504,14 +493,14 @@ class HexDebugger(
             val frame = continuation.frame
 
             // TODO: there's probably a less hacky way to do this
-            if (frame is FrameBreakpoint && frame.isFatal || isPoisoned) {
+            if (frame is FrameBreakpoint && frame.isFatal || state == DebuggerState.TERMINATED) {
                 continuation = Done
                 lastResolutionType = ResolvedPatternType.ERRORED
                 break
             }
 
             // ...and execute it.
-            val castResult = frame.evaluate(continuation.next, world, vm).let { result ->
+            val castResult = frame.evaluate(continuation.next, vm.env.world, vm).let { result ->
                 // if stack is unable to be serialized, have the result be an error
                 val newData = result.newData
                 if (newData != null && IotaType.isTooLargeToSerialize(newData.stack)) {
@@ -534,7 +523,7 @@ class HexDebugger(
             val (newContinuation, preMishapImage) = if (castResult.resolutionType.success || doStaffMishaps) {
                 Pair(castResult.continuation, null)
             } else if (ExceptionBreakpointType.UNCAUGHT_MISHAPS in exceptionBreakpoints) {
-                isAtCaughtMishap = true
+                state = DebuggerState.CAUGHT_MISHAP
                 stepResult = stepResult.copy(reason = StopReason.EXCEPTION)
                 Pair(castResult.continuation.pushFrame(FrameBreakpoint.fatal()), vm.image)
             } else {
@@ -550,10 +539,6 @@ class HexDebugger(
                 vm.image = newImage
             }
             vm.env.postExecution(castResult)
-
-            if (castResult.resolutionType == ResolvedPatternType.EVALUATED) {
-                onExecute?.invoke(castResult.cast)
-            }
 
             val stepType = getStepType(castResult, continuation, newContinuation)
             if (newContinuation is NotDone) {
@@ -611,10 +596,11 @@ class HexDebugger(
         image = vm.image
 
         return when (continuation) {
-            is Done -> if (lastResolutionType.success && debugEnv.continueCast(vm.env, image)) {
-                isRunning = true
+            is Done -> if (state.canResume && debugEnv.resume(vm.env, image, lastResolutionType)) {
+                state = DebuggerState.RUNNING
                 stepResult.copy(reason = null)
             } else {
+                state = DebuggerState.TERMINATED
                 stepResult.done()
             }
             is NotDone -> stepResult
@@ -739,17 +725,20 @@ class HexDebugger(
         } else false
     }
 
-    private fun iotaToString(iota: Iota, isSource: Boolean = false): String = if (isSource) {
-        iota.toHexpatternSource(currentEnv)
-    } else {
-        iota.displayWithPatternName(currentEnv).string
+    private fun iotaToString(iota: Iota, isSource: Boolean = false): String {
+        val env = currentEnv ?: return "" // FIXME: hack
+        return if (isSource) {
+            iota.toHexpatternSource(env)
+        } else {
+            iota.displayWithPatternName(env).string
+        }
     }
 
     data class EvaluatorResetData(
         val continuation: SpellContinuation,
         val image: CastingImage,
         val lastResolutionType: ResolvedPatternType,
-        val isAtCaughtMishap: Boolean,
+        val state: DebuggerState,
     )
 }
 

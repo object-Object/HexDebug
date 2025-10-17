@@ -10,6 +10,9 @@ import at.petrak.hexcasting.api.casting.math.HexPattern
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyServerLauncher
 import gay.`object`.hexdebug.config.HexDebugServerConfig
+import gay.`object`.hexdebug.core.api.debugging.DebugEnvironment
+import gay.`object`.hexdebug.core.api.exceptions.IllegalDebugSessionException
+import gay.`object`.hexdebug.core.api.exceptions.IllegalDebugThreadException
 import gay.`object`.hexdebug.debugger.*
 import gay.`object`.hexdebug.items.DebuggerItem
 import gay.`object`.hexdebug.items.EvaluatorItem
@@ -39,7 +42,6 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     private var lastDebugger: HexDebugger? = null // for resolving sources after exit
     private val debuggers = mutableMapOf<Int, HexDebugger>()
     private val threadIds = mutableMapOf<UUID, Int>()
-    private val restartArgs = mutableMapOf<Int, CastArgs>()
     private val state = SharedDebugState()
 
     val launcher: IHexDebugLauncher by lazy {
@@ -47,6 +49,8 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     private val remoteProxy: IDebugProtocolClient get() = launcher.remoteProxy
+
+    private val maxThreads get() = HexDebugServerConfig.config.maxDebugThreads(player)
 
     fun isDebugging(threadId: Int) = debugger(threadId) != null
 
@@ -84,28 +88,50 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         ).sendToPlayer(player)
     }
 
-    fun startDebugging(threadId: Int, args: CastArgs, notifyClient: Boolean = true): Boolean {
-        val threadLimit = if (args.env.isEnlightened) HexDebugServerConfig.config.maxDebugThreads else 1
-        if (threadId >= threadLimit) return false
+    fun createDebugThread(debugEnv: DebugEnvironment, maybeThreadId: Int?) {
+        if (debugEnv.sessionId in threadIds) {
+            throw IllegalDebugSessionException("Debug session already in use")
+        }
 
-        val debugger = HexDebugger(threadId, state, args)
-        lastDebugger = debugger
+        val threadId = resolveThreadId(maybeThreadId)
+        threadIds[debugEnv.sessionId] = threadId
+
+        val debugger = HexDebugger(state, debugEnv, threadId)
         debuggers[threadId] = debugger
-        threadIds[args.debugEnv.sessionId] = threadId
-        restartArgs[threadId] = args
 
         remoteProxy.thread(ThreadEventArguments().also {
             it.reason = ThreadEventArgumentsReason.STARTED
             it.threadId = threadId
         })
 
-        if (notifyClient) {
-            MsgDebuggerStateS2C(threadId, DebuggerItem.DebugState.DEBUGGING).sendToPlayer(player)
-            closeEvaluator(threadId)
+        MsgDebuggerStateS2C(threadId, DebuggerItem.DebugState.DEBUGGING).sendToPlayer(player)
+        closeEvaluator(threadId)
+    }
+
+    private fun resolveThreadId(threadId: Int?): Int {
+        if (threadId == null) {
+            return (0 until maxThreads).firstOrNull { !isDebugging(it) }
+                ?: throw IllegalDebugThreadException("All debug threads are already in use")
         }
 
-        handleDebuggerStep(threadId, debugger.start())
-        return true
+        if (threadId !in (0 until maxThreads)) {
+            throw IllegalDebugThreadException("Debug thread ID out of range: $threadId")
+        }
+
+        if (isDebugging(threadId)) {
+            throw IllegalDebugThreadException("Debug thread already in use: $threadId")
+        }
+
+        return threadId
+    }
+
+    fun startExecuting(debugEnv: DebugEnvironment, env: CastingEnvironment, iotas: List<Iota>) {
+        val debugger = debugger(debugEnv.sessionId)
+            ?: throw IllegalDebugSessionException("Debug session not found")
+        val result = debugger.startExecuting(env, iotas)
+            ?: throw IllegalDebugSessionException("Debug session is already executing something")
+        lastDebugger = debugger
+        handleDebuggerStep(debugger.threadId, result)
     }
 
     fun disconnectClient() {
@@ -139,7 +165,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     fun evaluate(threadId: Int, env: CastingEnvironment, list: SpellList) =
         debugger(threadId)?.let {
-            val result = it.evaluate(env, list)
+            val result = it.evaluate(env, list) ?: return null
             if (result.startedEvaluating) {
                 setEvaluatorState(threadId, EvaluatorItem.EvalState.MODIFIED)
             }
@@ -158,7 +184,10 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             it.reason = ThreadEventArgumentsReason.EXITED
             it.threadId = threadId
         })
-        restartArgs[threadId]?.let { startDebugging(threadId, it) }
+        debuggers.remove(threadId)?.let {
+            threadIds.remove(it.sessionId)
+            it.debugEnv.restart(threadId)
+        }
     }
 
     private fun messageWrapper(consumer: MessageConsumer) = MessageConsumer { message ->
@@ -366,16 +395,22 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun pause(args: PauseArguments): CompletableFuture<Void> {
-        // TODO: wisps/circles?
+        debugger(args.threadId)?.let {
+            if (it.state == DebuggerState.RUNNING) {
+                it.debugEnv.pause()
+            }
+        }
         return futureOf()
     }
 
     override fun restart(args: RestartArguments?): CompletableFuture<Void> {
+        val envs = debuggers.map { (threadId, debugger) -> threadId to debugger.debugEnv }
+
         debuggers.clear()
         threadIds.clear()
 
-        for ((threadId, castArgs) in restartArgs) {
-            startDebugging(threadId, castArgs, false)
+        for ((threadId, debugEnv) in envs) {
+            debugEnv.restart(threadId)
         }
 
         MsgDebuggerStateS2C(
@@ -446,7 +481,8 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
                 .map { (threadId, debugger) ->
                     Thread().apply {
                         id = threadId
-                        name = "Thread $threadId (${debugger.envType})"
+                        name = "Thread $threadId"
+                        debugger.envName?.let { name += " ($it)" }
                     }
                 }
                 .sortedBy { it.id }

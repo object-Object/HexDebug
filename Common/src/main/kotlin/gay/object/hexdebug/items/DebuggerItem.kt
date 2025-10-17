@@ -9,7 +9,7 @@ import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.DebuggerCastEnv
 import gay.`object`.hexdebug.core.api.debugging.SynchronousDebugEnv
-import gay.`object`.hexdebug.debugger.CastArgs
+import gay.`object`.hexdebug.core.api.exceptions.DebugException
 import gay.`object`.hexdebug.items.base.*
 import gay.`object`.hexdebug.utils.asItemPredicate
 import gay.`object`.hexdebug.utils.getWrapping
@@ -113,12 +113,12 @@ class DebuggerItem(
                 }
             } ?: return InteractionResultHolder.fail(stack)
 
-            val debugEnv = SynchronousDebugEnv(serverPlayer)
-            val ctx = DebuggerCastEnv(serverPlayer, usedHand)
-            val args = CastArgs(instrs, debugEnv, ctx, serverLevel)
+            val env = DebuggerCastEnv(serverPlayer, usedHand)
+            val debugEnv = SynchronousDebugEnv(serverPlayer, env, instrs)
 
-            if (!debugAdapter.startDebugging(threadId, args)) {
-                // already debugging (how??)
+            try {
+                debugEnv.start(threadId)
+            } catch (_: DebugException) {
                 return InteractionResultHolder.fail(stack)
             }
         }

@@ -18,6 +18,7 @@
     hexdebug: {
       connected: "Debug client connected!",
       no_session: "Debug session is not running for thread %d.",
+      not_paused: "Debug session is not paused for thread %d.",
       thwack: "Thwack!",
       // Next Iota: [{index}] {iota}
       debugger_stopped: "Next Iota: [%d] %s",

@@ -2,6 +2,7 @@ package gay.object.hexdebug.core.api.debugging;
 
 import at.petrak.hexcasting.api.casting.castables.Action;
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment;
+import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType;
 import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
 import gay.object.hexdebug.core.api.HexDebugCoreAPI;
@@ -31,11 +32,31 @@ public abstract class DebugEnvironment {
     }
 
     /**
-     * Attempts to resume execution of this debug session. This is called by the debugger after the
-     * current continuation is successfully evaluated to completion.
-     * @return true if the debug session can continue, or false if the debuggee has been terminated.
+     * Attempts to pause the debuggee. This is called by the debugger when requested by the user.
+     * @return whether the debuggee was successfully paused
      */
-    public abstract boolean continueCast(@NotNull CastingEnvironment env, @NotNull CastingImage image);
+    public abstract boolean pause();
+
+    /**
+     * Attempts to resume execution of the debuggee. This is called by the debugger after the
+     * current continuation is successfully evaluated to completion.
+     * @return true if the debug session can continue, or false if the debuggee has been terminated
+     */
+    public abstract boolean resume(
+        @NotNull CastingEnvironment env,
+        @NotNull CastingImage image,
+        @NotNull ResolvedPatternType resolutionType
+    );
+
+    /**
+     * Attempts to restart the debuggee on the given debug thread. This is called by the debugger
+     * when requested by the user.
+     * <br>
+     * The previous debug thread is removed before this method is called, so the implementation may
+     * use {@link HexDebugCoreAPI#createDebugThread} and {@link HexDebugCoreAPI#startExecuting}.
+     * @return whether the debuggee was successfully restarted
+     */
+    public abstract boolean restart(int threadId);
 
     public void printDebugMessage(@NotNull Component message) {
         printDebugMessage(message, DebugOutputCategory.STDOUT, true);
@@ -66,7 +87,11 @@ public abstract class DebugEnvironment {
         }
     }
 
-    @ApiStatus.Internal
+    @NotNull
+    public ServerPlayer getCaster() {
+        return caster;
+    }
+
     @NotNull
     public UUID getSessionId() {
         return sessionId;

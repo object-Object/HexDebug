@@ -1,5 +1,12 @@
 package gay.`object`.hexdebug.debugger
 
+enum class DebuggerState(val canResume: Boolean) {
+    RUNNING(canResume = false),
+    PAUSED(canResume = true),
+    CAUGHT_MISHAP(canResume = true),
+    TERMINATED(canResume = false),
+}
+
 enum class StopReason(val value: String, val stopImmediately: Boolean) {
     STEP("step", false),
     BREAKPOINT("breakpoint", true),

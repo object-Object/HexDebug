@@ -19,6 +19,7 @@ import net.minecraft.nbt.StringTag
 import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.*
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity
@@ -211,6 +212,13 @@ val Color.fblue get() = blue.toFloat() / 255f
 val Color.falpha get() = alpha.toFloat() / 255f
 
 // action helpers
+
+val ServerPlayer.isEnlightened get(): Boolean {
+    return serverLevel().server.advancements
+        .getAdvancement(HexAPI.modLoc("enlightenment"))
+        ?.let { advancements.getOrStartProgress(it).isDone }
+        ?: false
+}
 
 fun List<Iota>.getPositiveIntOrNull(idx: Int, argc: Int = 0): Int? {
     val x = this.getOrElse(idx) { throw MishapNotEnoughArgs(idx + 1, this.size) }
