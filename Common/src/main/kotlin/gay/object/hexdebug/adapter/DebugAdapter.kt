@@ -61,6 +61,9 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     fun debugger(threadId: Int) = debuggers[threadId]
 
+    private fun inRangeDebugger(threadId: Int) =
+        debugger(threadId)?.takeIf { it.debugEnv.isCasterInRange }
+
     private fun packId(threadId: Int, reference: Int): Int =
         (threadId shl THREAD_ID_SHIFT) or (reference and REFERENCE_MASK)
 
@@ -164,7 +167,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         evaluate(threadId, env, SpellList.LList(listOf(iota)))
 
     fun evaluate(threadId: Int, env: CastingEnvironment, list: SpellList) =
-        debugger(threadId)?.let {
+        inRangeDebugger(threadId)?.let {
             val result = it.evaluate(env, list) ?: return null
             if (result.startedEvaluating) {
                 setEvaluatorState(threadId, EvaluatorItem.EvalState.MODIFIED)
@@ -174,7 +177,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     fun resetEvaluator(threadId: Int) {
         setEvaluatorState(threadId, EvaluatorItem.EvalState.DEFAULT)
-        if (debugger(threadId)?.resetEvaluator() == true) {
+        if (inRangeDebugger(threadId)?.resetEvaluator() == true) {
             sendStoppedEvent(threadId, StopReason.STEP)
         }
     }
@@ -262,9 +265,9 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     private fun resumeAllExcept(threadId: Int) {
         for (index in allThreadIds) {
-            val debugger = debugger(index)
-            if (debugger != null && index != threadId) {
-                handleDebuggerStep(threadId, debugger.executeUntilStopped())
+            if (index == threadId) continue
+            inRangeDebugger(index)?.let {
+                handleDebuggerStep(threadId, it.executeUntilStopped())
             }
         }
     }
@@ -348,7 +351,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     // stepping
 
     override fun next(args: NextArguments): CompletableFuture<Void> {
-        debugger(args.threadId)?.let {
+        inRangeDebugger(args.threadId)?.let {
             handleDebuggerStep(args.threadId, it.executeUntilStopped(RequestStepType.OVER))
         }
         // HACK: vscode doesn't support single-thread execution
@@ -362,7 +365,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun continue_(args: ContinueArguments): CompletableFuture<ContinueResponse> {
-        debugger(args.threadId)?.let {
+        inRangeDebugger(args.threadId)?.let {
             handleDebuggerStep(args.threadId, it.executeUntilStopped())
         }
         val continueAllThreads = args.singleThread == false
@@ -375,7 +378,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun stepIn(args: StepInArguments): CompletableFuture<Void> {
-        debugger(args.threadId)?.let {
+        inRangeDebugger(args.threadId)?.let {
             handleDebuggerStep(args.threadId, it.executeOnce())
         }
         if (args.singleThread == false) {
@@ -385,7 +388,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun stepOut(args: StepOutArguments): CompletableFuture<Void> {
-        debugger(args.threadId)?.let {
+        inRangeDebugger(args.threadId)?.let {
             handleDebuggerStep(args.threadId, it.executeUntilStopped(RequestStepType.OUT))
         }
         if (args.singleThread == false) {
@@ -395,7 +398,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun pause(args: PauseArguments): CompletableFuture<Void> {
-        debugger(args.threadId)?.let {
+        inRangeDebugger(args.threadId)?.let {
             if (it.state == DebuggerState.RUNNING) {
                 it.debugEnv.pause()
             }
@@ -404,6 +407,13 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun restart(args: RestartArguments?): CompletableFuture<Void> {
+        // hack
+        for (debugger in debuggers.values) {
+            if (!debugger.debugEnv.isCasterInRange) {
+                return futureOf()
+            }
+        }
+
         val envs = debuggers.map { (threadId, debugger) -> threadId to debugger.debugEnv }
 
         debuggers.clear()
@@ -425,7 +435,10 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun terminateThreads(args: TerminateThreadsArguments): CompletableFuture<Void> {
-        for (threadId in args.threadIds) {
+        val toRemove = args.threadIds.filter { inRangeDebugger(it) != null }
+        if (toRemove.isEmpty()) return futureOf()
+
+        for (threadId in toRemove) {
             remoteProxy.thread(ThreadEventArguments().also {
                 it.reason = ThreadEventArgumentsReason.EXITED
                 it.threadId = threadId
@@ -434,7 +447,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         }
 
         MsgDebuggerStateS2C(
-            args.threadIds.associateWith {
+            toRemove.associateWith {
                 DebuggerItem.DebugState.NOT_DEBUGGING
             }
         ).sendToPlayer(player)
@@ -448,7 +461,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             }
             closeEvaluator(null)
         } else {
-            for (threadId in args.threadIds) {
+            for (threadId in toRemove) {
                 closeEvaluator(threadId)
             }
         }

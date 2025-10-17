@@ -58,6 +58,12 @@ public abstract class DebugEnvironment {
      */
     public abstract boolean restart(int threadId);
 
+    /**
+     * For in-world debugees, returns whether the caster is close enough to the debuggee to allow
+     * debug-related actions to be performed (eg. pause, step, restart).
+     */
+    public abstract boolean isCasterInRange();
+
     public void printDebugMessage(@NotNull Component message) {
         printDebugMessage(message, DebugOutputCategory.STDOUT, true);
     }

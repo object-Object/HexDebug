@@ -54,6 +54,11 @@ public class SynchronousDebugEnv extends DebugEnvironment {
         }
     }
 
+    @Override
+    public boolean isCasterInRange() {
+        return true;
+    }
+
     public void start(@Nullable Integer threadId)
         throws IllegalDebugSessionException, IllegalDebugThreadException
     {

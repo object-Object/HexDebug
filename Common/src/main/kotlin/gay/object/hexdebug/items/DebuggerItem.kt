@@ -75,7 +75,14 @@ class DebuggerItem(
         val debugAdapter = DebugAdapterManager[player]
             ?: return InteractionResultHolder.fail(stack)
 
-        if (debugAdapter.isDebugging(threadId)) {
+        val debugger = debugAdapter.debugger(threadId)
+        if (debugger != null) {
+            if (!debugger.debugEnv.isCasterInRange) {
+                return InteractionResultHolder.fail(stack)
+            }
+
+            // TODO: implement pause?
+
             // step the ongoing debug session
             debugAdapter.apply {
                 when (getStepMode(stack)) {

@@ -46,6 +46,10 @@ class EvaluatorItem(
             return InteractionResultHolder.fail(itemStack)
         }
 
+        if (!debugger.debugEnv.isCasterInRange) {
+            return InteractionResultHolder.fail(itemStack)
+        }
+
         if (debugger.state != DebuggerState.PAUSED) {
             player.displayClientMessage("text.hexdebug.not_paused".asTranslatedComponent(threadId), true)
             return InteractionResultHolder.fail(itemStack)
