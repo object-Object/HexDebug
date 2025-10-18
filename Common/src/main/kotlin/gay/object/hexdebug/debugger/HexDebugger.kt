@@ -45,6 +45,8 @@ class HexDebugger(
     var lastEvaluatedMetadata: IotaMetadata? = null
         private set
 
+    private var lastStepType: RequestStepType? = null
+
     // TODO: delegate to debug env?
     val envName: String? get() = currentEnv?.let { it::class.simpleName ?: it::class.jvmName }
 
@@ -399,7 +401,7 @@ class HexDebugger(
         } else if (isAtBreakpoint()) {
             DebugStepResult(StopReason.BREAKPOINT)
         } else {
-            executeUntilStopped()
+            executeUntilStopped(lastStepType)
         }
 
         registerNewSource(iotas)?.let {
@@ -411,6 +413,10 @@ class HexDebugger(
 
     fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult {
         val vm = getVM() ?: return DebugStepResult(null)
+
+        lastStepType = stepType
+        if (stepType == RequestStepType.IN) return executeNextDebugStep(vm)
+
         var lastResult: DebugStepResult? = null
         var isEscaping: Boolean? = null
         var stepDepth = 0
@@ -451,11 +457,13 @@ class HexDebugger(
                 isEscaping = result.type == DebugStepType.ESCAPE
             }
 
+            @Suppress("KotlinConstantConditions")
             shouldStop = shouldStop || if (isEscaping) {
                 result.type != DebugStepType.ESCAPE
             } else when (stepType) {
                 RequestStepType.OVER ->  stepDepth <= 0
                 RequestStepType.OUT -> stepDepth < 0
+                RequestStepType.IN -> throw IllegalStateException()
             }
 
             if (shouldStop && shouldStopAtFrame(nextContinuation)) {
@@ -463,8 +471,6 @@ class HexDebugger(
             }
         }
     }
-
-    fun executeOnce() = getVM()?.let { executeNextDebugStep(it) } ?: DebugStepResult(null)
 
     /**
      * Copy of [CastingVM.queueExecuteAndWrapIotas] to allow stepping by one pattern at a time.
@@ -751,4 +757,5 @@ val ContinuationFrame.name get() = this::class.simpleName ?: "Unknown"
 enum class RequestStepType {
     OVER,
     OUT,
+    IN,
 }

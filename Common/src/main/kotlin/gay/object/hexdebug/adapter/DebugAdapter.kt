@@ -379,7 +379,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     override fun stepIn(args: StepInArguments): CompletableFuture<Void> {
         inRangeDebugger(args.threadId)?.let {
-            handleDebuggerStep(args.threadId, it.executeOnce())
+            handleDebuggerStep(args.threadId, it.executeUntilStopped(RequestStepType.IN))
         }
         if (args.singleThread == false) {
             resumeAllExcept(args.threadId)
