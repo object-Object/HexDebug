@@ -2,7 +2,7 @@ package gay.`object`.hexdebug.casting.eval
 
 import at.petrak.hexcasting.api.casting.eval.env.StaffCastEnv
 import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect
-import gay.`object`.hexdebug.core.api.debugging.IDebuggableCastEnv
+import gay.`object`.hexdebug.core.api.debugging.DebuggableCastEnv
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
@@ -10,7 +10,7 @@ import net.minecraft.world.InteractionHand
 class EvaluatorCastEnv(
     caster: ServerPlayer,
     castingHand: InteractionHand,
-) : StaffCastEnv(caster, castingHand), IDebuggableCastEnv {
+) : StaffCastEnv(caster, castingHand), DebuggableCastEnv {
     override fun printMessage(message: Component) {
         super.printMessage(message)
         debugEnv?.printDebugMessage(message)

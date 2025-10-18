@@ -8,6 +8,7 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.DebuggerCastEnv
+import gay.`object`.hexdebug.core.api.debugging.DebuggableBlock
 import gay.`object`.hexdebug.core.api.debugging.SimplePlayerBasedDebugEnv
 import gay.`object`.hexdebug.core.api.exceptions.DebugException
 import gay.`object`.hexdebug.items.base.*
@@ -20,11 +21,13 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
+import net.minecraft.world.item.context.UseOnContext
 import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.Level
@@ -58,6 +61,35 @@ class DebuggerItem(
             max(level ?: 0, if (isQuenched) 2 else 1)
         }
         EnchantmentHelper.setEnchantments(enchantments, stack)
+    }
+
+    override fun useOn(context: UseOnContext): InteractionResult {
+        val block = context.level.getBlockState(context.clickedPos).block as? DebuggableBlock
+            ?: return InteractionResult.PASS
+
+        val threadId = getThreadId(context.itemInHand)
+
+        if (context.level.isClientSide) {
+            val isDebugging = debugStates[threadId] == DebugState.DEBUGGING
+            return if (isDebugging) InteractionResult.PASS else InteractionResult.SUCCESS
+        }
+
+        val player = context.player as ServerPlayer
+
+        if (DebugAdapterManager[player]?.isDebugging(threadId) != false) {
+            return InteractionResult.PASS
+        }
+
+        return block.startDebugging(context, threadId).also {
+            if (it.shouldAwardStats()) {
+                val stat = Stats.ITEM_USED[this]
+                player.awardStat(stat)
+            }
+
+            if (it.consumesAction()) {
+                player.cooldowns.addCooldown(this, this.cooldown())
+            }
+        }
     }
 
     override fun use(world: Level, player: Player, usedHand: InteractionHand): InteractionResultHolder<ItemStack> {

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * An optional helper interface for implementing casting environments with debug support.
  */
-public interface IDebuggableCastEnv {
+public interface DebuggableCastEnv {
     @Nullable
     default DebugEnvironment getDebugEnv() {
         return HexDebugCoreAPI.INSTANCE.getDebugEnv((CastingEnvironment) this);

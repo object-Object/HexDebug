@@ -2,7 +2,7 @@ package gay.`object`.hexdebug.casting.eval
 
 import at.petrak.hexcasting.api.casting.eval.env.PackagedItemCastEnv
 import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect
-import gay.`object`.hexdebug.core.api.debugging.IDebuggableCastEnv
+import gay.`object`.hexdebug.core.api.debugging.DebuggableCastEnv
 import gay.`object`.hexdebug.utils.findMediaHolderInHand
 import gay.`object`.hexdebug.utils.otherHand
 import net.minecraft.network.chat.Component
@@ -12,7 +12,8 @@ import net.minecraft.world.InteractionHand
 class DebuggerCastEnv(
     caster: ServerPlayer,
     castingHand: InteractionHand,
-) : PackagedItemCastEnv(caster, castingHand), IDebuggableCastEnv {
+) : PackagedItemCastEnv(caster, castingHand),
+    DebuggableCastEnv {
     private val item = caster.getItemInHand(castingHand).item
 
     override fun printMessage(message: Component) {
