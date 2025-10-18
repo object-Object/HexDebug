@@ -134,7 +134,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         val result = debugger.startExecuting(env, iotas)
             ?: throw IllegalDebugSessionException("Debug session is already executing something")
         lastDebugger = debugger
-        handleDebuggerStep(debugger.threadId, result)
+        handleDebuggerStep(debugger.threadId, result, wasPaused = false)
     }
 
     fun disconnectClient() {
@@ -207,7 +207,11 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             ?: ResponseError(ResponseErrorCode.InternalError, e.toString(), e.stackTraceToString())
     }
 
-    private fun handleDebuggerStep(threadId: Int, result: DebugStepResult): ExecutionClientView? {
+    private fun handleDebuggerStep(
+        threadId: Int,
+        result: DebugStepResult,
+        wasPaused: Boolean = true,
+    ): ExecutionClientView? {
         val view = result.clientInfo?.also {
             MsgEvaluatorClientInfoS2C(threadId, it).sendToPlayer(player)
         }
@@ -234,7 +238,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             debugger(threadId)?.getNextIotaToEvaluate()?.also { (iota, index) ->
                 printDebuggerStatus(iota, index)
             }
-        } else {
+        } else if (wasPaused) {
             // running
             remoteProxy.continued(ContinuedEventArguments().also {
                 it.threadId = threadId

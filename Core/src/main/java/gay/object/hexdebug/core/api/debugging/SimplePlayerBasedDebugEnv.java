@@ -31,9 +31,7 @@ public class SimplePlayerBasedDebugEnv extends DebugEnvironment {
     }
 
     @Override
-    public boolean pause() {
-        return false;
-    }
+    public void pause() {}
 
     @Override
     public boolean resume(
@@ -45,13 +43,10 @@ public class SimplePlayerBasedDebugEnv extends DebugEnvironment {
     }
 
     @Override
-    public boolean restart(int threadId) {
+    public void restart(int threadId) {
         try {
             start(threadId);
-            return true;
-        } catch (DebugException ignored) {
-            return false;
-        }
+        } catch (DebugException ignored) {}
     }
 
     @Override

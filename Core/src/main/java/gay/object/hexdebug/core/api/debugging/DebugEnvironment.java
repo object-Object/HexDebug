@@ -33,9 +33,8 @@ public abstract class DebugEnvironment {
 
     /**
      * Attempts to pause the debuggee. This is called by the debugger when requested by the user.
-     * @return whether the debuggee was successfully paused
      */
-    public abstract boolean pause();
+    public abstract void pause();
 
     /**
      * Attempts to resume execution of the debuggee. This is called by the debugger after the
@@ -54,9 +53,8 @@ public abstract class DebugEnvironment {
      * <br>
      * The previous debug thread is removed before this method is called, so the implementation may
      * use {@link HexDebugCoreAPI#createDebugThread} and {@link HexDebugCoreAPI#startExecuting}.
-     * @return whether the debuggee was successfully restarted
      */
-    public abstract boolean restart(int threadId);
+    public abstract void restart(int threadId);
 
     /**
      * For in-world debugees, returns whether the caster is close enough to the debuggee to allow

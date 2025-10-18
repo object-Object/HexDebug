@@ -411,6 +411,11 @@ class HexDebugger(
         return result
     }
 
+    fun pause() {
+        lastStepType = RequestStepType.IN
+        debugEnv.pause()
+    }
+
     fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult {
         val vm = getVM() ?: return DebugStepResult(null)
 
