@@ -105,6 +105,8 @@ dependencies {
         modCompileOnly(it)
         modLocalRuntime(it)
     }
+
+    forgeRuntimeLibrary(project(":Core", "namedElements")) { isTransitive = false }
 }
 
 tasks {
