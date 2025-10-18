@@ -14,13 +14,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class SynchronousDebugEnv extends DebugEnvironment {
+public class SimplePlayerBasedDebugEnv extends DebugEnvironment {
     @NotNull
     private final CastingEnvironment env;
     @NotNull
     private final List<Iota> iotas;
 
-    public SynchronousDebugEnv(
+    public SimplePlayerBasedDebugEnv(
         @NotNull ServerPlayer caster,
         @NotNull CastingEnvironment env,
         @NotNull List<Iota> iotas
