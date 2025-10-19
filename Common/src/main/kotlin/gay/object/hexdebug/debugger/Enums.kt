@@ -1,18 +1,22 @@
 package gay.`object`.hexdebug.debugger
 
-enum class DebuggerState(val canResume: Boolean) {
-    RUNNING(canResume = false),
+import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason
+
+enum class DebuggerState(val canPause: Boolean = false, val canResume: Boolean = false) {
+    RUNNING(canPause = true),
+    PAUSING(canPause = true),
     PAUSED(canResume = true),
     CAUGHT_MISHAP(canResume = true),
-    TERMINATED(canResume = false),
+    TERMINATED,
 }
 
-enum class StopReason(val value: String, val stopImmediately: Boolean) {
-    STEP("step", false),
-    BREAKPOINT("breakpoint", true),
-    EXCEPTION("exception", true),
-    STARTED("entry", true),
-    TERMINATED("terminated", true),
+enum class StopReason(val value: String?, val stopImmediately: Boolean) {
+    STEP(StoppedEventArgumentsReason.STEP, false),
+    PAUSE(StoppedEventArgumentsReason.PAUSE, true),
+    BREAKPOINT(StoppedEventArgumentsReason.BREAKPOINT, true),
+    EXCEPTION(StoppedEventArgumentsReason.EXCEPTION, true),
+    STARTED(StoppedEventArgumentsReason.ENTRY, true),
+    TERMINATED(null, true),
 }
 
 enum class SourceBreakpointMode(val label: String, val description: String) {

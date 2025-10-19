@@ -32,14 +32,9 @@ public abstract class DebugEnvironment {
     }
 
     /**
-     * Attempts to pause the debuggee. This is called by the debugger when requested by the user.
-     */
-    public abstract void pause();
-
-    /**
      * Attempts to resume execution of the debuggee. This is called by the debugger after the
      * current continuation is successfully evaluated to completion.
-     * @return true if the debug session can continue, or false if the debuggee has been terminated
+     * @return true if the debug session can continue, or false if the debuggee should be terminated
      */
     public abstract boolean resume(
         @NotNull CastingEnvironment env,
@@ -53,8 +48,17 @@ public abstract class DebugEnvironment {
      * <br>
      * The previous debug thread is removed before this method is called, so the implementation may
      * use {@link HexDebugCoreAPI#createDebugThread} and {@link HexDebugCoreAPI#startExecuting}.
+     * However, note that {@link DebugEnvironment} is <strong>not</strong> called before this
+     * method, so it's up to the implementation whether they need to call that or not.
      */
     public abstract void restart(int threadId);
+
+    /**
+     * Terminates the debuggee. This is called by the debugger after {@link DebugEnvironment#resume}
+     * returns {@code false}, during {@link HexDebugCoreAPI#terminateDebugThread}, or when requested
+     * by the user.
+     */
+    public abstract void terminate();
 
     /**
      * For in-world debugees, returns whether the caster is close enough to the debuggee to allow

@@ -9,13 +9,17 @@
     "MixinShiftScrollListener"
   ],
   "mixins": [
+    "MixinBlockEntityAbstractImpetus",
+    "MixinBlockSlate",
     "MixinCastingEnvironment",
+    "MixinCircleExecutionState",
     "MixinDatagenMain",
     "MixinMsgShiftScrollC2S",
     "MixinOpBrainsweepSpell",
     "MixinOpEval",
     "MixinOpImpetusDir",
     "MixinOpImpetusPos",
+    "MixinPlayerBasedCastEnv",
     "MixinStaffCastEnv",
     "interop.emi.MixinEmiScreenManager"
   ],

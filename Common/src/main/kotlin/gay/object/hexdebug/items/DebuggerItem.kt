@@ -64,7 +64,8 @@ class DebuggerItem(
     }
 
     override fun useOn(context: UseOnContext): InteractionResult {
-        val block = context.level.getBlockState(context.clickedPos).block as? DebuggableBlock
+        val debuggable = context.level.getBlockState(context.clickedPos).block as? DebuggableBlock
+            ?: (context.level.getBlockEntity(context.clickedPos) as? DebuggableBlock)
             ?: return InteractionResult.PASS
 
         val threadId = getThreadId(context.itemInHand)
@@ -80,7 +81,7 @@ class DebuggerItem(
             return InteractionResult.PASS
         }
 
-        return block.startDebugging(context, threadId).also {
+        return debuggable.startDebugging(context, threadId).also {
             if (it.shouldAwardStats()) {
                 val stat = Stats.ITEM_USED[this]
                 player.awardStat(stat)

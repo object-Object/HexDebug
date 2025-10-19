@@ -31,9 +31,6 @@ public class SimplePlayerBasedDebugEnv extends DebugEnvironment {
     }
 
     @Override
-    public void pause() {}
-
-    @Override
     public boolean resume(
         @NotNull CastingEnvironment env,
         @NotNull CastingImage image,
@@ -50,6 +47,9 @@ public class SimplePlayerBasedDebugEnv extends DebugEnvironment {
     }
 
     @Override
+    public void terminate() {}
+
+    @Override
     public boolean isCasterInRange() {
         return true;
     }
@@ -58,6 +58,6 @@ public class SimplePlayerBasedDebugEnv extends DebugEnvironment {
         throws IllegalDebugSessionException, IllegalDebugThreadException
     {
         HexDebugCoreAPI.INSTANCE.createDebugThread(this, threadId);
-        HexDebugCoreAPI.INSTANCE.startExecuting(this, env, iotas);
+        HexDebugCoreAPI.INSTANCE.startExecuting(this, env, iotas, null);
     }
 }

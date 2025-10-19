@@ -45,7 +45,7 @@ class HexDebugger(
     var lastEvaluatedMetadata: IotaMetadata? = null
         private set
 
-    private var lastStepType: RequestStepType? = null
+    private var lastRequestStepType: RequestStepType? = null
 
     // TODO: delegate to debug env?
     val envName: String? get() = currentEnv?.let { it::class.simpleName ?: it::class.jvmName }
@@ -118,7 +118,10 @@ class HexDebugger(
         // otherwise show the first contained iota
         ?: getFirstIotaMetadata(continuation.frame)
 
-    private fun getFirstIotaMetadata(frame: ContinuationFrame) = getIotas(frame)?.let { it.car to iotaMetadata[it.car] }
+    private fun getFirstIotaMetadata(frame: ContinuationFrame) =
+        getIotas(frame)
+            ?.takeIf { it.nonEmpty }
+            ?.let { it.car to iotaMetadata[it.car] }
 
     // current continuation is last
     private fun getCallStack(current: SpellContinuation) = generateSequence(current as? NotDone) {
@@ -337,6 +340,7 @@ class HexDebugger(
      */
     internal fun evaluate(env: CastingEnvironment, list: SpellList): DebugStepResult? {
         val vm = getVM(env) ?: return null
+        (env as IDebugEnvAccessor).`debugEnv$hexdebug` = debugEnv
 
         if (state == DebuggerState.CAUGHT_MISHAP) {
             // manually trigger the mishap sound
@@ -370,16 +374,18 @@ class HexDebugger(
         evaluatorUIPatterns.clear()
     }
 
-    fun startExecuting(env: CastingEnvironment, iotas: List<Iota>): DebugStepResult? {
-        if (state != DebuggerState.RUNNING) {
+    fun startExecuting(env: CastingEnvironment, iotas: List<Iota>, image: CastingImage?): DebugStepResult? {
+        if (!state.canPause) {
             return null
         }
 
         // if currentEnv is null, we haven't executed anything yet
-        val isEntry = currentEnv == null
+        val isStarting = currentEnv == null
+        val isPausing = state == DebuggerState.PAUSING
 
         state = DebuggerState.PAUSED
         currentEnv = env
+        image?.let { this.image = it }
 
         var newContinuation: SpellContinuation = Done
         if (launchArgs.stopOnExit) {
@@ -396,13 +402,14 @@ class HexDebugger(
         }
         nextContinuation = newContinuation.pushFrame(FrameEvaluate(SpellList.LList(0, iotas), false))
 
-        var result = if (isEntry && launchArgs.stopOnEntry) {
-            DebugStepResult(StopReason.STARTED)
-        } else if (isAtBreakpoint()) {
-            DebugStepResult(StopReason.BREAKPOINT)
-        } else {
-            executeUntilStopped(lastStepType)
+        val stopReason = when {
+            isStarting && launchArgs.stopOnEntry -> StopReason.STARTED
+            isAtBreakpoint() -> StopReason.BREAKPOINT
+            isPausing -> StopReason.PAUSE
+            lastRequestStepType != null -> StopReason.STEP
+            else -> null
         }
+        var result = stopReason?.let(::DebugStepResult) ?: executeUntilStopped()
 
         registerNewSource(iotas)?.let {
             result = result.withLoadedSource(it, LoadedSourceReason.NEW)
@@ -412,14 +419,15 @@ class HexDebugger(
     }
 
     fun pause() {
-        lastStepType = RequestStepType.IN
-        debugEnv.pause()
+        if (state == DebuggerState.RUNNING) {
+            state = DebuggerState.PAUSING
+        }
     }
 
     fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult {
         val vm = getVM() ?: return DebugStepResult(null)
 
-        lastStepType = stepType
+        lastRequestStepType = stepType
         if (stepType == RequestStepType.IN) return executeNextDebugStep(vm)
 
         var lastResult: DebugStepResult? = null
@@ -611,6 +619,7 @@ class HexDebugger(
                 state = DebuggerState.RUNNING
                 stepResult.copy(reason = null)
             } else {
+                // we terminate the debuggee in handleDebuggerStep
                 state = DebuggerState.TERMINATED
                 stepResult.done()
             }

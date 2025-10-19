@@ -4,6 +4,7 @@ import at.petrak.hexcasting.api.casting.SpellList
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import at.petrak.hexcasting.api.casting.eval.ExecutionClientView
 import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
+import at.petrak.hexcasting.api.casting.eval.vm.CastingImage
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.api.casting.math.HexPattern
@@ -128,19 +129,29 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         return threadId
     }
 
-    fun startExecuting(debugEnv: DebugEnvironment, env: CastingEnvironment, iotas: List<Iota>) {
+    fun startExecuting(
+        debugEnv: DebugEnvironment,
+        env: CastingEnvironment,
+        iotas: List<Iota>,
+        image: CastingImage?,
+    ) {
         val debugger = debugger(debugEnv.sessionId)
             ?: throw IllegalDebugSessionException("Debug session not found")
-        val result = debugger.startExecuting(env, iotas)
+
+        val result = debugger.startExecuting(env, iotas, image)
             ?: throw IllegalDebugSessionException("Debug session is already executing something")
+
         lastDebugger = debugger
         handleDebuggerStep(debugger.threadId, result, wasPaused = false)
     }
 
-    fun disconnectClient() {
+    fun onRemove() {
         if (isConnected) {
             remoteProxy.terminated(TerminatedEventArguments())
             isConnected = false
+        }
+        for (debugger in debuggers.values.toList()) {
+            debugger.debugEnv.terminate()
         }
     }
 
@@ -251,7 +262,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     private fun sendStoppedEvent(threadId: Int?, reason: StopReason) {
         if (threadId == null) {
             debuggers.keys.forEach { sendStoppedEvent(it, reason) }
-        } else {
+        } else if (reason.value != null) {
             remoteProxy.stopped(StoppedEventArguments().also {
                 it.threadId = threadId
                 it.reason = reason.value
@@ -402,11 +413,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     }
 
     override fun pause(args: PauseArguments): CompletableFuture<Void> {
-        inRangeDebugger(args.threadId)?.let {
-            if (it.state == DebuggerState.RUNNING) {
-                it.debugEnv.pause()
-            }
-        }
+        inRangeDebugger(args.threadId)?.pause()
         return futureOf()
     }
 
@@ -438,20 +445,41 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         return futureOf()
     }
 
+    fun removeThread(sessionId: UUID, terminate: Boolean) {
+        threadIds[sessionId]?.let {
+            removeThreadInner(it, terminate)
+            postRemoveThreads(listOf(it))
+        }
+    }
+
     override fun terminateThreads(args: TerminateThreadsArguments): CompletableFuture<Void> {
         val toRemove = args.threadIds.filter { inRangeDebugger(it) != null }
         if (toRemove.isEmpty()) return futureOf()
 
         for (threadId in toRemove) {
-            remoteProxy.thread(ThreadEventArguments().also {
-                it.reason = ThreadEventArgumentsReason.EXITED
-                it.threadId = threadId
-            })
-            debuggers.remove(threadId)?.let { threadIds.remove(it.sessionId) }
+            removeThreadInner(threadId, terminate = true)
         }
 
+        postRemoveThreads(toRemove)
+
+        return futureOf()
+    }
+
+    private fun removeThreadInner(threadId: Int, terminate: Boolean) {
+        remoteProxy.thread(ThreadEventArguments().also {
+            it.reason = ThreadEventArgumentsReason.EXITED
+            it.threadId = threadId
+        })
+
+        debuggers.remove(threadId)?.let {
+            threadIds.remove(it.sessionId)
+            if (terminate) it.debugEnv.terminate()
+        }
+    }
+
+    private fun postRemoveThreads(threadIds: List<Int>) {
         MsgDebuggerStateS2C(
-            toRemove.associateWith {
+            threadIds.associateWith {
                 DebuggerItem.DebugState.NOT_DEBUGGING
             }
         ).sendToPlayer(player)
@@ -465,12 +493,10 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             }
             closeEvaluator(null)
         } else {
-            for (threadId in toRemove) {
+            for (threadId in threadIds) {
                 closeEvaluator(threadId)
             }
         }
-
-        return futureOf()
     }
 
     override fun terminate(args: TerminateArguments?): CompletableFuture<Void> {

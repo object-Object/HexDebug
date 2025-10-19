@@ -1,30 +1,16 @@
 package gay.`object`.hexdebug.casting.eval
 
 import at.petrak.hexcasting.api.casting.eval.env.PackagedItemCastEnv
-import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect
-import gay.`object`.hexdebug.core.api.debugging.DebuggableCastEnv
 import gay.`object`.hexdebug.utils.findMediaHolderInHand
 import gay.`object`.hexdebug.utils.otherHand
-import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 
 class DebuggerCastEnv(
     caster: ServerPlayer,
     castingHand: InteractionHand,
-) : PackagedItemCastEnv(caster, castingHand),
-    DebuggableCastEnv {
+) : PackagedItemCastEnv(caster, castingHand) {
     private val item = caster.getItemInHand(castingHand).item
-
-    override fun printMessage(message: Component) {
-        super.printMessage(message)
-        debugEnv?.printDebugMessage(message)
-    }
-
-    override fun sendMishapMsgToPlayer(mishap: OperatorSideEffect.DoMishap) {
-        super.sendMishapMsgToPlayer(mishap)
-        debugEnv?.printDebugMishap(this, mishap)
-    }
 
     override fun extractMediaEnvironment(cost: Long, simulate: Boolean): Long {
         if (caster.isCreative) return 0

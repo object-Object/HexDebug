@@ -1,6 +1,7 @@
 package gay.`object`.hexdebug.impl
 
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
+import at.petrak.hexcasting.api.casting.eval.vm.CastingImage
 import at.petrak.hexcasting.api.casting.iota.Iota
 import gay.`object`.hexdebug.adapter.DebugAdapter
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
@@ -26,8 +27,21 @@ class HexDebugCoreAPIImpl : HexDebugCoreAPI {
         getAdapterOrThrow(debugEnv).createDebugThread(debugEnv, threadId)
     }
 
-    override fun startExecuting(debugEnv: DebugEnvironment, env: CastingEnvironment, iotas: MutableList<Iota>) {
-        getAdapterOrThrow(debugEnv).startExecuting(debugEnv, env, iotas)
+    override fun startExecuting(
+        debugEnv: DebugEnvironment,
+        env: CastingEnvironment,
+        iotas: MutableList<Iota>,
+        image: CastingImage?,
+    ) {
+        getAdapterOrThrow(debugEnv).startExecuting(debugEnv, env, iotas, image)
+    }
+
+    override fun removeDebugThread(debugEnv: DebugEnvironment) {
+        DebugAdapterManager[debugEnv.caster]?.removeThread(debugEnv.sessionId, terminate = false)
+    }
+
+    override fun terminateDebugThread(debugEnv: DebugEnvironment) {
+        DebugAdapterManager[debugEnv.caster]?.removeThread(debugEnv.sessionId, terminate = true)
     }
 
     override fun printDebugMessage(

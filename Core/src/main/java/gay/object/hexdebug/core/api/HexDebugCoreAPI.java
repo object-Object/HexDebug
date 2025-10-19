@@ -1,6 +1,7 @@
 package gay.object.hexdebug.core.api;
 
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment;
+import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
 import at.petrak.hexcasting.api.casting.iota.Iota;
 import gay.object.hexdebug.core.api.debugging.DebugEnvironment;
 import gay.object.hexdebug.core.api.debugging.DebugOutputCategory;
@@ -56,10 +57,21 @@ public interface HexDebugCoreAPI {
     default void startExecuting(
         @NotNull DebugEnvironment debugEnv,
         @NotNull CastingEnvironment env,
-        @NotNull List<Iota> iotas
+        @NotNull List<Iota> iotas,
+        @Nullable CastingImage image
     ) throws IllegalDebugSessionException {
-
+        throw new IllegalDebugSessionException();
     }
+
+    /**
+     * Removes a debug thread <strong>without</strong> terminating it.
+     */
+    default void removeDebugThread(@NotNull DebugEnvironment debugEnv) {}
+
+    /**
+     * Terminates and removes a debug thread.
+     */
+    default void terminateDebugThread(@NotNull DebugEnvironment debugEnv) {}
 
     default void printDebugMessage(
         @NotNull ServerPlayer caster,
