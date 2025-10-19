@@ -2,6 +2,7 @@ package gay.object.hexdebug.mixin;
 
 import at.petrak.hexcasting.api.casting.circles.BlockEntityAbstractImpetus;
 import at.petrak.hexcasting.api.casting.circles.CircleExecutionState;
+import at.petrak.hexcasting.api.casting.circles.ICircleComponent;
 import at.petrak.hexcasting.api.casting.eval.env.CircleCastEnv;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -70,14 +71,17 @@ public abstract class MixinCircleExecutionState implements IMixinCircleExecution
         if (world == null) return;
 
         var bs = world.getBlockState(currentPos);
-        if (!(bs.getBlock() instanceof DebuggableCircleComponent debuggable)) return;
+        if (
+            !(bs.getBlock() instanceof ICircleComponent component)
+            || !(bs.getBlock() instanceof DebuggableCircleComponent debuggable)
+        ) return;
 
         var caster = getCaster(world);
         if (caster == null) return;
 
         // we'll be executing this many times, so only energize etc the first time
-        if (!debuggable.isEnergized(currentPos, bs, world)) {
-            bs = debuggable.startEnergized(currentPos, bs, world);
+        if (!component.isEnergized(currentPos, bs, world)) {
+            bs = component.startEnergized(currentPos, bs, world);
             reachedPositions.add(currentPos);
 
             debugEnv$hexdebug.setPaused(true);
