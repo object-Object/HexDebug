@@ -58,6 +58,6 @@ public class SimplePlayerBasedDebugEnv extends DebugEnvironment {
         throws IllegalDebugSessionException, IllegalDebugThreadException
     {
         HexDebugCoreAPI.INSTANCE.createDebugThread(this, threadId);
-        HexDebugCoreAPI.INSTANCE.startExecuting(this, env, iotas, null);
+        HexDebugCoreAPI.INSTANCE.startDebuggingIotas(this, env, iotas, null);
     }
 }

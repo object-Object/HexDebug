@@ -59,7 +59,7 @@ public abstract class MixinBlockSlate
 
         // TODO: maybe startExecuting should return something to tell us if we can continue
         try {
-            HexDebugCoreAPI.INSTANCE.startExecuting(debugEnv, env, iotas, imageIn);
+            HexDebugCoreAPI.INSTANCE.startDebuggingIotas(debugEnv, env, iotas, imageIn);
         } catch (IllegalDebugSessionException ignored) {}
     }
 

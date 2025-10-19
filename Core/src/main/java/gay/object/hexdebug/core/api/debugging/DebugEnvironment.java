@@ -47,7 +47,7 @@ public abstract class DebugEnvironment {
      * when requested by the user.
      * <br>
      * The previous debug thread is removed before this method is called, so the implementation may
-     * use {@link HexDebugCoreAPI#createDebugThread} and {@link HexDebugCoreAPI#startExecuting}.
+     * use {@link HexDebugCoreAPI#createDebugThread} and {@link HexDebugCoreAPI#startDebuggingIotas}.
      * However, note that {@link DebugEnvironment} is <strong>not</strong> called before this
      * method, so it's up to the implementation whether they need to call that or not.
      */
@@ -93,6 +93,10 @@ public abstract class DebugEnvironment {
         if (message != null) {
             printDebugMessage(message, DebugOutputCategory.STDERR);
         }
+    }
+
+    public boolean isDebugging() {
+        return HexDebugCoreAPI.INSTANCE.isSessionDebugging(this);
     }
 
     @NotNull

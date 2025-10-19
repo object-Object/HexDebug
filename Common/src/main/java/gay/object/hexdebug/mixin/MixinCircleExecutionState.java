@@ -137,13 +137,12 @@ public abstract class MixinCircleExecutionState implements IMixinCircleExecution
     private void hexdebug$stopDebugging(BlockEntityAbstractImpetus impetus, CallbackInfo ci) {
         if (debugEnv$hexdebug != null) {
             HexDebugCoreAPI.INSTANCE.removeDebugThread(debugEnv$hexdebug);
-            debugEnv$hexdebug = null;
         }
     }
 
     @ModifyReturnValue(method = "save", at = @At("RETURN"))
     private CompoundTag hexdebug$saveDebugEnvSessionId(CompoundTag out) {
-        if (debugEnv$hexdebug != null) {
+        if (debugEnv$hexdebug != null && debugEnv$hexdebug.isDebugging()) {
             out.putUUID(TAG_HEXDEBUG_SESSION_ID, debugEnv$hexdebug.getSessionId());
         }
         return out;

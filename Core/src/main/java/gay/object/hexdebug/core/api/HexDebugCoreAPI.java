@@ -38,6 +38,11 @@ public interface HexDebugCoreAPI {
         return null;
     }
 
+    @Contract(pure = true)
+    default boolean isSessionDebugging(@NotNull DebugEnvironment debugEnv) {
+        return false;
+    }
+
     /**
      * @throws IllegalDebugSessionException if {@code debugEnv} is currently associated with an
      *     active debug session
@@ -54,7 +59,7 @@ public interface HexDebugCoreAPI {
      * @throws IllegalDebugSessionException if no debug thread is currently associated with
      *     {@code debugEnv}, or if the debugger is already executing something
      */
-    default void startExecuting(
+    default void startDebuggingIotas(
         @NotNull DebugEnvironment debugEnv,
         @NotNull CastingEnvironment env,
         @NotNull List<Iota> iotas,
