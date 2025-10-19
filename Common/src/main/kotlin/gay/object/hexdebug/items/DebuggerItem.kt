@@ -111,32 +111,36 @@ class DebuggerItem(
         val debugger = debugAdapter.debugger(threadId)
         if (debugger != null) {
             if (!debugger.debugEnv.isCasterInRange) {
+                player.displayClientMessage("text.hexdebug.debugging.out_of_range".asTranslatedComponent, true)
                 return InteractionResultHolder.fail(stack)
             }
 
-            // TODO: implement pause?
-
-            // step the ongoing debug session
-            debugAdapter.apply {
-                when (getStepMode(stack)) {
-                    StepMode.CONTINUE -> continue_(ContinueArguments().also {
+            val stepMode = getStepMode(stack)
+            if (debugger.state.canPause && stepMode.canPause) {
+                debugAdapter.pause(PauseArguments().also {
+                    it.threadId = threadId
+                })
+            } else {
+                // step the ongoing debug session
+                when (stepMode) {
+                    StepMode.CONTINUE -> debugAdapter.continue_(ContinueArguments().also {
                         it.threadId = threadId
                         it.singleThread = true
                     })
-                    StepMode.OVER -> next(NextArguments().also {
+                    StepMode.OVER -> debugAdapter.next(NextArguments().also {
                         it.threadId = threadId
                         it.singleThread = true
                     })
-                    StepMode.IN -> stepIn(StepInArguments().also {
+                    StepMode.IN -> debugAdapter.stepIn(StepInArguments().also {
                         it.threadId = threadId
                         it.singleThread = true
                     })
-                    StepMode.OUT -> stepOut(StepOutArguments().also {
+                    StepMode.OUT -> debugAdapter.stepOut(StepOutArguments().also {
                         it.threadId = threadId
                         it.singleThread = true
                     })
-                    StepMode.RESTART -> restartThread(threadId)
-                    StepMode.STOP -> terminateThreads(TerminateThreadsArguments().also {
+                    StepMode.RESTART -> debugAdapter.restartThread(threadId)
+                    StepMode.STOP -> debugAdapter.terminateThreads(TerminateThreadsArguments().also {
                         it.threadIds = intArrayOf(threadId)
                     })
                 }
@@ -163,6 +167,7 @@ class DebuggerItem(
             try {
                 debugEnv.start(threadId)
             } catch (_: DebugException) {
+                player.displayClientMessage("text.hexdebug.debugging.illegal_thread".asTranslatedComponent, true)
                 return InteractionResultHolder.fail(stack)
             }
         }
@@ -260,12 +265,12 @@ class DebuggerItem(
         }
     }
 
-    enum class StepMode {
-        CONTINUE,
-        OVER,
-        IN,
-        OUT,
-        RESTART,
-        STOP,
+    enum class StepMode(val canPause: Boolean) {
+        CONTINUE(canPause = true),
+        OVER(canPause = true),
+        IN(canPause = true),
+        OUT(canPause = true),
+        RESTART(canPause = false),
+        STOP(canPause = false),
     }
 }

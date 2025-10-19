@@ -42,7 +42,7 @@ class EvaluatorItem(
         val debugAdapter = DebugAdapterManager[player]
         val debugger = debugAdapter?.debugger(threadId)
         if (debugAdapter == null || debugger == null) {
-            player.displayClientMessage("text.hexdebug.no_session".asTranslatedComponent(threadId), true)
+            player.displayClientMessage("text.hexdebug.debugging.no_session".asTranslatedComponent(threadId), true)
             return InteractionResultHolder.fail(itemStack)
         }
 
@@ -51,7 +51,7 @@ class EvaluatorItem(
         }
 
         if (debugger.state != DebuggerState.PAUSED) {
-            player.displayClientMessage("text.hexdebug.not_paused".asTranslatedComponent(threadId), true)
+            player.displayClientMessage("text.hexdebug.debugging.not_paused".asTranslatedComponent(threadId), true)
             return InteractionResultHolder.fail(itemStack)
         }
 

@@ -320,7 +320,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         isConnected = true
         state.launchArgs = LaunchArgs(args)
         remoteProxy.initialized()
-        player.displayClientMessage(Component.translatable("text.hexdebug.connected"), true)
+        player.displayClientMessage(Component.translatable("text.hexdebug.debugging.connected"), true)
         return futureOf()
     }
 
