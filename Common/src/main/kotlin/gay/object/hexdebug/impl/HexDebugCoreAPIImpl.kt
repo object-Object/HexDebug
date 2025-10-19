@@ -23,6 +23,10 @@ class HexDebugCoreAPIImpl : HexDebugCoreAPI {
         return DebugAdapterManager[caster]?.debugger(sessionId)?.debugEnv
     }
 
+    override fun getDebugEnv(caster: ServerPlayer, threadId: Int): DebugEnvironment? {
+        return DebugAdapterManager[caster]?.debugger(threadId)?.debugEnv
+    }
+
     override fun isSessionDebugging(debugEnv: DebugEnvironment): Boolean {
         return DebugAdapterManager[debugEnv.caster]?.debugger(debugEnv.sessionId) != null
     }

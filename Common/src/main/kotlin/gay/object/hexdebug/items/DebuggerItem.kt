@@ -192,7 +192,7 @@ class DebuggerItem(
     override fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double, isCtrl: Boolean) {
         val increase = delta < 0
         val component = if (isCtrl) {
-            rotateThreadId(stack, increase)
+            rotateThreadId(sender, stack, increase)
         } else {
             rotateStepMode(stack, increase)
         }

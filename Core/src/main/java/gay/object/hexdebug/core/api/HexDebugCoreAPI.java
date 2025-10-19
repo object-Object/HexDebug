@@ -39,6 +39,12 @@ public interface HexDebugCoreAPI {
     }
 
     @Contract(pure = true)
+    @Nullable
+    default DebugEnvironment getDebugEnv(@NotNull ServerPlayer caster, int threadId) {
+        return null;
+    }
+
+    @Contract(pure = true)
     default boolean isSessionDebugging(@NotNull DebugEnvironment debugEnv) {
         return false;
     }

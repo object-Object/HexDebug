@@ -87,7 +87,7 @@ class EvaluatorItem(
     override fun canShiftScroll(isCtrl: Boolean) = isCtrl && isQuenched
 
     override fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double, isCtrl: Boolean) {
-        val component = rotateThreadId(stack, delta < 0)
+        val component = rotateThreadId(sender, stack, delta < 0)
         sender.displayClientMessage(component, true)
     }
 

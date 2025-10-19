@@ -257,7 +257,10 @@
 
   hexdebug: {
     tooltip: {
-      thread_id: "Thread: %d",
+      thread: {
+        inactive: "Thread %d",
+        active: "Thread %d (%s)",
+      },
       debugger: {
         step_mode: {
           continue: "Mode: Continue",
