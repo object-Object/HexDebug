@@ -27,10 +27,6 @@ class HexDebugCoreAPIImpl : HexDebugCoreAPI {
         return DebugAdapterManager[caster]?.debugger(threadId)?.debugEnv
     }
 
-    override fun isSessionDebugging(debugEnv: DebugEnvironment): Boolean {
-        return DebugAdapterManager[debugEnv.caster]?.debugger(debugEnv.sessionId) != null
-    }
-
     override fun createDebugThread(debugEnv: DebugEnvironment, threadId: Int?) {
         getAdapterOrThrow(debugEnv).createDebugThread(debugEnv, threadId)
     }

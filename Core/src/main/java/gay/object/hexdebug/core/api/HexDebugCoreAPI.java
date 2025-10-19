@@ -44,11 +44,6 @@ public interface HexDebugCoreAPI {
         return null;
     }
 
-    @Contract(pure = true)
-    default boolean isSessionDebugging(@NotNull DebugEnvironment debugEnv) {
-        return false;
-    }
-
     /**
      * @throws IllegalDebugSessionException if {@code debugEnv} is currently associated with an
      *     active debug session
@@ -91,6 +86,13 @@ public interface HexDebugCoreAPI {
         @NotNull DebugOutputCategory category,
         boolean withSource
     ) {}
+
+    // implemented methods
+
+    @Contract(pure = true)
+    default boolean isSessionDebugging(@NotNull DebugEnvironment debugEnv) {
+        return getDebugEnv(debugEnv.getCaster(), debugEnv.getSessionId()) != null;
+    }
 
     // singleton service loading
 

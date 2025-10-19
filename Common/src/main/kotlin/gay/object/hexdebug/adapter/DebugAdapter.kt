@@ -524,8 +524,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
                 .map { (threadId, debugger) ->
                     Thread().apply {
                         id = threadId
-                        name = "Thread $threadId"
-                        debugger.envName?.let { name += " ($it)" }
+                        name = "Thread $threadId (${debugger.debugEnv.name.string})"
                     }
                 }
                 .sortedBy { it.id }

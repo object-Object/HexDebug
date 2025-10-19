@@ -9,6 +9,7 @@ import gay.object.hexdebug.core.api.HexDebugCoreAPI;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,7 +65,18 @@ public abstract class DebugEnvironment {
      * For in-world debugees, returns whether the caster is close enough to the debuggee to allow
      * debug-related actions to be performed (eg. pause, step, restart).
      */
+    @Contract(pure = true)
     public abstract boolean isCasterInRange();
+
+    /**
+     * Returns a display name for this debug session.
+     * <br>
+     * For example, debugger items return the name of the item, and spell circles return the name of
+     * the impetus.
+     */
+    @Contract(pure = true)
+    @NotNull
+    public abstract Component getName();
 
     public void printDebugMessage(@NotNull Component message) {
         printDebugMessage(message, DebugOutputCategory.STDOUT, true);
@@ -95,6 +107,7 @@ public abstract class DebugEnvironment {
         }
     }
 
+    @Contract(pure = true)
     public boolean isDebugging() {
         return HexDebugCoreAPI.INSTANCE.isSessionDebugging(this);
     }

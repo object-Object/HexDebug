@@ -8,6 +8,7 @@ import gay.object.hexdebug.core.api.HexDebugCoreAPI;
 import gay.object.hexdebug.core.api.exceptions.DebugException;
 import gay.object.hexdebug.core.api.exceptions.IllegalDebugSessionException;
 import gay.object.hexdebug.core.api.exceptions.IllegalDebugThreadException;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,15 +20,19 @@ public class SimplePlayerBasedDebugEnv extends DebugEnvironment {
     private final CastingEnvironment env;
     @NotNull
     private final List<Iota> iotas;
+    @NotNull
+    private final Component name;
 
     public SimplePlayerBasedDebugEnv(
         @NotNull ServerPlayer caster,
         @NotNull CastingEnvironment env,
-        @NotNull List<Iota> iotas
-    ) {
+        @NotNull List<Iota> iotas,
+        @NotNull Component name
+        ) {
         super(caster);
         this.env = env;
         this.iotas = iotas;
+        this.name = name;
     }
 
     @Override
@@ -52,6 +57,12 @@ public class SimplePlayerBasedDebugEnv extends DebugEnvironment {
     @Override
     public boolean isCasterInRange() {
         return true;
+    }
+
+    @Override
+    @NotNull
+    public Component getName() {
+        return name;
     }
 
     public void start(@Nullable Integer threadId)

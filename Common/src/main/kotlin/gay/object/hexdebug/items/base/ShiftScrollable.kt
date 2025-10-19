@@ -3,8 +3,8 @@ package gay.`object`.hexdebug.items.base
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.api.utils.getInt
 import at.petrak.hexcasting.api.utils.putInt
-import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.config.HexDebugServerConfig
+import gay.`object`.hexdebug.core.api.HexDebugCoreAPI
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
@@ -27,7 +27,7 @@ fun rotateThreadId(caster: ServerPlayer, stack: ItemStack, increase: Boolean): C
 
     stack.putInt(THREAD_ID_TAG, threadId)
 
-    val envName = DebugAdapterManager[caster]?.debugger(threadId)?.envName
+    val envName = HexDebugCoreAPI.INSTANCE.getDebugEnv(caster, threadId)?.name
     return if (envName != null) {
         "hexdebug.tooltip.thread.active".asTranslatedComponent(threadId, envName)
     } else {

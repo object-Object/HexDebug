@@ -15,6 +15,7 @@ import gay.`object`.hexdebug.items.base.*
 import gay.`object`.hexdebug.utils.asItemPredicate
 import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.otherHand
+import gay.`object`.hexdebug.utils.styledHoverName
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
@@ -158,11 +159,7 @@ class DebuggerItem(
             } ?: return InteractionResultHolder.fail(stack)
 
             val env = DebuggerCastEnv(serverPlayer, usedHand)
-            val debugEnv = SimplePlayerBasedDebugEnv(
-                serverPlayer,
-                env,
-                instrs
-            )
+            val debugEnv = SimplePlayerBasedDebugEnv(serverPlayer, env, instrs, stack.styledHoverName)
 
             try {
                 debugEnv.start(threadId)
