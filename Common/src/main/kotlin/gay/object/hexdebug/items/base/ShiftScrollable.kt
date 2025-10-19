@@ -1,8 +1,6 @@
 package gay.`object`.hexdebug.items.base
 
-import at.petrak.hexcasting.api.utils.asTranslatedComponent
-import at.petrak.hexcasting.api.utils.getInt
-import at.petrak.hexcasting.api.utils.putInt
+import at.petrak.hexcasting.api.utils.*
 import gay.`object`.hexdebug.config.HexDebugServerConfig
 import gay.`object`.hexdebug.core.api.HexDebugCoreAPI
 import net.minecraft.network.chat.Component
@@ -24,13 +22,17 @@ fun getThreadId(stack: ItemStack) = stack.getInt(THREAD_ID_TAG)
 fun rotateThreadId(caster: ServerPlayer, stack: ItemStack, increase: Boolean): Component {
     val threadId = (getThreadId(stack) + (if (increase) 1 else -1))
         .coerceIn(0 until HexDebugServerConfig.config.maxDebugThreads)
-
     stack.putInt(THREAD_ID_TAG, threadId)
+    return displayThread(caster, threadId)
+}
 
-    val envName = HexDebugCoreAPI.INSTANCE.getDebugEnv(caster, threadId)?.name
-    return if (envName != null) {
-        "hexdebug.tooltip.thread.active".asTranslatedComponent(threadId, envName)
+fun displayThread(caster: ServerPlayer?, threadId: Int): Component {
+    val threadText = threadId.toString().asTextComponent.white
+    val envName = caster?.let { HexDebugCoreAPI.INSTANCE.getDebugEnv(it, threadId) }?.name
+    val component = if (envName != null) {
+        "hexdebug.tooltip.thread.active".asTranslatedComponent(threadText, envName)
     } else {
-        "hexdebug.tooltip.thread.inactive".asTranslatedComponent(threadId)
+        "hexdebug.tooltip.thread.inactive".asTranslatedComponent(threadText)
     }
+    return component.gray
 }

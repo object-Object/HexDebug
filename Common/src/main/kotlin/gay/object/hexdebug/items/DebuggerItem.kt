@@ -28,6 +28,7 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
+import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.item.context.UseOnContext
 import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.minecraft.world.item.enchantment.Enchantments
@@ -181,6 +182,16 @@ class DebuggerItem(
             attacker.displayClientMessage(Component.translatable("text.hexdebug.thwack"), true)
         }
         return super.hurtEnemy(stack, target, attacker)
+    }
+
+    override fun appendHoverText(
+        stack: ItemStack,
+        level: Level?,
+        tooltipComponents: MutableList<Component>,
+        isAdvanced: TooltipFlag,
+    ) {
+        tooltipComponents.add(displayThread(null, getThreadId(stack)))
+        super.appendHoverText(stack, level, tooltipComponents, isAdvanced)
     }
 
     // always allow shift, only allow ctrl if quenched
