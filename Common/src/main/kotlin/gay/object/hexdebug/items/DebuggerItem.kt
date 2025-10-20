@@ -190,7 +190,9 @@ class DebuggerItem(
         tooltipComponents: MutableList<Component>,
         isAdvanced: TooltipFlag,
     ) {
-        tooltipComponents.add(displayThread(null, getThreadId(stack)))
+        if (isQuenched) {
+            tooltipComponents.add(displayThread(null, getThreadId(stack)))
+        }
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced)
     }
 
