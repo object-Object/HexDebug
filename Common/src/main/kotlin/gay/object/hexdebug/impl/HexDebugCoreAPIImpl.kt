@@ -6,7 +6,7 @@ import at.petrak.hexcasting.api.casting.iota.Iota
 import gay.`object`.hexdebug.adapter.DebugAdapter
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.core.api.HexDebugCoreAPI
-import gay.`object`.hexdebug.core.api.debugging.DebugEnvironment
+import gay.`object`.hexdebug.core.api.debugging.env.DebugEnvironment
 import gay.`object`.hexdebug.core.api.debugging.DebugOutputCategory
 import gay.`object`.hexdebug.core.api.exceptions.IllegalDebugSessionException
 import net.minecraft.network.chat.Component

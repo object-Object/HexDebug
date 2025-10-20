@@ -9,7 +9,7 @@ import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.DebuggerCastEnv
 import gay.`object`.hexdebug.core.api.debugging.DebuggableBlock
-import gay.`object`.hexdebug.core.api.debugging.SimplePlayerBasedDebugEnv
+import gay.`object`.hexdebug.core.api.debugging.env.SimplePlayerBasedDebugEnv
 import gay.`object`.hexdebug.core.api.exceptions.DebugException
 import gay.`object`.hexdebug.items.base.*
 import gay.`object`.hexdebug.utils.asItemPredicate
@@ -160,7 +160,12 @@ class DebuggerItem(
             } ?: return InteractionResultHolder.fail(stack)
 
             val env = DebuggerCastEnv(serverPlayer, usedHand)
-            val debugEnv = SimplePlayerBasedDebugEnv(serverPlayer, env, instrs, stack.styledHoverName)
+            val debugEnv = SimplePlayerBasedDebugEnv(
+                serverPlayer,
+                env,
+                instrs,
+                stack.styledHoverName
+            )
 
             try {
                 debugEnv.start(threadId)

@@ -1,7 +1,6 @@
 package gay.object.hexdebug.mixin;
 
 import at.petrak.hexcasting.api.block.circle.BlockCircleComponent;
-import at.petrak.hexcasting.api.casting.circles.ICircleComponent;
 import at.petrak.hexcasting.api.casting.eval.ExecutionClientView;
 import at.petrak.hexcasting.api.casting.eval.env.CircleCastEnv;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
@@ -13,7 +12,7 @@ import at.petrak.hexcasting.common.blocks.circles.BlockSlate;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import gay.object.hexdebug.core.api.HexDebugCoreAPI;
-import gay.object.hexdebug.core.api.debugging.BaseCircleDebugEnv;
+import gay.object.hexdebug.core.api.debugging.env.BaseCircleDebugEnv;
 import gay.object.hexdebug.core.api.debugging.DebuggableCircleComponent;
 import gay.object.hexdebug.core.api.exceptions.IllegalDebugSessionException;
 import net.minecraft.core.BlockPos;

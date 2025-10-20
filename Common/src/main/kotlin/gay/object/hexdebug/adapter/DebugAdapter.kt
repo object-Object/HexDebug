@@ -11,7 +11,7 @@ import at.petrak.hexcasting.api.casting.math.HexPattern
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyServerLauncher
 import gay.`object`.hexdebug.config.HexDebugServerConfig
-import gay.`object`.hexdebug.core.api.debugging.DebugEnvironment
+import gay.`object`.hexdebug.core.api.debugging.env.DebugEnvironment
 import gay.`object`.hexdebug.core.api.exceptions.IllegalDebugSessionException
 import gay.`object`.hexdebug.core.api.exceptions.IllegalDebugThreadException
 import gay.`object`.hexdebug.debugger.*

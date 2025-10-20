@@ -6,7 +6,7 @@ import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
 import at.petrak.hexcasting.api.casting.eval.env.PlayerBasedCastEnv.AMBIT_RADIUS
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage
-import gay.`object`.hexdebug.core.api.debugging.BaseCircleDebugEnv
+import gay.`object`.hexdebug.core.api.debugging.env.BaseCircleDebugEnv
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
