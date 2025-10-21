@@ -32,6 +32,7 @@ val mojmapJar by tasks.registering(RemapJarTask::class) {
 
 val mojmapSourcesJar by tasks.registering(RemapSourcesJarTask::class) {
     setupMojmapTask("remapSourcesJar")
+    archiveClassifier = "sources"
 }
 
 @Suppress("UnstableApiUsage")
