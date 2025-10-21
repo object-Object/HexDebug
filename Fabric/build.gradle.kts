@@ -37,7 +37,9 @@ hexdebugModDependencies {
         replace(Regex("""\](\S+)"""), ">$1")
         replace(Regex("""(\S+)\["""), "<$1")
     }
+}
 
+hexdebugPublishDependencies {
     requires("architectury-api")
     requires("cloth-config")
     requires(curseforge = "hexcasting", modrinth = "hex-casting")

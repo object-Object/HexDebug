@@ -3,10 +3,8 @@
   "id": "hexdebug",
   "version": "${modVersion}",
   "name": "HexDebug",
-  "description": "The HexDebug addon for Hex Casting",
-  "authors": [
-    "object-Object"
-  ],
+  "description": "A Hex Casting addon for debugging and editing hexes.",
+  "authors": ["object-Object"],
   "contact": {
     "homepage": "https://hexdebug.hexxy.media",
     "sources": "https://github.com/object-Object/HexDebug"

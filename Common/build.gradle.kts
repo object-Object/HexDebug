@@ -24,7 +24,7 @@ dependencies {
         annotationProcessor(it)
     }
 
-    api(libs.bundles.lsp4j)
+    implementation(libs.bundles.lsp4j)
 
     implementation(libs.bundles.ktor)
 
@@ -32,5 +32,5 @@ dependencies {
 
     modCompileOnly(libs.emi.xplat)
 
-    api(project(":Core"))
+    api(project(":hexdebug-core-common", "namedElements"))
 }
