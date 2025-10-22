@@ -51,8 +51,8 @@ public abstract class DebugEnvironment {
      * <br>
      * The previous debug thread is removed before this method is called, so the implementation may
      * use {@link HexDebugCoreAPI#createDebugThread} and {@link HexDebugCoreAPI#startDebuggingIotas}.
-     * However, note that {@link DebugEnvironment} is <strong>not</strong> called before this
-     * method, so it's up to the implementation whether they need to call that or not.
+     * However, note that {@link DebugEnvironment#terminate} is <strong>not</strong> called before
+     * this method.
      */
     public abstract void restart(int threadId);
 
