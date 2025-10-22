@@ -3,6 +3,7 @@ package gay.object.hexdebug.core.api.debugging.env;
 import at.petrak.hexcasting.api.casting.castables.Action;
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment;
 import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType;
+import at.petrak.hexcasting.api.casting.eval.env.StaffCastEnv;
 import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
 import gay.object.hexdebug.core.api.HexDebugCoreAPI;
@@ -84,13 +85,14 @@ public abstract class DebugEnvironment {
     /**
      * Do whatever you like after each debugger step.
      * <br>
-     * Called by the debugger after an execution step is finished, unless the debug session was
-     * resumed or terminated as a result of the step.
+     * This is called by the debugger after it finishes executing some number of iotas.
+     * {@code reason} is the reason why the debugger stopped at this point, or {@code null} if it
+     * ran out of iotas to execute and {@link DebugEnvironment#resume} returned {@code true}.
      */
     public void postStep(
         @NotNull CastingEnvironment env,
         @NotNull CastingImage image,
-        @NotNull StopReason reason
+        @Nullable StopReason reason
     ) {}
 
     public void printDebugMessage(@NotNull Component message) {

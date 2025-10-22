@@ -245,12 +245,8 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             // stopped
             sendStoppedEvent(threadId, result.reason)
 
-            debugger(threadId)?.let { debugger ->
-                debugger.getNextIotaToEvaluate()?.also { (iota, index) ->
-                    printDebuggerStatus(iota, index)
-                }
-
-                debugger.postStep(result.reason)
+            debugger(threadId)?.getNextIotaToEvaluate()?.also { (iota, index) ->
+                printDebuggerStatus(iota, index)
             }
         } else if (wasPaused) {
             // running

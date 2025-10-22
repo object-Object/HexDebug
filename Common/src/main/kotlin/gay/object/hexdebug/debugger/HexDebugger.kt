@@ -139,10 +139,6 @@ class HexDebugger(
         return iotaToString(iota, isSource = false) to (meta?.lineIndex ?: -1)
     }
 
-    fun postStep(reason: StopReason) {
-        currentEnv?.let { debugEnv.postStep(it, image, reason) }
-    }
-
     fun getStackFrames(): Sequence<StackFrame> {
         var frameId = 1
         var virtualFrameId = (callStack.size + 1).ceilToPow(10)
@@ -362,7 +358,9 @@ class HexDebugger(
         }
 
         nextContinuation = nextContinuation.pushFrame(FrameEvaluate(list, false))
-        return executeNextDebugStep(vm, doStaffMishaps = true).copy(startedEvaluating = startedEvaluating)
+        return executeNextDebugStep(vm, doStaffMishaps = true)
+            .copy(startedEvaluating = startedEvaluating)
+            .also { postStep(vm, it) }
     }
 
     /**
@@ -430,8 +428,11 @@ class HexDebugger(
     }
 
     fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult {
-        val vm = getVM() ?: return DebugStepResult(null)
+        val vm = getVM() ?: return DebugStepResult(null, skipped = true)
+        return executeUntilStopped(vm, stepType).also { postStep(vm, it) }
+    }
 
+    private fun executeUntilStopped(vm: CastingVM, stepType: RequestStepType? = null): DebugStepResult {
         lastRequestStepType = stepType
         if (stepType == RequestStepType.IN) return executeNextDebugStep(vm)
 
@@ -500,10 +501,10 @@ class HexDebugger(
     ): DebugStepResult {
         var stepResult = DebugStepResult(StopReason.STEP)
 
-        if (state == DebuggerState.RUNNING) return stepResult.copy(reason = null)
+        if (state == DebuggerState.RUNNING) return stepResult.resumed().skipped()
 
         var continuation = nextContinuation // bind locally so we can do smart casting
-        if (continuation !is NotDone) return stepResult.done()
+        if (continuation !is NotDone) return stepResult.done().skipped()
 
         variablesAllocator.clear()
 
@@ -622,7 +623,7 @@ class HexDebugger(
         return when (continuation) {
             is Done -> if (state.canResume && debugEnv.resume(vm.env, image, lastResolutionType)) {
                 state = DebuggerState.RUNNING
-                stepResult.copy(reason = null)
+                stepResult.resumed()
             } else {
                 // we terminate the debuggee in handleDebuggerStep
                 state = DebuggerState.TERMINATED
@@ -630,6 +631,12 @@ class HexDebugger(
             }
             is NotDone -> stepResult
         }.copy(clientInfo = getClientView(vm))
+    }
+
+    private fun postStep(vm: CastingVM, result: DebugStepResult) {
+        if (!result.skipped) {
+            debugEnv.postStep(vm.env, image, result.reason)
+        }
     }
 
     private fun shouldStopAtFrame(continuation: SpellContinuation) =

@@ -13,10 +13,15 @@ data class DebugStepResult(
     val clientInfo: ExecutionClientView? = null,
     val loadedSources: Map<Source, LoadedSourceReason> = mapOf(),
     val startedEvaluating: Boolean = false,
+    val skipped: Boolean = false,
 ) {
     val isDone = reason == StopReason.TERMINATED
 
     fun done() = copy(reason = StopReason.TERMINATED)
+
+    fun resumed() = copy(reason = null)
+
+    fun skipped() = copy(skipped = true)
 
     operator fun plus(other: DebugStepResult) = copy(
         loadedSources = loadedSources + other.loadedSources,

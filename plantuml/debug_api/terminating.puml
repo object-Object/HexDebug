@@ -15,6 +15,9 @@ User ->> Adapter ++: request: continue
 
         Debugger -> DebugEnv ++: ""resume(env, image, resolutionType)""
         return ""false""
+
+        Debugger -> DebugEnv ++: ""postStep(env, image, reason)""
+        return
     return unable to resume
 
     Adapter ->> User: event: thread exited
