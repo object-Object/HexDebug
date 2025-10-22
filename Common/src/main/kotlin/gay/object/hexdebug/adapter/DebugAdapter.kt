@@ -11,6 +11,7 @@ import at.petrak.hexcasting.api.casting.math.HexPattern
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.proxy.DebugProxyServerLauncher
 import gay.`object`.hexdebug.config.HexDebugServerConfig
+import gay.`object`.hexdebug.core.api.debugging.StopReason
 import gay.`object`.hexdebug.core.api.debugging.env.DebugEnvironment
 import gay.`object`.hexdebug.core.api.exceptions.IllegalDebugSessionException
 import gay.`object`.hexdebug.core.api.exceptions.IllegalDebugThreadException
@@ -244,8 +245,12 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             // stopped
             sendStoppedEvent(threadId, result.reason)
 
-            debugger(threadId)?.getNextIotaToEvaluate()?.also { (iota, index) ->
-                printDebuggerStatus(iota, index)
+            debugger(threadId)?.let { debugger ->
+                debugger.getNextIotaToEvaluate()?.also { (iota, index) ->
+                    printDebuggerStatus(iota, index)
+                }
+
+                debugger.postStep(result.reason)
             }
         } else if (wasPaused) {
             // running
@@ -260,10 +265,18 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
     private fun sendStoppedEvent(threadId: Int?, reason: StopReason) {
         if (threadId == null) {
             debuggers.keys.forEach { sendStoppedEvent(it, reason) }
-        } else if (reason.value != null) {
+        } else {
+            val reasonStr = when (reason) {
+                StopReason.STEP -> StoppedEventArgumentsReason.STEP
+                StopReason.PAUSE -> StoppedEventArgumentsReason.PAUSE
+                StopReason.BREAKPOINT -> StoppedEventArgumentsReason.BREAKPOINT
+                StopReason.EXCEPTION -> StoppedEventArgumentsReason.EXCEPTION
+                StopReason.STARTED -> StoppedEventArgumentsReason.ENTRY
+                StopReason.TERMINATED -> return
+            }
             remoteProxy.stopped(StoppedEventArguments().also {
                 it.threadId = threadId
-                it.reason = reason.value
+                it.reason = reasonStr
             })
         }
     }

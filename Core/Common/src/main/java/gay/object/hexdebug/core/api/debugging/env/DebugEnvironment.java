@@ -8,6 +8,7 @@ import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
 import gay.object.hexdebug.core.api.HexDebugCoreAPI;
 import gay.object.hexdebug.core.api.debugging.DebugOutputCategory;
 import gay.object.hexdebug.core.api.debugging.DebugStepType;
+import gay.object.hexdebug.core.api.debugging.StopReason;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.ApiStatus;
@@ -79,6 +80,18 @@ public abstract class DebugEnvironment {
     @Contract(pure = true)
     @NotNull
     public abstract Component getName();
+
+    /**
+     * Do whatever you like after each debugger step.
+     * <br>
+     * Called by the debugger after an execution step is finished, unless the debug session was
+     * resumed or terminated as a result of the step.
+     */
+    public void postStep(
+        @NotNull CastingEnvironment env,
+        @NotNull CastingImage image,
+        @NotNull StopReason reason
+    ) {}
 
     public void printDebugMessage(@NotNull Component message) {
         printDebugMessage(message, DebugOutputCategory.STDOUT, true);

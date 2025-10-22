@@ -38,6 +38,9 @@ User ->> Adapter ++: request: step
     return stopped on step
 
     Adapter ->> User: event: stopped on step
+
+    Adapter -> DebugEnv ++: ""postStep(env, image, reason)""
+    return
 deactivate Adapter
 
 ...
@@ -49,6 +52,9 @@ Debuggee2 -> Debuggee2 ++: pause
             return stopped on entry
 
             Adapter ->> User: event: stopped on entry
+
+            Adapter -> DebugEnv ++: ""postStep(env, image, reason)""
+            return
         return
     return
 deactivate Debuggee2

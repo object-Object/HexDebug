@@ -15,8 +15,9 @@ import at.petrak.hexcasting.common.casting.actions.eval.OpEval
 import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
 import gay.`object`.hexdebug.casting.eval.FrameBreakpoint
 import gay.`object`.hexdebug.casting.iotas.CognitohazardIota
-import gay.`object`.hexdebug.core.api.debugging.env.DebugEnvironment
 import gay.`object`.hexdebug.core.api.debugging.DebugStepType
+import gay.`object`.hexdebug.core.api.debugging.StopReason
+import gay.`object`.hexdebug.core.api.debugging.env.DebugEnvironment
 import gay.`object`.hexdebug.debugger.allocators.VariablesAllocator
 import gay.`object`.hexdebug.impl.IDebugEnvAccessor
 import gay.`object`.hexdebug.utils.ceilToPow
@@ -136,6 +137,10 @@ class HexDebugger(
         val continuation = nextContinuation as? NotDone ?: return null
         val (iota, meta) = getFirstIotaMetadata(continuation) ?: return null
         return iotaToString(iota, isSource = false) to (meta?.lineIndex ?: -1)
+    }
+
+    fun postStep(reason: StopReason) {
+        currentEnv?.let { debugEnv.postStep(it, image, reason) }
     }
 
     fun getStackFrames(): Sequence<StackFrame> {

@@ -2,6 +2,7 @@ package gay.`object`.hexdebug.debugger
 
 import at.petrak.hexcasting.api.casting.eval.ExecutionClientView
 import gay.`object`.hexdebug.core.api.debugging.DebugStepType
+import gay.`object`.hexdebug.core.api.debugging.StopReason
 import org.eclipse.lsp4j.debug.Source
 import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceReason
 

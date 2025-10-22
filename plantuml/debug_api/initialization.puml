@@ -40,6 +40,9 @@ activate Debuggee
             return stopped on entry
 
             Adapter ->> User: event: stopped on entry
+
+            Adapter -> DebugEnv ++: ""postStep(env, image, reason)""
+            return
         return
     return
 deactivate Debuggee

@@ -22,7 +22,11 @@ User ->> Adapter ++: request: step forward
                 end
             return
         return stopped on step
+
         Adapter ->> User: event: stopped on step
+
+        Adapter -> DebugEnv ++: ""postStep(env, image, reason)""
+        return
     else caster out of range
         Adapter ->> User: error: out of range
     end
@@ -55,6 +59,9 @@ Debuggee -> API ++: ""startDebuggingIotas(...)""
         return stopped on step
 
         Adapter ->> User: event: stopped on step
+
+        Adapter -> DebugEnv ++: ""postStep(env, image, reason)""
+        return
     return
 return
 deactivate Debuggee
