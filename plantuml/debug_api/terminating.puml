@@ -1,0 +1,58 @@
+@startuml
+
+!include ./_base.puml
+
+title Terminating
+
+==Terminating via ""resume()""==
+
+User ->> Adapter ++: request: continue
+    Adapter -> DebugEnv ++: ""isCasterInRange()""
+    return true
+
+    Adapter -> Debugger ++: continue
+        Debugger -> Debugger: execute all iotas
+
+        Debugger -> DebugEnv ++: ""resume(env, image, resolutionType)""
+        return ""false""
+    return unable to resume
+
+    Adapter ->> User: event: thread exited
+
+    Adapter -> Debugger !!: remove
+
+    Adapter -> DebugEnv ++: ""terminate()""
+        DebugEnv ->> Debuggee !!: terminate
+    return
+deactivate Adapter
+
+==Terminating via API==
+
+Debuggee -> API ++: ""terminateDebugThread(debugEnv)""
+activate Debuggee
+    API -> Adapter ++: terminate thread
+        Adapter ->> User: event: thread exited
+
+        Adapter -> Debugger !!: remove
+
+        Adapter -> DebugEnv ++: ""terminate()""
+            DebugEnv ->> Debuggee !!: terminate
+        return
+    return
+return
+deactivate Debuggee
+
+==Removing via API==
+
+Debuggee -> API ++: ""removeDebugThread(debugEnv)""
+activate Debuggee
+    API -> Adapter ++: terminate thread
+        Adapter ->> User: event: thread exited
+
+        Adapter -> Debugger !!: remove
+    return
+return
+
+Debuggee -> Debuggee !!: terminate
+
+@enduml
