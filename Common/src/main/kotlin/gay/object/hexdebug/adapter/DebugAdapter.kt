@@ -229,9 +229,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
         // TODO: set nonzero exit code if we hit a mishap
         if (result.isDone) {
-            terminateThreads(TerminateThreadsArguments().also {
-                it.threadIds = intArrayOf(threadId)
-            })
+            terminateThreads(listOf(threadId))
             return view
         }
 
@@ -456,13 +454,16 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         val toRemove = args.threadIds.filter { inRangeDebugger(it) != null }
         if (toRemove.isEmpty()) return futureOf()
 
+        terminateThreads(toRemove)
+
+        return futureOf()
+    }
+
+    private fun terminateThreads(toRemove: List<Int>) {
         for (threadId in toRemove) {
             removeThreadInner(threadId, terminate = true)
         }
-
         postRemoveThreads(toRemove)
-
-        return futureOf()
     }
 
     private fun removeThreadInner(threadId: Int, terminate: Boolean) {
