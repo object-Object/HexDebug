@@ -1,7 +1,6 @@
 package gay.`object`.hexdebug.items
 
 import at.petrak.hexcasting.api.casting.ParticleSpray
-import at.petrak.hexcasting.api.casting.eval.env.StaffCastEnv
 import at.petrak.hexcasting.api.utils.asTranslatedComponent
 import at.petrak.hexcasting.common.items.ItemStaff
 import at.petrak.hexcasting.common.lib.HexSounds
@@ -126,8 +125,7 @@ class EvaluatorItem(
                 return
             }
 
-            val env = StaffCastEnv(sender, msg.handUsed)
-            val clientInfo = debugAdapter.evaluate(threadId, env, msg.pattern) ?: return
+            val clientInfo = debugAdapter.evaluate(threadId, msg.pattern) ?: return
 
             debugger.evaluatorUIPatterns.clear()
             if (!clientInfo.isStackClear) {

@@ -172,15 +172,15 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         })
     }
 
-    fun evaluate(threadId: Int, env: CastingEnvironment, pattern: HexPattern) =
-        evaluate(threadId, env, PatternIota(pattern))
+    fun evaluate(threadId: Int, pattern: HexPattern) =
+        evaluate(threadId, PatternIota(pattern))
 
-    fun evaluate(threadId: Int, env: CastingEnvironment, iota: Iota) =
-        evaluate(threadId, env, SpellList.LList(listOf(iota)))
+    fun evaluate(threadId: Int, iota: Iota) =
+        evaluate(threadId, SpellList.LList(listOf(iota)))
 
-    fun evaluate(threadId: Int, env: CastingEnvironment, list: SpellList) =
+    fun evaluate(threadId: Int, list: SpellList) =
         inRangeDebugger(threadId)?.let {
-            val result = it.evaluate(env, list) ?: return null
+            val result = it.evaluate(list) ?: return null
             if (result.startedEvaluating) {
                 setEvaluatorState(threadId, EvaluatorItem.EvalState.MODIFIED)
             }
@@ -253,6 +253,8 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             remoteProxy.continued(ContinuedEventArguments().also {
                 it.threadId = threadId
             })
+
+            closeEvaluator(threadId)
         }
 
         return view

@@ -26,7 +26,6 @@ import gay.`object`.hexdebug.utils.toHexpatternSource
 import org.eclipse.lsp4j.debug.*
 import java.util.*
 import kotlin.math.min
-import kotlin.reflect.jvm.jvmName
 import org.eclipse.lsp4j.debug.LoadedSourceEventArgumentsReason as LoadedSourceReason
 
 class HexDebugger(
@@ -37,7 +36,7 @@ class HexDebugger(
     var state = DebuggerState.RUNNING
         private set
 
-    private var currentEnv: CastingEnvironment? = null
+    private var env: CastingEnvironment? = null
         set(value) {
             field = value
             (value as? IDebugEnvAccessor)?.`debugEnv$hexdebug` = debugEnv
@@ -47,9 +46,6 @@ class HexDebugger(
         private set
 
     private var lastRequestStepType: RequestStepType? = null
-
-    // TODO: delegate to debug env?
-    val envName: String? get() = currentEnv?.let { it::class.simpleName ?: it::class.jvmName }
 
     val sessionId get() = debugEnv.sessionId
 
@@ -87,7 +83,7 @@ class HexDebugger(
 
     private val nextFrame get() = (nextContinuation as? NotDone)?.frame
 
-    private fun getVM(env: CastingEnvironment? = null) = (env ?: currentEnv)?.let { CastingVM(image, it) }
+    private fun getVM() = env?.let { CastingVM(image, it) }
 
     private fun registerNewSource(frame: ContinuationFrame): Source? = getIotas(frame)?.let(::registerNewSource)
 
@@ -250,7 +246,7 @@ class HexDebugger(
     }
 
     private fun getRavenmind(): Iota {
-        val env = currentEnv
+        val env = env
         return if (env != null && image.userData.contains(HexAPI.RAVENMIND_USERDATA)) {
             IotaType.deserialize(image.userData.getCompound(HexAPI.RAVENMIND_USERDATA), env.world)
         } else {
@@ -339,14 +335,14 @@ class HexDebugger(
     /**
      * Use [DebugAdapter.evaluate][gay.object.hexdebug.adapter.DebugAdapter.evaluate] instead.
      */
-    internal fun evaluate(env: CastingEnvironment, list: SpellList): DebugStepResult? {
-        val vm = getVM(env) ?: return null
-        (env as IDebugEnvAccessor).`debugEnv$hexdebug` = debugEnv
+    internal fun evaluate(list: SpellList): DebugStepResult? {
+        val vm = getVM() ?: return null
+        (vm.env as IDebugEnvAccessor).`debugEnv$hexdebug` = debugEnv
 
         if (state == DebuggerState.CAUGHT_MISHAP) {
             // manually trigger the mishap sound
             // TODO: this feels scuffed.
-            env.postExecution(
+            vm.env.postExecution(
                 CastResult(NullIota(), nextContinuation, null, listOf(), lastResolutionType, HexEvalSounds.MISHAP)
             )
             return DebugStepResult(StopReason.EXCEPTION, clientInfo = getClientView(vm))
@@ -360,7 +356,7 @@ class HexDebugger(
         nextContinuation = nextContinuation.pushFrame(FrameEvaluate(list, false))
         return executeNextDebugStep(vm, doStaffMishaps = true)
             .copy(startedEvaluating = startedEvaluating)
-            .also { postStep(vm, it) }
+            .also(::postStep)
     }
 
     /**
@@ -375,6 +371,7 @@ class HexDebugger(
         }
         evaluatorResetData = null
         evaluatorUIPatterns.clear()
+        postStep(DebugStepResult(StopReason.STEP))
     }
 
     fun startExecuting(env: CastingEnvironment, iotas: List<Iota>, image: CastingImage?): DebugStepResult? {
@@ -383,11 +380,11 @@ class HexDebugger(
         }
 
         // if currentEnv is null, we haven't executed anything yet
-        val isStarting = currentEnv == null
+        val isStarting = this.env == null
         val isPausing = state == DebuggerState.PAUSING
 
         state = DebuggerState.PAUSED
-        currentEnv = env
+        this.env = env
         image?.let { this.image = it }
 
         var newContinuation: SpellContinuation = Done
@@ -429,7 +426,7 @@ class HexDebugger(
 
     fun executeUntilStopped(stepType: RequestStepType? = null): DebugStepResult {
         val vm = getVM() ?: return DebugStepResult(null, skipped = true)
-        return executeUntilStopped(vm, stepType).also { postStep(vm, it) }
+        return executeUntilStopped(vm, stepType).also(::postStep)
     }
 
     private fun executeUntilStopped(vm: CastingVM, stepType: RequestStepType? = null): DebugStepResult {
@@ -633,9 +630,10 @@ class HexDebugger(
         }.copy(clientInfo = getClientView(vm))
     }
 
-    private fun postStep(vm: CastingVM, result: DebugStepResult) {
-        if (!result.skipped) {
-            debugEnv.postStep(vm.env, image, result.reason)
+    private fun postStep(result: DebugStepResult) {
+        val env = env
+        if (!result.skipped && env != null) {
+            debugEnv.postStep(env, image, result.reason)
         }
     }
 
@@ -758,7 +756,7 @@ class HexDebugger(
     }
 
     private fun iotaToString(iota: Iota, isSource: Boolean = false): String {
-        val env = currentEnv ?: return "" // FIXME: hack
+        val env = env ?: return "" // FIXME: hack
         return if (isSource) {
             iota.toHexpatternSource(env)
         } else {
