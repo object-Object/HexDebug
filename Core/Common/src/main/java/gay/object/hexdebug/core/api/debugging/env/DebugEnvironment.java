@@ -6,7 +6,7 @@ import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType;
 import at.petrak.hexcasting.api.casting.eval.sideeffects.OperatorSideEffect;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
 import gay.object.hexdebug.core.api.HexDebugCoreAPI;
-import gay.object.hexdebug.core.api.debugging.DebugOutputCategory;
+import gay.object.hexdebug.core.api.debugging.OutputCategory;
 import gay.object.hexdebug.core.api.debugging.DebugStepType;
 import gay.object.hexdebug.core.api.debugging.StopReason;
 import net.minecraft.network.chat.Component;
@@ -94,19 +94,19 @@ public abstract class DebugEnvironment {
     ) {}
 
     public void printDebugMessage(@NotNull Component message) {
-        printDebugMessage(message, DebugOutputCategory.STDOUT, true);
+        printDebugMessage(message, OutputCategory.STDOUT, true);
     }
 
     public void printDebugMessage(
         @NotNull Component message,
-        @NotNull DebugOutputCategory category
+        @NotNull OutputCategory category
     ) {
         printDebugMessage(message, category, true);
     }
 
     public void printDebugMessage(
         @NotNull Component message,
-        @NotNull DebugOutputCategory category,
+        @NotNull OutputCategory category,
         boolean withSource
     ) {
         HexDebugCoreAPI.INSTANCE.printDebugMessage(caster, sessionId, message, category, withSource);
@@ -118,7 +118,7 @@ public abstract class DebugEnvironment {
     ) {
         var message = sideEffect.getMishap().errorMessageWithName(env, sideEffect.getErrorCtx());
         if (message != null) {
-            printDebugMessage(message, DebugOutputCategory.STDERR);
+            printDebugMessage(message, OutputCategory.STDERR);
         }
     }
 

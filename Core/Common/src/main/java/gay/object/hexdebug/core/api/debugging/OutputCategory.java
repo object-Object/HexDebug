@@ -1,6 +1,6 @@
 package gay.object.hexdebug.core.api.debugging;
 
-public enum DebugOutputCategory {
+public enum OutputCategory {
     CONSOLE,
     IMPORTANT,
     STDOUT,

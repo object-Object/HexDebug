@@ -4,7 +4,7 @@ import at.petrak.hexcasting.api.casting.eval.CastingEnvironment;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
 import at.petrak.hexcasting.api.casting.iota.Iota;
 import gay.object.hexdebug.core.api.debugging.env.DebugEnvironment;
-import gay.object.hexdebug.core.api.debugging.DebugOutputCategory;
+import gay.object.hexdebug.core.api.debugging.OutputCategory;
 import gay.object.hexdebug.core.api.exceptions.IllegalDebugSessionException;
 import gay.object.hexdebug.core.api.exceptions.IllegalDebugThreadException;
 import net.minecraft.network.chat.Component;
@@ -83,7 +83,7 @@ public interface HexDebugCoreAPI {
         @NotNull ServerPlayer caster,
         @NotNull UUID sessionId,
         @NotNull Component message,
-        @NotNull DebugOutputCategory category,
+        @NotNull OutputCategory category,
         boolean withSource
     ) {}
 

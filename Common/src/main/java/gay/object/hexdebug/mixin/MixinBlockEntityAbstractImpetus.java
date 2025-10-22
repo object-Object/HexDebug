@@ -6,7 +6,7 @@ import at.petrak.hexcasting.api.casting.circles.CircleExecutionState;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import gay.object.hexdebug.core.api.HexDebugCoreAPI;
-import gay.object.hexdebug.core.api.debugging.DebugOutputCategory;
+import gay.object.hexdebug.core.api.debugging.OutputCategory;
 import gay.object.hexdebug.core.api.exceptions.DebugException;
 import gay.object.hexdebug.debugger.circles.CircleDebugEnv;
 import gay.object.hexdebug.debugger.circles.IMixinBlockEntityAbstractImpetus;
@@ -80,7 +80,7 @@ public abstract class MixinBlockEntityAbstractImpetus
         if (executionState != null) {
             var debugEnv = ((IMixinCircleExecutionState) executionState).getDebugEnv$hexdebug();
             if (debugEnv != null) {
-                debugEnv.printDebugMessage(mishapDisplay, DebugOutputCategory.STDERR);
+                debugEnv.printDebugMessage(mishapDisplay, OutputCategory.STDERR);
             }
         }
     }
@@ -101,7 +101,7 @@ public abstract class MixinBlockEntityAbstractImpetus
         if (executionState != null) {
             var debugEnv = ((IMixinCircleExecutionState) executionState).getDebugEnv$hexdebug();
             if (debugEnv != null) {
-                debugEnv.printDebugMessage(error, DebugOutputCategory.STDERR, false);
+                debugEnv.printDebugMessage(error, OutputCategory.STDERR, false);
             }
         }
         original.call(instance, error, display);

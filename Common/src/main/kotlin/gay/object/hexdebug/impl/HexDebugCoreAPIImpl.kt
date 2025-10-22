@@ -6,8 +6,8 @@ import at.petrak.hexcasting.api.casting.iota.Iota
 import gay.`object`.hexdebug.adapter.DebugAdapter
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.core.api.HexDebugCoreAPI
+import gay.`object`.hexdebug.core.api.debugging.OutputCategory
 import gay.`object`.hexdebug.core.api.debugging.env.DebugEnvironment
-import gay.`object`.hexdebug.core.api.debugging.DebugOutputCategory
 import gay.`object`.hexdebug.core.api.exceptions.IllegalDebugSessionException
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -52,15 +52,15 @@ class HexDebugCoreAPIImpl : HexDebugCoreAPI {
         caster: ServerPlayer,
         sessionId: UUID,
         message: Component,
-        category: DebugOutputCategory,
+        category: OutputCategory,
         withSource: Boolean,
     ) {
         val categoryStr = when (category) {
-            DebugOutputCategory.CONSOLE -> OutputEventArgumentsCategory.CONSOLE
-            DebugOutputCategory.IMPORTANT -> OutputEventArgumentsCategory.IMPORTANT
-            DebugOutputCategory.STDOUT -> OutputEventArgumentsCategory.STDOUT
-            DebugOutputCategory.STDERR -> OutputEventArgumentsCategory.STDERR
-            DebugOutputCategory.TELEMETRY -> OutputEventArgumentsCategory.TELEMETRY
+            OutputCategory.CONSOLE -> OutputEventArgumentsCategory.CONSOLE
+            OutputCategory.IMPORTANT -> OutputEventArgumentsCategory.IMPORTANT
+            OutputCategory.STDOUT -> OutputEventArgumentsCategory.STDOUT
+            OutputCategory.STDERR -> OutputEventArgumentsCategory.STDERR
+            OutputCategory.TELEMETRY -> OutputEventArgumentsCategory.TELEMETRY
         }
         DebugAdapterManager[caster]?.print(sessionId, message.string + "\n", categoryStr, withSource)
     }
