@@ -19,12 +19,12 @@ class HexDebugCoreAPIImpl : HexDebugCoreAPI {
         return (env as IDebugEnvAccessor).`debugEnv$hexdebug`
     }
 
-    override fun getDebugEnv(caster: ServerPlayer, sessionId: UUID): DebugEnvironment? {
-        return DebugAdapterManager[caster]?.debugger(sessionId)?.debugEnv
+    override fun getDebugEnv(casterId: UUID, sessionId: UUID): DebugEnvironment? {
+        return DebugAdapterManager[casterId]?.debugger(sessionId)?.debugEnv
     }
 
-    override fun getDebugEnv(caster: ServerPlayer, threadId: Int): DebugEnvironment? {
-        return DebugAdapterManager[caster]?.debugger(threadId)?.debugEnv
+    override fun getDebugEnv(casterId: UUID, threadId: Int): DebugEnvironment? {
+        return DebugAdapterManager[casterId]?.debugger(threadId)?.debugEnv
     }
 
     override fun createDebugThread(debugEnv: DebugEnvironment, threadId: Int?) {

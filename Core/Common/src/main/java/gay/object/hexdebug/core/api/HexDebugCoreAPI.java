@@ -34,13 +34,13 @@ public interface HexDebugCoreAPI {
 
     @Contract(pure = true)
     @Nullable
-    default DebugEnvironment getDebugEnv(@NotNull ServerPlayer caster, @NotNull UUID sessionId) {
+    default DebugEnvironment getDebugEnv(@NotNull UUID casterId, @NotNull UUID sessionId) {
         return null;
     }
 
     @Contract(pure = true)
     @Nullable
-    default DebugEnvironment getDebugEnv(@NotNull ServerPlayer caster, int threadId) {
+    default DebugEnvironment getDebugEnv(@NotNull UUID casterId, int threadId) {
         return null;
     }
 
@@ -88,6 +88,18 @@ public interface HexDebugCoreAPI {
     ) {}
 
     // implemented methods
+
+    @Contract(pure = true)
+    @Nullable
+    default DebugEnvironment getDebugEnv(@NotNull ServerPlayer caster, @NotNull UUID sessionId) {
+        return getDebugEnv(caster.getUUID(), sessionId);
+    }
+
+    @Contract(pure = true)
+    @Nullable
+    default DebugEnvironment getDebugEnv(@NotNull ServerPlayer caster, int threadId) {
+        return getDebugEnv(caster.getUUID(), threadId);
+    }
 
     @Contract(pure = true)
     default boolean isSessionDebugging(@NotNull DebugEnvironment debugEnv) {

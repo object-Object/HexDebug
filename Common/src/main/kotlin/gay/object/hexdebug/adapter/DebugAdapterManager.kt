@@ -11,6 +11,8 @@ import java.util.*
 object DebugAdapterManager {
     private val debugAdapters = mutableMapOf<UUID, DebugAdapter>()
 
+    operator fun get(playerUUID: UUID) = debugAdapters[playerUUID]
+
     operator fun get(player: Player) = debugAdapters[player.uuid]
 
     operator fun get(env: CastingEnvironment) = env.castingEntity?.let { it as? Player }?.let { get(it) }
