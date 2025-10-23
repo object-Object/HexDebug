@@ -223,6 +223,7 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         threadId: Int,
         result: DebugStepResult,
         wasPaused: Boolean = true,
+        sendContinuedEvent: Boolean = true,
     ): ExecutionClientView? {
         val view = result.clientInfo?.also {
             MsgEvaluatorClientInfoS2C(threadId, it).sendToPlayer(player)
@@ -250,9 +251,12 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             }
         } else if (wasPaused) {
             // running
-            remoteProxy.continued(ContinuedEventArguments().also {
-                it.threadId = threadId
-            })
+            if (sendContinuedEvent) {
+                remoteProxy.continued(ContinuedEventArguments().also {
+                    it.threadId = threadId
+                    it.allThreadsContinued = false
+                })
+            }
 
             closeEvaluator(threadId)
         }
@@ -287,11 +291,11 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         }
     }
 
-    private fun resumeAllExcept(threadId: Int) {
+    private fun resumeAllExcept(threadId: Int, sendContinuedEvent: Boolean = true) {
         for (index in allThreadIds) {
             if (index == threadId) continue
             inRangeDebugger(index)?.let {
-                handleDebuggerStep(threadId, it.executeUntilStopped())
+                handleDebuggerStep(threadId, it.executeUntilStopped(), sendContinuedEvent = sendContinuedEvent)
             }
         }
     }
@@ -390,11 +394,11 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
 
     override fun continue_(args: ContinueArguments): CompletableFuture<ContinueResponse> {
         inRangeDebugger(args.threadId)?.let {
-            handleDebuggerStep(args.threadId, it.executeUntilStopped())
+            handleDebuggerStep(args.threadId, it.executeUntilStopped(), sendContinuedEvent = false)
         }
         val continueAllThreads = args.singleThread == false
         if (continueAllThreads) {
-            resumeAllExcept(args.threadId)
+            resumeAllExcept(args.threadId, sendContinuedEvent = false)
         }
         return ContinueResponse().apply {
             allThreadsContinued = continueAllThreads
