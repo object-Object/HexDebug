@@ -402,6 +402,8 @@ class HexDebugger(
         }
         nextContinuation = newContinuation.pushFrame(FrameEvaluate(SpellList.LList(0, iotas), false))
 
+        val newSource = registerNewSource(iotas)
+
         val stopReason = when {
             isStarting && launchArgs.stopOnEntry -> StopReason.STARTED
             isAtBreakpoint() -> StopReason.BREAKPOINT
@@ -409,11 +411,9 @@ class HexDebugger(
             lastRequestStepType != null -> StopReason.STEP
             else -> null
         }
-        var result = stopReason?.let(::DebugStepResult) ?: executeUntilStopped()
 
-        registerNewSource(iotas)?.let {
-            result = result.withLoadedSource(it, LoadedSourceReason.NEW)
-        }
+        var result = stopReason?.let(::DebugStepResult) ?: executeUntilStopped()
+        newSource?.let { result = result.withLoadedSource(it, LoadedSourceReason.NEW) }
 
         return result
     }
