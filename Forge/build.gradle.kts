@@ -83,7 +83,7 @@ dependencies {
     }
 
     libs.mixinExtras.forge.also {
-        localRuntime(it)
+        implementation(it)
         include(it)
     }
 

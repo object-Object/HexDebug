@@ -75,7 +75,7 @@ dependencies {
     modLocalRuntime(libs.inline.fabric)
 
     libs.mixinExtras.fabric.also {
-        localRuntime(it)
+        implementation(it)
         include(it)
         annotationProcessor(it)
     }
