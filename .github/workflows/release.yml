@@ -2,13 +2,10 @@ name: Release
 
 on:
   push:
-    tags: 'v[0-9]+.[0-9]+.[0-9]+*'
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
   workflow_dispatch:
     inputs:
-      publish-docs:
-        description: Publish the web book
-        type: boolean
-        default: false
       dry-run:
         description: Perform a dry run
         type: boolean
@@ -22,20 +19,17 @@ permissions:
 
 jobs:
   build-docs:
-    uses: hexdoc-dev/actions/.github/workflows/hexdoc.yml@v1
+    uses: ./.github/workflows/docs.yml
     permissions:
       contents: write
       pages: read
-    secrets:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
-      python-version: 3.11
-      deploy-pages: ${{ github.event_name == 'push' || inputs.publish-docs && !inputs.dry-run }}
+      deploy-pages: ${{ github.event_name == 'push' || !inputs.dry-run }}
       release: true
 
-  publish-docs:
+  publish-pypi:
     needs: build-docs
-    if: github.event_name == 'push' || inputs.publish-docs && !inputs.dry-run
+    if: github.event_name == 'push' || !inputs.dry-run
     runs-on: ubuntu-latest
     environment:
       name: pypi
