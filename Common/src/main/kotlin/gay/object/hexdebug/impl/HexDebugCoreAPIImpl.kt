@@ -27,6 +27,10 @@ class HexDebugCoreAPIImpl : HexDebugCoreAPI {
         return DebugAdapterManager[casterId]?.debugger(threadId)?.debugEnv
     }
 
+    override fun getFreeDebugThreadId(casterId: UUID): Int? {
+        return DebugAdapterManager[casterId]?.getFreeThreadId()
+    }
+
     override fun createDebugThread(debugEnv: DebugEnvironment, threadId: Int?) {
         getAdapterOrThrow(debugEnv).createDebugThread(debugEnv, threadId)
     }

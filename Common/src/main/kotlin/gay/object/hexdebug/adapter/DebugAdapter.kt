@@ -113,9 +113,11 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
         closeEvaluator(threadId)
     }
 
+    fun getFreeThreadId(): Int? = (0 until maxThreads).firstOrNull { !isDebugging(it) }
+
     private fun resolveThreadId(threadId: Int?): Int {
         if (threadId == null) {
-            return (0 until maxThreads).firstOrNull { !isDebugging(it) }
+            return getFreeThreadId()
                 ?: throw IllegalDebugThreadException("All debug threads are already in use")
         }
 

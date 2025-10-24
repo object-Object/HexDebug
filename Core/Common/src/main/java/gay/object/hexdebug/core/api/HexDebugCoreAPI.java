@@ -45,6 +45,16 @@ public interface HexDebugCoreAPI {
     }
 
     /**
+     * Returns an arbitrary debug thread ID that is not currently in use by the given player, or
+     * {@code null} if no threads are currently available.
+     */
+    @Contract(pure = true)
+    @Nullable
+    default Integer getFreeDebugThreadId(@NotNull UUID casterId) {
+        return null;
+    }
+
+    /**
      * @throws IllegalDebugSessionException if {@code debugEnv} is currently associated with an
      *     active debug session
      * @throws IllegalDebugThreadException if {@code threadId} is out of range for the player
@@ -99,6 +109,16 @@ public interface HexDebugCoreAPI {
     @Nullable
     default DebugEnvironment getDebugEnv(@NotNull ServerPlayer caster, int threadId) {
         return getDebugEnv(caster.getUUID(), threadId);
+    }
+
+    /**
+     * Returns an arbitrary debug thread ID that is not currently in use by the given player, or
+     * {@code null} if no threads are available.
+     */
+    @Contract(pure = true)
+    @Nullable
+    default Integer getFreeDebugThreadId(@NotNull ServerPlayer caster) {
+        return getFreeDebugThreadId(caster.getUUID());
     }
 
     @Contract(pure = true)

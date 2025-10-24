@@ -47,6 +47,9 @@ public abstract class MixinBlockEntityAbstractImpetus
     public InteractionResult startDebugging(@NotNull ServerPlayer caster, int threadId) {
         if (executionState != null) return InteractionResult.PASS;
 
+        startExecution(caster);
+        if (executionState == null) return InteractionResult.FAIL;
+
         var debugEnv = new CircleDebugEnv(caster, getBlockPos());
         try {
             HexDebugCoreAPI.INSTANCE.createDebugThread(debugEnv, threadId);
@@ -54,7 +57,6 @@ public abstract class MixinBlockEntityAbstractImpetus
             return InteractionResult.PASS;
         }
 
-        startExecution(caster);
         ((IMixinCircleExecutionState) executionState).setDebugEnv$hexdebug(debugEnv);
 
         return InteractionResult.CONSUME;
