@@ -1,6 +1,8 @@
 package gay.`object`.hexdebug.adapter
 
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
+import dev.architectury.event.EventResult
+import dev.architectury.event.events.common.EntityEvent
 import dev.architectury.event.events.common.LifecycleEvent
 import dev.architectury.event.events.common.PlayerEvent
 import gay.`object`.hexdebug.HexDebug
@@ -23,6 +25,12 @@ object DebugAdapterManager {
         }
         PlayerEvent.PLAYER_QUIT.register { player ->
             remove(player)
+        }
+        EntityEvent.LIVING_DEATH.register { entity, _ ->
+            if (entity is ServerPlayer) {
+                get(entity)?.onDeath()
+            }
+            EventResult.pass()
         }
         LifecycleEvent.SERVER_STOPPING.register {
             removeAll()

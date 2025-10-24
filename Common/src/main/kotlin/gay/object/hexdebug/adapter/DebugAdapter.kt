@@ -151,8 +151,19 @@ class DebugAdapter(val player: ServerPlayer) : IDebugProtocolServer {
             remoteProxy.terminated(TerminatedEventArguments())
             isConnected = false
         }
-        for (debugger in debuggers.values.toList()) {
-            debugger.debugEnv.terminate()
+        forceTerminateAll()
+    }
+
+    fun onDeath() {
+        forceTerminateAll()
+    }
+
+    private fun forceTerminateAll() {
+        val debugEnvs = debuggers.values.map { it.debugEnv }
+        debuggers.clear()
+        threadIds.clear()
+        for (debugEnv in debugEnvs) {
+            debugEnv.terminate()
         }
     }
 

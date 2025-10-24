@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - Update zh_cn translations, by ChuijkYahus in [#60](https://github.com/object-Object/HexDebug/pull/60).
 - Source files can now be viewed after the hex that created them finishes debugging.
 - Removed the random prefix from source filenames.
+- Active debug sessions are now terminated on death.
 
 ### Fixed
 
