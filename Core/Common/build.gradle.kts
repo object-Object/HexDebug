@@ -3,6 +3,7 @@
 
 plugins {
     id("hexdebug.conventions.architectury")
+    id("hexdebug.conventions.dokka")
 }
 
 architectury {

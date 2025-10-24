@@ -14,6 +14,7 @@ pluginManagement {
 rootProject.name = "HexDebug"
 
 include(
+    "DokkaPlugin",
     "Common",
     "Common:Mojmap",
     "Fabric",

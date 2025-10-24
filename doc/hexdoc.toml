@@ -39,6 +39,12 @@ mod_name = "HexDebug"
 author = "object-Object"
 show_landing_text = false
 
+[template.args.navbar]
+center = [
+    { text="API Docs", href="../api" },
+    { text="GitHub", href.variable="source_url" },
+]
+
 [extra.hexcasting]
 _pattern_regex = { "!Raw"='(?P<is_per_world>make|makePerWorld)\("(?P<name>[^"]+)",\s*HexDir\.(?P<startdir>\w+),\s*"(?P<signature>[qweasd]+)"' }
 _per_world_value = "makePerWorld"

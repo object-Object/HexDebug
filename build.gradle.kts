@@ -1,5 +1,6 @@
 plugins {
     id("hexdebug.conventions.kotlin")
+    id("hexdebug.conventions.dokka")
     alias(libs.plugins.dotenv)
 }
 
@@ -14,6 +15,12 @@ libs.versions.minecraft.get().also {
 
 architectury {
     minecraft = minecraftVersion
+}
+
+// remember to add the other subprojects here if we add per-platform APIs in the future
+dependencies {
+    dokka(project(":Common"))
+    dokka(project(":hexdebug-core-common"))
 }
 
 tasks {
