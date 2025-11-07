@@ -37,6 +37,11 @@ jobs:
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-includes: |
+            caches
+            notifications
+            loom-cache
 
       - uses: ts-graphviz/setup-graphviz@v2
 
