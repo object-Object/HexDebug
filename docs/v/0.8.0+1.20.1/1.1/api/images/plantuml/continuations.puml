@@ -1,0 +1,180 @@
+@startuml
+
+!include ./utils/states.puml
+
+hide empty description
+
+state "**CastingVM**" as Root {
+    $floating_note(//OpEval//)
+
+    $state(queueExecuteAndWrapIotas, \
+        $section(continuation) \
+            NotDone_0: FrameEvaluate_0(A, B) \
+            Done \
+        $section(next) \
+            FrameEvaluate_0(A, B) \
+    )
+
+    $transition("image2 = next.evaluate(continuation.next)\t")
+
+    $state(FrameEvaluate_0.evaluate, \
+        $section(list) \
+            $list("A, B") \
+        $section(continuation) \
+            Done \
+        $section(newCont) \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+    )
+
+    $transition(harness.executeInner(A, newCont))
+
+    $state(OpEval.exec, \
+        $section(continuation) \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+        $section(newCont) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+        $section(newContinuation@return) \
+            NotDone_3: FrameEvaluate_2(C, D) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+    )
+
+    $transition("continuation = image2.continuation")
+
+    $state(queueExecuteAndWrapIotas, \
+        $section(continuation) \
+            NotDone_3: FrameEvaluate_2(C, D) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+    )
+
+|| /'------------------------------------------------------'/
+
+    $floating_note(//Nested OpEval//)
+
+    $state(3, queueExecuteAndWrapIotas, \
+        $section(continuation) \
+            NotDone_3: FrameEvaluate_2(C, D) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+        $section(next) \
+            FrameEvaluate_2(C, D) \
+    )
+
+    $transition("image2 = next.evaluate(continuation.next)\t")
+
+    $state(FrameEvaluate_2.evaluate, \
+        $section(list) \
+            $list("C, D") \
+        $section(continuation) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+        $section(newCont) \
+            NotDone_4: FrameEvaluate_3(D) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+    )
+
+    $transition(harness.executeInner(C, newCont))
+
+    $state(OpEval.exec, \
+        $section(continuation) \
+            NotDone_4: FrameEvaluate_3(D) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+        $section(newCont) \
+            NotDone_5: FrameFinishEval \
+            NotDone_4: FrameEvaluate_3(D) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+        $section(newContinuation@return) \
+            NotDone_6: FrameEvaluate_4(E, F) \
+            NotDone_5: FrameFinishEval \
+            NotDone_4: FrameEvaluate_3(D) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+    )
+
+    $transition("continuation = image2.continuation")
+
+    $state(queueExecuteAndWrapIotas, \
+        $section(continuation) \
+            NotDone_6: FrameEvaluate_4(E, F) \
+            NotDone_5: FrameFinishEval \
+            NotDone_4: FrameEvaluate_3(D) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+    )
+
+|| /'------------------------------------------------------'/
+
+    $floating_note(//Nested OpEval with TCO//)
+
+    $state(3, a, queueExecuteAndWrapIotas, \
+        $section(continuation) \
+            NotDone_3: FrameEvaluate_2(C) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+        $section(next) \
+            FrameEvaluate_2(C) \
+    )
+
+    $transition("image2 = next.evaluate(continuation.next)\t")
+
+    $state(FrameEvaluate_2.evaluate, \
+        $section(list) \
+            $list("C") \
+        $section(continuation) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+        $section(newCont) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+    )
+
+    $transition(harness.executeInner(C, newCont))
+
+    $state(OpEval.exec, \
+        $section(continuation) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+        $section(newCont) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+        $section(newContinuation@return) \
+            NotDone_4: FrameEvaluate_3(D, E) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+    )
+
+    $transition("continuation = image2.continuation")
+
+    $state(queueExecuteAndWrapIotas, \
+        $section(continuation) \
+            NotDone_4: FrameEvaluate_3(D, E) \
+            NotDone_2: FrameFinishEval \
+            NotDone_1: FrameEvaluate_1(B) \
+            Done \
+    )
+}
+
+@enduml
