@@ -1,0 +1,73 @@
+@startuml
+
+!include ./_base.puml
+
+title Stepping
+
+==Step within current iota list==
+
+User ->> Adapter ++: request: step forward
+    Adapter -> DebugEnv ++: ""isCasterInRange()""
+    return whether the caster is close\nenough to the debuggee
+
+    alt caster in range
+        Adapter -> Debugger ++: step
+            Debugger -> Debugger ++: execute next iota
+                opt pattern prints a message
+                    Debugger -> DebugEnv ++: ""printDebugMessage(...)""
+                        DebugEnv -> API ++: ""printDebugMessage(...)""
+                            API ->> User: event: print to output
+                        return
+                    return
+                end
+            return
+
+            Debugger -> DebugEnv ++: ""postStep(env, image, reason)""
+            return
+        return stopped on step
+
+        Adapter ->> User: event: stopped on step
+    else caster out of range
+        Adapter ->> User: error: out of range
+    end
+deactivate Adapter
+
+==Step out of current iota list==
+
+User ->> Adapter ++: request: step over final iota
+    Adapter -> DebugEnv ++: ""isCasterInRange()""
+    return ""true""
+
+    Adapter -> Debugger ++: step
+        Debugger -> Debugger: execute next (final) iota
+
+        Debugger -> DebugEnv ++: ""resume(env, image, resolutionType)""
+            DebugEnv ->> Debuggee ++: unpause
+        DebugEnv --> Debugger --: ""true""
+
+        Debugger -> DebugEnv ++: ""postStep(env, image, reason)""
+        return
+    Debugger --> Adapter --: resumed
+
+    Adapter ->> User: event: continued
+deactivate Adapter
+
+...
+
+Debuggee -> Debuggee: pause
+
+Debuggee -> API ++: ""startDebuggingIotas(...)""
+    API -> Adapter ++: start executing
+        Adapter -> Debugger ++: start executing
+        return stopped on step
+        note right
+            ""postStep"" is not called here
+            because no iotas were executed.
+        end note
+
+        Adapter ->> User: event: stopped on step
+    return
+return
+deactivate Debuggee
+
+@enduml
