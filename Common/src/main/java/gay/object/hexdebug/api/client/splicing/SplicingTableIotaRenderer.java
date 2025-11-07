@@ -64,7 +64,7 @@ public abstract class SplicingTableIotaRenderer {
     }
 
     /**
-     * Returns the current tooltip for this renderer. This is called every frame, immediately after
+     * Returns the cached tooltip for this renderer. This is called every frame, immediately after
      * {@link SplicingTableIotaRenderer#render}.
      */
     @Nullable
