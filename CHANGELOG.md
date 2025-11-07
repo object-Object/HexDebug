@@ -4,11 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Pydantic's HISTORY.md](https://github.com/pydantic/pydantic/blob/main/HISTORY.md), and this project *mostly* adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [UNRELEASED]
+## `0.8.0+1.20.1` - 2025-11-07
 
 ### Added
 
-- Added support for debugging spell circles! Right-click (or sneak-right-click, for toolsmiths) on the impetus with a Debugger to start a debug session.
+- Added support for debugging spell circles! Right-click (or sneak-right-click, for toolsmiths) on an impetus with a Debugger to start a debug session.
 - New items: Quenched Debugger and Quenched Evaluator! These post-enlightenment debug tools allow up to 4 hexes to be debugged at once. Scroll while holding sneak and sprint in order to switch between the available "debug thread" slots.
 - API: Added API documentation to the web book! The API docs from the latest commit pushed to `main` are available [here](https://hexdebug.hexxy.media/v/latest/main/api/), and there is a link to the API docs for each version in the header of the corresponding web book.
 - API: Added support for implementing debug support in casting devices/environments other than the Debugger item (eg. circles, wisps, cassettes). See the API documentation for more details, especially the sequence diagrams in the `hexdebug-core-common` module.
@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Changed
 
-- Update zh_cn translations, by ChuijkYahus in [#60](https://github.com/object-Object/HexDebug/pull/60).
+- Update zh_cn translations, by ChuijkYahus in [#60](https://github.com/object-Object/HexDebug/pull/60) and [#63](https://github.com/object-Object/HexDebug/pull/63).
 - Source files can now be viewed after the hex that created them finishes debugging.
 - Removed the random prefix from source filenames.
 - Active debug sessions are now terminated on death.
