@@ -1,12 +1,13 @@
 package gay.`object`.hexdebug.impl
 
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
+import at.petrak.hexcasting.api.casting.eval.vm.CastingImage
 import at.petrak.hexcasting.api.casting.iota.Iota
 import gay.`object`.hexdebug.adapter.DebugAdapter
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.core.api.HexDebugCoreAPI
-import gay.`object`.hexdebug.core.api.debugging.DebugEnvironment
-import gay.`object`.hexdebug.core.api.debugging.DebugOutputCategory
+import gay.`object`.hexdebug.core.api.debugging.OutputCategory
+import gay.`object`.hexdebug.core.api.debugging.env.DebugEnvironment
 import gay.`object`.hexdebug.core.api.exceptions.IllegalDebugSessionException
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -18,31 +19,52 @@ class HexDebugCoreAPIImpl : HexDebugCoreAPI {
         return (env as IDebugEnvAccessor).`debugEnv$hexdebug`
     }
 
-    override fun getDebugEnv(caster: ServerPlayer, sessionId: UUID): DebugEnvironment? {
-        return DebugAdapterManager[caster]?.debugger(sessionId)?.debugEnv
+    override fun getDebugEnv(casterId: UUID, sessionId: UUID): DebugEnvironment? {
+        return DebugAdapterManager[casterId]?.debugger(sessionId)?.debugEnv
+    }
+
+    override fun getDebugEnv(casterId: UUID, threadId: Int): DebugEnvironment? {
+        return DebugAdapterManager[casterId]?.debugger(threadId)?.debugEnv
+    }
+
+    override fun getFreeDebugThreadId(casterId: UUID): Int? {
+        return DebugAdapterManager[casterId]?.getFreeThreadId()
     }
 
     override fun createDebugThread(debugEnv: DebugEnvironment, threadId: Int?) {
         getAdapterOrThrow(debugEnv).createDebugThread(debugEnv, threadId)
     }
 
-    override fun startExecuting(debugEnv: DebugEnvironment, env: CastingEnvironment, iotas: MutableList<Iota>) {
-        getAdapterOrThrow(debugEnv).startExecuting(debugEnv, env, iotas)
+    override fun startDebuggingIotas(
+        debugEnv: DebugEnvironment,
+        env: CastingEnvironment,
+        iotas: MutableList<Iota>,
+        image: CastingImage?,
+    ) {
+        getAdapterOrThrow(debugEnv).startExecuting(debugEnv, env, iotas, image)
+    }
+
+    override fun removeDebugThread(debugEnv: DebugEnvironment) {
+        DebugAdapterManager[debugEnv.caster]?.removeThread(debugEnv.sessionId, terminate = false)
+    }
+
+    override fun terminateDebugThread(debugEnv: DebugEnvironment) {
+        DebugAdapterManager[debugEnv.caster]?.removeThread(debugEnv.sessionId, terminate = true)
     }
 
     override fun printDebugMessage(
         caster: ServerPlayer,
         sessionId: UUID,
         message: Component,
-        category: DebugOutputCategory,
+        category: OutputCategory,
         withSource: Boolean,
     ) {
         val categoryStr = when (category) {
-            DebugOutputCategory.CONSOLE -> OutputEventArgumentsCategory.CONSOLE
-            DebugOutputCategory.IMPORTANT -> OutputEventArgumentsCategory.IMPORTANT
-            DebugOutputCategory.STDOUT -> OutputEventArgumentsCategory.STDOUT
-            DebugOutputCategory.STDERR -> OutputEventArgumentsCategory.STDERR
-            DebugOutputCategory.TELEMETRY -> OutputEventArgumentsCategory.TELEMETRY
+            OutputCategory.CONSOLE -> OutputEventArgumentsCategory.CONSOLE
+            OutputCategory.IMPORTANT -> OutputEventArgumentsCategory.IMPORTANT
+            OutputCategory.STDOUT -> OutputEventArgumentsCategory.STDOUT
+            OutputCategory.STDERR -> OutputEventArgumentsCategory.STDERR
+            OutputCategory.TELEMETRY -> OutputEventArgumentsCategory.TELEMETRY
         }
         DebugAdapterManager[caster]?.print(sessionId, message.string + "\n", categoryStr, withSource)
     }

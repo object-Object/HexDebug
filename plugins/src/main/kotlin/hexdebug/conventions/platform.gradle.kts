@@ -1,108 +1,33 @@
 package hexdebug.conventions
 
 import hexdebug.hexdebugProperties
-import kotlin.io.path.div
 
 plugins {
-    id("hexdebug.conventions.architectury")
-    id("hexdebug.utils.mod-dependencies")
-
-    id("com.github.johnrengelman.shadow")
-    id("me.modmuss50.mod-publish-plugin")
+    id("hexdebug.conventions.platform-base")
+    id("hexdebug.utils.publish-dependencies")
 }
 
 val platform: String by project
-val platformCapitalized = platform.capitalize()
 
 architectury {
     platformSetupLoomIde()
 }
 
-loom {
-    runs {
-        named("server") {
-            runDir = "runServer"
-        }
-    }
-}
-
-configurations {
-    register("common")
-    register("shadowCommon")
-    compileClasspath {
-        extendsFrom(get("common"))
-    }
-    runtimeClasspath {
-        extendsFrom(get("common"))
-    }
-    // this needs to wait until Loom has been configured
-    afterEvaluate {
-        named("development$platformCapitalized") {
-            extendsFrom(get("common"))
-        }
-    }
-}
-
 dependencies {
-    "common"(project(":Common", "namedElements")) { isTransitive = false }
-    "shadowCommon"(project(":Common", "transformProduction$platformCapitalized")) { isTransitive = false }
-
     // include, not shadow
-    api(project(":Core", "namedElements")) { isTransitive = false }
-    include(project(":Core")) { isTransitive = false }
+    localRuntime(project(":hexdebug-core-common", "namedElements"))
+    project(":hexdebug-core-$platform", "namedElements").also {
+        localRuntime(it)
+        api(it)
+    }
+    include(project(":hexdebug-core-$platform"))
 }
-
-// FIXME: find a less broken way to include common resources in platform devenv - this one breaks mixin refmaps
-//sourceSets {
-//    main {
-//        resources {
-//            source(project(":Common").sourceSets.main.get().resources)
-//        }
-//    }
-//}
 
 tasks {
-    val jenkinsArtifacts = register<Copy>("jenkinsArtifacts") {
-        from(remapJar)
-        into(rootDir.toPath() / "build" / "jenkinsArtifacts")
-    }
+    processIncludeJars {
 
-    build {
-        dependsOn(jenkinsArtifacts)
-    }
-
-    shadowJar {
-        exclude("architectury.common.json")
-        configurations = listOf(project.configurations["shadowCommon"])
-        archiveClassifier = "dev-shadow"
-    }
-
-    remapJar {
-        dependsOn(shadowJar)
-        inputFile = shadowJar.get().archiveFile
-        archiveClassifier = null
-    }
-
-    jar {
-        archiveClassifier = "dev"
-    }
-
-    kotlinSourcesJar {
-        val commonSources = project(":Common").tasks.kotlinSourcesJar
-        dependsOn(commonSources)
-        from(commonSources.flatMap { it.archiveFile }.map(::zipTree))
     }
 }
-
-components {
-    named<AdhocComponentWithVariants>("java") {
-        withVariantsFromConfiguration(configurations.shadowRuntimeElements.get()) {
-            skip()
-        }
-    }
-}
-
-fun Project.envOrEmpty(name: String) = this.providers.environmentVariable(name).orElse("")
 
 publishMods {
     dryRun = providers.zip(envOrEmpty("CI"), envOrEmpty("DRY_RUN")) { ci, dryRun ->
@@ -116,7 +41,7 @@ publishMods {
     modLoaders.add(platform)
 
     displayName = modLoaders.map { values ->
-        val loaders = values.joinToString(", ") { it.capitalize() }
+        val loaders = values.joinToString(", ") { it.replaceFirstChar(Char::uppercase) }
         "v${project.version} [$loaders]"
     }
 
@@ -135,4 +60,4 @@ publishMods {
     }
 }
 
-fun String.capitalize() = replaceFirstChar(Char::uppercase)
+fun Project.envOrEmpty(name: String) = this.providers.environmentVariable(name).orElse("")

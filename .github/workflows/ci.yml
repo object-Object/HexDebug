@@ -2,7 +2,7 @@ name: Run CI/CD pipeline
 
 on:
   push:
-    branches: "*"
+    branches: ["*"]
   pull_request:
   workflow_dispatch:
 
@@ -10,29 +10,11 @@ permissions:
   contents: read
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    outputs:
-      is-main-branch: |-
-        ${{
-          github.event_name != 'pull_request' && contains(
-            fromJson('["main", "1.19"]'),
-            (github.head_ref || github.ref_name)
-          )
-        }}
-    steps:
-      - name: Print message so the workflow isn't invalid
-        run: 'echo "HexDebug <3 HexBug"'
-
   build-docs:
-    needs: setup
-    uses: hexdoc-dev/actions/.github/workflows/hexdoc.yml@v1
+    uses: ./.github/workflows/docs.yml
     permissions:
       contents: write
       pages: read
-    secrets:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
-      python-version: 3.11
-      deploy-pages: ${{ needs.setup.outputs.is-main-branch == 'true' }}
+      deploy-pages: ${{ github.event_name != 'pull_request' && contains(fromJson(vars.HEXDOC_BRANCHES), github.ref_name) }}
       release: false

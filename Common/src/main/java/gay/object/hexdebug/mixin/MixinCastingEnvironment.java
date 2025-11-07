@@ -1,7 +1,7 @@
 package gay.object.hexdebug.mixin;
 
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment;
-import gay.object.hexdebug.core.api.debugging.DebugEnvironment;
+import gay.object.hexdebug.core.api.debugging.env.DebugEnvironment;
 import gay.object.hexdebug.impl.IDebugEnvAccessor;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;

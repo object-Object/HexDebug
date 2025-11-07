@@ -8,9 +8,7 @@ version = "${modVersion}"
 displayName = "HexDebug"
 logoFile = "icon.png"
 authors = "object-Object"
-description = '''
-The HexDebug addon for Hex Casting
-'''
+description = "A Hex Casting addon for debugging and editing hexes."
 
 [[dependencies.hexdebug]]
 modId = "forge"

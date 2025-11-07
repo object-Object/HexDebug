@@ -1,5 +1,8 @@
+import kotlin.script.experimental.jvm.util.classpathFromClass
+
 plugins {
     id("hexdebug.conventions.kotlin")
+    id("hexdebug.conventions.dokka")
     alias(libs.plugins.dotenv)
 }
 
@@ -16,6 +19,12 @@ architectury {
     minecraft = minecraftVersion
 }
 
+// remember to add the other subprojects here if we add per-platform APIs in the future
+dependencies {
+    dokka(project(":Common"))
+    dokka(project(":hexdebug-core-common"))
+}
+
 tasks {
     register("viewLatestChangelog") {
         group = "documentation"
@@ -29,5 +38,38 @@ tasks {
         dependsOn(":Forge:runCommonDatagen")
         dependsOn(":Forge:runForgeDatagen")
         dependsOn(":Fabric:runDatagen")
+    }
+}
+
+val copyPlantUml by tasks.registering(Sync::class) {
+    group = "plantuml"
+
+    from("plantuml")
+    into("build/plantuml")
+}
+
+val renderPlantUml by tasks.registering(JavaExec::class) {
+    group = "plantuml"
+
+    val outputDir = copyPlantUml.get().destinationDir
+
+    inputs.files(copyPlantUml)
+    outputs.dir(outputDir)
+
+    classpath = files(classpathFromClass<net.sourceforge.plantuml.Run>())
+    args(
+        "${outputDir}/**/*.puml",
+        "--format", "png",
+        "--define", "PLANTUML_LIMIT_SIZE=8192",
+        "--skinparam", "dpi=300",
+        "--exclude", "**/_*",
+        "--exclude", "${outputDir}/utils/**",
+        "--exclude", "${outputDir}/continuations.puml", // broken?
+    )
+}
+
+dokka {
+    pluginsConfiguration.html {
+        customAssets.from(renderPlantUml)
     }
 }

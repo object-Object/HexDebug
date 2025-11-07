@@ -63,7 +63,7 @@ fun HexDebugMessageS2C.applyOnClient(ctx: PacketContext) = ctx.queue {
             if (shouldPrint) {
                 ctx.player.displayClientMessage(
                     Component.translatable(
-                        "text.hexdebug.debugger_stopped",
+                        "text.hexdebug.debugging.debugger_stopped",
                         if (config.showDebugClientLineNumber) line else index,
                         iota,
                     ),

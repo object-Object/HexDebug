@@ -8,17 +8,18 @@ import at.petrak.hexcasting.common.msgs.*
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
-import gay.`object`.hexdebug.casting.eval.EvaluatorCastEnv
 import gay.`object`.hexdebug.debugger.DebuggerState
 import gay.`object`.hexdebug.items.base.*
 import gay.`object`.hexdebug.utils.asItemPredicate
 import net.minecraft.client.player.LocalPlayer
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
 
@@ -42,7 +43,7 @@ class EvaluatorItem(
         val debugAdapter = DebugAdapterManager[player]
         val debugger = debugAdapter?.debugger(threadId)
         if (debugAdapter == null || debugger == null) {
-            player.displayClientMessage("text.hexdebug.no_session".asTranslatedComponent(threadId), true)
+            player.displayClientMessage("text.hexdebug.debugging.no_session".asTranslatedComponent(threadId), true)
             return InteractionResultHolder.fail(itemStack)
         }
 
@@ -51,7 +52,7 @@ class EvaluatorItem(
         }
 
         if (debugger.state != DebuggerState.PAUSED) {
-            player.displayClientMessage("text.hexdebug.not_paused".asTranslatedComponent(threadId), true)
+            player.displayClientMessage("text.hexdebug.debugging.not_paused".asTranslatedComponent(threadId), true)
             return InteractionResultHolder.fail(itemStack)
         }
 
@@ -83,11 +84,23 @@ class EvaluatorItem(
         }
     )
 
+    override fun appendHoverText(
+        stack: ItemStack,
+        level: Level?,
+        tooltipComponents: MutableList<Component>,
+        isAdvanced: TooltipFlag,
+    ) {
+        if (isQuenched) {
+            tooltipComponents.add(displayThread(null, getThreadId(stack)))
+        }
+        super.appendHoverText(stack, level, tooltipComponents, isAdvanced)
+    }
+
     // only allow shift+ctrl scrolling, and only if it's quenched
     override fun canShiftScroll(isCtrl: Boolean) = isCtrl && isQuenched
 
     override fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double, isCtrl: Boolean) {
-        val component = rotateThreadId(stack, delta < 0)
+        val component = rotateThreadId(sender, stack, delta < 0)
         sender.displayClientMessage(component, true)
     }
 
@@ -112,8 +125,7 @@ class EvaluatorItem(
                 return
             }
 
-            val env = EvaluatorCastEnv(sender, msg.handUsed)
-            val clientInfo = debugAdapter.evaluate(threadId, env, msg.pattern) ?: return
+            val clientInfo = debugAdapter.evaluate(threadId, msg.pattern) ?: return
 
             debugger.evaluatorUIPatterns.clear()
             if (!clientInfo.isStackClear) {

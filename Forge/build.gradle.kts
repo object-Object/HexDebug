@@ -50,7 +50,9 @@ hexdebugModDependencies {
         replace(Regex("""\](\S+)"""), "($1")
         replace(Regex("""(\S+)\["""), "$1)")
     }
+}
 
+hexdebugPublishDependencies {
     requires("architectury-api")
     requires("cloth-config")
     requires(curseforge = "hexcasting", modrinth = "hex-casting")
@@ -81,7 +83,7 @@ dependencies {
     }
 
     libs.mixinExtras.forge.also {
-        localRuntime(it)
+        implementation(it)
         include(it)
     }
 
@@ -106,11 +108,6 @@ dependencies {
         modLocalRuntime(it)
     }
 
-    forgeRuntimeLibrary(project(":Core", "namedElements")) { isTransitive = false }
-}
-
-tasks {
-    shadowJar {
-        exclude("fabric.mod.json")
-    }
+    forgeRuntimeLibrary(project(":hexdebug-core-common", "namedElements")) { isTransitive = false }
+    forgeRuntimeLibrary(project(":hexdebug-core-forge", "namedElements")) { isTransitive = false }
 }

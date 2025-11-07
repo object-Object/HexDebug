@@ -58,6 +58,9 @@ pkpcpbp = "0.1.0-pre-87"
 lsp4j = "0.23.0"
 ktor = "2.3.10"
 
+dokka = "2.1.0"
+plantuml = "1.2025.10"
+
 [bundles]
 asm = ["asm", "asm-analysis", "asm-commons", "asm-tree", "asm-util"]
 # must contain all transitive deps so they can be included in the production jar
@@ -147,8 +150,17 @@ ktor-io-jvm = { module="io.ktor:ktor-io-jvm", version.ref="ktor" }
 
 pkpcpbp = { module="at.petra-k.pkpcpbp:PKPCPBP", version.ref="pkpcpbp" }
 
+dokka-base = { module="org.jetbrains.dokka:dokka-base", version.ref="dokka" }
+dokka-core = { module="org.jetbrains.dokka:dokka-core", version.ref="dokka" }
+
+dokka-kotlinAsJava = { module="org.jetbrains.dokka:kotlin-as-java-plugin", version.ref="dokka" }
+
+plantuml = { module="net.sourceforge.plantuml:plantuml", version.ref="plantuml" }
+
 [plugins]
 kotlin-jvm = { id="org.jetbrains.kotlin.jvm", version.ref="kotlin" }
+
+dokka = { id="org.jetbrains.dokka", version.ref="dokka" }
 
 architectury      = { id="architectury-plugin", version.ref="architectury-plugin" }
 architectury-loom = { id="dev.architectury.loom", version.ref="architectury-loom" }

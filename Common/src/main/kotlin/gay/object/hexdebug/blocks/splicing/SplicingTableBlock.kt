@@ -84,6 +84,7 @@ class SplicingTableBlock(properties: Properties, val enlightened: Boolean) : Bas
             getBlockEntity(level, pos)?.let {
                 Containers.dropContents(level, pos, it)
             }
+            @Suppress("DEPRECATION")
             super.onRemove(state, level, pos, newState, movedByPiston)
         }
     }

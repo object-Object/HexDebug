@@ -8,23 +8,28 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.casting.eval.DebuggerCastEnv
-import gay.`object`.hexdebug.core.api.debugging.SynchronousDebugEnv
+import gay.`object`.hexdebug.core.api.debugging.DebuggableBlock
+import gay.`object`.hexdebug.core.api.debugging.env.SimplePlayerBasedDebugEnv
 import gay.`object`.hexdebug.core.api.exceptions.DebugException
 import gay.`object`.hexdebug.items.base.*
 import gay.`object`.hexdebug.utils.asItemPredicate
 import gay.`object`.hexdebug.utils.getWrapping
 import gay.`object`.hexdebug.utils.otherHand
+import gay.`object`.hexdebug.utils.styledHoverName
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
+import net.minecraft.world.item.TooltipFlag
+import net.minecraft.world.item.context.UseOnContext
 import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.Level
@@ -60,6 +65,36 @@ class DebuggerItem(
         EnchantmentHelper.setEnchantments(enchantments, stack)
     }
 
+    override fun useOn(context: UseOnContext): InteractionResult {
+        val debuggable = context.level.getBlockState(context.clickedPos).block as? DebuggableBlock
+            ?: (context.level.getBlockEntity(context.clickedPos) as? DebuggableBlock)
+            ?: return InteractionResult.PASS
+
+        val threadId = getThreadId(context.itemInHand)
+
+        if (context.level.isClientSide) {
+            val isDebugging = debugStates[threadId] == DebugState.DEBUGGING
+            return if (isDebugging) InteractionResult.PASS else InteractionResult.SUCCESS
+        }
+
+        val player = context.player as ServerPlayer
+
+        if (DebugAdapterManager[player]?.isDebugging(threadId) != false) {
+            return InteractionResult.PASS
+        }
+
+        return debuggable.startDebugging(context, threadId).also {
+            if (it.shouldAwardStats()) {
+                val stat = Stats.ITEM_USED[this]
+                player.awardStat(stat)
+            }
+
+            if (it.consumesAction()) {
+                player.cooldowns.addCooldown(this, this.cooldown())
+            }
+        }
+    }
+
     override fun use(world: Level, player: Player, usedHand: InteractionHand): InteractionResultHolder<ItemStack> {
         val stack = player.getItemInHand(usedHand)
 
@@ -78,32 +113,36 @@ class DebuggerItem(
         val debugger = debugAdapter.debugger(threadId)
         if (debugger != null) {
             if (!debugger.debugEnv.isCasterInRange) {
+                player.displayClientMessage("text.hexdebug.debugging.out_of_range".asTranslatedComponent, true)
                 return InteractionResultHolder.fail(stack)
             }
 
-            // TODO: implement pause?
-
-            // step the ongoing debug session
-            debugAdapter.apply {
-                when (getStepMode(stack)) {
-                    StepMode.CONTINUE -> continue_(ContinueArguments().also {
+            val stepMode = getStepMode(stack)
+            if (debugger.state.canPause && stepMode.canPause) {
+                debugAdapter.pause(PauseArguments().also {
+                    it.threadId = threadId
+                })
+            } else {
+                // step the ongoing debug session
+                when (stepMode) {
+                    StepMode.CONTINUE -> debugAdapter.continue_(ContinueArguments().also {
                         it.threadId = threadId
                         it.singleThread = true
                     })
-                    StepMode.OVER -> next(NextArguments().also {
+                    StepMode.OVER -> debugAdapter.next(NextArguments().also {
                         it.threadId = threadId
                         it.singleThread = true
                     })
-                    StepMode.IN -> stepIn(StepInArguments().also {
+                    StepMode.IN -> debugAdapter.stepIn(StepInArguments().also {
                         it.threadId = threadId
                         it.singleThread = true
                     })
-                    StepMode.OUT -> stepOut(StepOutArguments().also {
+                    StepMode.OUT -> debugAdapter.stepOut(StepOutArguments().also {
                         it.threadId = threadId
                         it.singleThread = true
                     })
-                    StepMode.RESTART -> restartThread(threadId)
-                    StepMode.STOP -> terminateThreads(TerminateThreadsArguments().also {
+                    StepMode.RESTART -> debugAdapter.restartThread(threadId)
+                    StepMode.STOP -> debugAdapter.terminateThreads(TerminateThreadsArguments().also {
                         it.threadIds = intArrayOf(threadId)
                     })
                 }
@@ -121,11 +160,17 @@ class DebuggerItem(
             } ?: return InteractionResultHolder.fail(stack)
 
             val env = DebuggerCastEnv(serverPlayer, usedHand)
-            val debugEnv = SynchronousDebugEnv(serverPlayer, env, instrs)
+            val debugEnv = SimplePlayerBasedDebugEnv(
+                serverPlayer,
+                env,
+                instrs,
+                stack.styledHoverName
+            )
 
             try {
                 debugEnv.start(threadId)
             } catch (_: DebugException) {
+                player.displayClientMessage("text.hexdebug.debugging.illegal_thread".asTranslatedComponent, true)
                 return InteractionResultHolder.fail(stack)
             }
         }
@@ -144,13 +189,25 @@ class DebuggerItem(
         return super.hurtEnemy(stack, target, attacker)
     }
 
+    override fun appendHoverText(
+        stack: ItemStack,
+        level: Level?,
+        tooltipComponents: MutableList<Component>,
+        isAdvanced: TooltipFlag,
+    ) {
+        if (isQuenched) {
+            tooltipComponents.add(displayThread(null, getThreadId(stack)))
+        }
+        super.appendHoverText(stack, level, tooltipComponents, isAdvanced)
+    }
+
     // always allow shift, only allow ctrl if quenched
     override fun canShiftScroll(isCtrl: Boolean) = !isCtrl || isQuenched
 
     override fun handleShiftScroll(sender: ServerPlayer, stack: ItemStack, delta: Double, isCtrl: Boolean) {
         val increase = delta < 0
         val component = if (isCtrl) {
-            rotateThreadId(stack, increase)
+            rotateThreadId(sender, stack, increase)
         } else {
             rotateStepMode(stack, increase)
         }
@@ -223,12 +280,12 @@ class DebuggerItem(
         }
     }
 
-    enum class StepMode {
-        CONTINUE,
-        OVER,
-        IN,
-        OUT,
-        RESTART,
-        STOP,
+    enum class StepMode(val canPause: Boolean) {
+        CONTINUE(canPause = true),
+        OVER(canPause = true),
+        IN(canPause = true),
+        OUT(canPause = true),
+        RESTART(canPause = false),
+        STOP(canPause = false),
     }
 }

@@ -4,6 +4,7 @@ import dev.architectury.event.events.client.ClientPlayerEvent
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.items.DebuggerItem
+import gay.`object`.hexdebug.items.EvaluatorItem
 import gay.`object`.hexdebug.networking.msg.MsgDebugAdapterProxy
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
@@ -57,7 +58,12 @@ data class DebugProxyClient(val input: InputStream, val output: OutputStream) {
             }
             ClientPlayerEvent.CLIENT_PLAYER_JOIN.register {
                 DebuggerItem.debugStates.clear()
+                EvaluatorItem.evalStates.clear()
                 start()
+            }
+            ClientPlayerEvent.CLIENT_PLAYER_RESPAWN.register { _, _ ->
+                DebuggerItem.debugStates.clear()
+                EvaluatorItem.evalStates.clear()
             }
             ClientPlayerEvent.CLIENT_PLAYER_QUIT.register {
                 stop()

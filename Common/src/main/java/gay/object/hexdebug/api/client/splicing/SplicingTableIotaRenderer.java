@@ -10,6 +10,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class SplicingTableIotaRenderer {
     @NotNull
@@ -18,6 +19,9 @@ public abstract class SplicingTableIotaRenderer {
     private final SplicingTableIotaClientView iota;
     private int x;
     private int y;
+
+    @Nullable
+    private Tooltip tooltip;
 
     public SplicingTableIotaRenderer(
         @NotNull IotaType<?> type,
@@ -59,6 +63,24 @@ public abstract class SplicingTableIotaRenderer {
         this.y = y;
     }
 
+    /**
+     * Returns the cached tooltip for this renderer. This is called every frame, immediately after
+     * {@link SplicingTableIotaRenderer#render}.
+     */
+    @Nullable
+    public Tooltip getTooltip() {
+        return tooltip;
+    }
+
+    /**
+     * Sets the cached tooltip for this renderer. By default, this is called only when the renderer
+     * is moved to a new position, receiving the value returned by
+     * {@link SplicingTableIotaRenderer#createTooltip}.
+     */
+    public void setTooltip(@Nullable Tooltip tooltip) {
+        this.tooltip = tooltip;
+    }
+
     /** Renders one frame of this iota. */
     public abstract void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick);
 
@@ -69,7 +91,8 @@ public abstract class SplicingTableIotaRenderer {
     }
 
     /**
-     * Creates and returns a new {@link Tooltip} for the provided iota.
+     * Creates and returns a new {@link Tooltip} for the provided iota. By default, this is called
+     * only when the renderer is moved to a new position.
      * <br>
      * In most cases, you'll likely want to override
      * {@link SplicingTableIotaRenderer#buildTooltip} instead.

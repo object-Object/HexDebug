@@ -15,14 +15,14 @@ authors = [
     { name="object-Object" },
 ]
 keywords = ["hexdoc"]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dynamic = ["version", "dependencies", "optional-dependencies"]
 
 [project.urls]
 Homepage = "https://hexdebug.hexxy.media"
 Source = "https://github.com/object-Object/HexDebug"
 
-# Gradle version/deps
+# project version
 
 [tool.hatch.version]
 scheme = "gradle"
@@ -31,16 +31,20 @@ py-path = "doc/src/hexdoc_hexdebug/__version__.py"
 key = "modVersion"
 gradle-version-regex = { regex='^(.+?)(-.+)?$', repl='\1.{minecraftVersion}\2' }
 
+# Python dependencies
+
+# required
 [tool.hatch.metadata.hooks.version-catalog]
 dependencies = [
-    "hexdoc>=1!0.1.0a16",
+    "hexdoc>=1!0.1.0a34",
     { package="hexdoc-hexcasting", op="~=", py-version="1.0", key="hexcasting" },
     { package="hexdoc-ioticblocks", op=">=", py-version="1.0", key="ioticblocks" },
 ]
 
-[tool.hatch.metadata.hooks.version-catalog.optional-dependencies]
+# dev-only
+[dependency-groups]
 dev = [
-    "ruff~=0.13.1",
+    "ruff",
 ]
 
 # directory inclusion
@@ -58,7 +62,7 @@ artifacts = [
 [tool.hatch.build.targets.wheel]
 sources = ["doc/src"]
 
-# hexdoc entry points
+# hexdoc entry point
 
 [project.entry-points.hexdoc]
 hexdebug = "hexdoc_hexdebug._hooks:HexDebugPlugin"
@@ -66,18 +70,18 @@ hexdebug = "hexdoc_hexdebug._hooks:HexDebugPlugin"
 # linting/formatting
 
 [tool.ruff]
+preview = true
 extend-exclude = [
-    "venv",
+    "**/venv",
     "**/.*",
-    "**/node_modules",
     "**/__pycache__",
 ]
 
 [tool.ruff.lint]
-preview = true
 extend-select = [
     "I", # import sorting
     "RUF022", # __all__ sorting
+    "TID252", # ban relative imports
 ]
 extend-ignore = [
     # covered by Pyright
@@ -89,19 +93,17 @@ extend-ignore = [
 [tool.ruff.lint.isort]
 combine-as-imports = true
 
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
+
+# type checking
+
 [tool.pyright]
-pythonVersion = "3.11"
+pythonVersion = "3.12"
 pythonPlatform = "All"
 
 include = ["doc/src"]
 extraPaths = ["doc/src"]
-exclude = [
-    "noxfile.py",
-    "**/venv",
-    "**/.*",
-    "**/node_modules",
-    "**/__pycache__",
-]
 
 typeCheckingMode = "standard"
 
@@ -109,42 +111,32 @@ strictDictionaryInference = true
 strictListInference = true
 strictSetInference = true
 
-reportAssertAlwaysTrue = "error"
 reportConstantRedefinition = "error"
-reportDeprecated = "error"
-reportDuplicateImport = "error"
-reportFunctionMemberAccess = "error"
-reportIncompatibleMethodOverride = "error"
-reportIncompatibleVariableOverride = "error"
 reportIncompleteStub = "error"
 reportInconsistentConstructor = "error"
-reportInvalidStringEscapeSequence = "error"
 reportInvalidStubStatement = "error"
-reportInvalidTypeVarUse = "error"
-reportMatchNotExhaustive = "error"
-reportMissingParameterType = "error"
-reportMissingTypeStubs = "error"
-reportOverlappingOverload = "error"
-reportSelfClsParameterName = "error"
-reportTypeCommentUsage = "error"
-reportUnknownParameterType = "error"
-reportUnnecessaryCast = "error"
-reportUnnecessaryContains = "error"
-reportUnsupportedDunderAll = "error"
-reportUntypedBaseClass = "error"
-reportUntypedClassDecorator = "error"
-reportUntypedFunctionDecorator = "error"
-reportUntypedNamedTuple = "error"
-reportWildcardImportFromLibrary = "error"
 
+reportDeprecated = "warning"
+reportDuplicateImport = "warning"
+reportMatchNotExhaustive = "warning"
+reportMissingParameterType = "warning"
 reportMissingTypeArgument = "warning"
+reportMissingTypeStubs = "warning"
 reportPrivateUsage = "warning"
+reportTypeCommentUsage = "warning"
 reportUnknownArgumentType = "warning"
 reportUnknownLambdaType = "warning"
 reportUnknownMemberType = "warning"
+reportUnknownParameterType = "warning"
 reportUnknownVariableType = "warning"
+reportUnnecessaryCast = "warning"
 reportUnnecessaryComparison = "warning"
+reportUnnecessaryContains = "warning"
 reportUnnecessaryIsInstance = "warning"
+reportUntypedBaseClass = "warning"
+reportUntypedClassDecorator = "warning"
+reportUntypedFunctionDecorator = "warning"
+reportUntypedNamedTuple = "warning"
 reportUnusedClass = "warning"
 reportUnusedExpression = "warning"
 reportUnusedFunction = "warning"

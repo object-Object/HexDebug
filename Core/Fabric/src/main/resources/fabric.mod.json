@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "hexdebug_core",
+  "version": "${modVersion}",
+  "name": "HexDebug Core",
+  "description": "Core classes for integrating with HexDebug.",
+  "authors": ["object-Object"],
+  "contact": {
+    "homepage": "https://hexdebug.hexxy.media",
+    "sources": "https://github.com/object-Object/HexDebug"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "depends": {
+    "minecraft": "${versions.minecraft}",
+    "hexcasting": ">=${versions.hexcasting_dependency}"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": ["library"],
+      "update_checker": false
+    }
+  }
+}

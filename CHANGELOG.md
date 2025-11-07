@@ -6,11 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [UNRELEASED]
 
+### Added
+
+- Added support for debugging spell circles! Right-click (or sneak-right-click, for toolsmiths) on the impetus with a Debugger to start a debug session.
+- New items: Quenched Debugger and Quenched Evaluator! These post-enlightenment debug tools allow up to 4 hexes to be debugged at once. Scroll while holding sneak and sprint in order to switch between the available "debug thread" slots.
+- API: Added API documentation to the web book! The API docs from the latest commit pushed to `main` are available [here](https://hexdebug.hexxy.media/v/latest/main/api/), and there is a link to the API docs for each version in the header of the corresponding web book.
+- API: Added support for implementing debug support in casting devices/environments other than the Debugger item (eg. circles, wisps, cassettes). See the API documentation for more details, especially the sequence diagrams in the `hexdebug-core-common` module.
+- API: Added a new mini-mod called HexDebug Core (`hexdebug-core-*`). This is a minimal, Java-only mod containing only the API classes required to implement debug support. The intention is for HexDebug Core to be included in other addons via Jar-in-Jar, allowing addons to implement optional debugging support in their casting environments while minimizing the amount of overhead and added complexity from checking whether HexDebug is loaded or not.
+- API: Added Mojmap-remapped `common` jars (`hexdebug-common-mojmap` and `hexdebug-core-common-mojmap`) for use in VanillaGradle-based xplat projects.
+
 ### Changed
 
 - Update zh_cn translations, by ChuijkYahus in [#60](https://github.com/object-Object/HexDebug/pull/60).
 - Source files can now be viewed after the hex that created them finishes debugging.
 - Removed the random prefix from source filenames.
+- Active debug sessions are now terminated on death.
+- API: The `SplicingTableIotaRenderer` tooltip is now stored in a field on the renderer, allowing it to be updated in `render` if HexDebug isn't updating it frequently enough for your use case.
 
 ### Fixed
 

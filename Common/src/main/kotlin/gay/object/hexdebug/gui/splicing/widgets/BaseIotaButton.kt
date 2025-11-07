@@ -41,6 +41,7 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
 
             try {
                 renderer.render(guiGraphics, mouseX, mouseY, partialTick)
+                tooltip = renderer.tooltip
             } catch (e: Exception) {
                 HexDebug.LOGGER.error("Caught exception while rendering ${renderer.type.typeName().string}", e)
                 this.renderer = null
@@ -71,8 +72,8 @@ abstract class BaseIotaButton(x: Int, y: Int) : HexagonButton(
             }.getOrNull()
             renderer?.x = x
             renderer?.y = y
+            renderer?.tooltip = renderer?.createTooltip()
             this.renderer = renderer
-            this.tooltip = renderer?.createTooltip()
         } catch (e: Exception) {
             HexDebug.LOGGER.error("Caught exception while preparing renderer for ${iotaType.typeName().string}", e)
             renderer = null

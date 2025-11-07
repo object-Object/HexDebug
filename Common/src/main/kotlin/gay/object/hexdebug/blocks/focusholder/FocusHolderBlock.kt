@@ -101,6 +101,7 @@ class FocusHolderBlock(properties: Properties) : BaseEntityBlock(properties) {
     }
 
     override fun getDrops(state: BlockState, params: LootParams.Builder): MutableList<ItemStack> {
+        @Suppress("DEPRECATION")
         val lootTableDrops = super.getDrops(state, params)
 
         val blockEntity = params.getBlockEntity<FocusHolderBlockEntity>()

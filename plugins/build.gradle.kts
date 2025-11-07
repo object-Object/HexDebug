@@ -19,6 +19,7 @@ dependencies {
     // plugins
     // https://github.com/gradle/gradle/issues/15383#issuecomment-1855984127
     implementation(libs.plugins.kotlin.jvm.toLibrary())
+    implementation(libs.plugins.dokka.toLibrary())
     implementation(libs.plugins.architectury.toLibrary())
     implementation(libs.plugins.architectury.loom.toLibrary())
     implementation(libs.plugins.shadow.toLibrary())
@@ -26,6 +27,7 @@ dependencies {
 
     // libraries used by script plugins
     implementation(libs.pkpcpbp)
+    implementation(libs.plantuml)
 
     // https://stackoverflow.com/a/70878181
     // https://github.com/gradle/gradle/issues/15383
