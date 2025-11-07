@@ -27,6 +27,7 @@ dependencies {
 
     // libraries used by script plugins
     implementation(libs.pkpcpbp)
+    implementation(libs.plantuml)
 
     // https://stackoverflow.com/a/70878181
     // https://github.com/gradle/gradle/issues/15383

@@ -20,7 +20,13 @@ dokka {
     }
     dokkaSourceSets {
         configureEach {
-            documentedVisibilities.set(setOf(VisibilityModifier.Public, VisibilityModifier.Protected))
+            file("dokka.md")
+                .takeIf { it.exists() }
+                ?.let { includes.from(it) }
+            documentedVisibilities.addAll(
+                VisibilityModifier.Public,
+                VisibilityModifier.Protected,
+            )
             perPackageOption {
                 suppress = true
             }
