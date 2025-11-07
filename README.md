@@ -59,6 +59,34 @@ modImplementation("gay.object.hexdebug:hexdebug-fabric:0.7.0+1.20.1-SNAPSHOT")
 modImplementation("gay.object.hexdebug:hexdebug-forge:0.7.0+1.20.1-SNAPSHOT")
 ```
 
+HexDebug Core is a minimal, Java-only mod containing only the API classes required to implement debug support. The intention is for HexDebug Core to be included in other addons via Jar-in-Jar, allowing addons to implement optional debugging support in their casting environments (eg. wisps, cassettes) while minimizing the amount of overhead and added complexity from checking whether HexDebug is loaded or not. To include HexDebug Core in your mod via Jar-in-Jar, add the following to your Fabric and Forge subprojects **instead of** the above snippets:
+
+```groovy
+// Fabric
+modImplementation(include("gay.object.hexdebug:hexdebug-core-fabric:$hexdebugVersion+$minecraftVersion"))
+modLocalRuntime("gay.object.hexdebug:hexdebug-fabric:$hexdebugVersion+$minecraftVersion")
+
+// Forge (Architectury)
+modImplementation(include("gay.object.hexdebug:hexdebug-core-forge:$hexdebugVersion+$minecraftVersion"))
+modLocalRuntime("gay.object.hexdebug:hexdebug-forge:$hexdebugVersion+$minecraftVersion")
+
+// Forge (ForgeGradle)
+// see also: https://docs.minecraftforge.net/en/fg-6.x/dependencies/jarinjar/
+implementation(fg.deobf("gay.object.hexdebug:hexdebug-core-forge:$hexdebugVersion+$minecraftVersion"))
+jarJar("gay.object.hexdebug:hexdebug-core-forge:$hexdebugVersion+$minecraftVersion") {
+    transitive = false
+    jarJar.ranged(it, "[$hexdebugVersion,)")
+}
+runtimeOnly(fg.deobf("gay.object.hexdebug:hexdebug-forge:$hexdebugVersion+$minecraftVersion"))
+```
+
+Mojmap jars for `common` are also available, for use in VanillaGradle-based xplat projects:
+
+```groovy
+modImplementation("gay.object.hexdebug:hexdebug-common-mojmap:$hexdebugVersion+$minecraftVersion")
+modImplementation("gay.object.hexdebug:hexdebug-core-common-mojmap:$hexdebugVersion+$minecraftVersion")
+```
+
 Note that anything outside of the `gay.object.hexdebug.api` and `gay.object.hexdebug.core.api` packages may be changed, renamed, or removed at any time without warning. 
 
 ## Attribution
