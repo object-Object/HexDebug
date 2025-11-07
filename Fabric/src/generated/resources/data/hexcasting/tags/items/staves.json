@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "hexdebug:evaluator",
+    "hexdebug:quenched_evaluator"
+  ]
+}
