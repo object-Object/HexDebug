@@ -11,11 +11,11 @@ A [Hex Casting](https://github.com/FallingColors/HexMod) addon for debugging and
 ## Features
 
 - **Debugging**: Step through your hexes pattern-by-pattern with [vscode-hex-casting](https://marketplace.visualstudio.com/items?itemName=object-Object.hex-casting) or [any other DAP-compatible editor](https://microsoft.github.io/debug-adapter-protocol/implementors/tools/)!
+- **Editing**: Use the Splicing Table to edit hexes just like in a text editor, with buttons and keyboard shortcuts to select, move, duplicate, delete, and copy/paste iotas, and even draw patterns in a mini staff grid.
 - **Step Modes**: Use any of the well-known step modes (step in/out/over, continue, restart, stop) with the ingame item and/or through VSCode.
 - **Variables**: See the stack, ravenmind, and even some internal values like the evaluated pattern count.
 - **Call Stack**: Debug complex meta-evaluating hexes with the call stack, generated from the next continuation to be executed. Learn how Hex Casting's internals work!
 - **Breakpoints**: Set breakpoints on specific patterns, or use the Uncaught Mishaps option to pause the debugger when a mishap occurs and see what went wrong.
-- **Editing**: Use the Splicing Table to edit hexes just like in a text editor, with buttons and keyboard shortcuts to select, move, duplicate, delete, and copy/paste iotas, and even draw patterns in a mini staff grid.
 - **Multiplayer**: Debug your hexes in multiplayer! The debug client connects to a port opened by the game client (configurable, defaults to 4444), and each player can have up to one active debugger instance at a time.
 
 
