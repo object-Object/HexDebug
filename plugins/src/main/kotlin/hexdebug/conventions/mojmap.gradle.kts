@@ -47,8 +47,6 @@ private inline fun <reified T: AbstractRemapJarTask> T.setupMojmapTask(sourceTas
 
     sourceNamespace = "intermediary"
     targetNamespace = "named"
-
-    remapperIsolation = true
 }
 
 tasks {

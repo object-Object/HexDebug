@@ -24,7 +24,6 @@ repositories {
     maven { url = uri("https://maven.ladysnake.org/releases") }
     maven { url = uri("https://thedarkcolour.github.io/KotlinForForge") }
     maven { url = uri("https://maven.theillusivec4.top") }
-    maven { url = uri("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven") }
     maven { url = uri("https://maven.parchmentmc.org") }
     maven { url = uri("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1") }
     maven { url = uri("https://maven.kosmx.dev/") }

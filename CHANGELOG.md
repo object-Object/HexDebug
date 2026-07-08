@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Pydantic's HISTORY.md](https://github.com/pydantic/pydantic/blob/main/HISTORY.md), and this project *mostly* adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## `0.8.1+1.20.1` - [UNRELEASED]
+
+### Changed
+
+- Updated the minimum Kotlin version to 2.2.21.
+
+### Fixed
+
+- Updated the bundled version of Ktor to 3.3.3 to fix an incompatibility with Kotlin 2.4.0 that caused VSCode to fail to connect to HexDebug's debug server. 
+
 ## `0.8.0+1.20.1` - 2025-11-07
 
 ### Added
