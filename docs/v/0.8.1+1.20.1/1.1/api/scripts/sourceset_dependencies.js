@@ -1,0 +1,1 @@
+sourceset_dependencies = '{":Common/main":[],":hexdebug-core-common/main":[]}'

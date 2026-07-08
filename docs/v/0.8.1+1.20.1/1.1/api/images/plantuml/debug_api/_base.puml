@@ -1,0 +1,29 @@
+skinparam style strictuml
+skinparam stereotypePosition bottom
+skinparam actorStyle awesome
+
+actor User
+
+!if $debuggee != %false()
+participant Debuggee [
+    Debuggee
+    //(eg. spell circle)//
+]
+!endif
+
+participant DebugEnv << DebugEnvironment >> [
+    ""debugEnv""
+]
+
+participant API [
+    ""HexDebugCoreAPI""
+]
+
+participant Adapter [
+    Debug Adapter
+]
+
+participant Debugger [
+    Debugger
+    //("debug thread")//
+]

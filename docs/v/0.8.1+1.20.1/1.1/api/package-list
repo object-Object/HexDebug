@@ -1,0 +1,12 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:hexdebug-common
+gay.object.hexdebug.api
+gay.object.hexdebug.api.client.splicing
+gay.object.hexdebug.api.splicing
+module:hexdebug-core-common
+gay.object.hexdebug.core.api
+gay.object.hexdebug.core.api.debugging
+gay.object.hexdebug.core.api.debugging.env
+gay.object.hexdebug.core.api.exceptions

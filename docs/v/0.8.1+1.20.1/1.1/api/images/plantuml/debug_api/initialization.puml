@@ -1,0 +1,47 @@
+@startuml
+
+!include ./_base.puml
+
+title Initialization
+
+User ->> Debuggee **: start debugging
+activate Debuggee
+    Debuggee -> DebugEnv **: create
+    activate DebugEnv
+    return
+
+    Debuggee -> API ++: ""createDebugThread(debugEnv, threadId)""
+        API -> Adapter ++: create thread
+            Adapter -> Debugger **: create
+            activate Debugger
+            return
+
+            Adapter ->> User: event: thread started
+        return
+    return
+
+    Debuggee ->> Debuggee: start
+
+    ...
+
+    Debuggee -> Debuggee: pause
+
+    Debuggee -> API ++: ""startDebuggingIotas(debugEnv, ...)""
+    note left
+        this can happen immediately,
+        or after a delay; eg. a circle
+        would create the thread when
+        the impetus is activated, but
+        wait to call this method until
+        a slate is reached
+    end note
+        API -> Adapter ++: start executing
+            Adapter -> Debugger ++: start executing
+            return stopped on entry
+
+            Adapter ->> User: event: stopped on entry
+        return
+    return
+deactivate Debuggee
+
+@enduml
