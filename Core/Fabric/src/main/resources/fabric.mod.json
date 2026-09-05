@@ -13,7 +13,7 @@
   "environment": "*",
   "depends": {
     "minecraft": "${versions.minecraft}",
-    "hexcasting": ">=${versions.hexcasting_dependency}"
+    "hexcasting": ">=${versions.hexcasting}"
   },
   "custom": {
     "modmenu": {

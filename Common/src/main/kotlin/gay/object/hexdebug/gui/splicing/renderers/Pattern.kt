@@ -1,6 +1,5 @@
 package gay.`object`.hexdebug.gui.splicing.renderers
 
-import at.petrak.hexcasting.api.casting.eval.SpecialPatterns
 import at.petrak.hexcasting.api.casting.iota.IotaType
 import at.petrak.hexcasting.api.casting.iota.PatternIota
 import at.petrak.hexcasting.client.render.drawLineSeq
@@ -16,9 +15,7 @@ import gay.`object`.hexdebug.api.client.splicing.SplicingTableIotaTooltipBuilder
 import gay.`object`.hexdebug.api.splicing.SplicingTableIotaClientView
 import gay.`object`.hexdebug.config.HexDebugClientConfig
 import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
-import gay.`object`.hexdebug.utils.getWrapping
-import gay.`object`.hexdebug.utils.letPushPose
-import gay.`object`.hexdebug.utils.simpleString
+import gay.`object`.hexdebug.utils.*
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.GameRenderer
 
@@ -54,7 +51,7 @@ class PatternRenderer(
 
     private val outer = if (
         HexDebugClientConfig.config.splicingTable.enableRainbowBrackets
-        && (pattern.sigsEqual(SpecialPatterns.INTROSPECTION) || pattern.sigsEqual(SpecialPatterns.RETROSPECTION))
+        && (pattern.sigsEqual(INTROSPECTION) || pattern.sigsEqual(RETROSPECTION))
     ) {
         HexDebugClientConfig.config.splicingTable.rainbowBracketColors.getWrapping(iota.depth)
     } else {

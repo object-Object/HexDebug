@@ -394,7 +394,7 @@
               "selection/": {
                 read: {
                   "1": "移除栈顶向量，返回代表该处$(l:items/splicing_table)$(item)剪接台/$当前选中区域的两个值。",
-                  "2": "若选中一定范围的 iota，则返回两个数，分别对应起始（包含）和结束（不包含）位置。如果选中了两 iota 间的边沿，则返回边沿右侧 iota 的索引下标，同时再返回一个 $(l:casting/influences)$(thing)Null/$。如果未选中任何东西，则返回两个 $(l:casting/influences)$(thing)Null/$。",
+                  "2": "若选中一定范围的 iota，则返回两个数，分别对应起始（包含）和结束（不包含）位置。如果选中了两 iota 间的边沿，则返回边沿右侧 iota 的索引下标，同时再返回一个 $(thing)Null/$。如果未选中任何东西，则返回两个 $(thing)Null/$。",
                 },
                 write: "移除栈顶向量和两个值，按照前页描述根据所给的两个值设置该处$(l:items/splicing_table)$(item)剪接台/$的选中区域。",
               },
@@ -424,7 +424,7 @@
             "": "制念台图案",
             page: {
               "hex/": {
-                read: "移除栈顶向量，返回该处$(l:greatwork/enlightened_splicing_table)$(item)制念台/$当前融注的$(hex)咒术/$，若尚未融注则返回 $(l:casting/influences)$(thing)Null/$。",
+                read: "移除栈顶向量，返回该处$(l:greatwork/enlightened_splicing_table)$(item)制念台/$当前融注的$(hex)咒术/$，若尚未融注则返回 $(thing)Null/$。",
                 write: "移除栈顶向量和图案列表，将该列表融注到该处$(l:greatwork/enlightened_splicing_table)$(item)制念台/$中。$(br)\
                   消耗大约 5 个$(l:items/amethyst)$(item)充能紫水晶/$。",
               },

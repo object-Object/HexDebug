@@ -4,8 +4,8 @@ import at.petrak.hexcasting.api.casting.circles.BlockEntityAbstractImpetus
 import at.petrak.hexcasting.api.casting.circles.CircleExecutionState
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
-import at.petrak.hexcasting.api.casting.eval.env.PlayerBasedCastEnv.AMBIT_RADIUS
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage
+import at.petrak.hexcasting.common.lib.HexAttributes
 import gay.`object`.hexdebug.core.api.debugging.env.BaseCircleDebugEnv
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
@@ -46,7 +46,8 @@ class CircleDebugEnv(caster: ServerPlayer, val pos: BlockPos) : BaseCircleDebugE
     }
 
     override fun isCasterInRange(): Boolean {
-        return caster.distanceToSqr(pos.center) <= AMBIT_RADIUS * AMBIT_RADIUS
+        val ambitRadius = caster.getAttributeValue(HexAttributes.AMBIT_RADIUS)
+        return caster.distanceToSqr(pos.center) <= ambitRadius * ambitRadius
     }
 
     override fun getName(): Component {

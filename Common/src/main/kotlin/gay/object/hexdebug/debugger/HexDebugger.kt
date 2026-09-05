@@ -9,6 +9,7 @@ import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation.Done
 import at.petrak.hexcasting.api.casting.eval.vm.SpellContinuation.NotDone
 import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.mishaps.Mishap
+import at.petrak.hexcasting.api.casting.mishaps.MishapEvalTooMuch
 import at.petrak.hexcasting.api.casting.mishaps.MishapInternalException
 import at.petrak.hexcasting.api.casting.mishaps.MishapStackSize
 import at.petrak.hexcasting.common.casting.actions.eval.OpEval
@@ -231,7 +232,7 @@ class HexDebugger(
                 toVariable("Code", frame.code, sourceLine),
                 toVariable("Data", frame.data),
                 frame.baseStack?.let { toVariable("BaseStack", it) },
-                toVariable("Result", frame.acc),
+                toVariable("Result", frame.immutableAcc),
             ).filterNotNull()
 
             is FrameBreakpoint -> sequenceOf(
@@ -529,6 +530,13 @@ class HexDebugger(
                     result.copy(
                         newData = null,
                         sideEffects = listOf(OperatorSideEffect.DoMishap(MishapStackSize(), Mishap.Context(null, null))),
+                        resolutionType = ResolvedPatternType.ERRORED,
+                        sound = HexEvalSounds.MISHAP,
+                    )
+                } else if (newData != null && newData.opsConsumed > vm.env.maxOpCount()) {
+                    result.copy(
+                        newData = null,
+                        sideEffects = listOf(OperatorSideEffect.DoMishap(MishapEvalTooMuch(), Mishap.Context(null, null))),
                         resolutionType = ResolvedPatternType.ERRORED,
                         sound = HexEvalSounds.MISHAP,
                     )

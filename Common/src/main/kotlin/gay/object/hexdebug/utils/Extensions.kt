@@ -3,7 +3,6 @@ package gay.`object`.hexdebug.utils
 import at.petrak.hexcasting.api.HexAPI
 import at.petrak.hexcasting.api.casting.PatternShapeMatch
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
-import at.petrak.hexcasting.api.casting.eval.SpecialPatterns
 import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.math.HexPattern
 import at.petrak.hexcasting.api.casting.mishaps.MishapInvalidIota
@@ -145,8 +144,8 @@ fun Iota.toHexpatternSource(env: CastingEnvironment, wrapEmbedded: Boolean = tru
         is PatternIota -> {
             // don't wrap known patterns in angled brackets
             when (pattern.angles) {
-                SpecialPatterns.INTROSPECTION.angles -> "{"
-                SpecialPatterns.RETROSPECTION.angles -> "}"
+                INTROSPECTION.angles -> "{"
+                RETROSPECTION.angles -> "}"
                 else -> pattern.getI18nOrNull(env)?.string
             }?.let { return it }
             // but do wrap unknown ones
@@ -177,20 +176,11 @@ fun List<SplicingTableIotaClientView>.toHexpatternSource(): String {
 
 fun HexPattern.getI18nOrNull(env: CastingEnvironment): Component? {
     val hexAPI = HexAPI.instance()
-    return when (val lookup = PatternRegistryManifest.matchPattern(this, env, false)) {
+    return when (val lookup = PatternRegistryManifest.matchPattern(this, env)) {
         is PatternShapeMatch.Normal -> hexAPI.getActionI18n(lookup.key, false)
         is PatternShapeMatch.PerWorld -> hexAPI.getActionI18n(lookup.key, true)
         is PatternShapeMatch.Special -> lookup.handler.name
-        is PatternShapeMatch.Nothing -> {
-            val path = when (this.angles) {
-                SpecialPatterns.INTROSPECTION.angles -> "open_paren"
-                SpecialPatterns.RETROSPECTION.angles -> "close_paren"
-                SpecialPatterns.CONSIDERATION.angles -> "escape"
-                SpecialPatterns.EVANITION.angles -> "undo"
-                else -> return null
-            }
-            hexAPI.getRawHookI18n(HexAPI.modLoc(path))
-        }
+        is PatternShapeMatch.Nothing -> null
     }
 }
 

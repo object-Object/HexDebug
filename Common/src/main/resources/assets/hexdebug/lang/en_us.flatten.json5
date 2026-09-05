@@ -394,7 +394,7 @@
               "selection/": {
                 read: {
                   "1": "Remove a vector from the stack, then push two values representing the current selection in the $(l:items/splicing_table)$(item)Splicing Table/$ at that position.",
-                  "2": "If a range of iotas is selected, two numbers are pushed, representing the start (inclusive) and end (exclusive) of the selected range. If the edge between two iotas is selected, the index of the iota to the right of the selected edge is pushed, followed by $(l:casting/influences)$(thing)Null/$. And if nothing is selected, $(l:casting/influences)$(thing)Null/$ is pushed twice.",
+                  "2": "If a range of iotas is selected, two numbers are pushed, representing the start (inclusive) and end (exclusive) of the selected range. If the edge between two iotas is selected, the index of the iota to the right of the selected edge is pushed, followed by $(thing)Null/$. And if nothing is selected, $(thing)Null/$ is pushed twice.",
                 },
                 write: "Remove a vector and two values from the stack, then set the selection of the $(l:items/splicing_table)$(item)Splicing Table/$ at that position as previously described.",
               },
@@ -424,7 +424,7 @@
             "": "Mindsplice Table Patterns",
             page: {
               "hex/": {
-                read: "Remove a vector from the stack, then push the _Hex currently imbued to the $(l:greatwork/enlightened_splicing_table)$(item)Mindsplice Table/$ at that position, or $(l:casting/influences)$(thing)Null/$ if it has not yet been imbued.",
+                read: "Remove a vector from the stack, then push the _Hex currently imbued to the $(l:greatwork/enlightened_splicing_table)$(item)Mindsplice Table/$ at that position, or $(thing)Null/$ if it has not yet been imbued.",
                 write: "Remove a vector and list of patterns from the stack, then imbue the list of patterns into the $(l:greatwork/enlightened_splicing_table)$(item)Mindsplice Table/$ at that position.$(br)\
                   Costs about five $(l:items/amethyst)$(item)Charged Amethyst/$.",
               },

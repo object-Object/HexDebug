@@ -70,7 +70,7 @@ class SplicingTableCastEnv(
             sentinel != null
             && sentinel.extendsRange()
             && caster.level().dimension() == sentinel.dimension()
-            && isVecInRadius(vec, sentinel.position, SENTINEL_RADIUS)
+            && isVecInRadius(vec, sentinel.position, sentinelRadius)
         ) {
             return true
         }

@@ -1,5 +1,7 @@
 # HexDebug
 
+[![Translation status](https://weblate.hexxy.media/widget/hexdebug/language-badge.svg?threshold=0)](https://weblate.hexxy.media/engage/hexdebug/)
+[![Translation status](https://weblate.hexxy.media/widget/hexdebug/svg-badge.svg)](https://weblate.hexxy.media/engage/hexdebug/)
 [![powered by hexdoc](https://img.shields.io/endpoint?url=https://hexxy.media/api/v0/badge/hexdoc?label=1)](https://github.com/hexdoc-dev/hexdoc)
 
 [CurseForge](https://curseforge.com/minecraft/mc-mods/hexdebug) | [Modrinth](https://modrinth.com/mod/hexdebug)

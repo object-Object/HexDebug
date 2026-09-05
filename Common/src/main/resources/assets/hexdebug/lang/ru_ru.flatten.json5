@@ -179,7 +179,7 @@
             "": "Отладка",
             page: {
               "const/debugging": "Добавляет $(thing)Истину/$ на верхушку стэка, если исполняется $(l:items/debugging#debugger)$(item)Отладчиком/$, иначе $(thing)Ложь/$.",
-              "next_eval_index": "Добавляет индекс следующей на исполнение йоты, если исполнена $(l:items/debugging#debugger)$(item)Отладчиком/$ или $(l:items/debugging#evaluator)$(item)Исполнителем/$, иначе возвращает $(l:casting/influences)$(thing)Ничто/$.",
+              "next_eval_index": "Добавляет индекс следующей на исполнение йоты, если исполнена $(l:items/debugging#debugger)$(item)Отладчиком/$ или $(l:items/debugging#evaluator)$(item)Исполнителем/$, иначе возвращает $(thing)Ничто/$.",
               "const/cognitohazard": {
                 "1": "Добавляет $(thing)Когнитивную опасность/$ на верхушку моего стека.",
                 "2": "Похоже некоторые $(l:items/debugging#evaluator)предметы отладки/$ могут доставить хлопот в сфере безопасности некоторых $(l:patterns/meta#hexcasting:eval/cc)высокоуровневых техник/$. Чтобы это предовратить, я создал эту руну.$(br2)\

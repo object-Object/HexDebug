@@ -44,7 +44,7 @@ name = "cffi"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pycparser", marker = "implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'" },
+    { name = "pycparser", marker = "implementation_name != 'PyPy'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/eb/56/b1ba7935a17738ae8453301356628e8147c79dbb825bcbc73dc7401f9846/cffi-2.0.0.tar.gz", hash = "sha256:44d1b5909021139fe36001ae048dbdde8214afa20200eda0f64c068cac5d5529", size = 523588, upload-time = "2025-09-08T23:24:04.541Z" }
 wheels = [
@@ -385,15 +385,15 @@ wheels = [
 
 [[package]]
 name = "hexdoc-hexcasting"
-version = "0.11.2.1.0"
+version = "0.11.4.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "hexdoc" },
     { name = "hexdoc-minecraft" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/46/7b/f6ca680f8d42b89627cc6d002a7b47653842b82fbce94ff7d7fdc3f956c4/hexdoc_hexcasting-0.11.2.1.0.tar.gz", hash = "sha256:4f844db6ed064ecd630f300385420f17956684cdca09eb9a3022051f4b42e2cf", size = 973520, upload-time = "2024-11-25T19:12:46.211Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e9/09/23bcc4e9385843570f9f8a452c55ebe755fe0ad5815aca5d9d0ede7c42c1/hexdoc_hexcasting-0.11.4.1.0.tar.gz", hash = "sha256:81e676b948a3249238ca1f13129f9e08156e7efb7bc0a5d4d6a6596b455808ca", size = 1303761, upload-time = "2026-08-26T04:53:35.956Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/09/ae/13428fd8dc3ade26f56bc170cac961647313f6ba85d39d8cbb00498bfee6/hexdoc_hexcasting-0.11.2.1.0-py3-none-any.whl", hash = "sha256:6882fafba644f1c1717dc631580ca94f0cbe1ba816d84b46b6e1f5ef733c189c", size = 1384208, upload-time = "2024-11-25T19:12:43.299Z" },
+    { url = "https://files.pythonhosted.org/packages/78/8a/ce8da2b72e1041510e2ed55b0633722d5fc52f5fc4e4e1367b9033788f51/hexdoc_hexcasting-0.11.4.1.0-py3-none-any.whl", hash = "sha256:d536d359334f48373f9c89cb8a8ef2a785638f5ac79d39d65fe9e0be0edb559a", size = 1757377, upload-time = "2026-08-26T04:53:34.266Z" },
 ]
 
 [[package]]
@@ -413,8 +413,8 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "hexdoc", specifier = ">=1!0.1.0a34" },
-    { name = "hexdoc-hexcasting", specifier = "~=0.11.2.1.0" },
-    { name = "hexdoc-ioticblocks", specifier = ">=1.0.0.1.0" },
+    { name = "hexdoc-hexcasting", specifier = ">=0.11.4.1.0" },
+    { name = "hexdoc-ioticblocks", specifier = ">=1.0.2.1.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -422,14 +422,14 @@ dev = [{ name = "ruff" }]
 
 [[package]]
 name = "hexdoc-ioticblocks"
-version = "1.0.2.1.20.1.1.0"
+version = "1.0.2.1.20.1.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "hexdoc-hexcasting" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/52/bb/c2b8622a967d7d6fc9ed1f4c2b9f34a31df0e7a13a5cddd971bf9c13fff4/hexdoc_ioticblocks-1.0.2.1.20.1.1.0.tar.gz", hash = "sha256:82bea4a3f4961e214bbdc66bf1fa4b848111470cef3e7f6942855d56f2d7cc85", size = 8798, upload-time = "2025-09-19T15:50:20.479Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9b/63/c374227c071dbdf13ca8c732dcf050ac147c95d9ef6cbd7c98ab5d18cc9d/hexdoc_ioticblocks-1.0.2.1.20.1.1.1.tar.gz", hash = "sha256:2d01dc83a7a9fc4059b1930b000af0bf2d02c40c2c81ee0bacf290f168961b3e", size = 8810, upload-time = "2026-09-05T18:15:34.283Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b9/6b/6c8c79dc3926bfc7c232679140edc074ffecda3b246d695c3d5ca247ae0e/hexdoc_ioticblocks-1.0.2.1.20.1.1.0-py3-none-any.whl", hash = "sha256:9ffed77ca5343a3775850aa8b4c72c01ab6d5a7470ce0732f3b186c04cef658e", size = 11257, upload-time = "2025-09-19T15:50:18.986Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/bb/2975f1be1fa956892ffc1e403c30f85d1a79c8261c8c2d8d0dcacc73c903/hexdoc_ioticblocks-1.0.2.1.20.1.1.1-py3-none-any.whl", hash = "sha256:c01b4d9e3932f5e14e51d74e8cbee9c9f10ae5f48f29ae3ec6283f136d965801", size = 11260, upload-time = "2026-09-05T18:15:33.135Z" },
 ]
 
 [[package]]

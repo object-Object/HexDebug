@@ -41,7 +41,7 @@ side = "BOTH"
 [[dependencies.hexdebug]]
 modId = "hexcasting"
 mandatory = true
-versionRange = "[${versions.hexcasting_dependency},)"
+versionRange = "[${versions.hexcasting},)"
 ordering = "NONE"
 side = "BOTH"
 
