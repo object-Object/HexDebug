@@ -5,15 +5,14 @@
   advancement: "hexcasting:enlightenment",
   sortnum: 5,
   pages: [
-    {
-      type: "patchouli:text",
-      text: "hexdebug.category.greatwork.entry.quenching_debuggers.page.1",
-    },
+    "hexdebug.category.greatwork.entry.quenching_debuggers.page.1",
     {
       type: "patchouli:crafting",
       recipe: "hexdebug:quenched_debugger",
       recipe2: "hexdebug:quenched_evaluator",
       anchor: "debugger_evaluator",
     },
+    "hexdebug.category.greatwork.entry.quenching_debuggers.page.2",
+    "hexdebug.category.greatwork.entry.quenching_debuggers.page.3",
   ],
 }
