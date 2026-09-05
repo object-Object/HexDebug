@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Pydantic's HISTORY.md](https://github.com/pydantic/pydantic/blob/main/HISTORY.md), and this project *mostly* adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## `0.9.0+1.20.1` - 2026-09-05
+
+### Changed
+
+- Updated to Hex Casting 0.11.4.
+- Updated the minimum IoticBlocks version to 1.0.2.
+- Documented the ability to debug spell circles.
+
 ## `0.8.1+1.20.1` - 2026-07-08
 
 ### Changed
