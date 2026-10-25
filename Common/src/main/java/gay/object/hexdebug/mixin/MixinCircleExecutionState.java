@@ -7,8 +7,6 @@ import at.petrak.hexcasting.api.casting.eval.env.CircleCastEnv;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import gay.object.hexdebug.core.api.HexDebugCoreAPI;
 import gay.object.hexdebug.core.api.debugging.DebuggableCircleComponent;
 import gay.object.hexdebug.debugger.circles.CircleDebugEnv;
@@ -30,7 +28,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.HashSet;
-import java.util.List;
 
 @Mixin(CircleExecutionState.class)
 public abstract class MixinCircleExecutionState implements IMixinCircleExecutionState {
@@ -47,6 +44,9 @@ public abstract class MixinCircleExecutionState implements IMixinCircleExecution
     @Unique
     @Nullable
     private CircleDebugEnv debugEnv$hexdebug;
+    @Unique
+    @Nullable
+    private BlockPos lastExecutedPos$hexdebug;
 
     @Shadow
     @Nullable
@@ -80,11 +80,15 @@ public abstract class MixinCircleExecutionState implements IMixinCircleExecution
         var caster = getCaster(world);
         if (caster == null) return;
 
-        // we'll be executing this many times, so only energize etc the first time
-        if (!component.isEnergized(currentPos, bs, world)) {
+        // tick runs repeatedly while the debug session is paused on this component
+        // so only accept control flow when we're moving from another component to this one
+        if (lastExecutedPos$hexdebug == null || !lastExecutedPos$hexdebug.equals(currentPos)) {
+            lastExecutedPos$hexdebug = currentPos;
             bs = component.startEnergized(currentPos, bs, world);
             reachedPositions.add(currentPos);
 
+            // if the user or a breakpoint hasn't actually paused the debugger, this gets set back
+            // to false during acceptDebugControlFlow before the check below
             debugEnv$hexdebug.setPaused(true);
 
             var env = new CircleCastEnv(world, (CircleExecutionState) (Object) this);
