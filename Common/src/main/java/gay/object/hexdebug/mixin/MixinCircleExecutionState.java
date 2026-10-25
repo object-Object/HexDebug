@@ -1,5 +1,7 @@
 package gay.object.hexdebug.mixin;
 
+import at.petrak.hexcasting.api.block.circle.BlockCircleComponent;
+import at.petrak.hexcasting.api.casting.ParticleSpray;
 import at.petrak.hexcasting.api.casting.circles.BlockEntityAbstractImpetus;
 import at.petrak.hexcasting.api.casting.circles.CircleExecutionState;
 import at.petrak.hexcasting.api.casting.circles.ICircleComponent;
@@ -17,6 +19,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -100,6 +104,18 @@ public abstract class MixinCircleExecutionState implements IMixinCircleExecution
         // otherwise, do the regular tick logic
         if (debugEnv$hexdebug.isPaused()) {
             cir.setReturnValue(true);
+
+            // create a small burst of particles to show where the circle is currently paused
+            // mostly copied from ICircleComponent.sfx
+            if (bs.getBlock() instanceof BlockCircleComponent bcc) {
+                var colorizer = impetus.getPigment();
+                var outDir = bcc.normalDir(currentPos, bs, world);
+                var height = bcc.particleHeight(currentPos, bs, world);
+                var vecOutDir = new Vec3(outDir.step());
+                var vpos = Vec3.atCenterOf(currentPos).add(vecOutDir.scale(height));
+                var spray = new ParticleSpray(vpos, vecOutDir.scale(0.35), 0.2, Mth.PI / 2, 20);
+                spray.sprayParticles(world, colorizer);
+            }
         } else if (HexDebugCoreAPI.INSTANCE.getDebugEnv(caster, debugEnv$hexdebug.getSessionId()) == null) {
             cir.setReturnValue(false);
         }
