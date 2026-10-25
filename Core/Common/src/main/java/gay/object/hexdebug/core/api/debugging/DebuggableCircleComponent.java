@@ -7,15 +7,16 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public interface DebuggableCircleComponent {
     void acceptDebugControlFlow(
-        ServerPlayer caster,
-        BaseCircleDebugEnv debugEnv,
-        CastingImage imageIn,
-        CircleCastEnv env,
-        Direction enterDir,
-        BlockPos pos,
-        BlockState bs
+        @NotNull ServerPlayer caster,
+        @NotNull BaseCircleDebugEnv debugEnv,
+        @NotNull CastingImage imageIn,
+        @NotNull CircleCastEnv env,
+        @NotNull Direction enterDir,
+        @NotNull BlockPos pos,
+        @NotNull BlockState bs
     );
 }

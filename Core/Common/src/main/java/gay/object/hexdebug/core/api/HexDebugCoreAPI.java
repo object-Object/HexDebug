@@ -3,8 +3,9 @@ package gay.object.hexdebug.core.api;
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
 import at.petrak.hexcasting.api.casting.iota.Iota;
-import gay.object.hexdebug.core.api.debugging.env.DebugEnvironment;
 import gay.object.hexdebug.core.api.debugging.OutputCategory;
+import gay.object.hexdebug.core.api.debugging.SlateDebugIotasResolver;
+import gay.object.hexdebug.core.api.debugging.env.DebugEnvironment;
 import gay.object.hexdebug.core.api.exceptions.IllegalDebugSessionException;
 import gay.object.hexdebug.core.api.exceptions.IllegalDebugThreadException;
 import net.minecraft.network.chat.Component;
@@ -96,6 +97,16 @@ public interface HexDebugCoreAPI {
         @NotNull OutputCategory category,
         boolean withSource
     ) {}
+
+    /**
+     * Registers a callback to get the list of iotas to execute for a slate while debugging.
+     */
+    default void registerSlateDebugIotasResolver(@NotNull SlateDebugIotasResolver resolver) {}
+
+    @NotNull
+    default List<@NotNull SlateDebugIotasResolver> getSlateDebugIotasResolvers() {
+        return List.of();
+    }
 
     // implemented methods
 

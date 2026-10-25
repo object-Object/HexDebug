@@ -7,6 +7,7 @@ import gay.`object`.hexdebug.adapter.DebugAdapter
 import gay.`object`.hexdebug.adapter.DebugAdapterManager
 import gay.`object`.hexdebug.core.api.HexDebugCoreAPI
 import gay.`object`.hexdebug.core.api.debugging.OutputCategory
+import gay.`object`.hexdebug.core.api.debugging.SlateDebugIotasResolver
 import gay.`object`.hexdebug.core.api.debugging.env.DebugEnvironment
 import gay.`object`.hexdebug.core.api.exceptions.IllegalDebugSessionException
 import net.minecraft.network.chat.Component
@@ -15,6 +16,8 @@ import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory
 import java.util.*
 
 class HexDebugCoreAPIImpl : HexDebugCoreAPI {
+    private val registeredSlateDebugIotasResolvers = mutableListOf<SlateDebugIotasResolver>()
+
     override fun getDebugEnv(env: CastingEnvironment): DebugEnvironment? {
         return (env as IDebugEnvAccessor).`debugEnv$hexdebug`
     }
@@ -68,6 +71,12 @@ class HexDebugCoreAPIImpl : HexDebugCoreAPI {
         }
         DebugAdapterManager[caster]?.print(sessionId, message.string + "\n", categoryStr, withSource)
     }
+
+    override fun registerSlateDebugIotasResolver(resolver: SlateDebugIotasResolver) {
+        registeredSlateDebugIotasResolvers.add(resolver)
+    }
+
+    override fun getSlateDebugIotasResolvers() = registeredSlateDebugIotasResolvers.toList()
 
     private fun getAdapterOrThrow(debugEnv: DebugEnvironment): DebugAdapter {
         return DebugAdapterManager[debugEnv.caster]
