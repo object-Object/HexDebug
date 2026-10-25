@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Changed
 
+- When debugging spell circles, the active slate now continuously produces particles.
 - Updated translations from Weblate.
 
 ### Fixed
