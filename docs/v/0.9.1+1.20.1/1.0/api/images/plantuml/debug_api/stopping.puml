@@ -1,0 +1,44 @@
+@startuml
+
+!include ./_base.puml
+
+title Stopping/Restarting
+
+==Stopping==
+
+User ->> Adapter ++: request: stop
+    Adapter -> DebugEnv ++: ""isCasterInRange()""
+    return true
+
+    Adapter ->> User: event: thread exited
+
+    Adapter -> Debugger !!: remove
+
+    Adapter -> DebugEnv ++: ""terminate()""
+        DebugEnv ->> Debuggee !!: terminate
+    return
+deactivate Adapter
+
+==Restarting==
+
+User ->> Adapter ++: request: restart
+    Adapter -> DebugEnv ++: ""isCasterInRange()""
+    return true
+
+    Adapter -> Debugger !!: remove
+
+    Adapter -> DebugEnv ++: ""restart(threadId)""
+        DebugEnv ->> Debuggee: restart
+
+        DebugEnv -> API ++: ""createDebugThread(debugEnv, threadId)""
+            API -> Adapter ++: create thread
+                Adapter -> Debugger ++: create
+                return
+
+                Adapter ->> User: event: thread started
+            return
+        return
+    return
+deactivate Adapter
+
+@enduml

@@ -1,0 +1,95 @@
+!function $trim($str)
+    !while %strlen($str) > 0 && %substr($str, 0, 1) == " "
+        !$str = %substr($str, 1)
+    !endwhile
+    !while %strlen($str) > 0 && %substr($str, %strlen($str) - 1, 1) == " "
+        !$str = %substr($str, 0, %strlen($str) - 1)
+    !endwhile
+    !return $str
+!endfunction
+
+!function $strip($str, $char = " ")
+    !$result = ""
+    !$parts = %splitstr($str, $char)
+    !foreach $part in $parts
+        !$result = $result + $part
+    !endfor
+    !return $result
+!endfunction
+
+!function $split($str, $delim)
+    !$SEPARATOR = "␜"
+    !$result = ""
+    !while %strlen($str) > 0
+        !$index = %strpos($str, $delim)
+        !if $index > 0
+            !$result = $result + $trim(%substr($str, 0, $index)) + $SEPARATOR
+            !$str = %substr($str, $index + %strlen($delim))
+        !elseif $index == 0
+            !$str = %substr($str, %strlen($delim))
+        !else
+            !$result = $result + $trim($str)
+            !$str = ""
+        !endif
+    !endwhile
+    !return %splitstr($result, $SEPARATOR)
+!endfunction
+
+!function $join($parts, $delim)
+    !$result = ""
+    !foreach $part in $parts
+        !$result = $result + $delim + $part
+    !endfor
+    !return %substr($result, %strlen($delim))
+!endfunction
+
+!$id = 0
+!$display_id = 0
+!$display_suffix = ""
+
+!unquoted procedure $state($new_id, $new_suffix, $name, $text)
+    !$display_id = %intval($new_id)
+    !$display_suffix = $new_suffix
+    $state($name, $text)
+!endprocedure
+
+!unquoted procedure $state($new_id, $name, $text)
+    !$display_id = %intval($new_id)
+    !$display_suffix = ""
+    $state($name, $text)
+!endprocedure
+
+!unquoted procedure $state($name, $text)
+    !$name = "(" + $display_id + $display_suffix + ") **" + $name + "**"
+    !$body = $join($split($text, "    "), "\l")
+    !$combined = $name + "\l----\l" + $body
+    state "$combined" as $id
+    !$id = $id + 1
+    !$display_id = $display_id + 1
+!endprocedure
+
+!unquoted procedure $transition($label="", $arrow="-->", $from=-1, $to=-1)
+    !if $from == -1
+        !$from = $id - 1
+    !endif
+    !if $to == -1
+        !$to = $id
+    !endif
+    !if $label == ""
+        $from $arrow $to
+    !else
+        $from $arrow $to: $label
+    !endif
+!endprocedure
+
+!function $list($contents) !return "[" + $contents + "]"
+
+!unquoted function $section($name)
+    !return "..//" + $join(%splitstr($name, "."), "<U+002e>") + "//.."
+!endfunction
+
+!unquoted procedure $floating_note($text)
+    !$name = "label" + $id
+    state "$text" as $name ##white
+    $transition($arrow=-[hidden]->, $from=$name)
+!endprocedure

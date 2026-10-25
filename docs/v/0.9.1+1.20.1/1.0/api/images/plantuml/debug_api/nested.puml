@@ -1,0 +1,59 @@
+@startuml
+
+!$debuggee = %false()
+!include ./_base.puml
+
+title Nested Debugging
+
+participant Debuggee2 [
+    Debuggee #2
+    //(eg. cassette)//
+]
+
+participant Debugger2 [
+    Debugger #2
+]
+
+User ->> Adapter ++: request: step
+    Adapter -> DebugEnv ++: ""isCasterInRange()""
+    return true
+
+    Adapter -> Debugger ++: step
+        Debugger -> Debugger ++: execute next iota
+            Debugger -> Debuggee2 **: create
+            activate Debuggee2
+                Debuggee2 -> API ++: ""createDebugThread(debugEnv, threadId)""
+                    API -> Adapter ++: create thread
+                        Adapter -> Debugger2 **: create
+                        activate Debugger2
+                        return
+
+                        Adapter ->> User: event: thread started
+                    return
+                return
+
+                Debuggee2 ->> Debuggee2: start
+            return
+        return
+
+        Debugger -> DebugEnv ++: ""postStep(env, image, reason)""
+        return
+    return stopped on step
+
+    Adapter ->> User: event: stopped on step
+deactivate Adapter
+
+...
+
+Debuggee2 -> Debuggee2 ++: pause
+    Debuggee2 -> API ++: ""startDebuggingIotas(debugEnv, ...)""
+        API -> Adapter ++: start executing
+            Adapter -> Debugger2 ++: start executing
+            return stopped on entry
+
+            Adapter ->> User: event: stopped on entry
+        return
+    return
+deactivate Debuggee2
+
+@enduml

@@ -1,0 +1,49 @@
+@startuml
+
+title Splicing Table Iota Rendering
+
+:input: ""CompoundTag tag"";
+
+:set ""type"" to ""IotaType.getTypeFromTag(tag)"";
+
+if (is ""type"" a pattern?) then (yes)
+    :draw slate background;
+else (no)
+    :draw gold background;
+endif
+
+if (does ""type"" implement ""SplicingTableRenderable""?) then (yes)
+    :call ""type.renderer.invoke(tag)"";
+    kill
+else (no)
+endif
+
+switch (what is ""type""?)
+    case (pattern)
+        :draw pattern;
+        kill
+    case (entity)
+        :draw 3D entity;
+        kill
+    case (list)
+        if (is the list empty?) then (yes)
+            :draw ""[]"";
+            kill
+        else (no)
+            :draw ""[...]"";
+            kill
+        endif
+    case (garbage or\nnull variable)
+        :draw short version
+        of garbage text;
+        kill
+    case (vector)
+        :???;
+        kill
+    case (continuation, double,\nboolean, null iota,\nor something else)
+        :draw ""type.display(tag)""
+        (scrolling if too wide);
+        kill
+endswitch
+
+@enduml
