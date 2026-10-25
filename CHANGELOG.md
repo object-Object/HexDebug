@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Pydantic's HISTORY.md](https://github.com/pydantic/pydantic/blob/main/HISTORY.md), and this project *mostly* adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## `0.9.1+1.20.1` - 2026-10-25
+
+### Added
+
+- Added support for other addons to override the iotas that are loaded from slates when debugging spell circles.
+
+### Changed
+
+- Updated translations from Weblate.
+
+### Fixed
+
+- Fixed a bug where slates would fail to execute more than once when debugging a spell circle with loops.
+
 ## `0.9.0+1.20.1` - 2026-09-05
 
 ### Changed
